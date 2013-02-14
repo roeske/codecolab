@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>CodeColab</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/theme.css">
+    <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700,900,300italic,400italic,700italic,900italic' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="css/lib/animate.css" media="screen, projection">
+    <link rel="stylesheet" href="css/sign-in.css" type="text/css" media="screen" />
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="css/app.css" type="text/css" />
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="brand" href="/">Code Colab</a>
+                <ul class="nav">
+                    <li><a href="/profile">{{ email }}</a></li>
+                    <li><a href="/logout">Log out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <div class="chrome todo_chrome top_corners">
+            <h4>To Do</h4>
+        </div>
+
+        <ul class="todo_list">
+        {% for todo in todos %}
+            <li>
+                <p>{{ todo.created_human }}</p>
+                <p>{{ todo.text }}</p>
+                <a style="float: right" href="/delete?todo_id={{ todo._id }}">delete</a>
+                <div style="clear: both"></div>
+            </li>
+        {% endfor %}
+        </ul>
+
+
+        <div class="chrome todo_chrome bottom_corners">
+
+        <form action="/" method="POST">
+            
+            <ul style="list-style-type: none">
+                <li>
+                    <input type="text" placeholder="I'm going to..." name="text" id="text"/>
+                </li>
+                <li>
+                    <input style="float: right; margin-right: 2.6em;" type="submit" name="submit" value="submit" class="btn" />
+                </li>
+                <li style="clear: both;"></li>
+            </ul>
+        </form>
+
+        </div>
+
+        </div>
+
+    </div>
+
+
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/theme.js"></script>
+</body>
+</html>

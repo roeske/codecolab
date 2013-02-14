@@ -1,0 +1,48 @@
+/* reset some of the values from the "clear" theme we purchased */
+body { padding-top: 0px; }
+.content { margin: .5em; }
+form { margin: 0; }
+ul, ol, p, li, h1, h2, h3, h4, h5, h6, div, span { margin: 0, padding: 0 }
+
+/* app style */
+
+ul.todo_list {
+    background-color: #ccc;
+    overflow: auto;
+    height: 480px;
+}
+
+.todo_list {
+    list-style-type: none;
+    width: 20em;
+    padding: .5em;
+    margin: 0;
+}
+
+ul.todo_list li {
+    background-color: #fff;
+    border-radius: 5px;
+    border: 1px solid #bbb;
+    padding: 1em;
+    margin: .5em;
+}
+
+.chrome {
+    background-color: #aaa;
+    color: #fff;
+}
+
+.todo_chrome {
+    padding: .5em;
+    width: 20em;
+}
+    
+.top_corners {
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+}
+
+.bottom_corners {
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
