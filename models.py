@@ -7,15 +7,23 @@ from datetime import datetime
 db = SQLAlchemy(app)
     
 class Luser(db.Model):
+    """
+    Defines user table and model
+    """
+
     __tablename__ = "luser"
 
     _id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String, unique=True)
     pw_hash = db.Column(db.String, nullable=False)    
-    created = db.Column(db.DateTime, default=datetime.utcnow())
+    created = db.Column(db.DateTime, default=func.now())
 
 
 class LuserTodo(db.Model):
+    """
+    Defines user's todo-list table and model
+    """
+
     __tablename__ = "luser_todo"
 
     _id = db.Column(db.Integer, primary_key=True)
@@ -27,6 +35,21 @@ class LuserTodo(db.Model):
     @property
     def created_human(self):
         return self.created.strftime("%A, %b. %d, %Y - %I:%M %p")
+
+
+class BetaSignup(db.Model):
+    """
+    Defines a list of beta signups and keeps a flag of whether
+    they are enabled.
+    """
+
+    __tablename__ = "beta_signup"
+    
+    _id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String, nullable=False)
+    is_activated = db.Column(db.Boolean, default=False)
+    created = db.Column(db.DateTime, default=func.now())
+
 
 if __name__ == "__main__":
 

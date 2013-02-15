@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CodeColab</title>
+	<title>CodeColab &trade;</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
     <!-- Styles -->
     <link href="css/bootstrap.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/theme.css">
     <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700,900,300italic,400italic,700italic,900italic' rel='stylesheet' type='text/css'>
 
     <link rel="stylesheet" type="text/css" href="css/lib/animate.css" media="screen, projection">
-    <link rel="stylesheet" href="css/sign-up.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="css/sign-in.css" type="text/css" media="screen" />
 
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -33,24 +33,40 @@
                 <ul class="nav pull-right">
                     <li><a class="btn-header" href="contact">Contact</a>
                     <li><a class="btn-header" href="http://blog.codecolab.com/">Blog</a>
-                    <li><a class="btn-header active" href="signup">Sign up</a></li>
-                    <li><a class="btn-header" href="login">Log in</a></li>
                 </ul>
             </div>
         </div>
       </div>
     </div>
 
-
-    <!-- Sign In Option 2 -->
-    <div id="sign_up2">
+    <div id="sign_in2">
         <div class="container">
             <div class="section_header">
                 <h3></h3>
             </div>
             <div class="row login">
                 <div class="span5 left_box">
-                    <h4>Create your account</h4>
+
+                    {% with messages = get_flashed_messages() %}
+                      {% if messages %}
+                        <ul style="list-style-type: none;" class=flashes>
+                        {% for message in messages %}
+                          <li style="font-size: 2em; line-height: 1.2em;">{{ message }}</li>
+                        {% endfor %}
+                        </ul>
+
+                        {% else %}
+
+                        <h4>Sign up for the beta.</h4>
+
+                        <p> We're still working on revolutionizing remote collaboration. Sign up now and be the first to try
+                        us out when we launch.</p>
+        
+                      {% endif %}
+                    {% endwith %}
+
+
+                    <br />
 
                     <div class="perk_box">
                         <div class="perk">
@@ -67,63 +83,24 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="span6 signin_box">
                     <div class="box">
                         <div class="box_cont">
 
-                            <!--
-
-                            <div class="social">
-                                <a href="#" class="circle facebook">
-                                    <img src="img/face.png" alt="">
-                                </a>
-                                 <a href="#" class="circle twitter">
-                                    <img src="img/twt.png" alt="">
-                                </a>
-                                 <a href="#" class="circle gplus">
-                                    <img src="img/gplus.png" alt="">
-                                </a>
-                            </div>
-
-                            <div class="division">
-                                <div class="line l"></div>
-                                <span>or</span>
-                                <div class="line r"></div>
-                            </div>
-
-                            -->
-
                             <div class="form">
-                                <form action="/signup" method="POST">
+                                <form method="POST" action="/beta-signup">
 
                                     <ul style="list-style-type: none">
-
                                         <li>
-                                            <input id="email" name="email" type="email" placeholder="Email">
+                                            <input name="email" id="email" type="email" placeholder="Email">
                                             <p style="color: red">{{ email_error }}</p>
                                         </li>
-
-    
-                                        <li>
-                                            <input id="password" name="password" type="password" placeholder="Password">
-                                            <p style="color: red">{{ password_error }}</p>
+                                        
+                                        <li style="float: right; margin-right: 5em">
+                                            <input type="submit" value="Sign Up"/>
                                         </li>
 
-                                        <li>
-                                            <input id="confirm" name="confirm" type="password" placeholder="Confirm Password">
-                                        </li>
-
-                                        <li>
-                                            <input style="float: right; margin-right: 5em;" type="submit" value="sign up">
-                                        </li>
-
-                                        <li style="clear: both"></li>
-
-                                        <li style="margin-top: 1em;">
-                                            <span>Already have an account?</span>
-                                            <a href="/login">Log in</a>
-                                        </li>
+                                        <li style="clear: both;"></li>
                                     </ul>
 
                                 </form>
@@ -136,7 +113,6 @@
         </div>
     </div>  
 
-    <!-- starts footer -->
     <footer id="footer">
         <div class="container">
             <div class="row info">

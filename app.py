@@ -20,6 +20,7 @@ file_suffix_to_mimetype = {
     '.js': 'application/javascript'
 }
 
+
 @app.route("/<path:path>")
 def static_file(path):
     try:
@@ -32,6 +33,7 @@ def static_file(path):
         return flask.Response(f.read(), mimetype=file_suffix_to_mimetype[ext])
     return f.read()
 
+
 # Custom error pages
 ###############################################################################
 
@@ -39,30 +41,37 @@ def static_file(path):
 def page_not_found(e):
     return flask.render_template("404.html"), 404
 
+
 @app.errorhandler(500)
 def internal_error(e):
     return flask.render_template("500.html"), 500
+
 
 # 404 example page
 @app.route("/404")
 def error_404():
     flask.abort(404) 
 
+
 # 500 example page
 @app.route("/500")
 def error_500():
     flask.abort(500)
 
+
 ## Log out
 ###############################################################################
+
 
 @app.route("/logout")
 def logout():
     flask.session.pop("email", None)
     return flask.redirect(flask.url_for("index"))
 
+
 ## Log In
 ###############################################################################
+
 
 def perform_login(email, password):
     """
@@ -89,7 +98,33 @@ def perform_login(email, password):
     else:
         error = "Password is incorrect."
         return flask.render_template(template, password_error=error)
-    
+
+
+
+# Delete
+###############################################################################
+
+@app.route("/delete")
+def delete():
+    """
+    Handles deletion of entities.
+    """
+    if "todo_id" in flask.request.args:
+        return delete_todo(flask.request.args.get("todo_id"))
+
+    return flask.abort(500)
+
+
+def delete_todo(todo_id):
+    """
+    Deletes a todo list item by id.
+    """
+    todo = models.LuserTodo.query.filter_by(_id=todo_id).first()
+    models.db.session.delete(todo)
+    models.db.session.commit()
+    return flask.redirect(flask.url_for("index"))
+
+
 # index
 ###############################################################################
 
@@ -100,23 +135,12 @@ def render_index(email):
     return flask.render_template("index.html", email=flask.session["email"],
                 todos=todos)
 
-
-@app.route("/delete")
-def delete():
-    if "todo_id" in flask.request.args:
-        return delete_todo(flask.request.args.get("todo_id"))
-
-    return flask.abort(500)
-
-def delete_todo(todo_id):
-    todo = models.LuserTodo.query.filter_by(_id=todo_id).first()
-    models.db.session.delete(todo)
-    models.db.session.commit()
-    return flask.redirect(flask.url_for("index"))
-
 @app.route('/', methods=["POST", "GET"])
 def index():
-
+    """
+    Serves the index. Responsible for delegating to several 
+    screens based on the state and type of request.
+    """
     is_logged_in = "email" in flask.session
     
     if flask.request.method == "GET" and is_logged_in:
@@ -137,13 +161,17 @@ def index():
         models.db.session.commit()
 
         return render_index(email)
+
+    if flask.request.method == "GET" and not is_logged_in:
+        return flask.redirect(flask.url_for("beta_signup")) 
+    
     else:
         return flask.redirect(flask.url_for("login"))
 
-
+# Login
 ###############################################################################
 
-@app.route('/login', methods=["POST", "GET"])
+@app.route("/login", methods=["POST", "GET"])
 def login():
     if flask.request.method == "POST":
         # obtain form parameters
@@ -153,6 +181,35 @@ def login():
         return perform_login(email, password)
     else:
         return flask.render_template("login.html")
+
+
+## Beta Signup
+###############################################################################
+
+@app.route("/beta-signup", methods=["POST", "GET"])
+def beta_signup():
+    
+    if flask.request.method == "GET":
+        # Render the beta signup form.
+        return flask.render_template("beta-signup.html")
+
+    elif flask.request.method == "POST":
+        # Receive the POST from the signup form.
+        
+        # Create a beta signup row for this prospective tester..
+        email = flask.request.form["email"]
+        beta_signup = models.BetaSignup(email=email)
+        models.db.session.add(beta_signup)
+        models.db.session.commit()
+
+        # Show the user a message on the same page.
+        flask.flash("Thanks! We'll ping you when it's ready.")
+        # TODO: redirect to blog instead after DNS is changed.
+        return flask.redirect(flask.url_for("index"))
+
+    else:
+        # Bad request.
+        flask.abort(400)
 
 ## Signup
 ###############################################################################
@@ -165,7 +222,16 @@ def perform_signup(email, password, confirm):
     if existing is not None:
         return flask.render_template(template,
                     email_error="Email already registered.") 
-  
+ 
+    # Ensure that the user is on our beta list and is activated.
+    is_activated = (models.BetaSignup.query
+                    .filter_by(email=email, is_activated=True).first())
+
+    if is_activated is None:   
+        flask.flash("Please sign up for the beta and we'll ping you when it's"
+                    " ready.")
+        return flask.redirect(flask.url_for("index"))
+
 
     # Ensure that password is not absolutely stupid
     if len(password) < 8:
@@ -177,7 +243,7 @@ def perform_signup(email, password, confirm):
     if password != confirm:
         return flask.render_template(template, 
             password_error="Passwords do not match.")
-    
+   
     
     # So far, so good. Create a user.
     pw_hash = bcrypt.hashpw(password, bcrypt.gensalt())
@@ -187,6 +253,7 @@ def perform_signup(email, password, confirm):
 
     # If signup was successful, just log the user in.
     return perform_login(email, password)
+
 
 @app.route("/signup", methods=["POST", "GET"])
 def signup():
@@ -201,6 +268,7 @@ def signup():
         return perform_signup(email, password, confirm)
     else:
         return flask.render_template("sign-up.html") 
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', PORT))
