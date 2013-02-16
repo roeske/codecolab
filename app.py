@@ -2,14 +2,17 @@ import os
 import flask
 import models
 import bcrypt
+import json
 
 PORT = 8080
 
 import models
 app = models.app
 
+
 # Serve static files for development
 ###############################################################################
+
 
 file_suffix_to_mimetype = {
     '.css': 'text/css',
@@ -36,6 +39,7 @@ def static_file(path):
 
 # Custom error pages
 ###############################################################################
+
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -128,12 +132,63 @@ def delete_todo(todo_id):
 # index
 ###############################################################################
 
-def render_index(email):
-    luser = models.Luser.query.filter_by(email=email).first()
 
-    todos = models.LuserTodo.query.filter_by(luser_id=luser._id).all()
-    return flask.render_template("index.html", email=flask.session["email"],
-                todos=todos)
+def get_luser_for_email(email):
+    return models.Luser.query.filter_by(email=email).first()
+
+
+def get_todos_for_luser_id(luser_id):
+    """
+    Returns a user's todo ordered by their sort 'number'.
+    """
+    return (models.LuserTodo.query.filter_by(luser_id=luser_id)
+                                  .order_by(models.LuserTodo.number.asc())
+                                  .all())
+
+
+def add_todo_for_luser(email, text):
+    luser = get_luser_for_email(email)
+    todo = models.LuserTodo(luser_id=luser._id, text=text)
+    models.db.session.add(todo)
+    models.db.session.commit()
+    return render_index(email)
+
+
+def render_index(email):
+    luser = get_luser_for_email(email)
+    todos = get_todos_for_luser_id(luser._id)
+    return flask.render_template("index.html", email=email, todos=todos)
+
+def respond_with_json(obj):
+    " Helper for returning a JSON response body."
+    mimetype = "application/json;charset=UTF-8"
+    return flask.Response(json.dumps(obj), mimetype=mimetype)
+
+@app.route("/todo/reorder", methods=["POST"])
+def todo_reorder():
+    """
+    Must be called at the end of any drag on the todo list. Used to update
+    the new sort order of the todo-list in the database.
+
+    Expected POST body:
+    ------------------
+        {
+            "updates" : [
+                { 
+                    _id : <integer id>,
+                    number : <new sort position number>
+                }, ...
+            ]
+        }
+    """
+    for update in flask.request.json["updates"]:
+        _id = int(update["_id"])
+        number = int(update["number"])
+        print "id=%r, number=%r" % (_id, number)
+        models.LuserTodo.query.filter_by(_id=_id).update(dict(number=number))
+        models.db.session.commit()
+    return respond_with_json({"status" : "success" })
+
 
 @app.route('/', methods=["POST", "GET"])
 def index():
@@ -148,19 +203,10 @@ def index():
         return render_index(email)
 
     elif flask.request.method == "POST" and is_logged_in:
+        # Add a TO-DO for the logged in user.
         email = flask.session["email"]
-
-        luser = models.Luser.query.filter_by(email=email).first()
-        if luser is None:
-            return flask.abort(500)
-        
         text = flask.request.form["text"]
-
-        todo = models.LuserTodo(luser_id=luser._id, text=text)
-        models.db.session.add(todo)
-        models.db.session.commit()
-
-        return render_index(email)
+        return add_todo_for_luser(email, text)
 
     if flask.request.method == "GET" and not is_logged_in:
         return flask.redirect(flask.url_for("beta_signup")) 
@@ -170,6 +216,7 @@ def index():
 
 # Login
 ###############################################################################
+
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
@@ -213,6 +260,7 @@ def beta_signup():
 
 ## Signup
 ###############################################################################
+
 
 def perform_signup(email, password, confirm):
     template = "sign-up.html"

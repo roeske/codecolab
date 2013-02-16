@@ -1,76 +1,135 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<title>CodeColab</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <title>CodeColab</title>
     
-    <link href="css/bootstrap.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="css/theme.css">
-    <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700,900,300italic,400italic,700italic,900italic' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="css/lib/animate.css" media="screen, projection">
-    <link rel="stylesheet" href="css/sign-in.css" type="text/css" media="screen" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    
+    <link href="css/bootstrap.css" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css" href="css/theme.css"/>
+    <link href="http://fonts.googleapis.com/css?family=Lato:300,400,700,900,300italic,400italic,700italic,900italic" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" type="text/css" href="css/lib/animate.css" media="screen, projection"/>
+    <link rel="stylesheet" href="css/sign-in.css" type="text/css" media="screen"/>
+
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
     <link rel="stylesheet" href="css/app.css" type="text/css" />
-</head>
-<body>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />  
+
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/theme.js"></script>
+
+    <!-- Begin application code -->
+
+    <script type="text/javascript">
+
+$(document).ready(function() {
+    // Tracks changes in the list position
+    var that = {
+        select_items: function() {
+            return $("#todo li.todo_item").not("li.ui-sortable-placeholder")
+        },
+
+        indexes_to_sort_keys: {},
+
+        start: function(event, ui) {
+            that.indexes_to_sort_keys = {},
+            
+            // Create a map of indexes to ids, used to find the changes in the
+            // list order after the user finishes dragging the element.
+            that.select_items().each(function(index, value) {
+                var number = $(value).attr("data-number")
+                that.indexes_to_sort_keys[index] = number 
+            })
+        },
+
+        stop: function(event, ui) {
+            // Find the differences in the initial state of the list
+            // and the current state, and upload a list of ids to 
+            // set the new sort number on.
+            var updates = []
+
+            that.select_items().each(function(index, value) {
+                var _id = $(value).attr("data-id")
+                var number = that.indexes_to_sort_keys[index]
+                updates.push({ _id: _id, number: number})
+            })
+
+            // Post the updates to the "/todo/reorder" API
+            $.ajax({
+                type: "POST",
+                url: "/todo/reorder", 
+                data: JSON.stringify({updates: updates}),
+                
+                success: function(data) {
+                    console.log(JSON.stringify(data))
+                },
+
+                contentType: "application/json;charset=UTF-8"
+            })
+        }
+    }
+
+    $("#todo").sortable(that)
+
+    //$("#todo").disableSelection()
+})
+
+    </script>
+
+    <!-- End application code -->
+
+  </head>
+  <body>
     <div class="navbar">
-        <div class="navbar-inner">
-            <div class="container">
-                <a class="brand" href="/">CodeColab</a>
-                <ul class="nav">
-                    <li><a href="/profile">{{ email }}</a></li>
-                    <li><a href="/logout">Log out</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div class="content">
-
-        <div class="chrome todo_chrome top_corners">
-            <h4>To Do</h4>
-        </div>
-
-        <ul class="todo_list">
-        {% for todo in todos %}
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/">CodeColab</a>
+          <ul class="nav">
             <li>
+              <a href="/profile">{{ email }}</a>
+            </li>
+            <li>
+              <a href="/logout">Log out</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="chrome todo_chrome top_corners">
+        <h4>To Do</h4>
+      </div>
+      <ul id="todo" class="todo_list">
+
+        {% for todo in todos %}
+            <li class="todo_item" data-id="{{ todo._id }}" data-number="{{ todo.number }}"> 
                 <p>{{ todo.created_human }}</p>
                 <p>{{ todo.text }}</p>
                 <a style="float: right" href="/delete?todo_id={{ todo._id }}">delete</a>
                 <div style="clear: both"></div>
             </li>
         {% endfor %}
+
         </ul>
-
-
-        <div class="chrome todo_chrome bottom_corners">
-
+      <div class="chrome todo_chrome bottom_corners">
         <form action="/" method="POST">
-            
-            <ul style="list-style-type: none">
-                <li>
-                    <input type="text" placeholder="I'm going to..." name="text" id="text"/>
-                </li>
-                <li>
-                    <input style="float: right; margin-right: 2.6em;" type="submit" name="submit" value="submit" class="btn" />
-                </li>
-                <li style="clear: both;"></li>
-            </ul>
+          <ul style="list-style-type: none">
+            <li>
+              <input type="text" placeholder="I'm going to..." name="text" id="text"/>
+            </li>
+            <li>
+              <input style="float: right; margin-right: 2.6em;" type="submit" name="submit" value="submit" class="btn"/>
+            </li>
+            <li style="clear: both;"/>
+          </ul>
         </form>
-
-        </div>
-
-        </div>
-
+      </div>
     </div>
-
-
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/theme.js"></script>
-</body>
+  </body>
 </html>

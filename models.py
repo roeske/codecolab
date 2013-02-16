@@ -4,8 +4,10 @@ from sqlalchemy import func
 from flask.ext.sqlalchemy import SQLAlchemy
 from datetime import datetime
 
+
 db = SQLAlchemy(app)
-    
+   
+
 class Luser(db.Model):
     """
     Defines user table and model
@@ -29,7 +31,10 @@ class LuserTodo(db.Model):
     _id = db.Column(db.Integer, primary_key=True)
     luser_id = db.Column(db.Integer, db.ForeignKey(Luser._id), nullable=False)
     text = db.Column(db.String)
-    number = db.Column(db.Integer, default=0)
+    # Default this to current value of 'id' column, but we'll change it later
+    # to adjust the order of the list.
+    number = db.Column(db.Integer, default=func.currval("luser_todo__id_seq"), 
+                       unique=True)
     created = db.Column(db.DateTime, default=func.now())
 
     @property
