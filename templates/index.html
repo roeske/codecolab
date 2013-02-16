@@ -23,13 +23,15 @@
     <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/theme.js"></script>
-
     <!-- Begin application code -->
 
     <script type="text/javascript">
-
+// Run this code when the DOM is ready.
 $(document).ready(function() {
-    // Tracks changes in the list position
+
+    // Make to-do lists sortable by dragging and save changes in the database.
+    ///////////////////////////////////////////////////////////////////////////
+
     var that = {
         select_items: function() {
             return $("#todo li.todo_item").not("li.ui-sortable-placeholder")
@@ -38,8 +40,8 @@ $(document).ready(function() {
         indexes_to_sort_keys: {},
 
         start: function(event, ui) {
-            that.indexes_to_sort_keys = {},
-            
+            that.indexes_to_sort_keys = {}
+
             // Create a map of indexes to ids, used to find the changes in the
             // list order after the user finishes dragging the element.
             that.select_items().each(function(index, value) {
@@ -57,7 +59,14 @@ $(document).ready(function() {
             that.select_items().each(function(index, value) {
                 var _id = $(value).attr("data-id")
                 var number = that.indexes_to_sort_keys[index]
+
+                // Save the change to send to the server and update in the
+                // database.
                 updates.push({ _id: _id, number: number})
+
+                // Change the old data-number in the DOM to reflect the
+                // new value after the sort operation.
+                $(value).attr("data-number", number) 
             })
 
             // Post the updates to the "/todo/reorder" API
@@ -68,16 +77,18 @@ $(document).ready(function() {
                 
                 success: function(data) {
                     console.log(JSON.stringify(data))
+
+                    // Now that we've successfully moved our elems,
+                    // we mustkk
                 },
 
                 contentType: "application/json;charset=UTF-8"
             })
         }
     }
-
     $("#todo").sortable(that)
 
-    //$("#todo").disableSelection()
+    ///////////////////////////////////////////////////////////////////////////
 })
 
     </script>
