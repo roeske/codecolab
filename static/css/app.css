@@ -6,20 +6,19 @@ ul, ol, p, li, h1, h2, h3, h4, h5, h6, div, span { margin: 0, padding: 0 }
 
 /* app style */
 
-ul.todo_list {
+
+ul.card_list {
     background-color: #ccc;
-    overflow: auto;
-    height: 480px;
 }
 
-.todo_list {
+.card_list {
     list-style-type: none;
     width: 20em;
     padding: .5em;
     margin: 0;
 }
 
-ul.todo_list li {
+ul.card_list li {
     background-color: #fff;
     border-radius: 5px;
     border: 1px solid #bbb;
@@ -37,6 +36,27 @@ ul.todo_list li {
     width: 20em;
 }
     
+.minimalist_container {
+    width: 20em;
+}
+
+.minimalist_bottom {
+    border-top: 1px solid #ccc;
+    padding-top: .5em;
+}
+
+.minimalist_top{
+    border-bottom: 1px solid #ccc;
+    padding-bottom: .5em;
+}
+
+.minimalist_container h1, h2, h3, h4, h5, h6 {
+    color: #666;
+    font-weight: 500;
+    width: 20em;
+}
+
+
 .top_corners {
     border-top-right-radius: 5px;
     border-top-left-radius: 5px;
@@ -46,3 +66,17 @@ ul.todo_list li {
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
 }
+
+ul.project_list, ul.card_list {
+    overflow: auto;
+    height: 480px;
+    width: 20em;
+    padding: 0;
+    margin: 0;
+}
+
+.project_item {
+    padding: 1em;
+    border-bottom: 1px solid #ccc;
+}
+

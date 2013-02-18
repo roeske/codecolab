@@ -3,12 +3,11 @@ import flask
 import models
 import bcrypt
 import json
-
-PORT = 8080
-
 import models
+
 app = models.app
 
+PORT = 8080
 
 # Serve static files for development
 ###############################################################################
@@ -70,7 +69,7 @@ def error_500():
 @app.route("/logout")
 def logout():
     flask.session.pop("email", None)
-    return flask.redirect(flask.url_for("index"))
+    return redirect_to_index()
 
 
 ## Log In
@@ -104,7 +103,6 @@ def perform_login(email, password):
         return flask.render_template(template, password_error=error)
 
 
-
 # Delete
 ###############################################################################
 
@@ -113,59 +111,118 @@ def delete():
     """
     Handles deletion of entities.
     """
-    if "todo_id" in flask.request.args:
-        return delete_todo(flask.request.args.get("todo_id"))
+    if "card_id" in flask.request.args:
+        return delete_card(flask.request.args.get("card_id"))
 
     return flask.abort(500)
 
 
-def delete_todo(todo_id):
+def delete_card(card_id):
     """
     Deletes a todo list item by id.
     """
-    todo = models.LuserTodo.query.filter_by(_id=todo_id).first()
+    todo = models.Card.query.filter_by(_id=card_id).first()
     models.db.session.delete(todo)
     models.db.session.commit()
     return flask.redirect(flask.url_for("index"))
 
 
-# index
+# Add Project
 ###############################################################################
 
+
+@app.route("/project/add", methods=["POST"])
+def project_add():
+    form = flask.request.form
+    if "project_name" in form and "email" in form:
+        email = form["email"]
+        project_name = form["project_name"]
+        return perform_project_add(email, project_name)
+    else:
+        print "[EE] Missing parameters."
+        return flask.abort(400)
+
+
+def perform_project_add(email, project_name):
+    luser = get_luser_for_email(email)
+    if luser is None:
+        return flask.abort(400)
+
+    project_name = project_name.strip()
+    if len(project_name) == 0:
+        print "[WW] client attempted to create project with blank name."
+        return redirect_to_index()
+
+    # Create a new project
+    project = models.Project(name=project_name)
+    models.db.session.add(project)
+    models.db.session.flush()
+
+    # Add the creator to this project as the project owner.
+    project_luser = models.ProjectLuser(luser_id=luser._id, 
+                                        project_id=project._id,
+                                        is_owner=True)
+
+    models.db.session.add(project_luser)
+    models.db.session.commit()
+
+    # Return to the project selection (Which is currently the index.)
+    return redirect_to_index()
+
+
+# Convenience Methods 
+###############################################################################
+
+def redirect_to(page):
+    return flask.redirect(flask.url_for(page))
+
+def redirect_to_index():
+    return redirect_to("index")
 
 def get_luser_for_email(email):
     return models.Luser.query.filter_by(email=email).first()
 
 
-def get_todos_for_luser_id(luser_id):
-    """
-    Returns a user's todo ordered by their sort 'number'.
-    """
-    return (models.LuserTodo.query.filter_by(luser_id=luser_id)
-                                  .order_by(models.LuserTodo.number.asc())
-                                  .all())
+def get_projects_for_luser_id(luser_id):
+    return (models.Project.query.join(models.Project.lusers)
+                          .filter(models.Luser._id==luser_id)).all()
 
 
-def add_todo_for_luser(email, text):
+def add_card_for_luser(email, text):
     luser = get_luser_for_email(email)
-    todo = models.LuserTodo(luser_id=luser._id, text=text)
+    todo = models.Card(luser_id=luser._id, text=text)
     models.db.session.add(todo)
     models.db.session.commit()
     return render_index(email)
 
 
+# Views 
+###############################################################################
+
 def render_index(email):
+    return render_project_selection(email)
+
+
+def render_project_selection(email):
     luser = get_luser_for_email(email)
-    todos = get_todos_for_luser_id(luser._id)
-    return flask.render_template("index.html", email=email, todos=todos)
+    projects = get_projects_for_luser_id(luser._id)
+    return flask.render_template("project_selection.html", email=email, projects=projects)
+
+
+def render_project(email, project_id):
+    luser = get_luser_for_email(email)
+    project = get_project(project_id)
+    return flask.render_template("project.html", email=email, project=project)
+
 
 def respond_with_json(obj):
     " Helper for returning a JSON response body."
     mimetype = "application/json;charset=UTF-8"
     return flask.Response(json.dumps(obj), mimetype=mimetype)
 
+
 @app.route("/todo/reorder", methods=["POST"])
-def todo_reorder():
+def card_reorder():
     """
     Must be called at the end of any drag on the todo list. Used to update
     the new sort order of the todo-list in the database.
@@ -184,8 +241,7 @@ def todo_reorder():
     for update in flask.request.json["updates"]:
         _id = int(update["_id"])
         number = int(update["number"])
-        print "id=%r, number=%r" % (_id, number)
-        models.LuserTodo.query.filter_by(_id=_id).update(dict(number=number))
+        models.Card.query.filter_by(_id=_id).update(dict(number=number))
         models.db.session.commit()
     return respond_with_json({"status" : "success" })
 
@@ -206,13 +262,13 @@ def index():
         # Add a TO-DO for the logged in user.
         email = flask.session["email"]
         text = flask.request.form["text"]
-        return add_todo_for_luser(email, text)
+        return add_card_for_luser(email, text)
 
     if flask.request.method == "GET" and not is_logged_in:
-        return flask.redirect(flask.url_for("beta_signup")) 
+        return redirect_to("beta_signup") 
     
     else:
-        return flask.redirect(flask.url_for("login"))
+        return redirect_to("login")
 
 # Login
 ###############################################################################
@@ -235,7 +291,6 @@ def login():
 
 @app.route("/beta-signup", methods=["POST", "GET"])
 def beta_signup():
-    
     if flask.request.method == "GET":
         # Render the beta signup form.
         return flask.render_template("beta-signup.html")
@@ -252,7 +307,7 @@ def beta_signup():
         # Show the user a message on the same page.
         flask.flash("Thanks! We'll ping you when it's ready.")
         # TODO: redirect to blog instead after DNS is changed.
-        return flask.redirect(flask.url_for("index"))
+        return redirect_to("index")
 
     else:
         # Bad request.
@@ -278,7 +333,7 @@ def perform_signup(email, password, confirm):
     if is_activated is None:   
         flask.flash("Please sign up for the beta and we'll ping you when it's"
                     " ready.")
-        return flask.redirect(flask.url_for("index"))
+        return redirect_to_index()
 
 
     # Ensure that password is not absolutely stupid
