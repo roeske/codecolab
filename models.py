@@ -46,7 +46,8 @@ class Project(db.Model):
     created = db.Column(db.DateTime, default=func.now())
 
     lusers  = db.relationship("Luser", secondary=ProjectLuser.__table__)
-
+    cards   = db.relationship("Card", order_by=lambda: Card.number)
+    
     @property
     def urlencoded_name(self):
         return quote(self.name)
@@ -64,13 +65,12 @@ class Card(db.Model):
 
     _id         = db.Column(db.Integer, primary_key=True)
     project_id  = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False) 
-    luser_id    = db.Column(db.Integer, db.ForeignKey(Luser._id), nullable=False)
     text        = db.Column(db.String)
 
     # Default this to current value of 'id' column, but we'll change it later
     # to adjust the order of the list.
-    number = db.Column(db.Integer, default=func.currval("luser_todo__id_seq"), 
-                       unique=True)
+    number = db.Column(db.Integer, default=func.currval("card__id_seq"))
+
     created = db.Column(db.DateTime, default=func.now())
 
     @property

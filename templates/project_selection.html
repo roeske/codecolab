@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CodeColab</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link href="css/bootstrap.css" rel="stylesheet"/>
+        <link rel="stylesheet" type="text/css" href="css/theme.css"/>
+        <link href="http://fonts.googleapis.com/css?family=Lato:300,400,700,900,300italic,400italic,700italic,900italic" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" type="text/css" href="css/lib/animate.css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/sign-in.css" type="text/css" media="screen"/>
+        <!--[if lt IE 9]>
+            <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css"/>
+        <link rel="stylesheet" href="css/app.css" type="text/css"/>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"/>
+        <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"/>
+        <script type="text/javascript" src="js/bootstrap.min.js"/>
+        <script type="text/javascript" src="js/theme.js"/>
+        <!-- Begin application code -->
+        <script type="text/javascript">
+// Run this code when the DOM is ready.
+$(document).ready(function() {
+})
+///////////////////////////////////////
+        </script>
+        <!-- End application code -->
+    </head>
+    <body>
+        <div class="navbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="/">CodeColab</a>
+                    <ul style="float: right;" class="nav">
+                        <li>
+                            <a href="/profile">{{ email }}</a>
+                        </li>
+                        <li>
+                            <a href="/logout">Log out</a>
+                        </li>
+                    </ul>
+                    <div style="clear: both;"/>
+                </div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="minimalist_container minimalist_top">
+                <h4>Projects</h4>
+            </div>
+
+            <ul id="project" class="project_list">
+                {% for project in projects %}
+                    <li class="project_item" data-id="{{ project._id }}">
+                        <a href="/project/{{ project.urlencoded_name }}">{{ project.name }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <div class="minimalist_container minimalist_bottom">
+                <form action="/project/add" method="POST">
+                    <ul style="list-style-type: none">
+                        <li>
+                            <input type="text" placeholder="Project Name" name="project_name" id="project_name"/>
+                        </li>
+                        <li>
+                            <input style="float: right; margin-right: 2.6em;" type="submit" name="submit" value="Add Project" class="btn"/>
+                        </li>
+                        <li style="clear: both;"/>
+                    </ul>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

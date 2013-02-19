@@ -1,0 +1,149 @@
+<?xml version="1.0"?>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CodeColab</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+        <link href="http://fonts.googleapis.com/css?family=Lato:300,400,700,900,300italic,400italic,700italic,900italic" rel="stylesheet" type="text/css"/>
+        
+        <link href="/css/lib/animate.css" rel="stylesheet" type="text/css"  media="screen, projection"/>
+        <link href="/css/sign-in.css" rel="stylesheet"  type="text/css" media="screen"/>
+        <link href="/css/bootstrap.css" rel="stylesheet"/>
+        <link href="/css/theme.css" rel="stylesheet" type="text/css" />
+
+        <!--[if lt IE 9]>
+            <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <link href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" type="text/css" rel="stylesheet"/>
+        <link href="/css/app.css" type="text/css" rel="stylesheet"/>
+
+        <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+        <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
+        <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/js/theme.js"></script>
+
+        <!-- Begin application code -->
+        <script type="text/javascript">
+// Run this code when the DOM is ready.
+$(document).ready(function() {
+
+    // Make to-do lists sortable by dragging and save changes in the database.
+    ///////////////////////////////////////////////////////////////////////////
+
+    var that = {
+        select_items: function() {
+            return $("#cards li.card_item").not("li.ui-sortable-placeholder")
+        },
+
+        indexes_to_sort_keys: {},
+
+        start: function(event, ui) {
+            that.indexes_to_sort_keys = {}
+
+            // Create a map of indexes to ids, used to find the changes in the
+            // list order after the user finishes dragging the element.
+            that.select_items().each(function(index, value) {
+                var number = $(value).attr("data-number")
+                that.indexes_to_sort_keys[index] = number 
+            })
+        },
+
+        stop: function(event, ui) {
+            // Find the differences in the initial state of the list
+            // and the current state, and upload a list of ids to 
+            // set the new sort number on.
+            var updates = []
+
+            that.select_items().each(function(index, value) {
+                var _id = $(value).attr("data-id")
+                var number = that.indexes_to_sort_keys[index]
+
+                // Save the change to send to the server and update in the
+                // database.
+                updates.push({ _id: _id, number: number})
+
+                // Change the old data-number in the DOM to reflect the
+                // new value after the sort operation.
+                $(value).attr("data-number", number) 
+            })
+
+            // Post the updates to the "/cards/reorder" API
+            $.ajax({
+                type: "POST",
+                url: "/cards/reorder", 
+                data: JSON.stringify({updates: updates}),
+                
+                success: function(data) {
+                    console.log(JSON.stringify(data))
+                },
+
+                contentType: "application/json;charset=UTF-8"
+            })
+        }
+    }
+
+    $("#cards").sortable(that)
+
+    ///////////////////////////////////////////////////////////////////////////
+})
+
+        </script>
+        <!-- End application code -->
+    </head>
+    <body>
+        <div class="navbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="/">CodeColab</a>
+                    <ul style="float: right" class="nav">
+                        <li>
+                            <a href="/profile">{{ email }}</a>
+                        </li>
+                        <li>
+                            <a href="/logout">Log out</a>
+                        </li>
+                    </ul>
+                    <div style="clear: both;"/>
+                </div>
+            </div>
+        </div>
+        <div class="content">
+            <h1>{{ project.name }}</h1>
+
+            <div class="chrome card_chrome top_corners">
+                <h4>Cards</h4>
+            </div>
+
+            <ul id="cards" class="card_list">
+
+                {% for card in project.cards %}
+                    <li class="card_item" data-id="{{ card._id }}" data-number="{{ card.number }}">
+                    
+                    <p>{{ card.created_human }}</p>
+                    <p>{{ card.text }}</p>
+                    
+                    <a style="float: right" href="/delete?card_id={{ card._id }}&project_name={{ project.urlencoded_name }}">delete</a>
+                    <div style="clear: both"/></li>
+                {% endfor %}
+            </ul>
+
+            <div class="chrome card_chrome bottom_corners">
+                <form action="/cards/add" method="POST">
+                    <input type="hidden" name="project_name" value="{{ project.name }}" />
+
+                    <ul style="list-style-type: none">
+                        <li>
+                            <input type="text" placeholder="I'm going to..." name="text" id="text"/>
+                        </li>
+                        <li>
+                            <input style="float: right; margin-right: 2.6em;" type="submit" name="submit" value="submit" class="btn"/>
+                        </li>
+                        <li style="clear: both;"/>
+                    </ul>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

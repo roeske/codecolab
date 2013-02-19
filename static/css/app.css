@@ -8,7 +8,7 @@ ul, ol, p, li, h1, h2, h3, h4, h5, h6, div, span { margin: 0, padding: 0 }
 
 
 ul.card_list {
-    background-color: #ccc;
+    background-color: #dfdfdf;
 }
 
 .card_list {
@@ -31,9 +31,9 @@ ul.card_list li {
     color: #fff;
 }
 
-.todo_chrome {
-    padding: .5em;
-    width: 20em;
+.card_chrome {
+    padding: .5em 0 .5em .5em;
+    width: 19.5em;
 }
     
 .minimalist_container {
@@ -50,10 +50,11 @@ ul.card_list li {
     padding-bottom: .5em;
 }
 
-.minimalist_container h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6 {
     color: #666;
     font-weight: 500;
     width: 20em;
+    font-size: 120%;
 }
 
 

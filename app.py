@@ -4,10 +4,16 @@ import models
 import bcrypt
 import json
 import models
+from sqlalchemy import and_
 
 app = models.app
 
 PORT = 8080
+
+
+def is_logged_in():
+    return "email" in flask.session
+
 
 # Serve static files for development
 ###############################################################################
@@ -111,20 +117,58 @@ def delete():
     """
     Handles deletion of entities.
     """
-    if "card_id" in flask.request.args:
-        return delete_card(flask.request.args.get("card_id"))
+    args = flask.request.args
 
-    return flask.abort(500)
+    
+    if is_logged_in() and "card_id" in args and "project_name" in args:
+        email = flask.session["email"]
+        card_id = args.get("card_id")
+        project_name = args.get("project_name")
+        return perform_delete_card(email, card_id, project_name)
+                                    
+    print "[EE] Insufficient parameters."
+    return flask.abort(400)
 
 
-def delete_card(card_id):
+def perform_delete_card(email, card_id, project_name):
     """
-    Deletes a todo list item by id.
+    Deletes a card list item by id. Performs basic security checks
+    first.
     """
-    todo = models.Card.query.filter_by(_id=card_id).first()
-    models.db.session.delete(todo)
+   
+    # Resolve the user
+    luser = models.Luser.query.filter_by(email=email).first()
+    if luser is None:
+        print "[EE] No such user for email=%r" % email
+        return flask.abort(404)
+
+    # Resolve the project
+    project = models.Project.query.filter_by(name=project_name).first()
+    if project is None:
+        print "[EE] No such project for name=%r" % project_name
+        return flask.abort(404)
+
+    # Assert that the user is a member of this project
+    if luser not in project.lusers:
+        print "[EE] User is not a member of this project."
+        return flask.abort(403)
+
+    # Resolve the card
+    card = models.Card.query.filter_by(_id=card_id).first()
+    if card is None:
+        print "[EE] No such card for _id=%r" % card_id
+        return flask.abort(404)
+
+    # Assert that this card belongs to the resolved project
+    if card.project_id != project._id:
+        print "[EE] Card does not belong to the specified project."
+        return flask.abort(403)
+
+    # Looks OK, lets delete it
+    card = models.Card.query.filter_by(_id=card_id).first()
+    models.db.session.delete(card)
     models.db.session.commit()
-    return flask.redirect(flask.url_for("index"))
+    return redirect_to("project", name=project_name)
 
 
 # Add Project
@@ -134,10 +178,17 @@ def delete_card(card_id):
 @app.route("/project/add", methods=["POST"])
 def project_add():
     form = flask.request.form
-    if "project_name" in form and "email" in form:
-        email = form["email"]
+    logged_in = is_logged_in()
+
+    if "project_name" in form and logged_in:
+        email = flask.session["email"]
         project_name = form["project_name"]
         return perform_project_add(email, project_name)
+
+    elif not logged_in:
+        print "[EE] Must be logged in."
+        return flask.abort(403)
+
     else:
         print "[EE] Missing parameters."
         return flask.abort(400)
@@ -146,7 +197,8 @@ def project_add():
 def perform_project_add(email, project_name):
     luser = get_luser_for_email(email)
     if luser is None:
-        return flask.abort(400)
+        print "[EE] No user found for email=%r" % email
+        return flask.abort(404)
 
     project_name = project_name.strip()
     if len(project_name) == 0:
@@ -173,11 +225,15 @@ def perform_project_add(email, project_name):
 # Convenience Methods 
 ###############################################################################
 
-def redirect_to(page):
-    return flask.redirect(flask.url_for(page))
+
+def redirect_to(page, **kwargs):
+    url = flask.url_for(page, **kwargs)
+    return flask.redirect(url)
+
 
 def redirect_to_index():
     return redirect_to("index")
+
 
 def get_luser_for_email(email):
     return models.Luser.query.filter_by(email=email).first()
@@ -187,17 +243,6 @@ def get_projects_for_luser_id(luser_id):
     return (models.Project.query.join(models.Project.lusers)
                           .filter(models.Luser._id==luser_id)).all()
 
-
-def add_card_for_luser(email, text):
-    luser = get_luser_for_email(email)
-    todo = models.Card(luser_id=luser._id, text=text)
-    models.db.session.add(todo)
-    models.db.session.commit()
-    return render_index(email)
-
-
-# Views 
-###############################################################################
 
 def render_index(email):
     return render_project_selection(email)
@@ -209,23 +254,20 @@ def render_project_selection(email):
     return flask.render_template("project_selection.html", email=email, projects=projects)
 
 
-def render_project(email, project_id):
-    luser = get_luser_for_email(email)
-    project = get_project(project_id)
-    return flask.render_template("project.html", email=email, project=project)
-
-
 def respond_with_json(obj):
     " Helper for returning a JSON response body."
     mimetype = "application/json;charset=UTF-8"
     return flask.Response(json.dumps(obj), mimetype=mimetype)
 
 
-@app.route("/todo/reorder", methods=["POST"])
+# Cards
+##############################################################################
+
+@app.route("/cards/reorder", methods=["POST"])
 def card_reorder():
     """
-    Must be called at the end of any drag on the todo list. Used to update
-    the new sort order of the todo-list in the database.
+    Must be called at the end of any drag on the card list. Used to update
+    the new sort order of the card-list in the database.
 
     Expected POST body:
     ------------------
@@ -238,44 +280,148 @@ def card_reorder():
             ]
         }
     """
+
+    print "%r" % flask.request.json
     for update in flask.request.json["updates"]:
         _id = int(update["_id"])
         number = int(update["number"])
+        card = models
+        print "[DD] update=%r" % update
         models.Card.query.filter_by(_id=_id).update(dict(number=number))
-        models.db.session.commit()
+    
+    models.db.session.commit()
     return respond_with_json({"status" : "success" })
 
 
-@app.route('/', methods=["POST", "GET"])
+def perform_add_card(email, project_name, text):
+
+    luser = get_luser_for_email(email)
+    if luser is None:
+        print "[EE] No user for email=%r" % email
+        return flask.abort(404)
+
+    params = (project_name, luser._id)
+    project = get_project(*params)
+    if project is None:
+        print "[EE] No project found for name=%r and luser_id=%r" % params
+        return flask.abort(404)
+
+    card = models.Card(project_id=project._id, text=text)
+    models.db.session.add(card)
+    models.db.session.commit()
+
+    return redirect_to("project", name=project_name)
+
+
+@app.route("/cards/add", methods=["POST"])
+def card_add():
+    logged_in = is_logged_in()
+    has_all_params = True
+
+    if "email" in flask.session:
+        email = flask.session["email"]
+    else:
+        # do not set has_all_params to true here. We're using email
+        # as a session token.
+        email = None
+
+    form = flask.request.form
+
+    if "project_name" in form:
+        project_name = form["project_name"]
+    else:
+        has_all_params = False
+        project_name = None
+
+    if "text" in form:
+        text = form["text"]
+    else:
+        has_all_params = False
+        text = None
+
+    if logged_in and has_all_params:
+        return perform_add_card(email, project_name, text)
+
+    elif not logged_in and has_all_params:
+        print "[EE] Requires login."
+        return flask.abort(403)
+
+    else:
+        print "[EE] Insufficient parameters."
+        return flask.abort(400)
+
+
+# Project
+###############################################################################
+
+def get_project(project_name, luser_id):
+    """
+    Obtains a project if and only if the name matches, and the luser is a
+    member.
+    """
+    query = models.Project.query
+
+    return  (query.filter(and_(models.Project.name==str(project_name),
+                             models.ProjectLuser.luser_id==luser_id,
+                             models.ProjectLuser.project_id==models.Project._id))
+                  .first())
+
+
+def render_project(project_name, email):
+     
+    luser = get_luser_for_email(email)
+    if luser is None:
+        print "[EE] No user found for email=%r" % email
+        return flask.abort(404)
+
+    project = get_project(project_name, luser._id)
+    if project is None:
+        params = (project_name, luser._id)
+        print "[EE] No project found for name=%r and luser_id=%r" % params
+        return flask.abort(404)
+
+    return flask.render_template("project.html", email=email, project=project)
+
+
+@app.route("/project/<name>")
+def project(name):
+    if is_logged_in():        
+        email = flask.session["email"]
+        return render_project(name, email)
+    else:
+        print "[EE] Must be logged in."
+        return flask.abort(403)
+
+
+# Index
+###############################################################################
+
+@app.route("/", methods=["POST", "GET"])
 def index():
     """
     Serves the index. Responsible for delegating to several 
     screens based on the state and type of request.
     """
-    is_logged_in = "email" in flask.session
-    
-    if flask.request.method == "GET" and is_logged_in:
+   
+    logged_in = is_logged_in()
+
+    if flask.request.method == "GET" and logged_in: 
         email = flask.session["email"]
         return render_index(email)
 
-    elif flask.request.method == "POST" and is_logged_in:
-        # Add a TO-DO for the logged in user.
-        email = flask.session["email"]
-        text = flask.request.form["text"]
-        return add_card_for_luser(email, text)
-
-    if flask.request.method == "GET" and not is_logged_in:
+    if flask.request.method == "GET" and not logged_in:
         return redirect_to("beta_signup") 
     
     else:
         return redirect_to("login")
 
+
 # Login
 ###############################################################################
 
-
 @app.route("/login", methods=["POST", "GET"])
 def login():
+
     if flask.request.method == "POST":
         # obtain form parameters
         email = flask.request.form["email"]
@@ -315,7 +461,6 @@ def beta_signup():
 
 ## Signup
 ###############################################################################
-
 
 def perform_signup(email, password, confirm):
     template = "sign-up.html"
