@@ -4,7 +4,9 @@ import models
 import bcrypt
 import json
 import models
+
 from sqlalchemy import and_
+from md5 import md5
 
 app = models.app
 
@@ -66,6 +68,54 @@ def error_404():
 @app.route("/500")
 def error_500():
     flask.abort(500)
+
+
+# Convenience Methods 
+###############################################################################
+
+def make_gravatar_url(email):
+    email_hash = md5(email.strip().lower()).hexdigest()
+    return "http://gravatar.com/avatar/%s" % email_hash
+
+
+def make_gravatar_profile_url(email):
+    email_hash = md5(email.strip().lower()).hexdigest()
+    return "http://gravatar.com/%s" % email_hash
+
+
+def redirect_to(page, **kwargs):
+    url = flask.url_for(page, **kwargs)
+    return flask.redirect(url)
+
+
+def redirect_to_index():
+    return redirect_to("index")
+
+
+def get_luser_for_email(email):
+    return models.Luser.query.filter_by(email=email).first()
+
+
+def get_projects_for_luser_id(luser_id):
+    return (models.Project.query.join(models.Project.lusers)
+                          .filter(models.Luser._id==luser_id)).all()
+
+
+def render_index(email, **kwargs):
+    return render_project_selection(email, **kwargs)
+
+
+def render_project_selection(email, **kwargs):
+    luser = get_luser_for_email(email)
+    projects = get_projects_for_luser_id(luser._id)
+    return flask.render_template("project_selection.html", email=email,
+                                 projects=projects, **kwargs)
+
+
+def respond_with_json(obj):
+    " Helper for returning a JSON response body."
+    mimetype = "application/json;charset=UTF-8"
+    return flask.Response(json.dumps(obj), mimetype=mimetype)
 
 
 ## Log out
@@ -222,44 +272,6 @@ def perform_project_add(email, project_name):
     return redirect_to_index()
 
 
-# Convenience Methods 
-###############################################################################
-
-
-def redirect_to(page, **kwargs):
-    url = flask.url_for(page, **kwargs)
-    return flask.redirect(url)
-
-
-def redirect_to_index():
-    return redirect_to("index")
-
-
-def get_luser_for_email(email):
-    return models.Luser.query.filter_by(email=email).first()
-
-
-def get_projects_for_luser_id(luser_id):
-    return (models.Project.query.join(models.Project.lusers)
-                          .filter(models.Luser._id==luser_id)).all()
-
-
-def render_index(email):
-    return render_project_selection(email)
-
-
-def render_project_selection(email):
-    luser = get_luser_for_email(email)
-    projects = get_projects_for_luser_id(luser._id)
-    return flask.render_template("project_selection.html", email=email, projects=projects)
-
-
-def respond_with_json(obj):
-    " Helper for returning a JSON response body."
-    mimetype = "application/json;charset=UTF-8"
-    return flask.Response(json.dumps(obj), mimetype=mimetype)
-
-
 # Cards
 ##############################################################################
 
@@ -380,7 +392,13 @@ def render_project(project_name, email):
         print "[EE] No project found for name=%r and luser_id=%r" % params
         return flask.abort(404)
 
-    return flask.render_template("project.html", email=email, project=project)
+    gravatar_url = make_gravatar_url(email)
+    profile_url = make_gravatar_profile_url(email)
+
+    return flask.render_template("project.html", email=email, project=project,
+                                                 gravatar_url=gravatar_url,
+                                                 profile_url=profile_url)
+
 
 
 @app.route("/project/<name>")
@@ -407,7 +425,9 @@ def index():
 
     if flask.request.method == "GET" and logged_in: 
         email = flask.session["email"]
-        return render_index(email)
+
+        return render_index(email, gravatar_url=make_gravatar_url(email),
+                                   profile_url=make_gravatar_profile_url(email))
 
     if flask.request.method == "GET" and not logged_in:
         return redirect_to("beta_signup") 
