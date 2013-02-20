@@ -1,20 +1,23 @@
-/* reset some of the values from the "clear" theme we purchased */
-body { padding-top: 0px; }
-.content { margin: .5em; }
-form { margin: 0; }
-ul, ol, p, li, h1, h2, h3, h4, h5, h6, div, span { margin: 0, padding: 0 }
+/* reset **********************************************************************/
+html, body { width: 100%; height: 100%; padding: 0; margin 0; }
+ul, ol, p, li, h1, h2, h3, h4, h5, h6, div, span { margin: 0, padding: 0; }
+form { padding-right: .35em; }
+/*****************************************************************************/
 
-/* app style */
+.card_item a.delete {
+    float: right;
+}
 
+.card_item p.text {
+    font-size: 110%;
+}
 
-ul.card_list {
-    background-color: #dfdfdf;
+.card_item p.date {
+    font-size: 75%;
 }
 
 .card_list {
     list-style-type: none;
-    width: 20em;
-    padding: .5em;
     margin: 0;
 }
 
@@ -22,41 +25,42 @@ ul.card_list li {
     background-color: #fff;
     border-radius: 5px;
     border: 1px solid #bbb;
-    padding: 1em;
-    margin: .5em;
+    padding: .35em;
+    margin: .1em;
 }
 
-.chrome {
+.pile_container {
     background-color: #ccc;
-    color: #fff;
+    border-radius: 5px;
+}
+ 
+.pile_chrome_top {
+    padding: .08em 0em .08em .35em;
 }
 
-.card_chrome {
-    padding: .5em 0 .5em .5em;
-    width: 19.5em;
+.pile_chrome_bottom {
+    padding: .35em 0em 0em .35em;
 }
     
 .minimalist_container {
-    width: 20em;
+/*    width: 20em; */
 }
 
 .minimalist_bottom {
     border-top: 1px solid #ccc;
-    padding-top: .5em;
+    padding-top: .35em;
 }
 
-.minimalist_top{
+.minimalist_top {
     border-bottom: 1px solid #ccc;
-    padding-bottom: .5em;
+    padding-bottom: .35em;
 }
 
 h1, h2, h3, h4, h5, h6 {
     color: #666;
     font-weight: 500;
-    width: 20em;
     font-size: 120%;
 }
-
 
 .top_corners {
     border-top-right-radius: 5px;
@@ -69,9 +73,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ul.project_list, ul.card_list {
-    overflow: auto;
-    height: 480px;
-    width: 20em;
     padding: 0;
     margin: 0;
 }
@@ -80,4 +81,91 @@ ul.project_list, ul.card_list {
     padding: 1em;
     border-bottom: 1px solid #ccc;
 }
+
+.structural {
+    list-style-type: none;
+}
+
+.horizontal_left li {
+    float: left;
+}
+
+.horizontal_right li {
+    float: right;
+}
+
+div.clear {
+    clear: both;
+}
+
+.content {
+    margin: 1em;
+}
+
+    
+div#project_name { width: 15%; }
+
+#toolbox { width: 85%; }
+
+div#project_name, #toolbox {
+    float: left;
+}
+
+.pile_container {
+    margin-bottom: 1em;
+}
+
+
+/* Change dimensions pile_containers based on screen dimensions */
+@media (max-width: 800px) {
+    .pile_container ul li input {
+        margin-left: .35em;
+        margin-bottom: .30em;
+        margin-right: 0em;
+    }
+
+    #toolbox ul li {
+        padding: .5em;
+    }
+
+    .navbar .brand {
+        padding-left: 1em;
+    }
+
+    .navbar-inner {
+        padding-left: 0;
+    }
+}
+
+@media (min-width: 801px) {
+
+    .pile_container {
+        margin: .35em .35em .35em .35em;
+        width: 25em;
+        float: left;
+    }
+
+    .pile_container ul.card_list {
+        height: 480px;
+        overflow: auto;
+    }
+
+    .pile_container ul li input {
+        width: 90%;
+        margin-left: .35em;
+        margin-bottom: .30em;
+        margin-right: 0em;
+    }
+
+    .navbar .brand {
+        padding-left: 1em;
+    }
+
+    .navbar-inner {
+        padding-left: 1em;
+    }
+
+    form { height: 0; }
+}
+    
 

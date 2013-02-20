@@ -1,13 +1,12 @@
 from context import app
-
 from sqlalchemy import func
 from flask.ext.sqlalchemy import SQLAlchemy
-
 from datetime import datetime
 from urllib2 import quote
+from md5 import md5
 
 db = SQLAlchemy(app)
-   
+
 
 class ProjectLuser(db.Model):
     """    
@@ -15,9 +14,10 @@ class ProjectLuser(db.Model):
     """
 
     __table__ = db.Table("project_lusers", db.Model.metadata,
-                    db.Column("project_id", db.Integer,  db.ForeignKey("project._id"), primary_key=True),
-                    db.Column("luser_id", db.Integer, db.ForeignKey("luser._id"), primary_key=True),
-                    db.Column("is_owner", db.Boolean, default=False))
+        db.Column("project_id", db.Integer,  db.ForeignKey("project._id"), primary_key=True),
+        db.Column("luser_id", db.Integer, db.ForeignKey("luser._id"), primary_key=True),
+        db.Column("is_owner", db.Boolean, default=False))
+
 
 class Luser(db.Model):
     """
@@ -47,10 +47,31 @@ class Project(db.Model):
 
     lusers  = db.relationship("Luser", secondary=ProjectLuser.__table__)
     cards   = db.relationship("Card", order_by=lambda: Card.number)
-    
+    piles   = db.relationship("Pile")    
+
     @property
     def urlencoded_name(self):
         return quote(self.name)
+
+
+class Pile(db.Model):
+    """
+    Piles are containers for cards. A card can only be on
+    one pile at a time.
+    """
+    
+    __tablename__ = "pile"
+
+    _id         = db.Column(db.Integer, primary_key=True)
+    project_id  = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False)
+    name        = db.Column(db.String, nullable=False, default="Unnamed Pile")
+    created     = db.Column(db.DateTime, default=func.now())
+
+    cards       = db.relationship("Card")
+
+    @property
+    def pile_uuid(self):
+        return "pile_" + md5(str(self._id) + self.name + str(self.created)).hexdigest()
 
 
 class Card(db.Model):
@@ -65,6 +86,7 @@ class Card(db.Model):
 
     _id         = db.Column(db.Integer, primary_key=True)
     project_id  = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False) 
+    pile_id     = db.Column(db.Integer, db.ForeignKey(Pile._id), nullable=False)
     text        = db.Column(db.String)
 
     # Default this to current value of 'id' column, but we'll change it later

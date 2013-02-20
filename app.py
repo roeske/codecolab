@@ -73,6 +73,7 @@ def error_500():
 # Convenience Methods 
 ###############################################################################
 
+
 def make_gravatar_url(email):
     email_hash = md5(email.strip().lower()).hexdigest()
     return "http://gravatar.com/avatar/%s" % email_hash
@@ -177,7 +178,7 @@ def delete():
         return perform_delete_card(email, card_id, project_name)
                                     
     print "[EE] Insufficient parameters."
-    return flask.abort(400)
+    flask.abort(400)
 
 
 def perform_delete_card(email, card_id, project_name):
@@ -190,29 +191,29 @@ def perform_delete_card(email, card_id, project_name):
     luser = models.Luser.query.filter_by(email=email).first()
     if luser is None:
         print "[EE] No such user for email=%r" % email
-        return flask.abort(404)
+        flask.abort(404)
 
     # Resolve the project
     project = models.Project.query.filter_by(name=project_name).first()
     if project is None:
         print "[EE] No such project for name=%r" % project_name
-        return flask.abort(404)
+        flask.abort(404)
 
     # Assert that the user is a member of this project
     if luser not in project.lusers:
         print "[EE] User is not a member of this project."
-        return flask.abort(403)
+        flask.abort(403)
 
     # Resolve the card
     card = models.Card.query.filter_by(_id=card_id).first()
     if card is None:
         print "[EE] No such card for _id=%r" % card_id
-        return flask.abort(404)
+        flask.abort(404)
 
     # Assert that this card belongs to the resolved project
     if card.project_id != project._id:
         print "[EE] Card does not belong to the specified project."
-        return flask.abort(403)
+        flask.abort(403)
 
     # Looks OK, lets delete it
     card = models.Card.query.filter_by(_id=card_id).first()
@@ -237,18 +238,18 @@ def project_add():
 
     elif not logged_in:
         print "[EE] Must be logged in."
-        return flask.abort(403)
+        flask.abort(403)
 
     else:
         print "[EE] Missing parameters."
-        return flask.abort(400)
+        flask.abort(400)
 
 
 def perform_project_add(email, project_name):
     luser = get_luser_for_email(email)
     if luser is None:
         print "[EE] No user found for email=%r" % email
-        return flask.abort(404)
+        flask.abort(404)
 
     project_name = project_name.strip()
     if len(project_name) == 0:
@@ -270,6 +271,74 @@ def perform_project_add(email, project_name):
 
     # Return to the project selection (Which is currently the index.)
     return redirect_to_index()
+
+
+def get_luser_or_404(email):
+    luser = get_luser_for_email(email)
+
+    if luser is None:
+        print "[EE] No user for email=%r" % email
+        flask.abort(404)
+
+    return luser
+
+
+def get_project_or_404(project_name, luser_id):
+    project = get_project(project_name, luser_id)
+
+    if project is None:
+        print "[EE] No project found for name=%r and luser_id=%r" % params
+        flask.abort(404)
+
+    return project
+
+
+def add_to_project(callback):
+    """
+    Checks perms/credentials and passes off control to a callback
+    which is responsible for performing the addition of an entity
+    to the specified project.
+
+    Callback must implement desired adding functionality.
+
+    Params:
+        callback    -- def callback(email, project_name, text)
+    """
+
+    logged_in = is_logged_in()
+    has_all_params = True
+
+    if "email" in flask.session:
+        email = flask.session["email"]
+    else:
+        # do not set has_all_params to true here. We're using email
+        # as a session token.
+        email = None
+
+    form = flask.request.form
+
+    if "project_name" in form:
+        project_name = form["project_name"]
+    else:
+        has_all_params = False
+        project_name = None
+
+    if "text" in form:
+        text = form["text"]
+    else:
+        has_all_params = False
+        text = None
+
+    if logged_in and has_all_params:
+        return callback(email, project_name, text, form=form)
+
+    elif not logged_in and has_all_params:
+        print "[EE] Requires login."
+        flask.abort(403)
+
+    else:
+        print "[EE] Insufficient parameters."
+        flask.abort(400)
 
 
 # Cards
@@ -305,65 +374,64 @@ def card_reorder():
     return respond_with_json({"status" : "success" })
 
 
-def perform_add_card(email, project_name, text):
+def perform_add_card(email, project_name, text, form=None):
+    """
+    Adds a card to a project. Do not invoke directly, pass as a callback 
+    to add_to_project.
+    """
+    
+    # Get the pile id, it's safe to do this here, because not all
+    # things we add might need a pile_id, and piles do not have
+    # their own permissions within a project.
+    if form is None:
+        print "[EE] Missing parameters."
+        flask.abort(500)
 
-    luser = get_luser_for_email(email)
-    if luser is None:
-        print "[EE] No user for email=%r" % email
-        return flask.abort(404)
+    pile_id = int(form["pile_id"])
 
+    luser = get_luser_or_404(email)
+    project = get_project_or_404(project_name, luser._id)
     params = (project_name, luser._id)
-    project = get_project(*params)
-    if project is None:
-        print "[EE] No project found for name=%r and luser_id=%r" % params
-        return flask.abort(404)
 
-    card = models.Card(project_id=project._id, text=text)
+    card = models.Card(project_id=project._id, text=text, pile_id=pile_id)
+    models.db.session.add(card)
+    models.db.session.commit()
+    return redirect_to("project", name=project_name)
+
+
+@app.route("/cards/add", methods=["POST"])
+def card_add():
+    return add_to_project(perform_add_card)
+
+
+# Piles
+##############################################################################
+
+def perform_add_pile(email, project_name, name, form=None):
+    """
+    Adds a pile to a project. Do not invoke directly, pass as a callback 
+    to add_to_project.
+    """
+    luser = get_luser_or_404(email)
+    project = get_project_or_404(project_name, luser._id)
+
+    name = name.strip()
+    if name == "":
+        name = "Unnamed Pile"
+    
+    card = models.Pile(project_id=project._id, name=name)
     models.db.session.add(card)
     models.db.session.commit()
 
     return redirect_to("project", name=project_name)
 
 
-@app.route("/cards/add", methods=["POST"])
-def card_add():
-    logged_in = is_logged_in()
-    has_all_params = True
-
-    if "email" in flask.session:
-        email = flask.session["email"]
-    else:
-        # do not set has_all_params to true here. We're using email
-        # as a session token.
-        email = None
-
-    form = flask.request.form
-
-    if "project_name" in form:
-        project_name = form["project_name"]
-    else:
-        has_all_params = False
-        project_name = None
-
-    if "text" in form:
-        text = form["text"]
-    else:
-        has_all_params = False
-        text = None
-
-    if logged_in and has_all_params:
-        return perform_add_card(email, project_name, text)
-
-    elif not logged_in and has_all_params:
-        print "[EE] Requires login."
-        return flask.abort(403)
-
-    else:
-        print "[EE] Insufficient parameters."
-        return flask.abort(400)
+@app.route("/piles/add", methods=["POST"])
+def pile_add():
+    return add_to_project(perform_add_pile)
 
 
-# Project
+# Projects
 ###############################################################################
 
 def get_project(project_name, luser_id):
@@ -384,21 +452,24 @@ def render_project(project_name, email):
     luser = get_luser_for_email(email)
     if luser is None:
         print "[EE] No user found for email=%r" % email
-        return flask.abort(404)
+        flask.abort(404)
 
     project = get_project(project_name, luser._id)
     if project is None:
         params = (project_name, luser._id)
         print "[EE] No project found for name=%r and luser_id=%r" % params
-        return flask.abort(404)
+        flask.abort(404)
 
     gravatar_url = make_gravatar_url(email)
     profile_url = make_gravatar_profile_url(email)
 
-    return flask.render_template("project.html", email=email, project=project,
-                                                 gravatar_url=gravatar_url,
-                                                 profile_url=profile_url)
+    json_pile_ids = json.dumps([p.pile_uuid for p in project.piles])
 
+    return flask.render_template("project.html", email=email, 
+                                                 project=project,
+                                                 gravatar_url=gravatar_url,
+                                                 profile_url=profile_url,
+                                                 json_pile_ids=json_pile_ids) 
 
 
 @app.route("/project/<name>")
@@ -408,7 +479,7 @@ def project(name):
         return render_project(name, email)
     else:
         print "[EE] Must be logged in."
-        return flask.abort(403)
+        flask.abort(403)
 
 
 # Index
