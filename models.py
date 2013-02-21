@@ -96,6 +96,10 @@ class Card(db.Model):
     created = db.Column(db.DateTime, default=func.now())
 
     @property
+    def card_uuid(self):
+        return "card_" + md5(str(self._id) + self.text + str(self.created)).hexdigest()
+
+    @property
     def created_human(self):
         return self.created.strftime("%A, %b. %d, %Y - %I:%M %p")
 

@@ -141,13 +141,18 @@ div#project_name, #toolbox {
 
     .pile_container {
         margin: .35em .35em .35em .35em;
-        width: 25em;
+        width: 22.7em;
         float: left;
+    }
+
+    li.card_item {
+        width: 19em;
     }
 
     .pile_container ul.card_list {
         height: 480px;
         overflow: auto;
+        padding: 1em;
     }
 
     .pile_container ul li input {

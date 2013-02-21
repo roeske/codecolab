@@ -26,51 +26,56 @@
         <!-- mine -->
         <link href="/css/app.css" type="text/css" rel="stylesheet"/>
 
-        <!-- Begin application code -->
-        <script type="text/javascript">
+<!-- Begin application code -->
+<script type="text/javascript">
 
 /** 
  * Creates an object suitable for passing to jQuery UI's 'sortable' method
  * for the purpose of updating the sort order of cards on the backend.
  */
-function make_sortable(uuid) {
-    var that = {
-        select_items: function() {
-            console.log("uuid="+uuid) 
-            return $("#" + uuid + " li.card_item").not("li.ui-sortable-placeholder")
-        },
+function make_sortable(selector) {
+    var children = function() { 
+        return $(selector + " li.card_item").not("li.ui-sortable-placeholder") 
+    }
+    
+    var indexes_to_sort_keys =  {}
 
-        indexes_to_sort_keys: {},
+    var that = {
+        revert: "invalid",
 
         start: function(event, ui) {
-            that.indexes_to_sort_keys = {}
-
+            indexes_to_sort_keys = {}
             // Create a map of indexes to ids, used to find the changes in the
             // list order after the user finishes dragging the element.
-            that.select_items().each(function(index, value) {
+            children().each(function(index, value) {
+                var pile_id = $(value).parent().attr("data-id")
                 var number = $(value).attr("data-number")
-                that.indexes_to_sort_keys[index] = number 
+                indexes_to_sort_keys[index] = number 
             })
         },
 
         stop: function(event, ui) {
+            console.log("stop: ")
+            
             // Find the differences in the initial state of the list
             // and the current state, and upload a list of ids to 
             // set the new sort number on.
             var updates = []
-
-            that.select_items().each(function(index, value) {
+            children().each(function(index, value) {
                 var _id = $(value).attr("data-id")
-                var number = that.indexes_to_sort_keys[index]
+                var pile_id = $(value).attr("data-pile-id")
 
+                var number = indexes_to_sort_keys[index]
                 // Save the change to send to the server and update in the
                 // database.
-                updates.push({ _id: _id, number: number})
+                updates.push({ _id: _id, pile_id: pile_id, number: number})
 
                 // Change the old data-number in the DOM to reflect the
                 // new value after the sort operation.
                 $(value).attr("data-number", number) 
             })
+
+            console.log("updates="+ JSON.stringify(updates))
 
             // Post the updates to the "/cards/reorder" API
             $.ajax({
@@ -84,28 +89,96 @@ function make_sortable(uuid) {
 
                 contentType: "application/json;charset=UTF-8"
             })
+        },
+
+
+    }
+
+    return that
+}
+
+
+function make_droppable(selector) {
+    var select = function() { return $(selector) }
+
+    var that = {
+        drop: function(event, ui) {
+            // Update the dom node with the new pile id.
+            var pile_id = select().attr("data-id")
+            $(ui.draggable).attr("data-pile-id", pile_id)
+            is_dropped = true
+            $(ui.draggable).draggable(make_draggable(ui.draggable))
         }
     }
 
     return that
 }
 
-/** Run this code when the DOM is ready. */
-$(document).ready(function() {
+
+function make_draggable(selector) {
+    var select = function() { return $(selector) }
+
+    var that = { 
+        connectToSortable: "ul.card_list", 
+        helper: "clone",
+        revert: "invalid",
+
+        start: function(event, ui) {
+            elem = select()
+            elem.hide()
+        },
+    
+        drag: function(event, ui) {
+            // Multiple drop events can occur, so make sure
+            // to unset is_dropped every time we move the
+            // draggable. I hate this API.
+            is_dropped = false
+        },
+
+        stop: function(event, ui) {
+            elem.show()
+
+            if (is_dropped) {
+                elem.remove()
+            }
+        }
+    }
+
+    select().draggable(that)
+}
+
+function setup_drag_and_drop() {
     // Make to-do lists sortable by dragging and save changes in the database.
-    // -Read pile ids via jinja2.
+    // Read pile ids via jinja2.
     pile_ids = {{ json_pile_ids|safe }}
 
-    // -Iterate pile ids and make sortable.
+    // Iterate pile ids and make sortable + droppable.
     for (var key in pile_ids) {
         id = pile_ids[key]
-        console.log("#" + id)
-        $("#" + id).sortable(make_sortable(id))
+       
+        // Build selector.
+        var selector = "#" + id
+        
+        // Make the target list sortable.
+        $(selector).sortable(make_sortable(selector))
+        $(selector).droppable(make_droppable(selector))
     }
+
+    $("li.card_item").each(function(i, elem) {
+        $(elem).draggable(make_draggable(elem))
+    })
+
+    $("li.card_item").disableSelection()
+}
+
+// Run this code when the DOM is ready.
+$(document).ready(function() {
+    setup_drag_and_drop() 
 })
 
-        </script>
-        <!-- End application code -->
+</script>
+<!-- End application code -->
+
     </head>
     <body>
         <div class="navbar">
@@ -158,15 +231,17 @@ $(document).ready(function() {
                         <h4>{{ pile.name }}</h4>
                     </div>
 
-                    <ul id="{{ pile.pile_uuid }}" class="card_list">
+                    <ul id="{{ pile.pile_uuid }}" data-id="{{ pile._id }}" class="card_list">
 
                         {% for card in pile.cards %}
-                            <li class="card_item" data-id="{{ card._id }}" data-number="{{ card.number }}">
+                            <li data-pile-id="{{ card.pile_id }}" id="{{ card.card_uuid }}" class="card_item ui-state-default"
+                                data-id="{{ card._id }}" data-number="{{ card.number }}">
                             
                             <p class="date">{{ card.created_human }}</p>
                             <p class="text">{{ card.text }}</p>
                             
-                            <a class="delete" href="/delete?card_id={{ card._id }}&project_name={{ project.urlencoded_name }}">delete</a>
+                            <a class="delete" 
+                               href="/delete?card_id={{ card._id }}&project_name={{ project.urlencoded_name }}">delete</a>
                             <div style="clear: both"/></div>
                         {% endfor %}
 
@@ -178,11 +253,10 @@ $(document).ready(function() {
                             <input type="hidden" name="pile_id" value="{{ pile._id }}" />
 
                             <div class="clear"></div>
-                            <ul class="structural horizontal_right">
+                            <ul class="controls structural horizontal_right">
                                 <li>
                                     <input type="submit" name="submit" value="Add Card" class="btn"/>
                                 </li>
-
                                 <li> 
                                     <input type="text" placeholder="I'm going to..." name="text" id="text"/>
                                 </li>
@@ -195,8 +269,6 @@ $(document).ready(function() {
                 </div>
             {% endfor %}
             </div>
-
-
         </div>
     </body>
 </html>
