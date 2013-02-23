@@ -41,9 +41,16 @@ function make_sortable(selector) {
     var indexes_to_sort_keys =  {}
 
     var that = {
+        delay: 1000,
+        distance: 10,
         revert: "invalid",
+        connectWith: "ul.card_list",
+        tolerance: "pointer",
+        placeholder: "empty_card",
+        containment: "window",
 
         start: function(event, ui) {
+            console.log("start")
             indexes_to_sort_keys = {}
             // Create a map of indexes to ids, used to find the changes in the
             // list order after the user finishes dragging the element.
@@ -55,12 +62,13 @@ function make_sortable(selector) {
         },
 
         stop: function(event, ui) {
-            console.log("stop: ")
+            console.log("stop")
             
             // Find the differences in the initial state of the list
             // and the current state, and upload a list of ids to 
             // set the new sort number on.
             var updates = []
+
             children().each(function(index, value) {
                 var _id = $(value).attr("data-id")
                 var pile_id = $(value).attr("data-pile-id")
@@ -75,7 +83,6 @@ function make_sortable(selector) {
                 $(value).attr("data-number", number) 
             })
 
-            console.log("updates="+ JSON.stringify(updates))
 
             // Post the updates to the "/cards/reorder" API
             $.ajax({
@@ -89,9 +96,7 @@ function make_sortable(selector) {
 
                 contentType: "application/json;charset=UTF-8"
             })
-        },
-
-
+        }
     }
 
     return that
@@ -103,6 +108,7 @@ function make_droppable(selector) {
 
     var that = {
         drop: function(event, ui) {
+            console.log("drop")
             // Update the dom node with the new pile id.
             var pile_id = select().attr("data-id")
             $(ui.draggable).attr("data-pile-id", pile_id)
@@ -118,17 +124,20 @@ function make_droppable(selector) {
 function make_draggable(selector) {
     var select = function() { return $(selector) }
 
+    console.log(selector)
     var that = { 
-        connectToSortable: "ul.card_list", 
+        connectToSortable: "ul.card_list:not(:has("+select().attr("id")+"))",
         helper: "clone",
         revert: "invalid",
 
         start: function(event, ui) {
+            console.log("start drag")
             elem = select()
             elem.hide()
         },
     
         drag: function(event, ui) {
+            console.log("drag")
             // Multiple drop events can occur, so make sure
             // to unset is_dropped every time we move the
             // draggable. I hate this API.
@@ -136,6 +145,7 @@ function make_draggable(selector) {
         },
 
         stop: function(event, ui) {
+            console.log("stop drag")
             elem.show()
 
             if (is_dropped) {
@@ -160,15 +170,15 @@ function setup_drag_and_drop() {
         var selector = "#" + id
         
         // Make the target list sortable.
-        $(selector).sortable(make_sortable(selector))
-        $(selector).droppable(make_droppable(selector))
+        $(selector).sortable(make_sortable(selector)).disableSelection()
+        $(selector).droppable(make_droppable(selector)).disableSelection()
     }
 
     $("li.card_item").each(function(i, elem) {
         $(elem).draggable(make_draggable(elem))
     })
 
-    $("li.card_item").disableSelection()
+    $("ul, li").disableSelection()
 }
 
 // Run this code when the DOM is ready.

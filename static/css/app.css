@@ -4,15 +4,15 @@ ul, ol, p, li, h1, h2, h3, h4, h5, h6, div, span { margin: 0, padding: 0; }
 form { padding-right: .35em; }
 /*****************************************************************************/
 
-.card_item a.delete {
+.empty_card a, .card_item a.delete {
     float: right;
 }
 
-.card_item p.text {
+.empty_card p, .card_item p.text {
     font-size: 110%;
 }
 
-.card_item p.date {
+.empty_card p, .card_item p.date {
     font-size: 75%;
 }
 
@@ -147,6 +147,14 @@ div#project_name, #toolbox {
 
     li.card_item {
         width: 19em;
+        height: 5.5em;
+    }
+    
+    .empty_card {
+        width: 19em;
+        border-radius: 5px;
+        background-color: #aaa;
+        height: 5.5em;
     }
 
     .pile_container ul.card_list {
