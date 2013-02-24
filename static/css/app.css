@@ -147,14 +147,12 @@ div#project_name, #toolbox {
 
     li.card_item {
         width: 19em;
-        height: 5.5em;
     }
     
     .empty_card {
         width: 19em;
         border-radius: 5px;
         background-color: #aaa;
-        height: 5.5em;
     }
 
     .pile_container ul.card_list {
