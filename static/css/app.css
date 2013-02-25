@@ -151,6 +151,7 @@ div#project_name, #toolbox {
     
     .empty_card {
         width: 19em;
+        height: 5em;
         border-radius: 5px;
         background-color: #aaa;
     }
