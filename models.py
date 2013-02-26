@@ -47,7 +47,7 @@ class Project(db.Model):
 
     lusers  = db.relationship("Luser", secondary=ProjectLuser.__table__)
     cards   = db.relationship("Card", order_by=lambda: Card.number)
-    piles   = db.relationship("Pile")    
+    piles   = db.relationship("Pile", order_by=lambda: Pile.created)    
 
     @property
     def urlencoded_name(self):

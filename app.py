@@ -283,6 +283,16 @@ def get_luser_or_404(email):
     return luser
 
 
+def get_email_or_403():
+    if "email" in flask.session:
+        email = flask.session["email"]
+    else:
+        print "[EE] Forbidden"
+        flask.abort(403)
+
+    return email
+
+
 def get_project_or_404(project_name, luser_id):
     project = get_project(project_name, luser_id)
 
@@ -343,6 +353,35 @@ def add_to_project(callback):
 
 # Cards
 ##############################################################################
+
+@app.route("/project/<name>/cards/edit/<int:card_id>", methods=["POST"])
+def card_edit(name,card_id):
+    # Resolve the project
+    project = models.Project.query.filter_by(name=name).first()
+    if project is None:
+        print "[EE] No such project for name=%r" % project_name
+        flask.abort(404)
+
+    # Obtain email from session, otherwise, error 403
+    email = get_email_or_403()
+
+    # Obtain the luser, or return not found.
+    luser = get_luser_or_404(email)
+ 
+    # Do this to make sure the luser is a member of the project. 
+    project = get_project_or_404(name, luser._id)
+
+ 
+    text = flask.request.form["value"].strip()
+    params = dict(text=text)
+
+    (models.Card.query.filter(and_(models.Card._id==card_id,
+                                   models.Card.project_id==project._id))
+                     .update(params))
+
+    models.db.session.commit()
+
+    return text
 
 @app.route("/cards/reorder", methods=["POST"])
 def card_reorder():
@@ -435,6 +474,37 @@ def pile_add():
     return add_to_project(perform_add_pile)
 
 
+@app.route("/project/<name>/piles/edit/<int:pile_id>", methods=["POST"])
+def pile_edit(name,pile_id):
+    # Resolve the project
+    project = models.Project.query.filter_by(name=name).first()
+    if project is None:
+        print "[EE] No such project for name=%r" % project_name
+        flask.abort(404)
+
+    # Obtain email from session, otherwise, error 403
+    email = get_email_or_403()
+
+    # Obtain the luser, or return not found.
+    luser = get_luser_or_404(email)
+ 
+    # Do this to make sure the luser is a member of the project. 
+    project = get_project_or_404(name, luser._id)
+ 
+    name = flask.request.form["value"].strip()
+
+    params = dict(name=name)
+    print "pile_id = %d" % pile_id
+
+    (models.Pile.query.filter(and_(models.Pile._id==pile_id,
+                                   models.Pile.project_id==project._id))
+                     .update(params))
+
+    models.db.session.commit()
+
+    return name
+
+       
 # Projects
 ###############################################################################
 
