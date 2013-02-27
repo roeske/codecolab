@@ -1,6 +1,5 @@
 /** Project View */
 
-
 function cc_make_card_editable(elem) {
     var id = $(elem).attr("data-id")
     $(elem).editable("/project/" + project_name + "/cards/edit/" + id, {
@@ -94,18 +93,26 @@ function cc_make_droppable(selector) {
 
     var that = {
         drop: function(event, ui) {
-            console.log("drop")
             // Update the dom node with the new pile id.
             var pile_id = select().attr("data-id")
             $(ui.draggable).attr("data-pile-id", pile_id)
-            is_dropped = true
+           
+            // Connect draggable functionality to clone.
             $(ui.draggable).draggable(cc_make_draggable(ui.draggable))
-            cc_make_card_editable(ui.draggable.find(".editable.card"))
+            
+            // Connect modal dialog functionality to clone.
+            var project_name = $(ui.draggable).attr("data-project-name")
+            cc_connect_card_to_modal(project_name, ui.draggable)
+
+            // Set is_dropped global to signal that it's OK to remove
+            // the original copy.
+            is_dropped = true
         }
     }
 
     return that
 }
+
 
 /**
  * Factory for draggables. Used to make a 'card' draggable in jQueryUI
@@ -146,6 +153,7 @@ function cc_make_draggable(selector) {
     select().draggable(that)
 }
 
+
 /** 
  * Makes fields classed with the 'editable' class editable, and submit
  * changes to backend when the user presses 'enter'.
@@ -163,11 +171,28 @@ function cc_setup_editable_fields(project_name) {
             width: $(elem).width() + 20 + "px"
         })
     })
+}
 
-    // Make card titles editable
-    selector = ".editable.card"
-    $(selector).each(function(i, elem) {
-        cc_make_card_editable(elem)
+
+function cc_connect_card_to_modal(project_name, elem) {
+    var url = "/project/" + project_name + "/cards/" + $(elem).attr("data-id")
+
+    var options = {
+        autoOpen: false,
+        width: 500,
+        height: 300
+    }
+
+    var modal = $("<div></div>").load(url).dialog(options)
+
+    console.log("elem=" + elem)
+
+    // Make it pop up a modal.
+    $(elem).click(function() {
+        console.log("url="+ url)
+        modal.dialog("open")
+
+        return false
     })
 }
 
@@ -192,30 +217,14 @@ function cc_project_init(project_name, pile_ids) {
         // Make it draggable.
         $(elem).draggable(cc_make_draggable(elem))
 
-        var url = "/project/"+project_name+"/cards/"+$(elem).attr("data-id")
+        // Make a modal dialog appear after clicking
+        cc_connect_card_to_modal(project_name, elem)
 
-        var options = {
-            autoOpen: false,
-            width: 500,
-            height: 300
-        }
-
-        var modal = $("<div></div>").load(url).dialog(options)
-
-        console.log("elem=" + elem)
-
-        // Make it pop up a modal.
-        $(elem).click(function() {
-            console.log("click")
-            modal.dialog("open")
-
-            return false
-        })
+        // Tag it with the project name, we need it later.
+        $(elem).attr("data-project-name", project_name)
     })
 
     $("ul, li").disableSelection()
-
+    
     cc_setup_editable_fields(project_name)
 }
-
-
