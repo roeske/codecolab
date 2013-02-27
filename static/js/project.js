@@ -146,32 +146,6 @@ function cc_make_draggable(selector) {
     select().draggable(that)
 }
 
-
-/**
- * Setup method for drag and drop. Needs to be called from the project screen
- * in order to enable drag and drop of cards
- */
-function cc_setup_drag_and_drop(pile_ids) {
-    // Iterate pile ids and make sortable + droppable.
-    for (var key in pile_ids) {
-        id = pile_ids[key]
-       
-        // Build selector.
-        var selector = "#" + id
-        
-        // Make the target list sortable.
-        $(selector).sortable(cc_make_sortable(selector)).disableSelection()
-        $(selector).droppable(cc_make_droppable(selector)).disableSelection()
-    }
-
-    $("li.card_item").each(function(i, elem) {
-        $(elem).draggable(cc_make_draggable(elem))
-    })
-
-    $("ul, li").disableSelection()
-}
-
-
 /** 
  * Makes fields classed with the 'editable' class editable, and submit
  * changes to backend when the user presses 'enter'.
@@ -196,4 +170,52 @@ function cc_setup_editable_fields(project_name) {
         cc_make_card_editable(elem)
     })
 }
+
+
+/**
+ * Sets up all state of the project page.
+ */
+function cc_project_init(project_name, pile_ids) {
+    // Iterate pile ids and make sortable + droppable.
+    for (var key in pile_ids) {
+        id = pile_ids[key]
+       
+        // Build selector.
+        var selector = "#" + id
+        
+        // Make the target list sortable.
+        $(selector).sortable(cc_make_sortable(selector)).disableSelection()
+        $(selector).droppable(cc_make_droppable(selector)).disableSelection()
+    }
+
+    $("li.card_item").each(function(i, elem) {
+        // Make it draggable.
+        $(elem).draggable(cc_make_draggable(elem))
+
+        var url = "/project/"+project_name+"/cards/"+$(elem).attr("data-id")
+
+        var options = {
+            autoOpen: false,
+            width: 500,
+            height: 300
+        }
+
+        var modal = $("<div></div>").load(url).dialog(options)
+
+        console.log("elem=" + elem)
+
+        // Make it pop up a modal.
+        $(elem).click(function() {
+            console.log("click")
+            modal.dialog("open")
+
+            return false
+        })
+    })
+
+    $("ul, li").disableSelection()
+
+    cc_setup_editable_fields(project_name)
+}
+
 

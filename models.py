@@ -7,8 +7,20 @@ from md5 import md5
 
 db = SQLAlchemy(app)
 
+# Easily serialize to dict for json conversion
+# See: http://piotr.banaszkiewicz.org/blog/2012/06/30/serialize-sqlalchemy-results-into-json/
 
-class ProjectLuser(db.Model):
+from collections import OrderedDict
+
+class DictSerializable(object):
+    def _asdict(self):
+        result = OrderedDict()
+        for key in self.__mapper__.c.keys():
+            result[key] = getattr(self, key)
+        return result
+
+
+class ProjectLuser(db.Model, DictSerializable):
     """    
     Many-Many: Project & Luser (remember: db.Model extends Base)
     """
@@ -19,7 +31,7 @@ class ProjectLuser(db.Model):
         db.Column("is_owner", db.Boolean, default=False))
 
 
-class Luser(db.Model):
+class Luser(db.Model, DictSerializable):
     """
     Defines user table and model
     """
@@ -34,7 +46,7 @@ class Luser(db.Model):
     projects = db.relationship("Project", secondary=ProjectLuser.__table__)
 
 
-class Project(db.Model):
+class Project(db.Model, DictSerializable):
     """
     Defines a project. A project is a collection of users and tasks.
     """
@@ -54,7 +66,7 @@ class Project(db.Model):
         return quote(self.name)
 
 
-class Pile(db.Model):
+class Pile(db.Model, DictSerializable):
     """
     Piles are containers for cards. A card can only be on
     one pile at a time.
@@ -74,7 +86,7 @@ class Pile(db.Model):
         return "pile_" + md5(str(self._id) + self.name + str(self.created)).hexdigest()
 
 
-class Card(db.Model):
+class Card(db.Model, DictSerializable):
     """
     Cards:
         * May belong to at most one project.
@@ -104,7 +116,7 @@ class Card(db.Model):
         return self.created.strftime("%A, %b. %d, %Y - %I:%M %p")
 
 
-class BetaSignup(db.Model):
+class BetaSignup(db.Model, DictSerializable):
     """
     Defines a list of beta signups and keeps a flag of whether
     they are enabled.

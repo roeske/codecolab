@@ -42,11 +42,8 @@ $(document).ready(function() {
     // Obtain reference to the project's name 
     project_name = "{{ project.name }}"
 
-    // Setup drag and drop
-    cc_setup_drag_and_drop(pile_ids) 
-
-    // Setup editable fields
-    cc_setup_editable_fields(project_name)
+    // Initialize project page
+    cc_project_init(project_name, pile_ids) 
 })
 
 </script>
@@ -112,7 +109,7 @@ $(document).ready(function() {
                                 data-id="{{ card._id }}" data-number="{{ card.number }}">
                             
                             <p class="date">{{ card.created_human }}</p>
-                            <p><span class="card editable" data-id="{{ card._id }}" class="text">{{ card.text }}</span></p>
+                            <p><span class="card editable text" data-id="{{ card._id }}">{{ card.text }}</span></p>
                             
                             <a class="delete" 
                                href="/delete?card_id={{ card._id }}&project_name={{ project.urlencoded_name }}">delete</a>
