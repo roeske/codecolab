@@ -53,9 +53,9 @@ class Project(db.Model, DictSerializable):
 
     __tablename__ = "project"
 
-    _id     = db.Column(db.Integer, primary_key=True)
-    name    = db.Column(db.String, nullable=False)
-    created = db.Column(db.DateTime, default=func.now())
+    _id         = db.Column(db.Integer, primary_key=True)
+    name        = db.Column(db.String, nullable=False)
+    created     = db.Column(db.DateTime, default=func.now())
 
     lusers  = db.relationship("Luser", secondary=ProjectLuser.__table__)
     cards   = db.relationship("Card", order_by=lambda: Card.number)
@@ -92,6 +92,12 @@ class Card(db.Model, DictSerializable):
         * May belong to at most one project.
         * May be positioned in only one lane at a time.
         * May be assigned to any number of project members.
+
+    DIFFICULTY_EASY = 0
+    DIFFICULTY_MEDIUM = 1
+    DIFFICULTY_HARD = 2
+
+    difficulty  = db.Column(db.Integer, default=DIFFICULTY_EASY)
     """
 
     __tablename__ = "card"
@@ -100,6 +106,7 @@ class Card(db.Model, DictSerializable):
     project_id  = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False) 
     pile_id     = db.Column(db.Integer, db.ForeignKey(Pile._id), nullable=False)
     text        = db.Column(db.String)
+    description = db.Column(db.String, default="Please enter a description...")
 
     # Default this to current value of 'id' column, but we'll change it later
     # to adjust the order of the list.

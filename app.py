@@ -367,6 +367,10 @@ def add_to_project(callback):
 
 @app.route("/project/<name>/cards/edit/<int:card_id>", methods=["POST"])
 def card_edit(name,card_id):
+    """
+    Allow editing of card properties from within the modal.
+    """
+
     # Obtain email from session, otherwise, error 403
     email = get_email_or_403()
 
@@ -376,9 +380,19 @@ def card_edit(name,card_id):
     # Do this to make sure the luser is a member of the project. 
     project = get_project_or_404(name, luser._id)
 
- 
-    text = flask.request.form["value"].strip()
-    params = dict(text=text)
+
+    form = flask.request.form
+
+    # Here we enumerate properties that can possibly be edited. Only
+    # one is sent at a time.
+    if "text" in form:
+        value = form["text"].strip()
+        params = dict(text=value)
+    elif "description" in form:
+        value = form["description"].strip()
+        params = dict(description=value)
+    else:
+        flask.abort(400)
 
     (models.Card.query.filter(and_(models.Card._id==card_id,
                                    models.Card.project_id==project._id))
@@ -386,10 +400,11 @@ def card_edit(name,card_id):
 
     models.db.session.commit()
 
-    return text
+    return value
+
 
 @app.route("/project/<name>/cards/<int:card_id>", methods=["GET"])
-def card_render(name,card_id):
+def card_render(name, card_id):
     """
     Used to render a card in a modal dialog.
     """
@@ -408,7 +423,7 @@ def card_render(name,card_id):
                                    models.Card.project_id==project._id))
                              .first())
 
-    return flask.render_template("card.html", card=card)
+    return flask.render_template("card.html", card=card, project_name=name)
 
 
 @app.route("/cards/reorder", methods=["POST"])

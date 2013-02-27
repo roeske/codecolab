@@ -1,12 +1,37 @@
 /** Project View */
 
-function cc_make_card_editable(elem) {
-    var id = $(elem).attr("data-id")
-    $(elem).editable("/project/" + project_name + "/cards/edit/" + id, {
+function cc_make_card_editable(project_name, elem, card_id) {
+    var id = card_id
+
+    $(elem).find(".editable.text").editable("/project/" + project_name + "/cards/edit/" + id, {
+        name: "text",
         event: "click",
         style: "inherit",
         onblur: "submit",
-        width: $(elem).width() + 80 + "px"
+        tooltip: "Click to edit...",
+        width: $(elem).width() + 80 + "px",
+
+        callback: function(value, settings) {
+            console.log("settings=" + settings)
+            console.log("value=" + value)
+
+            // Must update the card in the list (not modal) when the modal
+            // is changed so they do not come out of sync with each other.
+            $("li[data-id=" + card_id + "].card_item").find("p span.text").text(value)
+        }
+    })
+
+    $(elem).find(".editable.description").editable("/project/" + project_name + "/cards/edit/" + id, {
+        onblur: "submit",
+        name: "description",
+        event: "click",
+        style: "inherit",
+        tooltip: "Click to edit...",
+        cancel: "Cancel",
+        submit: "Save",
+        type: "textarea",
+        width: "400px",
+        height: "100px",
     })
 }
 
@@ -175,15 +200,19 @@ function cc_setup_editable_fields(project_name) {
 
 
 function cc_connect_card_to_modal(project_name, elem) {
+    // Create id to later reference modal with.
+    var modal_id = "modal_" + $(elem).attr("data-id")
+
     var url = "/project/" + project_name + "/cards/" + $(elem).attr("data-id")
 
     var options = {
+        title: "Edit Card",
         autoOpen: false,
         width: 500,
         height: 300
     }
 
-    var modal = $("<div></div>").load(url).dialog(options)
+    var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
 
     console.log("elem=" + elem)
 
