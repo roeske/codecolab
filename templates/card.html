@@ -1,0 +1,22 @@
+<!-- Static created timestamp -->
+<p>{{ card.created_human }}</p>
+
+<!-- Editable Title "text" field -->
+<p><span class="editable text">{{ card.text }}</span></p>
+
+<!-- Editable description field -->
+<div class="editable description">{{ card.description }}</div>
+
+<!-- Run code to make above editables work -->
+<script type="text/javascript">
+
+$(document).ready(function() {
+    console.log("Test test test...")
+    var project_name = "{{ project_name }}"
+    var card_id = "{{ card._id }}"
+    var modal_selector = "#modal_" + "{{ card._id }}"
+
+    cc_make_card_editable(project_name, $(modal_selector), card_id)
+})
+
+</script>
