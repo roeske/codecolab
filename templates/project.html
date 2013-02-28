@@ -94,51 +94,52 @@ $(document).ready(function() {
             <div class="clear"></div>
 
             <div id="piles">
-            {% for pile in project.piles %}
-                <div class="pile_container">
+                <ul id="pile_list">
 
-                    <div class="chrome pile_chrome_top top_corners">
-                        <h4><span data-id="{{ pile._id }}" class="editable pile_title">{{ pile.name }}</span></h4>
-                    </div>
-                    <div class="clear"></div>
- 
-                    <ul id="{{ pile.pile_uuid }}" data-id="{{ pile._id }}" class="card_list">
+                {% for pile in project.piles %}
+                    <li class="pile_container">
 
-                        {% for card in pile.cards %}
-                            <li data-pile-id="{{ card.pile_id }}" id="{{ card.card_uuid }}" class="card_item ui-state-default"
-                                data-id="{{ card._id }}" data-number="{{ card.number }}">
-                            
-                            <p class="date">{{ card.created_human }}</p>
-                            <p><span class="card editable text" data-id="{{ card._id }}">{{ card.text }}</span></p>
-                            
-                            <a class="delete" 
-                               href="/delete?card_id={{ card._id }}&project_name={{ project.urlencoded_name }}">delete</a>
-                            <div style="clear: both"/></div>
-                        {% endfor %}
+                        <div class="chrome pile_chrome_top top_corners">
+                            <h4><span data-id="{{ pile._id }}" class="editable pile_title">{{ pile.name }}</span></h4>
+                        </div>
+                        <div class="clear"></div>
+     
+                        <ul id="{{ pile.pile_uuid }}" data-id="{{ pile._id }}" class="card_list">
 
-                    </ul>
+                            {% for card in pile.cards %}
+                                <li data-pile-id="{{ card.pile_id }}" id="{{ card.card_uuid }}" class="card_item ui-state-default"
+                                    data-id="{{ card._id }}" data-number="{{ card.number }}">
+                                
+                                <p class="date">{{ card.created_human }}</p>
+                                <p><span class="card editable text" data-id="{{ card._id }}">{{ card.text }}</span></p>
+                                
+                                <a class="delete" 
+                                   href="/delete?card_id={{ card._id }}&project_name={{ project.urlencoded_name }}">delete</a>
+                                <div style="clear: both"/></div>
+                            {% endfor %}
 
-                    <div class="chrome pile_chrome_bottom bottom_corners">
-                        <form action="/cards/add" method="POST">
-                            <input type="hidden" name="project_name" value="{{ project.name }}" />
-                            <input type="hidden" name="pile_id" value="{{ pile._id }}" />
+                        </ul>
 
-                            <div class="clear"></div>
-                            <ul class="controls structural horizontal_right">
-                                <li>
-                                    <input type="submit" name="submit" value="Add Card" class="btn"/>
-                                </li>
-                                <li> 
-                                    <input type="text" placeholder="I'm going to..." name="text" id="text"/>
-                                </li>
-                            </ul>
+                        <div class="chrome pile_chrome_bottom bottom_corners">
+                            <form action="/cards/add" method="POST">
+                                <input type="hidden" name="project_name" value="{{ project.name }}" />
+                                <input type="hidden" name="pile_id" value="{{ pile._id }}" />
 
-                            <div class="clear"></div>
+                                <div class="clear"></div>
+                                <ul class="controls structural horizontal_right">
+                                    <li>
+                                        <input type="submit" name="submit" value="Add Card" class="btn"/>
+                                    </li>
+                                    <li> 
+                                        <input type="text" placeholder="I'm going to..." name="text" id="text"/>
+                                    </li>
+                                </ul>
+                            </form>
+                        </div>
+                    </li>
+                {% endfor %}
+                </ul>
 
-                        </form>
-                    </div>
-                </div>
-            {% endfor %}
             </div>
         </div>
     </body>

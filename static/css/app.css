@@ -116,6 +116,24 @@ div#project_name, #toolbox {
 }
 
 
+
+
+div#piles {
+    width: 100%;
+    overflow: auto;
+}
+
+
+div#piles ul {
+    list-style: none;
+    height: 670px;
+    white-space: nowrap;
+    overflow: hidden;
+    float: left;
+}
+
+
+
 /* Change dimensions pile_containers based on screen dimensions */
 @media (max-width: 800px) {
     .pile_container ul li input {
@@ -179,5 +197,6 @@ div#project_name, #toolbox {
 
     form { height: 0; }
 }
-    
+
+
 
