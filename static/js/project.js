@@ -115,7 +115,6 @@ function cc_make_sortable(selector) {
         connectWith: "ul.card_list",
         tolerance: "pointer",
         placeholder: "empty_card",
-        containment: "window",
 
         receive: function(event, ui) {
             console.log("receive")

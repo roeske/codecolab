@@ -4,7 +4,8 @@ ul, ol, p, li, h1, h2, h3, h4, h5, h6, div, span { margin: 0, padding: 0; }
 form { padding-right: .35em; }
 li,h1 { line-height: 100% }
 div.navbar { margin-bottom: 0 }
-input { color: #000; }
+textarea, input { color: #000; }
+
 /*****************************************************************************/
 
 /** custom scrollbars ********************************************************/
