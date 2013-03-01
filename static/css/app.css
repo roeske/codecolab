@@ -138,7 +138,7 @@ li.card_item p span {
     white-space: normal;
 }
 
-.empty_card {
+li.empty_card, li.card_item {
     height: 6em;
 }
 
@@ -183,7 +183,7 @@ li.card_item p span {
     }
 
     .pile_container ul.card_list {
-        min-height: 7em;
+        min-height: 6em;
         max-height: 450px;
         overflow-x: hidden;
         overfloy-y: scroll;
@@ -229,7 +229,7 @@ li.card_item p span {
     }
 
     .pile_container ul.card_list {
-        min-height: 7em;
+        min-height: 6em;
         background-color: #171717;
         border-radius: 5px;
     }

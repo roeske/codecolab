@@ -41,7 +41,7 @@ function cc_make_card_editable(project_name, elem, card_id) {
  *
  * @param updates -- [{  _id: <int>, pile_id: <int>, number: <int> }, ...]
  * */
-function cc_cards_reorder(updates) {
+function cc_cards_reorder_post(updates) {
     $.ajax({
         type: "POST",
         url: "/cards/reorder", 
@@ -55,6 +55,48 @@ function cc_cards_reorder(updates) {
     })
 }
 
+
+/** 
+ * Updates the DOM after cards are reordered. Returns array of
+ * update values appropriate for posting back to the server via
+ * cc_cards_reorder_post(updates)
+ *
+ * @param children -- Function returning the list items that need
+ *                    to be updated.
+ */
+function cc_cards_reorder_update_dom(children) {
+    // Now, update the pile id of the card in the database, too.
+    var updates = []
+
+    // Iterate the children and obtain the data-number values:
+    var sort_numbers = []
+    
+    children().each(function(i, elem) {
+        sort_numbers.push($(elem).data("number"))
+    })
+    
+    // Sort the data number values least to greatest.
+    var sorted_numbers = sort_numbers.sort(function(a,b) {
+        return a - b
+    })
+
+    // Re-iterate the existing children and write the numbers back
+    // in order, while pushing updates onto the updates array.
+    children().each(function(i, elem) {
+        var number = sorted_numbers[i]
+
+        // Need to update it in the DOM & on the server.
+        $(elem).data("number", number)
+        
+        updates.push({
+            _id: $(elem).data("id"),
+            number: $(elem).data("number"),
+            pile_id: $(elem).data("pile-id")
+        })
+    })
+  
+    return updates;
+}
 
 /** 
  * Factory for "sortable" objects. Used to make a card sortable in jQueryUI.
@@ -75,89 +117,31 @@ function cc_make_sortable(selector) {
         placeholder: "empty_card",
         containment: "window",
 
-
-        start: function(event, ui) {
-            console.log("start")
-            indexes_to_sort_keys = {}
-            // Create a map of indexes to ids, used to find the changes in the
-            // list order after the user finishes dragging the element.
-            children().each(function(index, value) {
-                var pile_id = $(value).parent().attr("data-id")
-                var number = $(value).attr("data-number")
-                indexes_to_sort_keys[index] = number 
-            })
-        },
-
-
         receive: function(event, ui) {
+            console.log("receive")
+
             // Update the pile id of the card, because we just
             // dropped it into a pile.
             $(ui.item).data("pile-id", $(this).data("id"))
-           
-            // Now, update the pile id of the card in the database, too.
-            var updates = []
-
-            // This is the card that was just dropped into the new list.
-            var dropped_item = $(ui.item)
-
-            // Sort the children, so we can rewrite the data-number
-            // attribute to the DOM in the proper order:
-            var sorted_children = children().toArray().sort(function(a,b) {
-                return $(a).data("number") - $(b).data("number")
-            })
-
-            // Re-iterate the existing children and write the numbers back
-            // in order, while pushing updates onto the updates array.
-            children().each(function(i, elem) {
-                $(elem).data("number", $(sorted_children[i]).data("number"))
-                updates.push({
-                    _id: $(elem).data("id"),
-                    number: $(elem).data("number"),
-                    pile_id: $(elem).data("pile-id")
-                })
-            })
-           
-            // Post the updates back to the server.
-            cc_cards_reorder(updates)
+  
+            // Update the values in the DOM to reflect the current
+            // state of the cards.
+            var updates = cc_cards_reorder_update_dom(children)
+            
+            // Post those updates back to the server.
+            cc_cards_reorder_post(updates)
         },
 
 
         stop: function(event, ui) {
             console.log("stop")
+           
+            // Update the values in the DOM to reflect the current
+            // state of the cards.
+            var updates = cc_cards_reorder_update_dom(children)
             
-            // Find the differences in the initial state of the list
-            // and the current state, and upload a list of ids to 
-            // set the new sort number on.
-            var updates = []
-
-            children().each(function(index, value) {
-                var _id = $(value).attr("data-id")
-                var pile_id = $(value).attr("data-pile-id")
-                
-                var number = indexes_to_sort_keys[index]
-                // Save the change to send to the server and update in the
-                // database.
-                updates.push({ _id: _id, pile_id: pile_id, number: number})
-
-                // Change the old data-number in the DOM to reflect the
-                // new value after the sort operation.
-                $(value).attr("data-number", number) 
-            })
-
-            console.log(JSON.stringify({updates:updates}))
-
-            // Post the updates to the "/cards/reorder" API
-            $.ajax({
-                type: "POST",
-                url: "/cards/reorder", 
-                data: JSON.stringify({updates: updates}),
-                
-                success: function(data) {
-                    console.log(JSON.stringify(data))
-                },
-
-                contentType: "application/json;charset=UTF-8"
-            })
+            // Post those updates back to the server.
+            cc_cards_reorder_post(updates)
         }
     }
 
