@@ -140,7 +140,7 @@ li.card_item p span {
 }
 
 li.empty_card, li.card_item {
-    height: 6em;
+    min-height: 6em;
 }
 
 @media(min-width: 900px) {
