@@ -6,10 +6,10 @@ app = flask.Flask(__name__)
 
 # configure database connection
 # local
-#app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql+psycopg2://tom:fender@localhost:5432/codecolab"
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql+psycopg2://tom:fender@localhost:5432/codecolab"
 
 # heroku
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
+#app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
 
 
 # secret!
