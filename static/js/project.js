@@ -36,23 +36,25 @@ function cc_make_card_editable(project_name, elem, card_id) {
 }
 
 
-/** 
- * Post the updates to the "/cards/reorder" API 
- *
- * @param updates -- [{  _id: <int>, pile_id: <int>, number: <int> }, ...]
- * */
-function cc_cards_reorder_post(updates) {
-    $.ajax({
-        type: "POST",
-        url: "/cards/reorder", 
-        data: JSON.stringify({updates: updates}),
-        
-        success: function(data) {
-            console.log(JSON.stringify(data))
-        },
 
-        contentType: "application/json;charset=UTF-8"
+/** 
+ * Returns an array of sorted 'sort numbers' found in a target list
+ * of elements.
+ */
+function cc_sort_into_numbers_array(elems) {
+    // Iterate the children and obtain the data-number values:
+    var sort_numbers = []
+    
+    elems.each(function(i, elem) {
+        sort_numbers.push($(elem).data("number"))
     })
+    
+    // Sort the data number values least to greatest.
+    var sorted_numbers = sort_numbers.sort(function(a,b) {
+        return a - b
+    })
+
+    return sorted_numbers
 }
 
 
@@ -68,45 +70,88 @@ function cc_cards_reorder_update_dom(children) {
     // Now, update the pile id of the card in the database, too.
     var updates = []
 
-    // Iterate the children and obtain the data-number values:
-    var sort_numbers = []
-    
-    children().each(function(i, elem) {
-        sort_numbers.push($(elem).data("number"))
-    })
-    
-    // Sort the data number values least to greatest.
-    var sorted_numbers = sort_numbers.sort(function(a,b) {
-        return a - b
-    })
+    var sorted_numbers = cc_sort_into_numbers_array(children())
 
     // Re-iterate the existing children and write the numbers back
     // in order, while pushing updates onto the updates array.
     children().each(function(i, elem) {
         var number = sorted_numbers[i]
-
-        // Need to update it in the DOM & on the server.
-        $(elem).data("number", number)
+        elem = $(elem)
         
+        elem.data("number", number)
         updates.push({
-            _id: $(elem).data("id"),
-            number: $(elem).data("number"),
-            pile_id: $(elem).data("pile-id")
+            _id: elem.data("id"),
+            number: number,
+            pile_id: elem.data("pile-id")
         })
     })
   
     return updates;
 }
 
+
+function cc_piles_reorder_update_dom(elems) {
+    var sorted_numbers = cc_sort_into_numbers_array(elems)
+    var updates = []
+
+    elems.each(function(i, elem) {
+        // Update the 'sort number' in the DOM
+        elem = $(elem)
+        elem.data("number", sorted_numbers[i])
+        updates.push({
+            _id: elem.data("id"),
+            number: sorted_numbers[i],
+        })
+    })
+
+    return updates;
+}
+
+/** 
+ * Post the updates to the "/<name>/reorder" API 
+ */
+function cc_reorder_post(name, updates) {
+    $.ajax({
+        type: "POST",
+        url: "/" + name + "/reorder", 
+        data: JSON.stringify({updates: updates}),
+        
+        success: function(data) {
+            console.log(JSON.stringify(data))
+        },
+
+        contentType: "application/json;charset=UTF-8"
+    })
+}
+
+
+/**
+ * Post updates to /cards/reorder
+ *
+ * Expected format: [{ _id : <int>, pile_id: <int>, number: <int>}, ...]
+ */
+function cc_cards_reorder_post(updates) {
+    return cc_reorder_post("cards", updates)
+}
+
+
+/**
+ * Post updates to /piles/reorder
+ *
+ * Expected format: [{ _id : <int>,  number: <int>}, ...]
+ */
+function cc_piles_reorder_post(updates) {
+    return cc_reorder_post("piles", updates)
+}
+
+
 /** 
  * Factory for "sortable" objects. Used to make a card sortable in jQueryUI.
  */
-function cc_make_sortable(selector) {
+function cc_make_card_sorter(selector) {
     var children = function() { 
         return $(selector + " li.card_item").not("li.ui-sortable-placeholder") 
     }
-    
-    var indexes_to_sort_keys =  {}
 
     var that = {
         delay: 100,
@@ -147,6 +192,26 @@ function cc_make_sortable(selector) {
     return that
 }
 
+
+function cc_make_pile_sorter(selector) {
+    var that = {
+        delay: 100,
+        distance: 10,
+        revert: "invalid",
+        tolerance: "pointer",
+
+        stop: function(event, ui) {
+            // Update the values in the DOM to reflect the current
+            // state of the cards.
+            var updates = cc_piles_reorder_update_dom($(selector).children())
+            console.log(updates)            
+            // Post those updates back to the server.
+            cc_piles_reorder_post(updates)
+        }
+    }
+
+    return that
+}
 
 /** 
  * Makes fields classed with the 'editable' class editable, and submit
@@ -204,7 +269,7 @@ function cc_project_init(project_name, pile_ids) {
         // Build selector.
         var selector = "#" + id
         // Make the target list sortable.
-        $(selector).sortable(cc_make_sortable(selector)).disableSelection()
+        $(selector).sortable(cc_make_card_sorter(selector)).disableSelection()
     }
 
     $("li.card_item").each(function(i, elem) {
@@ -212,7 +277,8 @@ function cc_project_init(project_name, pile_ids) {
         cc_connect_card_to_modal(project_name, elem)
     })
 
+    $("ul#pile_list").sortable(cc_make_pile_sorter("ul#pile_list"))
     $("ul, li").disableSelection()
-    
+
     cc_setup_editable_fields(project_name)
 }

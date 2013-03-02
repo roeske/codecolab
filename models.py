@@ -59,7 +59,7 @@ class Project(db.Model, DictSerializable):
 
     lusers  = db.relationship("Luser", secondary=ProjectLuser.__table__)
     cards   = db.relationship("Card", order_by=lambda: Card.number)
-    piles   = db.relationship("Pile", order_by=lambda: Pile.created)    
+    piles   = db.relationship("Pile", order_by=lambda: Pile.number)    
 
     @property
     def urlencoded_name(self):
@@ -75,6 +75,7 @@ class Pile(db.Model, DictSerializable):
     __tablename__ = "pile"
 
     _id         = db.Column(db.Integer, primary_key=True)
+    number      = db.Column(db.Integer, default=func.currval("pile__id_seq"))
     project_id  = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False)
     name        = db.Column(db.String, nullable=False, default="Unnamed Pile")
     created     = db.Column(db.DateTime, default=func.now())

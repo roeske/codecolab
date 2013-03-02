@@ -461,7 +461,7 @@ def card_render(name, card_id):
 
 
 @app.route("/cards/reorder", methods=["POST"])
-def card_reorder():
+def cards_reorder():
     """
     Must be called at the end of any drag on the card list. Used to update
     the new sort order of the card-list in the database. Also repositions
@@ -485,10 +485,34 @@ def card_reorder():
         _id = int(update["_id"])
         number = int(update["number"])
         pile_id = int(update["pile_id"])
-        card = models
         print "[DD] update=%r" % update
         models.Card.query.filter_by(_id=_id).update(dict(number=number, 
                                                          pile_id=pile_id))
+    
+    models.db.session.commit()
+    return respond_with_json({"status" : "success" })
+
+
+@app.route("/piles/reorder", methods=["POST"])
+def piles_reorder():
+    """
+    Must be called after piles are moved to update order.
+
+    Expected POST body:
+    ------------------
+        {
+            "updates" : [
+                { 
+                    _id : <integer id>,
+                    number : <new sort position number>
+                }, ...
+            ]
+        }
+    """
+    for update in flask.request.json["updates"]:
+        _id = int(update["_id"])
+        number = int(update["number"])
+        models.Pile.query.filter_by(_id=_id).update(dict(number=number))
     
     models.db.session.commit()
     return respond_with_json({"status" : "success" })
