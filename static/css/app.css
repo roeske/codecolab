@@ -64,7 +64,17 @@ ul.card_list li {
 .pile_chrome_bottom {
     padding: .35em 0em 0em .35em;
 }
-    
+
+h4.pile_title {
+    float: left;
+    width: 10em;
+}
+
+div.pile_options {
+    float: right;
+    padding: 14px;
+}
+
 .minimalist_bottom {
     border-top: 1px solid #222;
     padding-top: .35em;

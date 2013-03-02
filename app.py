@@ -181,23 +181,57 @@ def delete():
     """
     args = flask.request.args
 
+    logged_in = is_logged_in()
     
-    if is_logged_in() and "card_id" in args and "project_name" in args:
+    if logged_in and "card_id" in args and "project_name" in args:
         email = flask.session["email"]
         card_id = args.get("card_id")
         project_name = args.get("project_name")
         return perform_delete_card(email, card_id, project_name)
-                                    
+
+    elif logged_in and "pile_id" in args and "project_name" in args:
+        email = flask.session["email"]
+        pile_id = args.get("pile_id")
+        project_name = args.get("project_name")
+        return perform_delete_pile(email, pile_id, project_name)
+
     print "[EE] Insufficient parameters."
     flask.abort(400)
+
+
+def perform_delete_pile(email, pile_id, project_name):
+    """
+    Deletes a pile by id. Performs basic security checks first.
+    Does NOT delete associated cards. They remain orphaned in
+    the database.
+    """
+    luser = get_luser_or_404(email)
+    project = get_project_or_404(project_name, luser._id)
+    
+    if luser not in project.lusers:
+        print "[EE] User is not a member of this project."
+        flask.abort(403)
+
+    # Set card pile_id's to null if they are a member of the target pile.
+    params = dict(pile_id=None)
+    models.Card.query.filter_by(pile_id=pile_id).update(params)
+    models.db.session.flush()
+
+    # Should now be safe to delete the pile.
+    pile = models.Pile.query.filter_by(_id=pile_id).first()
+    models.db.session.delete(pile)
+    models.db.session.commit()
+
+    return redirect_to("project", name=project_name)
 
 
 def perform_delete_card(email, card_id, project_name):
     """
     Deletes a card list item by id. Performs basic security checks
     first.
+
+    TODO: refactor this
     """
-   
     # Resolve the user
     luser = models.Luser.query.filter_by(email=email).first()
     if luser is None:

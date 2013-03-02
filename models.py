@@ -104,7 +104,7 @@ class Card(db.Model, DictSerializable):
 
     _id         = db.Column(db.Integer, primary_key=True)
     project_id  = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False) 
-    pile_id     = db.Column(db.Integer, db.ForeignKey(Pile._id), nullable=False)
+    pile_id     = db.Column(db.Integer, db.ForeignKey(Pile._id))
     text        = db.Column(db.String)
     description = db.Column(db.String, default="Please enter a description...")
 

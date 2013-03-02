@@ -93,7 +93,10 @@ $(document).ready(function() {
                     <li class="pile_container">
 
                         <div class="chrome pile_chrome_top top_corners">
-                            <h4><span data-id="{{ pile._id }}" class="editable pile_title">{{ pile.name }}</span></h4>
+                            <h4 class="pile_title"><span data-id="{{ pile._id }}" class="editable pile_title">{{ pile.name }}</span></h4>
+                            <div class="pile_options">
+                                <a href="/delete?pile_id={{ pile._id }}&project_name={{ project.urlencoded_name }}">delete</a>
+                            </div>
                         </div>
                         <div class="clear"></div>
      
