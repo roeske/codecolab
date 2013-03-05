@@ -341,12 +341,22 @@ function cc_project_init(project_name, pile_ids) {
 }
 
 function cc_connect_comment_form(project_name, modal, card_id) {
-    modal.find("form").ajaxForm({
+    modal.find("form.comments").ajaxForm({
         success: function(response, status_code) {
             var list = modal.find("ul.comments")
             list.append("<li><p class=\"text\">" + response.comment.text + "</p>"
                        +"    <p class=\"email\">--" + response.luser.email + "</p></li>")
             modal.find("form textarea").val("")
+        }
+    })
+}
+
+
+function cc_connect_upload_form(project_name, modal, card_id) {
+    modal.find("form.uploads").ajaxForm({
+        success: function(response, status_code) {
+            filename = response.attachment.filename
+            modal.find("ul.attachments").append("<li><a href=\"/uploads/"+filename+"\">"+filename+"</a></li>")
         }
     })
 }

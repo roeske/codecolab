@@ -23,7 +23,7 @@
 </ul>
 
 
-<form action="/project/{{ project_name }}/cards/{{ card._id }}/comment" method="POST">
+<form class="comments" action="/project/{{ project_name }}/cards/{{ card._id }}/comment" method="POST">
     <ul class="structural" style="width: 20em; padding: 0; margin: 0;">
 
         <li> 
@@ -40,6 +40,31 @@
 </form>
 
 
+<form class="uploads" action="/project/{{ project_name }}/cards/{{ card._id }}/attach" method="POST">
+    <ul class="structural" style="width: 20em; padding: 0; margin: 0;">
+
+        <li> 
+            <input type="file"  name="file" id="file" />
+        </li>
+
+        <li>
+            <div style="float: right;">
+                <input type="submit" name="submit" value="Attach File" class="btn"/>
+            </div>
+            <div style="clear: both;"></div>
+        </li>
+    </ul>
+</form>
+
+<h3 class="comments_title">Attachments</h3>
+
+<ul class="attachments structural">
+   {% for file in card.attachments %}
+   <li>
+        <a href="/uploads/{{ file.filename }}">{{ file.filename }}</a>
+   </li>
+   {% endfor %}
+</ul>
 <!-- Run code to make above editables work -->
 <script type="text/javascript">
 
@@ -53,5 +78,7 @@ $(document).ready(function() {
     cc_make_card_editable(project_name, modal, card_id)
 
     cc_connect_comment_form(project_name, modal, card_id)
+    
+    cc_connect_upload_form(project_name, modal, card_id)
 })
 </script>

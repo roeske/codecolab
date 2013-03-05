@@ -5,15 +5,18 @@ import bcrypt
 import models
 import simplejson as json
 
+from flaskext import uploads
 from functools import wraps
 from sqlalchemy import and_
 from md5 import md5
 
 app = models.app
 
-
 PORT = 8080
 
+files = uploads.UploadSet("files", uploads.ALL, default_dest=lambda app:"./uploads")
+
+uploads.configure_uploads(app, (files,))
 
 # JSONIZE!
 def _handler(o):
@@ -492,6 +495,26 @@ def card_score(project_name=None, card_id=None, project=None, **kwargs):
      
     return respond_with_json({ "status" : "success",
                                "message" : "updated card %d" % card._id })
+
+
+@app.route("/project/<project_name>/cards/<int:card_id>/attach", methods=["POST"])
+@check_privileges
+def card_attach_file(project_name=None, card_id=None, luser=None, **kwargs):
+    """
+    Upload a file & attach it to a card.
+    """
+
+    if flask.request.method == 'POST' and "file" in flask.request.files:
+        filename = files.save(flask.request.files["file"])
+
+        attachment = models.CardFile(card_id=card_id, luser_id=luser._id, 
+                        filename=filename)
+        
+        models.db.session.add(attachment)
+        models.db.session.flush()
+        models.db.session.commit()
+
+    return respond_with_json(dict(attachment=attachment, luser=luser))
 
 
 @app.route("/cards/reorder", methods=["POST"])
