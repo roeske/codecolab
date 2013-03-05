@@ -18,7 +18,7 @@
         <script type="text/javascript" src="/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="/js/theme.js"></script>
         <script type="text/javascript" src="/js/jquery.jeditable.js"></script>
-
+        <script type="text/javascript" src="/js/raty/jquery.raty.js"></script>
         <!-- include JS code for this screen -->
         <script type="text/javascript" src="/js/project.js"></script>
 
@@ -37,6 +37,8 @@ $(document).ready(function() {
 
     // Initialize project page
     cc_project_init(project_name, pile_ids) 
+
+    cc_connect_raty_score($(".editable.difficulty"))
 })
 
 </script>
@@ -108,7 +110,9 @@ $(document).ready(function() {
                                 
                                 <p class="date">{{ card.created_human }}</p>
                                 <p><span class="card editable text" data-id="{{ card._id }}">{{ card.text }}</span></p>
-                                
+                               
+                                <div class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div>
+
                                 <a class="delete" 
                                    href="/delete?card_id={{ card._id }}&project_name={{ project.urlencoded_name }}">delete</a>
                                 <div style="clear: both"/></div>

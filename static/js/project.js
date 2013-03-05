@@ -33,8 +33,64 @@ function cc_make_card_editable(project_name, elem, card_id) {
         width: "400px",
         height: "100px",
     })
+
+    cc_connect_raty_score($(elem).find(".editable.difficulty"),
+        project_name, card_id)
 }
 
+
+/** 
+ * Connects the difficulty rating widget 'raty'. Will load
+ * appropriate score from data-score attribute. Configures JSON 
+ * postback against /project/<name>/cards/<id>/score POST API.
+ */
+function cc_connect_raty_score(elem, project_name, card_id)
+{
+    // Setup difficulty rating widget.
+    elem.raty({
+        // Load correct score when document is loaded.
+        score: function() { 
+            score = $(this).data("score")
+            console.log("score = " + score)
+            return score
+        },
+
+        // Specify correct paths to images.
+        starHalf:   "/js/raty/img/star-half.png",
+        starOn:     "/js/raty/img/star-on.png",
+        starOff:    "/js/raty/img/star-off.png",
+        cancelOff:  "/js/raty/img/cancel-off.png",
+        cancelOn:   "/js/raty/img/cancel-on.png",
+
+        // # of stars to display
+        number: 3,
+        numberMax: 3,
+
+        // Allow the user to update the score on the backend by clicking.
+        click: function(score, ev) {
+            $.ajax({
+                type: "POST",
+
+                url: "/project/" + project_name + "/cards/" + card_id + "/score",
+
+                data: JSON.stringify({score: score}),
+                
+                success: function(data) {
+                    console.log(JSON.stringify(data))
+                    // Update any other copies of this we have.
+                    var selector  = "div.difficulty[data-card-id="+card_id+"]"
+                    var other = $(selector)
+                    other.data("score", score)
+                    other.raty("score", score)
+                },
+
+                contentType: "application/json;charset=UTF-8"
+            })
+
+            
+        }
+    })
+}
 
 
 /** 
@@ -106,6 +162,7 @@ function cc_piles_reorder_update_dom(elems) {
 
     return updates;
 }
+
 
 /** 
  * Post the updates to the "/<name>/reorder" API 

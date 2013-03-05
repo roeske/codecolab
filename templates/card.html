@@ -7,16 +7,17 @@
 <!-- Editable description field -->
 <div class="editable description">{{ card.description }}</div>
 
+<br />
+<p>Difficulty:&nbsp;&nbsp;&nbsp;<span class="editable difficulty" data-score="{{ card.score }}"></span></p>
+
 <!-- Run code to make above editables work -->
 <script type="text/javascript">
 
 $(document).ready(function() {
-    console.log("Test test test...")
     var project_name = "{{ project_name }}"
     var card_id = "{{ card._id }}"
     var modal_selector = "#modal_" + "{{ card._id }}"
 
     cc_make_card_editable(project_name, $(modal_selector), card_id)
 })
-
 </script>

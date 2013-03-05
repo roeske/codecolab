@@ -53,9 +53,9 @@ class Project(db.Model, DictSerializable):
 
     __tablename__ = "project"
 
-    _id         = db.Column(db.Integer, primary_key=True)
-    name        = db.Column(db.String, nullable=False)
-    created     = db.Column(db.DateTime, default=func.now())
+    _id     = db.Column(db.Integer, primary_key=True)
+    name    = db.Column(db.String, nullable=False)
+    created = db.Column(db.DateTime, default=func.now())
 
     lusers  = db.relationship("Luser", secondary=ProjectLuser.__table__)
     cards   = db.relationship("Card", order_by=lambda: Card.number)
@@ -79,7 +79,6 @@ class Pile(db.Model, DictSerializable):
     project_id  = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False)
     name        = db.Column(db.String, nullable=False, default="Unnamed Pile")
     created     = db.Column(db.DateTime, default=func.now())
-
     cards       = db.relationship("Card")
 
     @property
@@ -93,13 +92,16 @@ class Card(db.Model, DictSerializable):
         * May belong to at most one project.
         * May be positioned in only one lane at a time.
         * May be assigned to any number of project members.
-
-    DIFFICULTY_EASY = 0
-    DIFFICULTY_MEDIUM = 1
-    DIFFICULTY_HARD = 2
-
-    difficulty  = db.Column(db.Integer, default=DIFFICULTY_EASY)
     """
+
+    # Scores 
+    DIFFICULTY_SCORE_NONE = 0 # 0 for none, so it renders correct in a plugin
+                        # which requires the number to be an integer if
+                        # required.
+    DIFFICULTY_SCORE_EASY = 1
+    DIFFICULTY_SCORE_MEDIUM = 2
+    DIFFICULTY_SCORE_HARD = 3
+
 
     __tablename__ = "card"
 
@@ -107,6 +109,7 @@ class Card(db.Model, DictSerializable):
     project_id  = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False) 
     pile_id     = db.Column(db.Integer, db.ForeignKey(Pile._id))
     text        = db.Column(db.String)
+    score       = db.Column(db.Integer, default=DIFFICULTY_SCORE_NONE)
     description = db.Column(db.String, default="Please enter a description...")
 
     # Default this to current value of 'id' column, but we'll change it later
@@ -115,9 +118,11 @@ class Card(db.Model, DictSerializable):
 
     created = db.Column(db.DateTime, default=func.now())
 
+
     @property
     def card_uuid(self):
         return "card_" + md5(str(self._id) + self.text + str(self.created)).hexdigest()
+
 
     @property
     def created_human(self):
@@ -146,5 +151,3 @@ if __name__ == "__main__":
         db.create_all()
     elif sys.argv[1] == "drop":
         db.drop_all()
-
-

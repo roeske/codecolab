@@ -2,9 +2,11 @@ import os
 import flask
 import models
 import bcrypt
-import simplejson as json
 import models
 
+import simplejson as json
+
+from functools import wraps
 from sqlalchemy import and_
 from md5 import md5
 
@@ -437,27 +439,61 @@ def card_edit(name,card_id):
     return value
 
 
-@app.route("/project/<name>/cards/<int:card_id>", methods=["GET"])
-def card_render(name, card_id):
+def check_privileges(func):
+    """
+    Decorator to ensure that the user has a valid session before allowing him
+    to execute the view function, and that he is a member of the target
+    project.
+    """
+    @wraps(func)
+    def wrap(**kwargs):
+        # Obtain email from session, otherwise, error 403
+        email = get_email_or_403()
+
+        # Obtain the luser, or return not found.
+        luser = get_luser_or_404(email)
+     
+        # Do this to make sure the luser is a member of the project. 
+        project = get_project_or_404(kwargs["project_name"], luser._id)
+
+        return func(project=project, **kwargs)
+    return wrap
+
+
+def query_card(card_id, project_id):
+    return (models.Card.query.filter(and_(models.Card._id==card_id,
+                                   models.Card.project_id==project_id))
+                             .first())
+
+
+# TODO: URL for this could be better.
+@app.route("/project/<project_name>/cards/<int:card_id>", methods=["GET"])
+@check_privileges
+def card_render(project_name=None, card_id=None, project=None):
     """
     Used to render a card in a modal dialog.
     """
 
-    # Obtain email from session, otherwise, error 403
-    email = get_email_or_403()
+    card = query_card(card_id, project._id)
 
-    # Obtain the luser, or return not found.
-    luser = get_luser_or_404(email)
- 
-    # Do this to make sure the luser is a member of the project. 
-    project = get_project_or_404(name, luser._id)
+    return flask.render_template("card.html", card=card, project_name=project_name)
 
- 
-    card = (models.Card.query.filter(and_(models.Card._id==card_id,
-                                   models.Card.project_id==project._id))
-                             .first())
 
-    return flask.render_template("card.html", card=card, project_name=name)
+@app.route("/project/<project_name>/cards/<int:card_id>/score", methods=["POST"])
+@check_privileges
+def card_score(project_name=None, card_id=None, project=None):
+    
+    card = query_card(card_id, project._id)
+    
+    score = int(flask.request.json["score"])
+    print "score = %r" % score
+    card.score = score
+    
+    models.db.session.commit()
+    
+     
+    return respond_with_json({ "status" : "success",
+                               "message" : "updated card %d" % card._id })
 
 
 @app.route("/cards/reorder", methods=["POST"])
