@@ -3,15 +3,14 @@ import flask
 import models
 import bcrypt
 import models
-
 import simplejson as json
 
 from functools import wraps
 from sqlalchemy import and_
 from md5 import md5
 
-
 app = models.app
+
 
 PORT = 8080
 
@@ -25,14 +24,12 @@ def _handler(o):
 jsonize = lambda d: json.dumps(d, default=_handler)
 
 
-
 def is_logged_in():
     return "email" in flask.session
 
 
 # Serve static files for development
 ################################################
-
 
 file_suffix_to_mimetype = {
     '.css': 'text/css',
@@ -456,6 +453,8 @@ def check_privileges(func):
         # Do this to make sure the luser is a member of the project. 
         project = get_project_or_404(kwargs["project_name"], luser._id)
 
+        kwargs["luser"] = luser
+
         return func(project=project, **kwargs)
     return wrap
 
@@ -469,19 +468,18 @@ def query_card(card_id, project_id):
 # TODO: URL for this could be better.
 @app.route("/project/<project_name>/cards/<int:card_id>", methods=["GET"])
 @check_privileges
-def card_render(project_name=None, card_id=None, project=None):
+def card_render(project_name=None, card_id=None, project=None, **kwargs):
     """
     Used to render a card in a modal dialog.
     """
 
     card = query_card(card_id, project._id)
-
     return flask.render_template("card.html", card=card, project_name=project_name)
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/score", methods=["POST"])
 @check_privileges
-def card_score(project_name=None, card_id=None, project=None):
+def card_score(project_name=None, card_id=None, project=None, **kwargs):
     
     card = query_card(card_id, project._id)
     
@@ -580,8 +578,26 @@ def perform_add_card(email, project_name, text, form=None):
 
 
 @app.route("/cards/add", methods=["POST"])
-def card_add():
+def cards_add():
     return add_to_project(perform_add_card)
+
+
+@app.route("/project/<project_name>/cards/<int:card_id>/comment", methods=["POST"])
+@check_privileges
+def cards_comment(project_name=None, card_id=None, **kwargs):
+    """
+    Update the database when a user posts a comment.
+    """
+    luser = kwargs["luser"]
+
+    text = flask.request.form["text"].encode("UTF-8").strip()
+
+    comment = models.CardComment(card_id=card_id, luser_id=luser._id, text=text)
+    models.db.session.add(comment)
+    models.db.session.commit()
+    models.db.session.flush()
+
+    return respond_with_json(dict(comment=comment, luser=comment.luser))
 
 
 # Piles

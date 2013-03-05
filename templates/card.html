@@ -8,7 +8,37 @@
 <div class="editable description">{{ card.description }}</div>
 
 <br />
-<p>Difficulty:&nbsp;&nbsp;&nbsp;<span class="editable difficulty" data-score="{{ card.score }}"></span></p>
+<p>Difficulty:&nbsp;&nbsp;&nbsp;<span class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></span></p>
+
+
+<h3 class="comments_title">Comments</h3>
+
+<ul class="comments structural">
+   {% for comment in card.comments %}
+   <li>
+        <p class="text">{{ comment.text }}</p>
+        <p class="email">--{{ comment.luser.email }}</p>
+   </li>
+   {% endfor %}
+</ul>
+
+
+<form action="/project/{{ project_name }}/cards/{{ card._id }}/comment" method="POST">
+    <ul class="structural" style="width: 20em; padding: 0; margin: 0;">
+
+        <li> 
+            <textarea style="width: 19.2em;"  placeholder="Comment..." name="text" id="text"/>
+        </li>
+
+        <li>
+            <div style="float: right;">
+                <input type="submit" name="submit" value="Add Comment" class="btn"/>
+            </div>
+            <div style="clear: both;"></div>
+        </li>
+    </ul>
+</form>
+
 
 <!-- Run code to make above editables work -->
 <script type="text/javascript">
@@ -18,6 +48,10 @@ $(document).ready(function() {
     var card_id = "{{ card._id }}"
     var modal_selector = "#modal_" + "{{ card._id }}"
 
-    cc_make_card_editable(project_name, $(modal_selector), card_id)
+    var modal = $(modal_selector)
+    
+    cc_make_card_editable(project_name, modal, card_id)
+
+    cc_connect_comment_form(project_name, modal, card_id)
 })
 </script>

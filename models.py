@@ -118,10 +118,35 @@ class Card(db.Model, DictSerializable):
 
     created = db.Column(db.DateTime, default=func.now())
 
+    comments = db.relationship("CardComment", order_by=lambda: CardComment.created)
 
     @property
     def card_uuid(self):
         return "card_" + md5(str(self._id) + self.text + str(self.created)).hexdigest()
+
+
+    @property
+    def created_human(self):
+        return self.created.strftime("%A, %b. %d, %Y - %I:%M %p")
+
+
+# TODO: refactor, use mixin for 'created'
+class CardComment(db.Model, DictSerializable):
+
+    __tablename__ = "card_comment"
+
+    _id         = db.Column(db.Integer, primary_key=True)
+    created     = db.Column(db.DateTime, default=func.now())
+    luser_id    = db.Column(db.Integer, db.ForeignKey(Luser._id), nullable=False)
+    card_id     = db.Column(db.Integer, db.ForeignKey(Card._id), nullable=False)
+    text        = db.Column(db.String)
+   
+    luser       = db.relationship("Luser")
+
+
+    @property
+    def email(self):
+        return self.luser.email
 
 
     @property

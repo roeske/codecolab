@@ -19,6 +19,8 @@
         <script type="text/javascript" src="/js/theme.js"></script>
         <script type="text/javascript" src="/js/jquery.jeditable.js"></script>
         <script type="text/javascript" src="/js/raty/jquery.raty.js"></script>
+        <script src="http://malsup.github.com/jquery.form.js"></script> 
+
         <!-- include JS code for this screen -->
         <script type="text/javascript" src="/js/project.js"></script>
 
@@ -38,7 +40,10 @@ $(document).ready(function() {
     // Initialize project page
     cc_project_init(project_name, pile_ids) 
 
-    cc_connect_raty_score($(".editable.difficulty"))
+    $(".editable.difficulty").each(function(i, elem) {
+        elem = $(elem)
+        cc_connect_raty_score(elem, project_name, elem.data("card-id"))
+    })
 })
 
 </script>

@@ -78,7 +78,7 @@ function cc_connect_raty_score(elem, project_name, card_id)
                 success: function(data) {
                     console.log(JSON.stringify(data))
                     // Update any other copies of this we have.
-                    var selector  = "div.difficulty[data-card-id="+card_id+"]"
+                    var selector  = ".difficulty[data-card-id="+card_id+"]"
                     var other = $(selector)
                     other.data("score", score)
                     other.raty("score", score)
@@ -299,8 +299,8 @@ function cc_connect_card_to_modal(project_name, elem) {
     var options = {
         title: "Edit Card",
         autoOpen: false,
-        width: 500,
-        height: 300
+        width: 480,
+        height: 600
     }
 
     var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
@@ -339,3 +339,15 @@ function cc_project_init(project_name, pile_ids) {
 
     cc_setup_editable_fields(project_name)
 }
+
+function cc_connect_comment_form(project_name, modal, card_id) {
+    modal.find("form").ajaxForm({
+        success: function(response, status_code) {
+            var list = modal.find("ul.comments")
+            list.append("<li><p class=\"text\">" + response.comment.text + "</p>"
+                       +"    <p class=\"email\">--" + response.luser.email + "</p></li>")
+            modal.find("form textarea").val("")
+        }
+    })
+}
+
