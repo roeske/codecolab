@@ -9,7 +9,6 @@ function cc_make_card_editable(project_name, elem, card_id) {
         style: "inherit",
         onblur: "submit",
         tooltip: "Click to edit...",
-        width: $(elem).width() + 80 + "px",
 
         callback: function(value, settings) {
             console.log("settings=" + settings)
@@ -65,6 +64,8 @@ function cc_connect_raty_score(elem, project_name, card_id)
         // # of stars to display
         number: 3,
         numberMax: 3,
+
+        hints: ["Easy", "Normal", "Difficult"],
 
         // Allow the user to update the score on the backend by clicking.
         click: function(score, ev) {

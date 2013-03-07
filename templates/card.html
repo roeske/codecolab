@@ -24,16 +24,13 @@
 
 
 <form class="comments" action="/project/{{ project_name }}/cards/{{ card._id }}/comment" method="POST">
-    <ul class="structural" style="width: 20em; padding: 0; margin: 0;">
-
+    <ul class="structural" style="padding: 0; margin: 0;">
         <li> 
-            <textarea style="width: 19.2em;"  placeholder="Comment..." name="text" id="text"/>
+            <textarea placeholder="Comment..." name="text" id="text"/>
         </li>
 
         <li>
-            <div style="float: right;">
-                <input type="submit" name="submit" value="Add Comment" class="btn"/>
-            </div>
+            <input class="btn" style="float: right; margin-right: 0;" type="submit" name="submit" value="Add Comment" />
             <div style="clear: both;"></div>
         </li>
     </ul>
@@ -41,7 +38,7 @@
 
 
 <form class="uploads" action="/project/{{ project_name }}/cards/{{ card._id }}/attach" method="POST">
-    <ul class="structural" style="width: 20em; padding: 0; margin: 0;">
+    <ul class="structural">
 
         <li> 
             <input type="file"  name="file" id="file" />

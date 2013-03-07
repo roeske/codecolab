@@ -102,7 +102,8 @@ $(document).ready(function() {
                         <div class="chrome pile_chrome_top top_corners">
                             <h4 class="pile_title"><span data-id="{{ pile._id }}" class="editable pile_title">{{ pile.name }}</span></h4>
                             <div class="pile_options">
-                                <a href="/delete?pile_id={{ pile._id }}&project_name={{ project.urlencoded_name }}">delete</a>
+                                <a href="/delete?pile_id={{ pile._id }}&project_name={{ project.urlencoded_name
+                                }}">&nbsp;x&nbsp;</a>
                             </div>
                         </div>
                         <div class="clear"></div>
@@ -112,15 +113,19 @@ $(document).ready(function() {
                             {% for card in pile.cards %}
                                 <li data-pile-id="{{ card.pile_id }}" id="{{ card.card_uuid }}" class="card_item ui-state-default"
                                     data-id="{{ card._id }}" data-number="{{ card.number }}">
-                                
-                                <p class="date">{{ card.created_human }}</p>
+                               
+                                <div>
+                                    <p style="float: left;" class="date">{{ card.created_human }}</p> 
+                                    <a class="delete" style="float: right"
+                                       href="/delete?card_id={{ card._id }}&project_name={{ project.urlencoded_name
+                                       }}">&nbsp;x&nbsp;</a>
+                                </div>
+                                <div style="clear: both"/></div>
+
                                 <p><span class="card editable text" data-id="{{ card._id }}">{{ card.text }}</span></p>
                                
                                 <div class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div>
 
-                                <a class="delete" 
-                                   href="/delete?card_id={{ card._id }}&project_name={{ project.urlencoded_name }}">delete</a>
-                                <div style="clear: both"/></div>
                             {% endfor %}
 
                         </ul>

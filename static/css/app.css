@@ -52,7 +52,6 @@ h3.comments_title {
 
 ul.comments {
     margin: 1em 0em 1em;
-    width: 19.3em;
 }
 
 ul.comments li {
@@ -72,6 +71,10 @@ ul.comments li p.text {
     font-size: 90%;
 }
 
+form.comments ul li textarea {
+    margin-right: 2.1em;
+    width: 100%;
+}
 
 ul.card_list li {
     background-color: #222;
