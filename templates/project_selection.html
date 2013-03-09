@@ -53,9 +53,20 @@ $(document).ready(function() {
             </div>
 
             <ul id="project" class="structural project_list">
-                {% for project in projects %}
-                    <li class="project_item" data-id="{{ project._id }}">
-                        <a href="/project/{{ project.urlencoded_name }}">{{ project.name }}</a>
+                {% for pl in projects_and_lusers %}
+                    <li class="project_item" data-id="{{ pl[0]._id }}">
+
+
+
+                        <a href="/project/{{ pl[0].urlencoded_name }}">{{ pl[0].name }}</a> 
+                        <!-- This value is set dynamically to denote that the user has
+                             privileges for this project, and therefore can enter the
+                             management area. -->
+                        {% if pl[1].is_owner == True %}
+
+                            <a href="/project/{{ pl[0].urlencoded_name }}/manage">&nbsp;[manage]</a> 
+
+                        {% endif %}
                     </li>
                 {% endfor %}
             </ul>

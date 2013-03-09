@@ -1,7 +1,7 @@
 import os
 import flask
 import models
-import bcrypt
+import bcrypt 
 import models
 import simplejson as json
 
@@ -110,26 +110,37 @@ def get_luser_for_email(email):
     return models.Luser.query.filter_by(email=email).first()
 
 
-def get_projects_for_luser_id(luser_id):
-    return (models.Project.query.join(models.Project.lusers)
-                          .filter(models.Luser._id==luser_id)).all()
-
-
-def render_index(email, **kwargs):
-    return render_project_selection(email, **kwargs)
-
-
-def render_project_selection(email, **kwargs):
-    luser = get_luser_for_email(email)
-    projects = get_projects_for_luser_id(luser._id)
-    return flask.render_template("project_selection.html", email=email,
-                                 projects=projects, **kwargs)
-
-
 def respond_with_json(obj):
     " Helper for returning a JSON response body."
     mimetype = "application/json;charset=UTF-8"
     return flask.Response(jsonize(obj), mimetype=mimetype)
+
+
+## Project Selection 
+###############################################################################
+
+def get_projects_and_lusers(luser_id):
+    return (models.db.session.query(models.Project, models.ProjectLuser)
+                      .filter(models.ProjectLuser.luser_id==luser_id)
+                      .filter(models.ProjectLuser.project_id==models.Project._id)
+                      .all())
+
+
+def render_project_selection(email, **kwargs):
+    """
+    Render a selection of projects that the user is a member of.
+    
+    Display the 'Manage' for projects if the user is an owner.
+    """
+    luser = get_luser_for_email(email)
+    projects_and_lusers = get_projects_and_lusers(luser._id)
+    return flask.render_template("project_selection.html", email=email,
+                                 projects_and_lusers=projects_and_lusers,
+                                 **kwargs)
+
+
+def render_index(email, **kwargs):
+    return render_project_selection(email, **kwargs)
 
 
 ## Log out
@@ -439,6 +450,21 @@ def card_edit(name,card_id):
     return value
 
 
+def do_check_privileges(**kwargs):
+    # Obtain email from session, otherwise, error 403
+    email = get_email_or_403()
+
+    # Obtain the luser, or return not found.
+    luser = get_luser_or_404(email)
+ 
+    # Do this to make sure the luser is a member of the project. 
+    project = get_project_or_404(kwargs["project_name"], luser._id)
+
+    kwargs["luser"] = luser
+
+    return email, luser, project
+
+
 def check_privileges(func):
     """
     Decorator to ensure that the user has a valid session before allowing him
@@ -447,18 +473,20 @@ def check_privileges(func):
     """
     @wraps(func)
     def wrap(**kwargs):
-        # Obtain email from session, otherwise, error 403
-        email = get_email_or_403()
-
-        # Obtain the luser, or return not found.
-        luser = get_luser_or_404(email)
-     
-        # Do this to make sure the luser is a member of the project. 
-        project = get_project_or_404(kwargs["project_name"], luser._id)
-
-        kwargs["luser"] = luser
-
+        email, luser, project = do_check_privileges(**kwargs)
         return func(project=project, **kwargs)
+    return wrap
+
+
+def check_admin_privileges(func):
+    """
+    Decorator to ensure that the user has administrator access before
+    allowing him to execute the view function.
+    """
+    @wraps(func)
+    def wrap(**kwargs):
+        email, luser, project = do_check_privileges(**kwargs)
+        owner_or_403(luser, project)
     return wrap
 
 
@@ -535,7 +563,7 @@ def cards_reorder():
                 }, ...
             ]
         }
-    """
+   """
 
     print "%r" % flask.request.json
     for update in flask.request.json["updates"]:
@@ -603,6 +631,11 @@ def perform_add_card(email, project_name, text, form=None):
 @app.route("/cards/add", methods=["POST"])
 def cards_add():
     return add_to_project(perform_add_card)
+
+
+@app.route("/project/<project_name>/milestones/add")
+def milestones_add():
+    pass
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/comment", methods=["POST"])
