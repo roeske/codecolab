@@ -43,8 +43,7 @@ function cc_make_card_editable(project_name, elem, card_id) {
  * appropriate score from data-score attribute. Configures JSON 
  * postback against /project/<name>/cards/<id>/score POST API.
  */
-function cc_connect_raty_score(elem, project_name, card_id)
-{
+function cc_connect_raty_score(elem, project_name, card_id) {
     // Setup difficulty rating widget.
     elem.raty({
         // Load correct score when document is loaded.
@@ -300,8 +299,8 @@ function cc_connect_card_to_modal(project_name, elem) {
     var options = {
         title: "Edit Card",
         autoOpen: false,
-        width: 480,
-        height: 600
+        width: 650,
+        height: 700
     }
 
     var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
@@ -362,3 +361,62 @@ function cc_connect_upload_form(project_name, modal, card_id) {
     })
 }
 
+
+function cc_connect_milestone_spinner(project_name, modal, card_id) {
+    var form = modal.find("form.milestone")
+
+    // Fire this function when the milestone spinner's value is changed.
+    modal.find("form.milestone select").change(function() {
+
+        // Find the newly selected element
+        var changed = $(this).find("option:selected")
+
+        // Find the milestone_id of the element
+        var milestone_id = changed.data("id")
+
+        // If the milestone id is negative, that is being used to encode
+        // 'None', so use the appropriate value
+        if (milestone_id < 0) {
+            milestone_id = null;
+        }
+       
+        // Find the label of the element (to update state on DOM)
+        var label = changed.text()
+
+        // Update the card with the newly chosen milestone id.
+        $.ajax({
+            type: form.attr("method"),
+            url: form.attr("action"),
+
+            data: JSON.stringify({milestone_id: milestone_id}),
+            
+            success: function(data) {
+                console.log(JSON.stringify(data))
+
+                // success, so update the DOM...
+                console.log("card_id = " + card_id)
+               
+                // Find the correct card item based on id.
+                var target = $("li.card_item[data-id="+card_id+"]")
+
+                // Locate the label within that target
+                var target_label = target.find(".milestone")
+                
+                // Update the text of the label with the new value.
+                //
+                // If the milestone id is null, set it to the empty string
+                if (milestone_id === null) {
+                    target_label.text("")
+                } else {
+                    target_label.text(label)
+                }
+            },
+
+            failure: function(data) {
+                alert("Failed to change milestone.")
+            },
+                
+            contentType: "application/json;charset=UTF-8"
+        })
+    })
+}

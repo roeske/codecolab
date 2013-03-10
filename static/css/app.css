@@ -45,9 +45,10 @@ textarea, input { color: #000; }
     margin: 0;
 }
 
-h3.comments_title {
+.card_section {
     font-size: 80%;
     font-weight: bold;
+    color: #333;
 }
 
 ul.comments {
@@ -182,6 +183,16 @@ li.card_item p span {
 
 li.empty_card, li.card_item {
     min-height: 6em;
+}
+
+li.card_item span.milestone {
+    color: #0a0;
+    font-size: 80%;
+    float: right;
+}
+
+.card_label {
+    color: #222;
 }
 
 @media(min-width: 900px) {

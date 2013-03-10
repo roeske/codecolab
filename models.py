@@ -80,6 +80,7 @@ class Milestone(db.Model, DictSerializable):
 
     cards       = db.relationship("Card", order_by=lambda: Card.number)
 
+
     @property
     def progress(self):
         """
@@ -89,6 +90,7 @@ class Milestone(db.Model, DictSerializable):
         """
         progress = 0
         return progress
+
 
     @property
     def progress_human(self):
@@ -135,9 +137,11 @@ class Card(db.Model, DictSerializable):
     __tablename__ = "card"
 
     _id             = db.Column(db.Integer, primary_key=True)
+
     project_id      = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False) 
     pile_id         = db.Column(db.Integer, db.ForeignKey(Pile._id))
     milestone_id    = db.Column(db.Integer, db.ForeignKey(Milestone._id))
+
     text            = db.Column(db.String)
     score           = db.Column(db.Integer, default=DIFFICULTY_SCORE_NONE)
     description     = db.Column(db.String, default="Please enter a description...")
@@ -145,11 +149,12 @@ class Card(db.Model, DictSerializable):
     # Default this to current value of 'id' column, but we'll change it later
     # to adjust the order of the list.
     number = db.Column(db.Integer, default=func.currval("card__id_seq"))
-
     created = db.Column(db.DateTime, default=func.now())
 
     comments = db.relationship("CardComment", order_by=lambda: CardComment.created)
     attachments = db.relationship("CardFile", order_by=lambda: CardFile.created)
+    milestone = db.relationship("Milestone")
+
 
     @property
     def card_uuid(self):

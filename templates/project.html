@@ -120,12 +120,14 @@ $(document).ready(function() {
                                        href="/delete?card_id={{ card._id }}&project_name={{ project.urlencoded_name
                                        }}">&nbsp;x&nbsp;</a>
                                 </div>
-                                <div style="clear: both"/></div>
+                                <div class="clear"></div>
 
                                 <p><span class="card editable text" data-id="{{ card._id }}">{{ card.text }}</span></p>
                                
                                 <div class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div>
 
+                                <span class="milestone">{{ card.milestone.name }}</span>
+                                <div class="clear"></div>
                             {% endfor %}
 
                         </ul>

@@ -408,9 +408,89 @@ def add_to_project(callback):
         print "[EE] Insufficient parameters."
         flask.abort(400)
 
+#-----------------------------------------------------------------------------
+# Privilege Decorators 
+#
+# These functions are reusable security measures that can 'decorate'
+# any view function in order to prevent unauthorized users from 
+# obtaining access to them.
+#
+##############################################################################
+
+def do_check_privileges(**kwargs):
+    # Obtain email from session, otherwise, error 403
+    email = get_email_or_403()
+
+    # Obtain the luser, or return not found.
+    luser = get_luser_or_404(email)
+ 
+    # Do this to make sure the luser is a member of the project. 
+    project = get_project_or_404(kwargs["project_name"], luser._id)
+
+    kwargs["email"] = email
+    kwargs["luser"] = luser
+    kwargs["project"] = project
+
+    return kwargs
+
+
+def check_privileges(func):
+    """
+    Decorator to ensure that the user has a valid session before allowing him
+    to execute the view function, and that he is a member of the target
+    project.
+    """
+    @wraps(func)
+    def wrap(**kwargs):
+        kwargs = do_check_privileges(**kwargs)
+        return func(**kwargs)
+    return wrap
+
+
+def is_owner_or_403(luser, project):
+    """
+    Throws error 403 if 'luser' is not an owner of 'project'
+    """
+    is_owner = (models.db.session.query(models.ProjectLuser)
+                      .filter(models.ProjectLuser.luser_id==luser._id)
+                      .filter(models.ProjectLuser.project_id==project._id)
+                      .filter(models.ProjectLuser.is_owner==True).first())
+
+    if is_owner == None:
+        flask.abort(403)
+        
+
+def check_owner_privileges(func):
+    """
+    Decorator to ensure that the user has administrator access before
+    allowing him to execute the view function.
+    """
+    @wraps(func)
+    def wrap(**kwargs):
+        kwargs = do_check_privileges(**kwargs)
+        is_owner_or_403(kwargs["luser"], kwargs["project"])
+        return func(**kwargs)
+    return wrap
 
 # Cards
 ##############################################################################
+
+@app.route("/project/<project_name>/cards/<int:card_id>/select_milestone",
+            methods=["POST"])
+@check_privileges
+def card_select_milestone(project=None, card_id=None, **kwargs):
+    
+    card = models.Card.query.filter_by(_id=card_id).first()
+
+    milestone_id = flask.request.json["milestone_id"]
+    card.milestone_id = milestone_id
+    models.db.session.commit()
+    models.db.session.flush()
+
+    message = "Added card %r to milestone %r" % (card_id, milestone_id)
+    return respond_with_json({ "status" : "success",
+                               "message" : message })                                 
+
 
 @app.route("/project/<name>/cards/edit/<int:card_id>", methods=["POST"])
 def card_edit(name,card_id):
@@ -449,71 +529,6 @@ def card_edit(name,card_id):
 
     return value
 
-#-----------------------------------------------------------------------------
-# Privilege Decorators 
-#
-# These functions are reusable security measures that can 'decorate'
-# any view function in order to prevent unauthorized users from 
-# obtaining access to them.
-#
-##############################################################################
-
-def do_check_privileges(**kwargs):
-    # Obtain email from session, otherwise, error 403
-    email = get_email_or_403()
-
-    # Obtain the luser, or return not found.
-    luser = get_luser_or_404(email)
- 
-    # Do this to make sure the luser is a member of the project. 
-    project = get_project_or_404(kwargs["project_name"], luser._id)
-
-    kwargs["email"] = email
-    kwargs["luser"] = luser
-    kwargs["project"] = project
-
-    return kwargs
-
-def check_privileges(func):
-    """
-    Decorator to ensure that the user has a valid session before allowing him
-    to execute the view function, and that he is a member of the target
-    project.
-    """
-    @wraps(func)
-    def wrap(**kwargs):
-        do_check_privileges(**kwargs)
-        return func(**kwargs)
-    return wrap
-
-
-def is_owner_or_403(luser, project):
-    """
-    Throws error 403 if 'luser' is not an owner of 'project'
-    """
-    is_owner = (models.db.session.query(models.ProjectLuser)
-                      .filter(models.ProjectLuser.luser_id==luser._id)
-                      .filter(models.ProjectLuser.project_id==project._id)
-                      .filter(models.ProjectLuser.is_owner==True).first())
-
-    if is_owner == None:
-        flask.abort(403)
-        
-
-def check_owner_privileges(func):
-    """
-    Decorator to ensure that the user has administrator access before
-    allowing him to execute the view function.
-    """
-    @wraps(func)
-    def wrap(**kwargs):
-        kwargs = do_check_privileges(**kwargs)
-        is_owner_or_403(kwargs["luser"], kwargs["project"])
-        return func(**kwargs)
-    return wrap
-
-
-##############################################################################
 
 def query_card(card_id, project_id):
     return (models.Card.query.filter(and_(models.Card._id==card_id,
@@ -521,16 +536,17 @@ def query_card(card_id, project_id):
                              .first())
 
 
-# TODO: URL for this could be better.
 @app.route("/project/<project_name>/cards/<int:card_id>", methods=["GET"])
 @check_privileges
-def card_render(project_name=None, card_id=None, project=None, **kwargs):
+def cards_get(project_name=None, card_id=None, project=None, **kwargs):
     """
     Used to render a card in a modal dialog.
     """
 
     card = query_card(card_id, project._id)
-    return flask.render_template("card.html", card=card, project_name=project_name)
+    return flask.render_template("card.html", card=card, 
+                                              project=project,
+                                              project_name=project_name)
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/score", methods=["POST"])

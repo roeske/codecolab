@@ -10,9 +10,34 @@
 <br />
 <p>Difficulty:&nbsp;&nbsp;&nbsp;<span class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></span></p>
 
+<!-- Select milestone -->
+<form action="/project/{{ project_name }}/cards/{{ card._id }}/select_milestone"
+      method="POST" 
+      class="milestone">
+    
+    <label class="card_section" for="select_milestone">Milestone</label>
+    
+    <select id="select_milestone">
+        <option data-id="-1">None</option>
+        {% for milestone in project.milestones %}
+        
+            <option 
+                {% if milestone._id == card.milestone_id %}
+                    selected
+                {% endif %}
+                data-card-id="{{ card.milestone_id }}" 
+                data-id="{{ milestone._id }}">
+                
+                {{ milestone.name }}
+            </option>
 
-<h3 class="comments_title">Comments</h3>
+        {% endfor %}
+    </select>
 
+</form>
+
+
+<h3 class="card_section">Comments</h3>
 <ul class="comments structural">
    {% for comment in card.comments %}
    <li>
@@ -73,9 +98,9 @@ $(document).ready(function() {
     var modal = $(modal_selector)
     
     cc_make_card_editable(project_name, modal, card_id)
-
     cc_connect_comment_form(project_name, modal, card_id)
-    
     cc_connect_upload_form(project_name, modal, card_id)
+    cc_connect_milestone_spinner(project_name, modal, card_id)
 })
+
 </script>
