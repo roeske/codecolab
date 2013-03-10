@@ -472,7 +472,7 @@ def check_owner_privileges(func):
         return func(**kwargs)
     return wrap
 
-# Cards
+## Cards
 ##############################################################################
 
 @app.route("/project/<project_name>/cards/<int:card_id>/select_milestone",
@@ -670,9 +670,34 @@ def perform_add_card(email, project_name, text, form=None):
 
 
 @app.route("/cards/add", methods=["POST"])
-def cards_add():
+def card_add():
     return add_to_project(perform_add_card)
 
+
+@app.route("/project/<project_name>/cards/<int:card_id>/complete",
+            methods=["POST"])
+@check_privileges
+def card_toggle_is_completed(project=None, card_id=None, **kwargs):
+    """
+    Facilitate the toggling of the Card's "is_completed" state.
+    """
+    state = flask.request.json["state"]
+
+    print "state=%r" % state
+
+    card = models.Card.query.filter_by(_id=card_id).first()
+
+    card.is_completed = not state
+
+    models.db.session.commit()
+    models.db.session.flush()
+
+    print "card.is_completed = %r" % card.is_completed
+    return respond_with_json(dict(state=card.is_completed))
+
+
+## Milestones
+###############################################################################
 
 @app.route("/project/<project_name>/milestones/add", methods=["POST"])
 @check_owner_privileges

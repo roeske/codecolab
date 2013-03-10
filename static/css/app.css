@@ -8,6 +8,19 @@ textarea, input { color: #000; }
 
 /*****************************************************************************/
 
+/** Font / Icons *************************************************************/
+
+@font-face {
+    font-family: entypo;
+    src: url("/css/entypo/entypo.ttf"),
+         url("/css/entypo/entypo.eot"),
+         url("/css/entypo/entypo.svg");
+}
+
+.icon {
+    font-family: entypo;
+}
+
 /** custom scrollbars ********************************************************/
 
 ::-webkit-scrollbar {
@@ -287,3 +300,4 @@ li.card_item span.milestone {
         border-radius: 5px;
     }
 }
+

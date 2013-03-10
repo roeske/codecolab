@@ -49,7 +49,6 @@ function cc_connect_raty_score(elem, project_name, card_id) {
         // Load correct score when document is loaded.
         score: function() { 
             score = $(this).data("score")
-            console.log("score = " + score)
             return score
         },
 
@@ -290,14 +289,14 @@ function cc_setup_editable_fields(project_name) {
 }
 
 
-function cc_connect_card_to_modal(project_name, elem) {
+function cc_connect_card_to_modal(title, project_name, elem) {
     // Create id to later reference modal with.
     var modal_id = "modal_" + $(elem).attr("data-id")
 
     var url = "/project/" + project_name + "/cards/" + $(elem).attr("data-id")
 
     var options = {
-        title: "Edit Card",
+        title: title,
         autoOpen: false,
         width: 650,
         height: 700
@@ -330,8 +329,9 @@ function cc_project_init(project_name, pile_ids) {
     }
 
     $("li.card_item").each(function(i, elem) {
+        var title = $(elem).data("title")
         $(elem).attr("data-project-name", project_name)
-        cc_connect_card_to_modal(project_name, elem)
+        cc_connect_card_to_modal(title, project_name, elem)
     })
 
     $("ul#pile_list").sortable(cc_make_pile_sorter("ul#pile_list"))
@@ -420,3 +420,52 @@ function cc_connect_milestone_spinner(project_name, modal, card_id) {
         })
     })
 }
+
+function cc_connect_complete_button(project_name, modal, card_id) {
+    // capture clicks on the complete button, which is really a link
+    // with modified behavior.
+    modal.find("a.card_complete").click(function(event) {
+        // Don't perform the default action of following the link.
+        event.preventDefault()
+
+        var that = this;
+
+        // Instead, post the state to the href of the link.
+        $.ajax({
+            type: "POST",
+            url: $(this).attr("href"),
+
+            // Get the new state each time we submit, to toggle.
+            data: JSON.stringify({state: $(that).data("state") == "True" }),
+            
+            success: function(data) {
+                var toggle = $(that)
+                var card_item_selector = "li.card_item[data-id="+card_id+"] p span.card"
+               
+                if (data.state) {
+                    // Update the toggle button state
+                    toggle.find("span.complete").show()
+                    toggle.find("span.incomplete").hide()
+                    toggle.data("state", "True")
+                    
+                    // Update the card item text strikethrough
+                    var target = $(card_item_selector)
+                    target.html("<strike>" + target.text() + "</strike>")
+                } else {
+                    // Update the toggle button state
+                    toggle.find("span.complete").hide()
+                    toggle.find("span.incomplete").show()
+                    toggle.data("state", "False")
+
+                    // Update the card item text strikethrough
+                    var selector = "li.card_item[data-id="+card_id+"] p span.card_text"
+                    var target = $(card_item_selector + " strike")
+                    $(card_item_selector).html(target.html())
+                }
+            },
+
+            contentType: "application/json;charset=UTF-8"
+        })
+    })
+}
+

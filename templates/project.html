@@ -8,7 +8,7 @@
         <link href="/css/bootstrap_slate.css" rel="stylesheet"/>
         <link href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" type="text/css" rel="stylesheet"/>
         <link href="/css/app.css" type="text/css" rel="stylesheet"/>
-
+        <link href="/css/card.css" type="text/css" rel="stylesheet"/>
 
         <!--[if lt IE 9]>
             <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -111,8 +111,14 @@ $(document).ready(function() {
                         <ul id="{{ pile.pile_uuid }}" data-id="{{ pile._id }}" class="card_list">
 
                             {% for card in pile.cards %}
-                                <li data-pile-id="{{ card.pile_id }}" id="{{ card.card_uuid }}" class="card_item ui-state-default"
-                                    data-id="{{ card._id }}" data-number="{{ card.number }}">
+
+
+                                <li id="{{ card.card_uuid }}" 
+                                    class="card_item ui-state-default"
+                                    data-pile-id="{{ card.pile_id }}"
+                                    data-id="{{ card._id }}" 
+                                    data-number="{{ card.number }}"
+                                    data-title="{{ card.title }}">
                                
                                 <div>
                                     <p style="float: left;" class="date">{{ card.created_human }}</p> 
@@ -122,7 +128,18 @@ $(document).ready(function() {
                                 </div>
                                 <div class="clear"></div>
 
-                                <p><span class="card editable text" data-id="{{ card._id }}">{{ card.text }}</span></p>
+                                <!-- card text -->
+                                <p>
+                                    <span class="card text" 
+                                          data-id="{{ card._id }}">
+                               
+                                        {% if card.is_completed %}
+                                            <strike>{{ card.text }}</strike>
+                                        {% else %}
+                                            {{ card.text }}
+                                        {% endif %}
+                                    </span>
+                                </p>
                                
                                 <div class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div>
 

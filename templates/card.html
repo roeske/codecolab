@@ -1,5 +1,27 @@
 <!-- Static created timestamp -->
-<p>{{ card.created_human }}</p>
+<div class="card_top">
+    <p>{{ card.created_human }}</p>
+    <div>
+        <a data-state="{{ card.is_completed }}" class="btn card_complete" href="/project/{{ project_name }}/cards/{{ card._id }}/complete">
+            <!-- Show the appropriate toggle state, but also make it easy
+                 to change from javascript by manipulating the DOM -->
+            {% if card.is_completed == True %}
+                {% set display_complete = "inline;" %}
+                {% set display_incomplete = "none;" %}
+            {% else %}
+                {% set display_incomplete = "inline;" %}
+                {% set display_complete = "none;" %}
+            {% endif %} 
+
+            <span style="display: {{ display_complete }}" 
+                  class="complete icon">Complete&nbsp;&#10003;</span>
+
+            <span style="display: {{ display_incomplete }}"
+                  class="incomplete">Finish&nbsp;</span>
+        </a>
+    </div>
+    <div class="clear"></div>
+</div>
 
 <!-- Editable Title "text" field -->
 <p><span class="editable text">{{ card.text }}</span></p>
@@ -101,5 +123,6 @@ $(document).ready(function() {
     cc_connect_comment_form(project_name, modal, card_id)
     cc_connect_upload_form(project_name, modal, card_id)
     cc_connect_milestone_spinner(project_name, modal, card_id)
+    cc_connect_complete_button(project_name, modal, card_id)
 })
 </script>

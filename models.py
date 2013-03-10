@@ -145,6 +145,7 @@ class Card(db.Model, DictSerializable):
     text            = db.Column(db.String)
     score           = db.Column(db.Integer, default=DIFFICULTY_SCORE_NONE)
     description     = db.Column(db.String, default="Please enter a description...")
+    is_completed    = db.Column(db.Boolean, default=False)
 
     # Default this to current value of 'id' column, but we'll change it later
     # to adjust the order of the list.
@@ -154,6 +155,11 @@ class Card(db.Model, DictSerializable):
     comments = db.relationship("CardComment", order_by=lambda: CardComment.created)
     attachments = db.relationship("CardFile", order_by=lambda: CardFile.created)
     milestone = db.relationship("Milestone")
+
+
+    @property
+    def title(self):
+        return self.text[:50] + "..."
 
 
     @property
