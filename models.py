@@ -110,7 +110,7 @@ class Pile(db.Model, DictSerializable):
     project_id  = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False)
     name        = db.Column(db.String, nullable=False, default="Unnamed Pile")
     created     = db.Column(db.DateTime, default=func.now())
-    cards       = db.relationship("Card")
+    cards       = db.relationship("Card", order_by=lambda: Card.number)
 
     @property
     def pile_uuid(self):
