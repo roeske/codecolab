@@ -7,8 +7,7 @@ from md5 import md5
 
 db = SQLAlchemy(app)
 
-# Easily serialize to dict for json conversion
-# See: http://piotr.banaszkiewicz.org/blog/2012/06/30/serialize-sqlalchemy-results-into-json/
+# Easily serialize to dict for json conversion # See: http://piotr.banaszkiewicz.org/blog/2012/06/30/serialize-sqlalchemy-results-into-json/
 
 from collections import OrderedDict
 
@@ -53,18 +52,48 @@ class Project(db.Model, DictSerializable):
 
     __tablename__ = "project"
 
-    _id     = db.Column(db.Integer, primary_key=True)
-    name    = db.Column(db.String, nullable=False)
-    created = db.Column(db.DateTime, default=func.now())
+    _id         = db.Column(db.Integer, primary_key=True)
+    name        = db.Column(db.String, nullable=False)
+    created     = db.Column(db.DateTime, default=func.now())
 
-    lusers  = db.relationship("Luser", secondary=ProjectLuser.__table__)
-    cards   = db.relationship("Card", order_by=lambda: Card.number)
-    piles   = db.relationship("Pile", order_by=lambda: Pile.number)    
+    milestones  = db.relationship("Milestone", order_by=lambda: Milestone.created)
+    lusers      = db.relationship("Luser", secondary=ProjectLuser.__table__)
+    cards       = db.relationship("Card", order_by=lambda: Card.number)
+    piles       = db.relationship("Pile", order_by=lambda: Pile.number)    
 
     @property
     def urlencoded_name(self):
         return quote(self.name)
 
+
+class Milestone(db.Model, DictSerializable):
+    """
+    Defines a goal within a project.
+    """
+
+    __tablename__ = "milestone"
+
+    _id         = db.Column(db.Integer, primary_key=True)
+    project_id  = db.Column(db.Integer, db.ForeignKey(Project._id))
+    name        = db.Column(db.String)
+    created     = db.Column(db.DateTime, default=func.now())
+
+    cards       = db.relationship("Card", order_by=lambda: Card.number)
+
+    @property
+    def progress(self):
+        """
+        STUB:
+        Progress is the percentage of points belonging to associated cards
+        marked complete.
+        """
+        progress = 0
+        return progress
+
+    @property
+    def progress_human(self):
+        return "%d%%" % self.progress 
+           
 
 class Pile(db.Model, DictSerializable):
     """
@@ -105,12 +134,13 @@ class Card(db.Model, DictSerializable):
 
     __tablename__ = "card"
 
-    _id         = db.Column(db.Integer, primary_key=True)
-    project_id  = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False) 
-    pile_id     = db.Column(db.Integer, db.ForeignKey(Pile._id))
-    text        = db.Column(db.String)
-    score       = db.Column(db.Integer, default=DIFFICULTY_SCORE_NONE)
-    description = db.Column(db.String, default="Please enter a description...")
+    _id             = db.Column(db.Integer, primary_key=True)
+    project_id      = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False) 
+    pile_id         = db.Column(db.Integer, db.ForeignKey(Pile._id))
+    milestone_id    = db.Column(db.Integer, db.ForeignKey(Milestone._id))
+    text            = db.Column(db.String)
+    score           = db.Column(db.Integer, default=DIFFICULTY_SCORE_NONE)
+    description     = db.Column(db.String, default="Please enter a description...")
 
     # Default this to current value of 'id' column, but we'll change it later
     # to adjust the order of the list.

@@ -449,6 +449,14 @@ def card_edit(name,card_id):
 
     return value
 
+#-----------------------------------------------------------------------------
+# Privilege Decorators 
+#
+# These functions are reusable security measures that can 'decorate'
+# any view function in order to prevent unauthorized users from 
+# obtaining access to them.
+#
+##############################################################################
 
 def do_check_privileges(**kwargs):
     # Obtain email from session, otherwise, error 403
@@ -460,10 +468,11 @@ def do_check_privileges(**kwargs):
     # Do this to make sure the luser is a member of the project. 
     project = get_project_or_404(kwargs["project_name"], luser._id)
 
+    kwargs["email"] = email
     kwargs["luser"] = luser
+    kwargs["project"] = project
 
-    return email, luser, project
-
+    return kwargs
 
 def check_privileges(func):
     """
@@ -473,22 +482,38 @@ def check_privileges(func):
     """
     @wraps(func)
     def wrap(**kwargs):
-        email, luser, project = do_check_privileges(**kwargs)
-        return func(project=project, **kwargs)
+        do_check_privileges(**kwargs)
+        return func(**kwargs)
     return wrap
 
 
-def check_admin_privileges(func):
+def is_owner_or_403(luser, project):
+    """
+    Throws error 403 if 'luser' is not an owner of 'project'
+    """
+    is_owner = (models.db.session.query(models.ProjectLuser)
+                      .filter(models.ProjectLuser.luser_id==luser._id)
+                      .filter(models.ProjectLuser.project_id==project._id)
+                      .filter(models.ProjectLuser.is_owner==True).first())
+
+    if is_owner == None:
+        flask.abort(403)
+        
+
+def check_owner_privileges(func):
     """
     Decorator to ensure that the user has administrator access before
     allowing him to execute the view function.
     """
     @wraps(func)
     def wrap(**kwargs):
-        email, luser, project = do_check_privileges(**kwargs)
-        owner_or_403(luser, project)
+        kwargs = do_check_privileges(**kwargs)
+        is_owner_or_403(kwargs["luser"], kwargs["project"])
+        return func(**kwargs)
     return wrap
 
+
+##############################################################################
 
 def query_card(card_id, project_id):
     return (models.Card.query.filter(and_(models.Card._id==card_id,
@@ -633,9 +658,22 @@ def cards_add():
     return add_to_project(perform_add_card)
 
 
-@app.route("/project/<project_name>/milestones/add")
-def milestones_add():
-    pass
+@app.route("/project/<project_name>/milestones/add", methods=["POST"])
+@check_owner_privileges
+def milestones_add(project=None, **kwargs):
+    """
+    Adds a new milestone. Confirms that user is an owner of this project,
+    first.
+    """
+    if project is None:
+        raise ValueError("project required.")
+
+    name = flask.request.form["name"]
+    milestone = models.Milestone(name=name, project_id=project._id)
+    models.db.session.add(milestone)
+    models.db.session.commit()
+    
+    return redirect_to("project_manage", **kwargs)
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/comment", methods=["POST"])
@@ -714,7 +752,7 @@ def pile_edit(name,pile_id):
     return name
 
        
-# Projects
+## Projects
 ###############################################################################
 
 def get_project(project_name, luser_id):
@@ -730,8 +768,32 @@ def get_project(project_name, luser_id):
                   .first())
 
 
+def cc_render_template(filename, email=None, **kwargs):
+    """ 
+    Wraps flask's render_template function to inject values common
+    to most screens.
+    """
+
+    if email is None:
+        raise ValueError("email required.")
+
+    gravatar_url = make_gravatar_url(email)
+    profile_url = make_gravatar_profile_url(email)
+
+    return flask.render_template(filename, email=email,
+                                 gravatar_url=gravatar_url,
+                                 profile_url=profile_url,
+                                 **kwargs)
+
+
 def render_project(project_name, email):
-     
+    """
+    Obtain necessary data for showing the user a project and bind it
+    with the 'project.html' template.
+
+    Responds to user with rendered project output.
+    """
+
     luser = get_luser_for_email(email)
     if luser is None:
         print "[EE] No user found for email=%r" % email
@@ -743,16 +805,11 @@ def render_project(project_name, email):
         print "[EE] No project found for name=%r and luser_id=%r" % params
         flask.abort(404)
 
-    gravatar_url = make_gravatar_url(email)
-    profile_url = make_gravatar_profile_url(email)
 
     json_pile_ids = json.dumps([p.pile_uuid for p in project.piles])
 
-    return flask.render_template("project.html", email=email, 
-                                                 project=project,
-                                                 gravatar_url=gravatar_url,
-                                                 profile_url=profile_url,
-                                                 json_pile_ids=json_pile_ids) 
+    return cc_render_template("project.html", email=email, project=project,
+                              json_pile_ids=json_pile_ids) 
 
 
 @app.route("/project/<name>")
@@ -763,6 +820,18 @@ def project(name):
     else:
         print "[EE] Must be logged in."
         flask.abort(403)
+
+
+@app.route("/project/<project_name>/manage")
+@check_owner_privileges
+def project_manage(project_name=None, **kwargs):
+    """
+    Renders the project management view. 
+
+    This view should allow project owners to create milestones, and
+    view progress.
+    """
+    return cc_render_template("project_manage.html", **kwargs)
 
 
 # Index
