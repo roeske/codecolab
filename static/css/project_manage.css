@@ -1,0 +1,31 @@
+table#milestones {
+    margin: 2em 0 0 0;
+    padding: 0;
+    width: 100%;
+}
+
+table#milestones th {
+    font-weight: 700;
+    font-style: bold;
+}
+
+table#milestones th, table#milestones td {
+    text-align: left;   
+    padding: 1em;
+    margin: 1em;
+    font-size: 110%;
+    background-color: #222;
+    border: 1px solid #111;
+    border-radius: 2px;
+    color: #fff;
+}
+
+.structural li {
+    margin: .5em;
+}
+
+#form_add_milestone {
+    float: right;
+    margin: 1em 0;
+}
+
