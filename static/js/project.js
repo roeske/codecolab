@@ -255,6 +255,7 @@ function cc_make_pile_sorter(selector) {
         distance: 10,
         revert: "invalid",
         tolerance: "pointer",
+        handle : ".handle",
 
         stop: function(event, ui) {
             // Update the values in the DOM to reflect the current
@@ -334,7 +335,10 @@ function cc_project_init(project_name, pile_ids) {
         cc_connect_card_to_modal(title, project_name, elem)
     })
 
-    $("ul#pile_list").sortable(cc_make_pile_sorter("ul#pile_list"))
+    var pile_selector = "ul#pile_list"
+
+    $(pile_selector).sortable(cc_make_pile_sorter("ul#pile_list"))
+
     $("ul, li").disableSelection()
 
     cc_setup_editable_fields(project_name)

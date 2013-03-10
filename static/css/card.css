@@ -1,0 +1,10 @@
+div.card_top p {
+    float: left;
+    display: none;
+}
+
+div.card_top div {
+    float: right;
+}
+
+

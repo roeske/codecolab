@@ -99,7 +99,7 @@ $(document).ready(function() {
                 {% for pile in project.piles %}
                     <li class="pile_container" data-id="{{ pile._id}}" data-number="{{ pile.number }}">
 
-                        <div class="chrome pile_chrome_top top_corners">
+                        <div class="handle chrome pile_chrome_top top_corners">
                             <h4 class="pile_title"><span data-id="{{ pile._id }}" class="editable pile_title">{{ pile.name }}</span></h4>
                             <div class="pile_options">
                                 <a href="/delete?pile_id={{ pile._id }}&project_name={{ project.urlencoded_name
