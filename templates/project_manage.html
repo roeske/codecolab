@@ -13,7 +13,8 @@
         <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
         <link rel="stylesheet" href="/css/app.css" type="text/css" />
         <link rel="stylesheet" href="/css/project_manage.css" type="text/css" />
-        <link href="/css/bootstrap_slate.css" rel="stylesheet" />
+        <link href="/css/bootstrap_slate.css" rel="stylesheet" type="text/css" />
+        <link href="/css/custom_tooltip.css" rel="stylesheet" type="text/css" />
 
         <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
         <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
@@ -22,7 +23,21 @@
         <!-- Begin application code -->
         <script type="text/javascript">
 // Run this code when the DOM is ready.
-$(document).ready(function() {
+$(function() {
+    $(document).tooltip({
+      position: {
+        my: "left bottom-20",
+        at: "left top",
+        using: function(position, feedback) {
+          $(this).css(position);
+          $("<div>")
+            .addClass("arrow" )
+            .addClass(feedback.vertical)
+            .addClass(feedback.horizontal)
+            .appendTo(this)
+        }
+      }
+    })
 })
 ///////////////////////////////////////
         </script>
@@ -55,17 +70,29 @@ $(document).ready(function() {
             </div>
             <div id="milestones_container">
                 <h4>Milestones</h4>
+                
                 <table id="milestones">
-                    <tr>
-                        <th>Milestone</th>
-                        <th>Progress</th>
-                    </tr>
+                <!-- loop through each milestone -->
                 {% for milestone in project.milestones %}
+
+                    <!-- print the table header -->
+                    {% if loop.first %}
+                        {% set i = 0 %}
+                        {% for name in milestone.stat_names %}
+                            <th title="{{ milestone.stat_tooltips[i] }}">
+                                {{ name }}
+                            </th>
+                            {% set i = i + 1 %}  
+                        {% endfor %}                     
+                    {% endif %}
+
                     <tr>
-                        <td>{{ milestone.name }}</td>
-                        <td>{{ milestone.progress_human }}</td>
+                        {% for stat in milestone.stats %}
+                            <td>{{ stat }}</td>
+                        {% endfor %}
                     </tr>
                 {% endfor %}
+
                 </table>
 
                 <form action="/project/{{ project.name }}/milestones/add" 

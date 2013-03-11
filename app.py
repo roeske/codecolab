@@ -10,6 +10,7 @@ from functools import wraps
 from sqlalchemy import and_
 from md5 import md5
 
+
 app = models.app
 
 PORT = 8080
@@ -872,6 +873,7 @@ def project_manage(project_name=None, **kwargs):
     This view should allow project owners to create milestones, and
     view progress.
     """
+    
     return cc_render_template("project_manage.html", **kwargs)
 
 

@@ -82,20 +82,100 @@ class Milestone(db.Model, DictSerializable):
 
 
     @property
-    def progress(self):
+    def stats(self):
         """
-        STUB:
-        Progress is the percentage of points belonging to associated cards
-        marked complete.
-        """
-        progress = 0
-        return progress
+        Gather some basic metrics on what has been done. 
 
+        * 'progress' -- This is the percentage of completed points.
+                        Unrated cards are not included in the score.
+                        
+                        Additionally, cards not associated with a milestone,
+                        cannot be included in the score. So, negligence in
+                        associating your cards with milestones will effect
+                        the usefulness of this metric. 
+
+                        Best practice will be to associate all your cards
+                        with a milestone.
+        
+        * 'incomplete_cards' -- Count of cards that have not been marked
+                                as complete for this milestone.
+
+        * 'incomplete_score' -- Total amount of points assigned to incomplete
+                                cards. Again, unrated cards cannot be included.
+
+        * 'complete_cards'   -- Count of cards that have been marked as
+                                complete for this milestone.
+
+        * 'complete_score'   -- Of cards that have been marked complete, the
+                                total of all 'score' values. Again, unscored
+                                cards are not included (They're 0 by default,
+                                which in our system means 'unrated')
+
+        * 'total_cards'      -- Total # of cards assigned to this milestone.
+
+        * 'total_score'      -- Total # of points from assigned cards. Unscored
+                                counts for 0.
+
+        * 'rated_cards'      -- Count of cards that have been rated.
+
+        * 'unrated_cards'    -- Count of cards that have not been rated.
+        """
+
+        progress = 0
+        incomplete_cards = 0
+        incomplete_score = 0
+        complete_cards = 0
+        complete_score = 0
+        total_cards = len(self.cards)
+        total_score = 0
+        rated_cards = 0
+        unrated_cards = 0
+
+        for card in self.cards:
+            if card.is_completed:
+                complete_cards += 1
+                complete_score += card.score
+            else:
+                incomplete_cards += 1
+                incomplete_score += card.score
+            
+            if card.score == 0:
+                unrated_cards += 1
+            else:
+                rated_cards += 1
+            
+            total_score += card.score
+
+        if total_score == 0:
+            progress = 0
+        else:
+            progress = float(complete_score) / float(total_score)
+        
+        progress = "%d%%" % (round(progress, 2) * 100)
+
+        return [self.name, progress, incomplete_cards, incomplete_score,
+                complete_cards, complete_score, total_cards, total_score,
+                rated_cards, unrated_cards]
 
     @property
-    def progress_human(self):
-        return "%d%%" % self.progress 
-           
+    def stat_names(self):
+        return ["Milestone", "Progress", "Incomplete Cards",
+                "Incomplete Score", "Complete Cards", "Complete Score",
+                "Total Cards", "Total Score", "Rated Cards", "Unrated Cards"]
+
+    @property
+    def stat_tooltips(self):
+        return ["Name of goal",
+                "Percentage of completed points.",
+                "# of cards that have not been marked as complete",
+                "Total points of cards not marked complete",
+                "# of cards marked complete",
+                "Total points of all cards marked complete",
+                "Total # of cards assigned to this milestone.",
+                "Total number of points for all assigned cards",
+                "# of cards that have been rated",
+                "# of cards that have not been rated."]
+
 
 class Pile(db.Model, DictSerializable):
     """
