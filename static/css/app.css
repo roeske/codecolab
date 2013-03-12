@@ -208,49 +208,46 @@ li.card_item span.milestone {
     color: #222;
 }
 
+
 @media(min-width: 900px) {
+    div.content { height: 94%; }
+
     div#piles {
         margin-top: .65em;
         background-color: #151515;
         border-radius: 5px;
-        height: 650px;
-    }
-
-    div#piles {
+        height: 90%;
         width: 100%;
-        overflow-y: hidden;
+    /*    overflow-y: hidden; */
         overflow-x: auto;
-    }
-
-    div#piles {
-        height: 610px;
     }
 
     div#piles ul#pile_list {
         list-style: none;
-        height: 600px;
         white-space: nowrap;
         overflow: hidden;
         float: left;
         margin: 0;
         padding: 0;
+        height: 99.5%;
     }
 
     .pile_container {
         margin-bottom: 1em;
-        height: 570px;
         margin: .35em .35em .35em .35em;
         width: 20em;
         float: left;
+        height: 100%;
     }
 
     .pile_container ul li {
         width: 17em;
     }
 
+
     .pile_container ul.card_list {
         min-height: 6em;
-        max-height: 450px;
+        max-height: 73.5%;
         overflow-x: hidden;
         overfloy-y: scroll;
         background-color: #171717;
