@@ -236,11 +236,6 @@ def perform_delete_pile(email, pile_id, project_name):
     models.db.session.delete(pile)
     models.db.session.commit()
 
-    if "redirect_to" in args:
-        redirect = args["redirect_to"]
-    else:
-        redirect = "project"
-    
     return redirect_to("project", name=project_name)
 
 
