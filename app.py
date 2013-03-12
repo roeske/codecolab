@@ -201,7 +201,7 @@ def delete():
         email = flask.session["email"]
         card_id = args.get("card_id")
         project_name = args.get("project_name")
-        return perform_delete_card(email, card_id, project_name)
+        return perform_delete_card(email, card_id, project_name, args)
 
     elif logged_in and "pile_id" in args and "project_name" in args:
         email = flask.session["email"]
@@ -236,10 +236,15 @@ def perform_delete_pile(email, pile_id, project_name):
     models.db.session.delete(pile)
     models.db.session.commit()
 
+    if "redirect_to" in args:
+        redirect = args["redirect_to"]
+    else:
+        redirect = "project"
+    
     return redirect_to("project", name=project_name)
 
 
-def perform_delete_card(email, card_id, project_name):
+def perform_delete_card(email, card_id, project_name, args):
     """
     Deletes a card list item by id. Performs basic security checks
     first.
@@ -278,7 +283,11 @@ def perform_delete_card(email, card_id, project_name):
     card = models.Card.query.filter_by(_id=card_id).first()
     models.db.session.delete(card)
     models.db.session.commit()
-    return redirect_to("project", name=project_name)
+
+    if "redirect_to" in args:
+        return flask.redirect("/project/%s/archives" % project.urlencoded_name)
+    else:
+        return redirect_to(page, name=project_name)
 
 
 # Add Project
@@ -476,6 +485,40 @@ def check_owner_privileges(func):
 ## Cards
 ##############################################################################
 
+@app.route("/project/<project_name>/card/<int:card_id>/archive")
+@check_privileges
+def archive(card_id=None, **kwargs):
+    """
+    Handles archival of cards.
+    """
+    card = models.Card.query.filter_by(_id=card_id).first()
+    card.is_archived = True
+    models.db.session.flush()
+    models.db.session.commit()
+   
+    return respond_with_json({ "status" : "success",
+                        "card_id" : card._id,
+                        "message" : "Archived card %d" % card._id })
+
+
+@app.route("/project/<project_name>/cards/<int:card_id>/restore",
+            methods=["GET"])
+@check_privileges
+def restore_card(project=None, card_id=None, **kwargs):
+    """
+    Handles restoration of cards to their state before archiving.
+
+    (Really just needs to flip a boolean)
+    """
+    card = models.Card.query.filter_by(_id=card_id).first()
+    card.is_archived = False
+    models.db.session.flush()
+    models.db.session.commit()
+
+    ## todo: ajaxify 
+    return flask.redirect("/project/%s/archives" % project.urlencoded_name)
+
+
 @app.route("/project/<project_name>/cards/<int:card_id>/select_milestone",
             methods=["POST"])
 @check_privileges
@@ -620,6 +663,14 @@ def cards_reorder():
     return respond_with_json({"status" : "success" })
 
 
+@app.route("/project/<project_name>/archives", methods=["GET", "POST"])
+@check_privileges
+def archives(**kwargs):
+    return cc_render_template("archived_cards.html", **kwargs)
+
+
+# Piles
+##############################################################################
 @app.route("/piles/reorder", methods=["POST"])
 def piles_reorder():
     """

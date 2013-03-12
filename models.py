@@ -221,7 +221,7 @@ class Card(db.Model, DictSerializable):
     project_id      = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False) 
     pile_id         = db.Column(db.Integer, db.ForeignKey(Pile._id))
     milestone_id    = db.Column(db.Integer, db.ForeignKey(Milestone._id))
-
+    is_archived     = db.Column(db.Boolean, default=False)
     text            = db.Column(db.String)
     score           = db.Column(db.Integer, default=DIFFICULTY_SCORE_NONE)
     description     = db.Column(db.String, default="Please enter a description...")

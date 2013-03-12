@@ -13,11 +13,16 @@
                 {% set display_complete = "none;" %}
             {% endif %} 
 
-            <span style="display: {{ display_complete }}" 
-                  class="complete icon">Complete&nbsp;&#10003;</span>
+            <div style="display: {{ display_complete }}" 
+                  class="complete">
+                  <div style="float: left;">Complete&nbsp;</div>
+                  <div class="icon">&#10003;</div>
+                  <div class="clear"></div>
+            </div>
 
-            <span style="display: {{ display_incomplete }}"
-                  class="incomplete">Finish&nbsp;</span>
+            
+            <div style="display: {{ display_incomplete }}"
+                  class="incomplete">Finish&nbsp;</div>
         </a>
     </div>
     <div class="clear"></div>

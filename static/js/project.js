@@ -448,8 +448,8 @@ function cc_connect_complete_button(project_name, modal, card_id) {
                
                 if (data.state) {
                     // Update the toggle button state
-                    toggle.find("span.complete").show()
-                    toggle.find("span.incomplete").hide()
+                    toggle.find("div.complete").show()
+                    toggle.find("div.incomplete").hide()
                     toggle.data("state", "True")
                     
                     // Update the card item text strikethrough
@@ -457,8 +457,8 @@ function cc_connect_complete_button(project_name, modal, card_id) {
                     target.html("<strike>" + target.text() + "</strike>")
                 } else {
                     // Update the toggle button state
-                    toggle.find("span.complete").hide()
-                    toggle.find("span.incomplete").show()
+                    toggle.find("div.complete").hide()
+                    toggle.find("div.incomplete").show()
                     toggle.data("state", "False")
 
                     // Update the card item text strikethrough

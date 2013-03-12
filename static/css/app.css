@@ -1,12 +1,38 @@
 /* reset **********************************************************************/
 html, body { width: 100%; height: 100%; padding: 0; margin 0; }
-ul, ol, p, li, h1, h2, h3, h4, h5, h6, div, span { margin: 0, padding: 0; }
+ul, ol, p, li, h1, h2, h3, h4, h5, h6, div { margin: 0, padding: 0; }
 form { padding-right: .35em; }
 li,h1 { line-height: 100% }
 div.navbar { margin-bottom: 0 }
 textarea, input { color: #000; }
 
-/*****************************************************************************/
+/* Tables ********************************************************************/
+
+table {
+    margin: 2em 0 0 0;
+    padding: 0;
+    width: 100%;
+}
+
+table th {
+    font-weight: 700;
+    font-style: bold;
+}
+
+table th, table td {
+    text-align: left;   
+    padding: 1em;
+    margin: 1em;
+    font-size: 110%;
+    background-color: #222;
+    border: 1px solid #111;
+    border-radius: 2px;
+    color: #fff;
+}
+
+.wrap {
+    width: auto;
+}
 
 /** Font / Icons *************************************************************/
 
@@ -19,6 +45,11 @@ textarea, input { color: #000; }
 
 .icon {
     font-family: entypo;
+    font-size: 200%;
+}
+
+a.btn div {
+    float: left;
 }
 
 /** custom scrollbars ********************************************************/
@@ -46,7 +77,8 @@ textarea, input { color: #000; }
 /** do this so the table doesn't get resized when accept is clicked. */
 .btn.accept_milestone { width: 104px; }
 
-.empty_card a, .card_item a.delete {
+.empty_card a, .card_item a.archive.archive {
+    font-size: 225%;
     float: right;
 }
 
@@ -135,10 +167,10 @@ div.pile_options {
     padding-bottom: .35em;
 }
 
-h1, h2, h3, h4, h5, h6 {
+/*h1, h2, h3, h4, h5, h6 {
     font-weight: 500;
     font-size: 120%;
-}
+}*/
 
 .top_corners {
     border-top-right-radius: 5px;
@@ -175,9 +207,13 @@ div.clear {
     margin: 1em;
 }
 
-div#project_name { width: 15%; }
+div#project_name { width: 50%; }
 
-#toolbox { width: 85%; }
+div#project_name h3,
+div#project_name div.nav { float: left; margin: 10.5px 10px; 
+                            line-height: 42px;}
+
+#toolbox { width: 50%; }
 
 div#project_name, #toolbox {
     float: left;
