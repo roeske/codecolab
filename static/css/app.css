@@ -40,6 +40,8 @@ textarea, input { color: #000; }
 
 /*****************************************************************************/
 
+/** fg color of 'complete' button */
+.btn.card_complete { color: #fff; }
 
 .empty_card a, .card_item a.delete {
     float: right;
