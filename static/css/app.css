@@ -41,7 +41,10 @@ textarea, input { color: #000; }
 /*****************************************************************************/
 
 /** fg color of 'complete' button */
-.btn.card_complete { color: #fff; }
+.btn.card_complete, .btn.accept_milestone { color: #fff; }
+
+/** do this so the table doesn't get resized when accept is clicked. */
+.btn.accept_milestone { width: 104px; }
 
 .empty_card a, .card_item a.delete {
     float: right;
@@ -232,6 +235,10 @@ li.card_item span.milestone {
         margin: 0;
         padding: 0;
         height: 99.5%;
+    }
+
+    div#piles ul#pile_list li {
+        max-height: 99%;
     }
 
     .pile_container {

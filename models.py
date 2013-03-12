@@ -76,8 +76,8 @@ class Milestone(db.Model, DictSerializable):
     _id         = db.Column(db.Integer, primary_key=True)
     project_id  = db.Column(db.Integer, db.ForeignKey(Project._id))
     name        = db.Column(db.String)
+    is_approved = db.Column(db.Boolean, default=False) 
     created     = db.Column(db.DateTime, default=func.now())
-
     cards       = db.relationship("Card", order_by=lambda: Card.number)
 
 

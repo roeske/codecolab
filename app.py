@@ -736,6 +736,26 @@ def cards_comment(project_name=None, card_id=None, **kwargs):
     return respond_with_json(dict(comment=comment, luser=comment.luser))
 
 
+@app.route("/project/<project_name>/milestone/<int:milestone_id>/accept",
+            methods=["POST"])
+@check_privileges
+def milestone_toggle_is_accepted(project=None, milestone_id=None, **kwargs):
+    """
+    Facilitate the toggling of the milestone's is_accepted attribute.
+    """
+    state = flask.request.json["state"]
+    print "state=%r" % state
+
+    milestone = models.Milestone.query.filter_by(_id=milestone_id).first()
+
+    milestone.is_approved = not state
+
+    models.db.session.commit()
+    models.db.session.flush()
+
+    return respond_with_json(dict(state=milestone.is_approved))
+
+
 # Piles
 ##############################################################################
 

@@ -24,6 +24,7 @@
         <script type="text/javascript">
 // Run this code when the DOM is ready.
 $(function() {
+    // Show tooltips on the table headings on mouseover.
     $(document).tooltip({
       position: {
         my: "left bottom-20",
@@ -37,6 +38,41 @@ $(function() {
             .appendTo(this)
         }
       }
+    })
+
+    // Handle clicks on the 'Accept' button. Toggle state
+    // of acceptance against the backend and update the DOM.
+    $("a.accept_milestone").click(function(event) {
+        event.preventDefault()
+        var that = this;
+
+        // Instead, post the state to the href of the link.
+        $.ajax({
+            type: "POST",
+            url: $(this).attr("href"),
+
+            // Get the new state each time we submit, to toggle.
+            data: JSON.stringify({state: $(that).data("state") == "True" }),
+            
+            success: function(data) {
+                console.log(data)
+                var toggle = $(that)
+                
+                if (data.state) {
+                    // Update the toggle button state
+                    toggle.find("span.true").show()
+                    toggle.find("span.false").hide()
+                    toggle.data("state", "True")
+                } else {
+                    // Update the toggle button state
+                    toggle.find("span.true").hide()
+                    toggle.find("span.false").show()
+                    toggle.data("state", "False")
+                }
+            },
+
+            contentType: "application/json;charset=UTF-8"
+        })
     })
 })
 ///////////////////////////////////////
@@ -65,7 +101,7 @@ $(function() {
         </div>
         <div class="content">
             <div>
-                <h3 class="title">Project Manager: {{ project.name }}</h3>
+                <h3 class="title">Project Manager: <a href="/project/{{ project.name }}">{{ project.name }}</a></h3>
                 <hr />
             </div>
             <div id="milestones_container">
@@ -88,7 +124,25 @@ $(function() {
 
                     <tr>
                         {% for stat in milestone.stats %}
-                            <td>{{ stat }}</td>
+                            <td>
+                            <!-- if this is the 'milestone' stat, inject an
+                                approve button into the table cell -->
+                            {% if loop.first %}
+                            <a style="float: right" href="/project/{{ project.name }}/milestone/{{ milestone._id }}/accept"
+                            data-state="{{ milestone.is_approved }}"
+                            class="icon btn accept_milestone ">
+                                {% if milestone.is_approved %}
+                                    <span class="true">Accepted &#10003;</span>
+                                    <span style="display: none;" class="false">Accept</span>
+                                {% else %}
+                                    <span style="display: none;" class="true">Accepted &#10003;</span>
+                                    <span class="false">Accept</span>
+                                {% endif %}
+                            {% endif %}
+                            </a>&nbsp;
+                            {{ stat }}
+                            <div class="clear"></div> 
+                            </td>
                         {% endfor %}
                     </tr>
                 {% endfor %}
