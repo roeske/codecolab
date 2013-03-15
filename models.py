@@ -1,9 +1,10 @@
 from context import app
 from sqlalchemy import func
 from flask.ext.sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timedelta
 from urllib2 import quote
 from md5 import md5
+from uuid import uuid4
 
 db = SQLAlchemy(app)
 
@@ -45,6 +46,20 @@ class Luser(db.Model, DictSerializable):
     projects = db.relationship("Project", secondary=ProjectLuser.__table__)
 
 
+class LuserProfile(db.Model, DictSerializable):
+    """
+    Defines a users profile: first name, last name, username, timezone.
+    """
+    
+    __tablename__ = "luser_profile"
+
+    _id         = db.Column(db.Integer, primary_key=True)
+    luser_id    = db.Column(db.Integer, db.ForeignKey(Luser._id), nullable=False) 
+    first_name  = db.Column(db.String)
+    last_name   = db.Column(db.String)
+    username    = db.Column(db.String, nullable=False)
+
+
 class Project(db.Model, DictSerializable):
     """
     Defines a project. A project is a collection of users and tasks.
@@ -55,7 +70,7 @@ class Project(db.Model, DictSerializable):
     _id         = db.Column(db.Integer, primary_key=True)
     name        = db.Column(db.String, nullable=False)
     created     = db.Column(db.DateTime, default=func.now())
-
+    
     milestones  = db.relationship("Milestone", order_by=lambda: Milestone.created)
     lusers      = db.relationship("Luser", secondary=ProjectLuser.__table__)
     cards       = db.relationship("Card", order_by=lambda: Card.number)
@@ -302,6 +317,24 @@ class BetaSignup(db.Model, DictSerializable):
     email           = db.Column(db.String, nullable=False)
     is_activated    = db.Column(db.Boolean, default=False)
     created         = db.Column(db.DateTime, default=func.now())
+
+
+class ForgottenPasswordRequest(db.Model, DictSerializable):
+    """
+    Defines a forgotten password request that will expire in one day
+    if not acted upon.
+    """
+    __tablename__ = "forgotten_password_request"
+
+    _id         = db.Column(db.Integer, primary_key=True)
+    luser_id     = db.Column(db.Integer, db.ForeignKey(Luser._id), nullable=False)
+    uuid        = db.Column(db.String, nullable=False)
+    expiration  = db.Column(db.DateTime, nullable=False)
+
+    def __init__(self, user_id):
+        self.luser_id = int(user_id)
+        self.uuid = str(uuid4())
+        self.expiration = datetime.utcnow() + timedelta(days=1)
 
 
 if __name__ == "__main__":

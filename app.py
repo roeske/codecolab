@@ -10,6 +10,10 @@ from functools import wraps
 from sqlalchemy import and_
 from md5 import md5
 
+from pidgey import Mailer
+from config import MAILER_PARAMS, MAIL_FROM, BASE_URL
+
+from datetime import datetime
 
 app = models.app
 
@@ -1053,6 +1057,90 @@ def perform_signup(email, password, confirm):
 
     # If signup was successful, just log the user in.
     return perform_login(email, password)
+
+
+@app.route("/reset/<uuid>", methods=["POST", "GET"])
+def reset(uuid):
+
+    request = models.ForgottenPasswordRequest.query.filter_by(uuid=uuid).first()
+    
+    if flask.request.method == "POST":
+        password = flask.request.form["password"].strip()
+        confirm = flask.request.form["confirm"].strip()
+       
+        if len(password) < 8:
+            password_error = "Password must be at least 8 characters."
+
+            return flask.render_template("reset.html", reset_token=uuid,
+                                         password_error=password_error)
+
+        if password != confirm:
+            return flask.render_template("reset.html", reset_token=uuid,
+                                         password_error="Passwords do not match.")
+       
+        # Success, update the user's password. 
+        user = models.Luser.query.filter_by(_id=request.luser_id).first()
+        user.pw_hash = bcrypt.hashpw(password, bcrypt.gensalt())
+        models.db.session.commit()
+    
+        # Delete the password request.
+        models.db.session.delete(request)
+        models.db.session.commit()
+ 
+        flask.flash("Your password has been reset. You may now log in.")
+        return redirect_to("login")
+
+    else:
+        
+        if request is None:
+            flask.flash("Invalid password reset token.")
+            return redirect_to_index()
+
+        if request.expiration < datetime.utcnow():
+            flask.flash("Expired password reset token.")
+            return redirect_to_index()
+
+        return flask.render_template("reset.html", reset_token=uuid)
+
+
+@app.route("/forgot", methods=["POST", "GET"])
+def forgot():
+
+    if flask.request.method == "POST":
+        email = flask.request.form["email"].strip()
+        
+        luser = models.Luser.query.filter_by(email=email).first()
+
+        # It's less secure to let our users query who is and is not
+        # a user, by abusing the password recovery feature. However,
+        # it's also more user friendly, because, someone might forget
+        # which email they used to sign up, and this message will 
+        # help them. Lets err on the side of user friendly.
+        if luser is None:
+#            flash("No account exists for: %s" % email)
+            return flask.render_template("forgot.html", email_error="Email not found.")
+      
+        request = models.ForgottenPasswordRequest(luser._id)
+        models.db.session.add(request)
+        models.db.session.commit()
+        models.db.session.flush()
+ 
+        link = BASE_URL + "reset/%s" % request.uuid
+
+        text = """
+To reset your CodeColab password, please click this link:
+%s. If you received this email in error, it is safe
+to ignore it.
+""".replace("\n", " ") % link
+
+        mailer = Mailer(**MAILER_PARAMS)
+        mailer.send(from_addr=MAIL_FROM, to_addr=email,
+                    subject="CodeColab password recovery.", text=text)
+
+        flask.flash("A password recovery email has been sent to: %s" % email)
+        return redirect_to_index()
+    else:
+        return flask.render_template("forgot.html")
 
 
 @app.route("/signup", methods=["POST", "GET"])

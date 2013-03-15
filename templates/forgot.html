@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Business Template</title>
+	<title>CodeColab &trade;</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
     <!-- Styles -->
-    <link href="css/bootstrap.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="css/theme.css">
+    <link href="/css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/theme.css">
     <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700,900,300italic,400italic,700italic,900italic' rel='stylesheet' type='text/css'>
 
-    <link rel="stylesheet" type="text/css" href="css/lib/animate.css" media="screen, projection">
-    <link rel="stylesheet" href="css/sign-in.css" type="text/css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/css/lib/animate.css" media="screen, projection">
+    <link rel="stylesheet" href="/css/sign-in.css" type="text/css" media="screen" />
 
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -33,8 +33,6 @@
                 <ul class="nav pull-right">
                     <li><a class="btn-header" href="contact">Contact</a>
                     <li><a class="btn-header" href="http://blog.codecolab.com/">Blog</a>
-                    <li><a class="btn-header" href="signup">Sign up</a></li>
-                    <li><a class="btn-header active" href="login">Log in</a></li>
                 </ul>
             </div>
         </div>
@@ -48,7 +46,26 @@
             </div>
             <div class="row login">
                 <div class="span5 left_box">
-                    <h4>Log in to your account</h4>
+
+                    {% with messages = get_flashed_messages() %}
+                      {% if messages %}
+                        <ul style="list-style-type: none;" class=flashes>
+                        {% for message in messages %}
+                          <li style="font-size: 2em; line-height: 1.2em;">{{ message }}</li>
+                        {% endfor %}
+                        </ul>
+
+                        {% else %}
+
+                        <h4>Forgot your password?</h4>
+
+                        <p>Please enter your email to request a password reset.</p>
+        
+                      {% endif %}
+                    {% endwith %}
+
+
+                    <br />
 
                     <div class="perk_box">
                         <div class="perk">
@@ -69,56 +86,20 @@
                     <div class="box">
                         <div class="box_cont">
 
-                            <!-- 
-                            Uncomment when implementing oauth
-
-                            <div class="social">
-                                <a href="#" class="circle facebook">
-                                    <img src="img/face.png" alt="">
-                                </a>
-                                 <a href="#" class="circle twitter">
-                                    <img src="img/twt.png" alt="">
-                                </a>
-                                 <a href="#" class="circle gplus">
-                                    <img src="img/gplus.png" alt="">
-                                </a>
-                            </div>
-
-                            <div class="division">
-                                <div class="line l"></div>
-                                <span>or</span>
-                                <div class="line r"></div>
-                            </div>
-
-                            -->
-
                             <div class="form">
-                                <form method="POST" action="/login">
+                                <form method="POST" action="/forgot">
 
                                     <ul style="list-style-type: none">
                                         <li>
                                             <input name="email" id="email" type="email" placeholder="Email">
                                             <p style="color: red">{{ email_error }}</p>
                                         </li>
-                                        <li>
-                                            <input name="password" id="password" type="password" placeholder="Password">
-                                            <p style="color: red">{{ password_error }}</p>
-                                        </li>
-
+                                        
                                         <li style="float: right; margin-right: 5em">
-                                            <input type="submit" value="sign in">
+                                            <input type="submit" value="Sign Up"/>
                                         </li>
 
                                         <li style="clear: both;"></li>
-
-                                        <li style="margin-top: 1em">
-                                            <span>Forgot your password?</span>
-                                            <a href="forgot">Reset your password</a>
-                                        </li>
-                                        <li style="margin-top: 1em">
-                                            <span>Don’t have an account?</span>
-                                            <a href="signup">Sign up</a>
-                                        </li>
                                     </ul>
 
                                 </form>
@@ -162,22 +143,6 @@
                                 <span class="socialicons ico3"></span>
                                 <span class="socialicons_h ico3h"></span>
                             </a>
-                            <a href="#" class="flickr">
-                                <span class="socialicons ico4"></span>
-                                <span class="socialicons_h ico4h"></span>
-                            </a>
-                            <a href="#" class="pinterest">
-                                <span class="socialicons ico5"></span>
-                                <span class="socialicons_h ico5h"></span>
-                            </a>
-                            <a href="#" class="dribble">
-                                <span class="socialicons ico6"></span>
-                                <span class="socialicons_h ico6h"></span>
-                            </a>
-                            <a href="#" class="behance">
-                                <span class="socialicons ico7"></span>
-                                <span class="socialicons_h ico7h"></span>
-                            </a>
                         </div>
                     </div>
                     <div class="row copyright">
@@ -191,7 +156,7 @@
     </footer>
 
     <script src="http://code.jquery.com/jquery-latest.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/theme.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/theme.js"></script>
 </body>
 </html>
