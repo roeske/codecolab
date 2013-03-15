@@ -120,7 +120,6 @@ def respond_with_json(obj):
     mimetype = "application/json;charset=UTF-8"
     return flask.Response(jsonize(obj), mimetype=mimetype)
 
-
 ## Project Selection 
 ###############################################################################
 
@@ -139,9 +138,10 @@ def render_project_selection(email, **kwargs):
     """
     luser = get_luser_for_email(email)
     projects_and_lusers = get_projects_and_lusers(luser._id)
+
     return flask.render_template("project_selection.html", email=email,
                                  projects_and_lusers=projects_and_lusers,
-                                 **kwargs)
+                                 luser=luser, **kwargs)
 
 
 def render_index(email, **kwargs):
@@ -426,7 +426,7 @@ def add_to_project(callback):
 #
 ##############################################################################
 
-def do_check_privileges(**kwargs):
+def do_check_project_privileges(**kwargs):
     # Obtain email from session, otherwise, error 403
     email = get_email_or_403()
 
@@ -443,7 +443,7 @@ def do_check_privileges(**kwargs):
     return kwargs
 
 
-def check_privileges(func):
+def check_project_privileges(func):
     """
     Decorator to ensure that the user has a valid session before allowing him
     to execute the view function, and that he is a member of the target
@@ -451,7 +451,24 @@ def check_privileges(func):
     """
     @wraps(func)
     def wrap(**kwargs):
-        kwargs = do_check_privileges(**kwargs)
+        kwargs = do_check_project_privileges(**kwargs)
+        return func(**kwargs)
+    return wrap
+
+
+def check_luser_privileges(func):
+    """
+    Just ascertains that the user is logged in and passes the luser object
+    and email to the view function.
+    """
+    @wraps(func)
+    def wrap(**kwargs):
+        email = get_email_or_403()
+        luser = get_luser_or_404(email)
+
+        kwargs["email"] = email
+        kwargs["luser"] = luser
+
         return func(**kwargs)
     return wrap
 
@@ -476,7 +493,7 @@ def check_owner_privileges(func):
     """
     @wraps(func)
     def wrap(**kwargs):
-        kwargs = do_check_privileges(**kwargs)
+        kwargs = do_check_project_privileges(**kwargs)
         is_owner_or_403(kwargs["luser"], kwargs["project"])
         return func(**kwargs)
     return wrap
@@ -485,7 +502,7 @@ def check_owner_privileges(func):
 ##############################################################################
 
 @app.route("/project/<project_name>/card/<int:card_id>/archive")
-@check_privileges
+@check_project_privileges
 def archive(card_id=None, **kwargs):
     """
     Handles archival of cards.
@@ -502,7 +519,7 @@ def archive(card_id=None, **kwargs):
 
 @app.route("/project/<project_name>/cards/<int:card_id>/restore",
             methods=["GET"])
-@check_privileges
+@check_project_privileges
 def restore_card(project=None, card_id=None, **kwargs):
     """
     Handles restoration of cards to their state before archiving.
@@ -520,7 +537,7 @@ def restore_card(project=None, card_id=None, **kwargs):
 
 @app.route("/project/<project_name>/cards/<int:card_id>/select_milestone",
             methods=["POST"])
-@check_privileges
+@check_project_privileges
 def card_select_milestone(project=None, card_id=None, **kwargs):
     
     card = models.Card.query.filter_by(_id=card_id).first()
@@ -580,7 +597,7 @@ def query_card(card_id, project_id):
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>", methods=["GET"])
-@check_privileges
+@check_project_privileges
 def cards_get(project_name=None, card_id=None, project=None, **kwargs):
     """
     Used to render a card in a modal dialog.
@@ -593,7 +610,7 @@ def cards_get(project_name=None, card_id=None, project=None, **kwargs):
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/score", methods=["POST"])
-@check_privileges
+@check_project_privileges
 def card_score(project_name=None, card_id=None, project=None, **kwargs):
     
     card = query_card(card_id, project._id)
@@ -603,14 +620,12 @@ def card_score(project_name=None, card_id=None, project=None, **kwargs):
     card.score = score
     
     models.db.session.commit()
-    
-     
     return respond_with_json({ "status" : "success",
                                "message" : "updated card %d" % card._id })
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/attach", methods=["POST"])
-@check_privileges
+@check_project_privileges
 def card_attach_file(project_name=None, card_id=None, luser=None, **kwargs):
     """
     Upload a file & attach it to a card.
@@ -663,7 +678,7 @@ def cards_reorder():
 
 
 @app.route("/project/<project_name>/archives", methods=["GET", "POST"])
-@check_privileges
+@check_project_privileges
 def archives(**kwargs):
     return cc_render_template("archived_cards.html", **kwargs)
 
@@ -727,7 +742,7 @@ def card_add():
 
 @app.route("/project/<project_name>/cards/<int:card_id>/complete",
             methods=["POST"])
-@check_privileges
+@check_project_privileges
 def card_toggle_is_completed(project=None, card_id=None, **kwargs):
     """
     Facilitate the toggling of the Card's "is_completed" state.
@@ -769,7 +784,7 @@ def milestones_add(project=None, **kwargs):
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/comment", methods=["POST"])
-@check_privileges
+@check_project_privileges
 def cards_comment(project_name=None, card_id=None, **kwargs):
     """
     Update the database when a user posts a comment.
@@ -783,12 +798,13 @@ def cards_comment(project_name=None, card_id=None, **kwargs):
     models.db.session.commit()
     models.db.session.flush()
 
-    return respond_with_json(dict(comment=comment, luser=comment.luser))
+    return respond_with_json(dict(comment=comment, luser=comment.luser,
+                                  username=comment.luser.profile[0].username))
 
 
 @app.route("/project/<project_name>/milestone/<int:milestone_id>/accept",
             methods=["POST"])
-@check_privileges
+@check_project_privileges
 def milestone_toggle_is_accepted(project=None, milestone_id=None, **kwargs):
     """
     Facilitate the toggling of the milestone's is_accepted attribute.
@@ -921,7 +937,7 @@ def render_project(project_name, email):
     json_pile_ids = json.dumps([p.pile_uuid for p in project.piles])
 
     return cc_render_template("project.html", email=email, project=project,
-                              json_pile_ids=json_pile_ids) 
+                              json_pile_ids=json_pile_ids, luser=luser) 
 
 
 @app.route("/project/<name>")
@@ -1053,11 +1069,60 @@ def perform_signup(email, password, confirm):
     pw_hash = bcrypt.hashpw(password, bcrypt.gensalt())
     user = models.Luser(email=email, pw_hash=pw_hash)
     models.db.session.add(user)
+    models.db.session.flush()
+
+    # Must also create a profile for that user. Default the username
+    # to the name part of the email.
+    profile = models.LuserProfile(luser_id=user._id,
+                                  first_name="Unknown",
+                                  last_name="Unknown",
+                                  username=email.split("@")[0])
+
+    models.db.session.add(profile)
     models.db.session.commit()
 
     # If signup was successful, just log the user in.
     return perform_login(email, password)
 
+
+## Luser Profile
+###############################################################################
+
+@app.route("/profile/<int:luser_id>", methods=["GET", "POST"])
+@check_luser_privileges
+def profile(luser_id, luser=None, **kwargs):
+    profile = models.LuserProfile.query.filter_by(luser_id=luser_id).first()
+    
+    if flask.request.method == "GET":
+        if profile is None:
+            return flask.abort(404)
+
+        # If this request does not originate from the owner of the profile
+        if luser._id != luser_id:
+            # Then serve them a read-only profile:
+            return cc_render_template("profile_readonly.html", luser=luser, 
+                                      profile=profile, **kwargs)
+        else:
+            # Otherwise, let them edit their profile:
+            return cc_render_template("profile.html", luser=luser, 
+                                      profile=profile, **kwargs)
+
+    else:
+        # Don't allow users to edit the profiles of others.
+        if luser._id != luser_id:
+            return flask.abort(403)
+
+        profile.first_name = flask.request.form["first_name"]
+        profile.last_name = flask.request.form["last_name"]
+        profile.username = flask.request.form["username"]
+
+        flask.flash("Profile updated.")
+        return cc_render_template("profile.html", luser=luser, 
+                                  profile=profile, **kwargs)
+
+
+## Password Recovery
+###############################################################################
 
 @app.route("/reset/<uuid>", methods=["POST", "GET"])
 def reset(uuid):
@@ -1142,6 +1207,8 @@ to ignore it.
     else:
         return flask.render_template("forgot.html")
 
+## Signup
+###############################################################################
 
 @app.route("/signup", methods=["POST", "GET"])
 def signup():

@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <!DOCTYPE html>
 <html>
     <head>
@@ -28,9 +27,6 @@ $(document).ready(function() {
 ///////////////////////////////////////
         </script>
         <!-- End application code -->
-
-
-
     </head>
     <body>
         <div class="navbar">
@@ -53,42 +49,42 @@ $(document).ready(function() {
             </div>
         </div>
         <div class="content">
-            <div class="minimalist_container minimalist_top">
-                <h4>Projects</h4>
-            </div>
-
-            <ul id="project" class="structural project_list">
-                {% for pl in projects_and_lusers %}
-                    <li class="project_item" data-id="{{ pl[0]._id }}">
-
-
-
-                        <a href="/project/{{ pl[0].urlencoded_name }}">{{ pl[0].name }}</a> 
-                        <!-- This value is set dynamically to denote that the user has
-                             privileges for this project, and therefore can enter the
-                             management area. -->
-                        {% if pl[1].is_owner == True %}
-
-                            <a href="/project/{{ pl[0].urlencoded_name }}/manage">&nbsp;[manage]</a> 
-
-                        {% endif %}
-                    </li>
+            <h3>Edit Profile: {{ profile.luser.email }}</h3>
+            <hr />
+                
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <ul style="list-style-type: none;" class=flashes>
+                {% for message in messages %}
+                  <li style="font-size: 110%;">{{ message }}</li>
                 {% endfor %}
-            </ul>
+                </ul>
+                {% endif %}
+            {% endwith %}
 
-            <div class="minimalist_container minimalist_bottom">
-                <form action="/project/add" method="POST">
-                    <ul class="structural horizontal_right">
-                        <li>
-                            <input style="margin-left: .35em;" type="submit" name="submit" value="Add Project" class="btn"/>
-                        </li>
-                        <li>
-                            <input type="text" placeholder="Project Name" name="project_name" id="project_name"/>
-                        </li>
-                    </ul>
-                    <div class="clear"></div>
-                </form>
-            </div>
+            <form class="basic" action="/profile/{{ luser._id }}" method="POST">
+                <ul class="structural basic">
+                    <li>
+                        <label for="first_name">First Name:</label>
+                        <input type="text" name="first_name" value="{{ profile.first_name }}" id="first_name" />
+                    </li>
+
+                    <li>
+                        <label for="last_name">Last Name:</label>
+                        <input type="text" name="last_name" value="{{ profile.last_name }}" id="last_name" />
+                    </li>
+
+                    <li>
+                        <label for="username">Username:</label>
+                        <input type="text" name="username" value="{{ profile.username }}" id="username" />
+                    </li>
+
+                    <li>
+                        <label style="visibility: hidden;" for="submit">Submit</label>
+                        <input id="submit" class="btn" type="submit" name="submit" value="Update Profile" />
+                    </li>
+                </ul> 
+            </form>
         </div>
     </body>
 </html>

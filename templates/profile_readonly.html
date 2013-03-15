@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <!DOCTYPE html>
 <html>
     <head>
@@ -28,9 +27,6 @@ $(document).ready(function() {
 ///////////////////////////////////////
         </script>
         <!-- End application code -->
-
-
-
     </head>
     <body>
         <div class="navbar">
@@ -53,42 +49,30 @@ $(document).ready(function() {
             </div>
         </div>
         <div class="content">
-            <div class="minimalist_container minimalist_top">
-                <h4>Projects</h4>
-            </div>
+            <h3>Profile: {{ profile.luser.email }}</h3>
+            <hr />
 
-            <ul id="project" class="structural project_list">
-                {% for pl in projects_and_lusers %}
-                    <li class="project_item" data-id="{{ pl[0]._id }}">
+            <table>
+                <tr>
+                    <td>Avatar</td>
+                    <td><img src="{{ gravatar_url }}" /></td> 
+                </tr>
 
+                <tr>
+                    <td>First Name</td>
+                    <td>{{ profile.first_name }}</td>
+                </tr>
 
+                <tr>
+                    <td>Last Name</td>
+                    <td>{{ profile.last_name }}</td>
+                </tr>
 
-                        <a href="/project/{{ pl[0].urlencoded_name }}">{{ pl[0].name }}</a> 
-                        <!-- This value is set dynamically to denote that the user has
-                             privileges for this project, and therefore can enter the
-                             management area. -->
-                        {% if pl[1].is_owner == True %}
-
-                            <a href="/project/{{ pl[0].urlencoded_name }}/manage">&nbsp;[manage]</a> 
-
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-
-            <div class="minimalist_container minimalist_bottom">
-                <form action="/project/add" method="POST">
-                    <ul class="structural horizontal_right">
-                        <li>
-                            <input style="margin-left: .35em;" type="submit" name="submit" value="Add Project" class="btn"/>
-                        </li>
-                        <li>
-                            <input type="text" placeholder="Project Name" name="project_name" id="project_name"/>
-                        </li>
-                    </ul>
-                    <div class="clear"></div>
-                </form>
-            </div>
+                <tr>
+                    <td>Username</td>
+                    <td>{{ profile.username }}</td>
+                </tr>
+            </table>
         </div>
     </body>
 </html>

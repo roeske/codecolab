@@ -69,7 +69,7 @@
    {% for comment in card.comments %}
    <li>
         <p class="text">{{ comment.text }}</p>
-        <p class="email">--{{ comment.luser.email }}</p>
+        <p class="email"><a href="/profile/{{ comment.luser._id }}">@{{ comment.luser.profile[0].username }}</a></p>
    </li>
    {% endfor %}
 </ul>

@@ -44,6 +44,7 @@ class Luser(db.Model, DictSerializable):
     created = db.Column(db.DateTime, default=func.now())
 
     projects = db.relationship("Project", secondary=ProjectLuser.__table__)
+    profile = db.relationship("LuserProfile")
 
 
 class LuserProfile(db.Model, DictSerializable):
@@ -58,6 +59,8 @@ class LuserProfile(db.Model, DictSerializable):
     first_name  = db.Column(db.String)
     last_name   = db.Column(db.String)
     username    = db.Column(db.String, nullable=False)
+
+    luser       = db.relationship("Luser")
 
 
 class Project(db.Model, DictSerializable):
@@ -280,7 +283,7 @@ class CardComment(db.Model, DictSerializable):
    
     luser       = db.relationship("Luser")
 
-
+    
     @property
     def email(self):
         return self.luser.email

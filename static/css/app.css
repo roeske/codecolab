@@ -6,6 +6,30 @@ li,h1 { line-height: 100% }
 div.navbar { margin-bottom: 0 }
 textarea, input { color: #000; }
 
+/* Forms *********************************************************************/
+
+.structural { list-style: none; }
+
+ul.structural.basic li input,
+ul.structural.basic li label {
+    width: 10em;
+    margin: 1em;
+}
+
+ul.structural.basic li label { 
+    float: left; 
+    color: #ddd; 
+    font-weight: 600; 
+    font-size: 110%; 
+}
+
+ul.structural.basic li input { float: right; }
+
+.clear { clear: both; }
+
+form.basic { width: 30em; }
+
+
 /* Tables ********************************************************************/
 
 table {
@@ -185,10 +209,6 @@ div.pile_options {
 .project_item {
     padding: 1em;
     border-bottom: 1px solid #222;
-}
-
-.structural {
-    list-style-type: none;
 }
 
 .horizontal_left li {
