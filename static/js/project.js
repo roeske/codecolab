@@ -349,7 +349,7 @@ function cc_connect_comment_form(project_name, modal, card_id) {
         success: function(response, status_code) {
             var list = modal.find("ul.comments")
             list.append("<li><p class=\"text\">" + response.comment.text + "</p>"
-                       +"    <p class=\"email\"><a href=\"/profile/"+card_id+"\">@" + response.username + "</a></p></li>")
+                       +"    <p class=\"email\"><a href=\"/profile/"+response.luser_id+"\">@" + response.username + "</a></p></li>")
             modal.find("form textarea").val("")
         }
     })

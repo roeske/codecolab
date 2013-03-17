@@ -59,7 +59,7 @@ class LuserProfile(db.Model, DictSerializable):
     first_name  = db.Column(db.String)
     last_name   = db.Column(db.String)
     username    = db.Column(db.String, nullable=False)
-
+    timezone    = db.Column(db.String, default="Zulu")
     luser       = db.relationship("Luser")
 
 

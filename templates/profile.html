@@ -67,21 +67,40 @@ $(document).ready(function() {
                     <li>
                         <label for="first_name">First Name:</label>
                         <input type="text" name="first_name" value="{{ profile.first_name }}" id="first_name" />
+                        <div class="clear"></div>
                     </li>
 
                     <li>
                         <label for="last_name">Last Name:</label>
                         <input type="text" name="last_name" value="{{ profile.last_name }}" id="last_name" />
+                        <div class="clear"></div>
                     </li>
 
                     <li>
                         <label for="username">Username:</label>
                         <input type="text" name="username" value="{{ profile.username }}" id="username" />
+                        <div class="clear"></div>
+
+                    </li>
+                    <li>
+                        <label for="timezone">Timezone:</label>
+                        <select name="timezone" id="timezone">
+                            {% for tz in timezones %}
+                                {% if tz == profile.timezone %} 
+                                    <option value="{{ tz }}" selected>{{ tz }}</option>
+                                {% else %}
+                                    <option value="{{ tz }}">{{ tz }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <div class="clear"></div>
                     </li>
 
                     <li>
                         <label style="visibility: hidden;" for="submit">Submit</label>
                         <input id="submit" class="btn" type="submit" name="submit" value="Update Profile" />
+                        <div class="clear"></div>
                     </li>
                 </ul> 
             </form>

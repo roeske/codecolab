@@ -3,6 +3,8 @@ import flask
 import models
 import bcrypt 
 import models
+import pytz
+
 import simplejson as json
 
 from flaskext import uploads
@@ -799,6 +801,7 @@ def cards_comment(project_name=None, card_id=None, **kwargs):
     models.db.session.flush()
 
     return respond_with_json(dict(comment=comment, luser=comment.luser,
+                                  luser_id=comment.luser._id,
                                   username=comment.luser.profile[0].username))
 
 
@@ -1105,7 +1108,9 @@ def profile(luser_id, luser=None, **kwargs):
         else:
             # Otherwise, let them edit their profile:
             return cc_render_template("profile.html", luser=luser, 
-                                      profile=profile, **kwargs)
+                                      profile=profile,
+                                      timezones=pytz.all_timezones,
+                                      **kwargs)
 
     else:
         # Don't allow users to edit the profiles of others.
@@ -1115,11 +1120,16 @@ def profile(luser_id, luser=None, **kwargs):
         profile.first_name = flask.request.form["first_name"]
         profile.last_name = flask.request.form["last_name"]
         profile.username = flask.request.form["username"]
+        profile.timezone = flask.request.form["timezone"]
+
+        models.db.session.commit()
+        models.db.session.flush()
 
         flask.flash("Profile updated.")
         return cc_render_template("profile.html", luser=luser, 
-                                  profile=profile, **kwargs)
-
+                                  profile=profile,
+                                  timezones=pytz.all_timezones,
+                                  **kwargs)
 
 ## Password Recovery
 ###############################################################################

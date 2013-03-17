@@ -11,6 +11,7 @@ textarea, input { color: #000; }
 .structural { list-style: none; }
 
 ul.structural.basic li input,
+ul.structural.basic li select,
 ul.structural.basic li label {
     width: 10em;
     margin: 1em;
@@ -19,16 +20,21 @@ ul.structural.basic li label {
 ul.structural.basic li label { 
     float: left; 
     color: #ddd; 
-    font-weight: 600; 
+    font-weight: bold;
     font-size: 110%; 
 }
 
-ul.structural.basic li input { float: right; }
+ul.structural.basic li.spacer {
+    height: 1em;
+    clear: both;
+}
+
+ul.structural.basic li input,
+ul.structural.basic li select { float: right; }
 
 .clear { clear: both; }
 
 form.basic { width: 30em; }
-
 
 /* Tables ********************************************************************/
 
