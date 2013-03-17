@@ -503,6 +503,35 @@ def check_owner_privileges(func):
 ## Cards
 ##############################################################################
 
+def card_get_comments(project=None, project_name=None, card_id=None, **kwargs):
+    """
+    Called via .ajax to refresh comments after a comment is added.
+    """
+    card = query_card(card_id, project._id)
+    return flask.render_template("card_comments.html", card=card, 
+                                                       project_name=project_name,
+                                                       card_id=card_id,
+                                                       **kwargs)
+
+
+@app.route("/project/<project_name>/cards/<int:card_id>/comment", methods=["POST"])
+@check_project_privileges
+def cards_comment(project_name=None, card_id=None, **kwargs):
+    """
+    Update the database when a user posts a comment.
+    """
+    luser = kwargs["luser"]
+
+    text = flask.request.form["text"].encode("UTF-8").strip()
+
+    comment = models.CardComment(card_id=card_id, luser_id=luser._id, text=text)
+    models.db.session.add(comment)
+    models.db.session.commit()
+    models.db.session.flush()
+
+    return card_get_comments(project_name=project_name, card_id=card_id, **kwargs)
+
+
 @app.route("/project/<project_name>/card/<int:card_id>/archive")
 @check_project_privileges
 def archive(card_id=None, **kwargs):
@@ -604,11 +633,12 @@ def cards_get(project_name=None, card_id=None, project=None, **kwargs):
     """
     Used to render a card in a modal dialog.
     """
-
     card = query_card(card_id, project._id)
     return flask.render_template("card.html", card=card, 
                                               project=project,
-                                              project_name=project_name)
+                                              project_name=project_name,
+                                              **kwargs)
+
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/score", methods=["POST"])
@@ -783,26 +813,6 @@ def milestones_add(project=None, **kwargs):
     models.db.session.commit()
     
     return redirect_to("project_manage", **kwargs)
-
-
-@app.route("/project/<project_name>/cards/<int:card_id>/comment", methods=["POST"])
-@check_project_privileges
-def cards_comment(project_name=None, card_id=None, **kwargs):
-    """
-    Update the database when a user posts a comment.
-    """
-    luser = kwargs["luser"]
-
-    text = flask.request.form["text"].encode("UTF-8").strip()
-
-    comment = models.CardComment(card_id=card_id, luser_id=luser._id, text=text)
-    models.db.session.add(comment)
-    models.db.session.commit()
-    models.db.session.flush()
-
-    return respond_with_json(dict(comment=comment, luser=comment.luser,
-                                  luser_id=comment.luser._id,
-                                  username=comment.luser.profile[0].username))
 
 
 @app.route("/project/<project_name>/milestone/<int:milestone_id>/accept",

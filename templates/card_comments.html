@@ -1,0 +1,11 @@
+<h3 class="card_section">Comments</h3>
+<ul class="comments structural">
+   {% for comment in card.comments %}
+   <li>
+        <p class="text">{{ comment.text }}</p>
+        <p class="email"><a href="/profile/{{ comment.luser._id }}">@{{ comment.luser.profile[0].username }}</a></p>
+        <p class="timestamp">{{ comment.created_as_timezone(luser.profile[0].timezone) }}</p>
+        <div class="clear"></div>
+   </li>
+   {% endfor %}
+</ul>

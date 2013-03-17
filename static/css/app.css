@@ -131,32 +131,6 @@ a.btn div {
     color: #333;
 }
 
-ul.comments {
-    margin: 1em 0em 1em;
-}
-
-ul.comments li {
-    margin: 0;
-    background-color: #ddd;
-    border: 1px solid #ccc;
-    border-radius: 2px;
-    padding: .5em .5em 0em .5em;
-}
-
-ul.comments li p.email {
-    font-size: 70%;
-    text-align: right;
-}
-
-ul.comments li p.text {
-    font-size: 90%;
-}
-
-form.comments ul li textarea {
-    margin-right: 2.1em;
-    width: 100%;
-}
-
 ul.card_list li {
     background-color: #222;
     border-radius: 5px;

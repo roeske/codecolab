@@ -150,7 +150,7 @@ $(document).ready(function() {
                                     data-title="{{ card.title }}">
                                
                                 <div>
-                                    <p style="float: left;" class="date">{{ card.created_human }}</p> 
+                                    <p style="float: left;" class="date">{{ card.created_as_timezone(luser.profile[0].timezone) }}</p> 
                                     <a class="icon archive" style="float: right"
                                        href="/project/{{ project.urlencoded_name }}/card/{{ card._id }}/archive">&#59392;</a>
                                 </div>

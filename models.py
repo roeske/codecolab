@@ -6,6 +6,8 @@ from urllib2 import quote
 from md5 import md5
 from uuid import uuid4
 
+from delorean import Delorean
+
 db = SQLAlchemy(app)
 
 # Easily serialize to dict for json conversion # See: http://piotr.banaszkiewicz.org/blog/2012/06/30/serialize-sqlalchemy-results-into-json/
@@ -13,11 +15,25 @@ db = SQLAlchemy(app)
 from collections import OrderedDict
 
 class DictSerializable(object):
+    """
+    Packs the model into a dict so it can easily be serialized to 
+    JSON.
+    """
     def _asdict(self):
         result = OrderedDict()
         for key in self.__mapper__.c.keys():
             result[key] = getattr(self, key)
         return result
+
+
+class FluxCapacitor(object):
+    """
+    Converts from naive to localized time & formats output
+    """        
+    
+    def created_as_timezone(self, timezone_desc):
+        d = Delorean(datetime=self.created, timezone=timezone_desc)
+        return d.datetime.strftime("%A, %b. %d, %Y - %I:%M %p")
 
 
 class ProjectLuser(db.Model, DictSerializable):
@@ -215,7 +231,7 @@ class Pile(db.Model, DictSerializable):
         return "pile_" + md5(str(self._id) + self.name + str(self.created)).hexdigest()
 
 
-class Card(db.Model, DictSerializable):
+class Card(db.Model, DictSerializable, FluxCapacitor):
     """
     Cards:
         * May belong to at most one project.
@@ -271,7 +287,7 @@ class Card(db.Model, DictSerializable):
 
 
 # TODO: refactor, use mixin for 'created'
-class CardComment(db.Model, DictSerializable):
+class CardComment(db.Model, DictSerializable, FluxCapacitor):
 
     __tablename__ = "card_comment"
 

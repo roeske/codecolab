@@ -1,6 +1,5 @@
 <!-- Static created timestamp -->
 <div class="card_top">
-    <p>{{ card.created_human }}</p>
     <div>
         <a data-state="{{ card.is_completed }}" class="btn card_complete" href="/project/{{ project_name }}/cards/{{ card._id }}/complete">
             <!-- Show the appropriate toggle state, but also make it easy
@@ -63,17 +62,7 @@
 
 </form>
 
-
-<h3 class="card_section">Comments</h3>
-<ul class="comments structural">
-   {% for comment in card.comments %}
-   <li>
-        <p class="text">{{ comment.text }}</p>
-        <p class="email"><a href="/profile/{{ comment.luser._id }}">@{{ comment.luser.profile[0].username }}</a></p>
-   </li>
-   {% endfor %}
-</ul>
-
+{% include 'card_comments.html' %}
 
 <form class="comments" action="/project/{{ project_name }}/cards/{{ card._id }}/comment" method="POST">
     <ul class="structural" style="padding: 0; margin: 0;">

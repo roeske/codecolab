@@ -347,9 +347,7 @@ function cc_project_init(project_name, pile_ids) {
 function cc_connect_comment_form(project_name, modal, card_id) {
     modal.find("form.comments").ajaxForm({
         success: function(response, status_code) {
-            var list = modal.find("ul.comments")
-            list.append("<li><p class=\"text\">" + response.comment.text + "</p>"
-                       +"    <p class=\"email\"><a href=\"/profile/"+response.luser_id+"\">@" + response.username + "</a></p></li>")
+            var list = modal.find("ul.comments").replaceWith(response)
             modal.find("form textarea").val("")
         }
     })
