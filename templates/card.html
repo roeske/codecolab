@@ -30,9 +30,10 @@
 <!-- Editable Title "text" field -->
 <p><span class="editable text">{{ card.text }}</span></p>
 
+<br />
 <!-- Editable description field -->
-<div class="editable description">{{ card.description }}</div>
-
+<div class="clear"></div>
+<pre class="editable description">{{ card.description }}</pre>
 <br />
 <p>Difficulty:&nbsp;&nbsp;&nbsp;<span class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></span></p>
 
@@ -40,8 +41,8 @@
 <form action="/project/{{ project_name }}/cards/{{ card._id }}/select_milestone"
       method="POST" 
       class="milestone">
-    
-    <label class="card_section" for="select_milestone">Milestone</label>
+   
+    <h3 class="card_section">Milestone</h3>
     
     <select id="select_milestone">
         <option data-id="-1">None</option>

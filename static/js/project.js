@@ -296,20 +296,31 @@ function cc_connect_card_to_modal(title, project_name, elem) {
 
     var url = "/project/" + project_name + "/cards/" + $(elem).attr("data-id")
 
+    console.log("HIT")
+
     var options = {
+        show: {
+            effect: "blind",
+            duration: 500
+        },
+
+        hide: {
+            effect: "blind",
+            duration: 500
+        },
+        modal: true,
+
         title: title,
         autoOpen: false,
         width: 650,
         height: 700
     }
 
-    var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
-
-    console.log("elem=" + elem)
 
     // Make it pop up a modal.
     $(elem).dblclick(function() {
         console.log("url="+ url)
+        var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
         modal.dialog("open")
         return false
     })
@@ -347,7 +358,7 @@ function cc_project_init(project_name, pile_ids) {
 function cc_connect_comment_form(project_name, modal, card_id) {
     modal.find("form.comments").ajaxForm({
         success: function(response, status_code) {
-            var list = modal.find("ul.comments").replaceWith(response)
+            var list = modal.find("div.comments_container").replaceWith(response)
             modal.find("form textarea").val("")
         }
     })

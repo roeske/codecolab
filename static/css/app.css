@@ -1,10 +1,10 @@
 /* reset **********************************************************************/
 html, body { width: 100%; height: 100%; padding: 0; margin 0; }
 ul, ol, p, li, h1, h2, h3, h4, h5, h6, div { margin: 0, padding: 0; }
-form { padding-right: .35em; }
-li,h1 { line-height: 100% }
+form { padding-right: 5px; }
 div.navbar { margin-bottom: 0 }
 textarea, input { color: #000; }
+textarea { display: block; }
 
 /* Forms *********************************************************************/
 
@@ -37,6 +37,11 @@ ul.structural.basic li select { float: right; }
 form.basic { width: 30em; }
 
 /* Tables ********************************************************************/
+
+#add_project_controls input[type="text"],  #toolbox-list input[type="text"] {
+    width: 10em;
+    margin-right: 1em;
+}
 
 table {
     margin: 2em 0 0 0;
@@ -134,8 +139,7 @@ a.btn div {
 ul.card_list li {
     background-color: #222;
     border-radius: 5px;
-    padding: .35em;
-    margin: .1em;
+    padding: 5px;
 }
 
 .pile_container {
@@ -144,11 +148,11 @@ ul.card_list li {
 }
  
 .pile_chrome_top {
-    padding: .08em 0em .08em .35em;
+    padding: .08em 0em .08em 5px;
 }
 
 .pile_chrome_bottom {
-    padding: .35em 0em 0em .35em;
+    padding: 5px 0em 0em 5px;
 }
 
 h4.pile_title {
@@ -162,13 +166,11 @@ div.pile_options {
 }
 
 .minimalist_bottom {
-    border-top: 1px solid #222;
-    padding-top: .35em;
+    padding-top: 5px;
 }
 
 .minimalist_top {
-    border-bottom: 1px solid #222;
-    padding-bottom: .35em;
+    padding-bottom: 5px;
 }
 
 /*h1, h2, h3, h4, h5, h6 {
@@ -186,9 +188,11 @@ div.pile_options {
     border-bottom-left-radius: 5px;
 }
 
+ul#project { padding: 0; margin: 0; }
+
 .project_item {
     padding: 1em;
-    border-bottom: 1px solid #222;
+    border-bottom: 1px solid #111;
 }
 
 .horizontal_left li {
@@ -210,7 +214,7 @@ div.clear {
 div#project_name { width: 50%; }
 
 div#project_name h3,
-div#project_name div.nav { float: left; margin: 10.5px 10px; 
+div#project_name div.nav { float: left; margin: 10.5px 5px; 
                             line-height: 42px;}
 
 #toolbox { width: 50%; }
@@ -239,16 +243,20 @@ li.empty_card, li.card_item {
     min-height: 6em;
 }
 
-li.card_item span.milestone {
+li.card_item div.milestone {
     color: #0a0;
     font-size: 80%;
-    float: right;
+    line-height: 27px;
+    height: 21px;
 }
 
 .card_label {
     color: #222;
 }
 
+.card_item {
+    margin-bottom: 5px;
+}
 
 @media(min-width: 900px) {
     div.content { height: 94%; }
@@ -279,8 +287,8 @@ li.card_item span.milestone {
 
     .pile_container {
         margin-bottom: 1em;
-        margin: .35em .35em .35em .35em;
-        width: 20em;
+        margin: 5px 5px 5px 5px;
+        width: 278px;
         float: left;
         height: 100%;
     }
@@ -296,16 +304,15 @@ li.card_item span.milestone {
         overflow-x: hidden;
         overfloy-y: scroll;
         background-color: #171717;
-        padding: .5em;
+        padding: .5em .5em .1em .5em;
         margin: .5em;
         border-radius: 5px;
-        width: 18em;
     }
 }
 
 @media (max-width: 900px) {
     div#piles {
-        margin-top: .65em;
+        margin-top: 5px;
         background-color: #151515;
         border-radius: 5px;
     }
@@ -320,8 +327,8 @@ li.card_item span.milestone {
     }
 
     .pile_container {
-        margin-bottom: 1em;
-        margin: .35em .35em .35em .35em;
+        margin-bottom: 5px;
+        margin: 5px 5px 5px 5px;
         float: left;
         width: 100%;
     }
@@ -337,10 +344,10 @@ li.card_item span.milestone {
     }
 
     .pile_container ul.card_list {
-        min-height: 6em;
+        min-height: 100px;
         background-color: #171717;
         border-radius: 5px;
     }
 }
 
-.handle { background-color: #282828; height: 3em;}
+.handle { background-color: #282828; height: 50px;}

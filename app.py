@@ -976,6 +976,23 @@ def project_manage(project_name=None, **kwargs):
     return cc_render_template("project_manage.html", **kwargs)
 
 
+@app.route("/project/<project_name>/luser/<int:luser_id>/is_owner",
+            methods=["POST"])
+@check_owner_privileges
+def toggle_owner_permission(project_name=None, luser_id=None, project=None,
+                            luser=None, **kwargs):
+    """
+    Handles clicks on the project management screen administrator checkbox.
+    """
+    member = (models.ProjectLuser.query.filter_by(luser_id=luser_id,
+                 project_id=project._id).first())
+                                                 
+    member.is_owner = not member.is_owner 
+    models.db.session.commit()
+
+    return respond_with_json({"is_owner" : member.is_owner,
+                              "luser_id" : luser_id })
+
 # Index
 ###############################################################################
 

@@ -7,3 +7,41 @@
     margin: 1em 0;
 }
 
+/* pluralization on this one only -- it's intentional */
+ul.project_members {
+    overflow-x: auto;
+    margin: 2em 0;
+}
+
+li.member_item {
+    background: #222;
+    height: 241px;
+    border: 1px solid #111;
+    margin: 0 1em 0 0;
+}
+
+li.member_item img {
+    margin-top: .6em;
+}
+
+ul.project_member { margin: 0; }
+
+ul.project_member li {
+    width: 140px;
+    text-align: center;
+}
+
+ul.project_member li.member_username {
+    color: #fff;
+    font-weight: bold;
+    font-size: 105%;
+}
+
+ul.project_member li.member_is_owner label {
+    color: #fff;
+    display: inline;
+}
+
+ul.project_member li.member_is_owner input {
+    margin: 0;
+}

@@ -80,7 +80,7 @@ $(document).ready(function() {
                 <ul style="float: right" class="nav">
                     <li>
                         <a href="/profile/{{ luser._id }}">
-                            <img style="height: 24px; width: 24px; float: left;" src="{{ gravatar_url }}" />
+                            <img style="height: 24px; width: 24px;" src="{{ gravatar_url }}" />
                             &nbsp;&nbsp;&nbsp;{{ email }}
                         </a>
                     </li>
@@ -109,9 +109,9 @@ $(document).ready(function() {
             <div id="toolbox">
                 <form action="/piles/add" method="POST">
                     <input type="hidden" name="project_name" value="{{ project.name }}" />
-                    <ul id="toolbox-list" class="structural horizontal_right">
+                    <ul id="toolbox-list" class="controls structural horizontal_right">
                         <li>
-                            <input style="margin-left: .35em" type="submit" name="submit" value="Add Pile" class="btn"/>
+                            <input type="submit" name="submit" value="Add Pile &#10133;" class="btn"/>
                         </li>
                         <li>
                             <input type="text" placeholder="Pile Name..." name="text" id="text"/>
@@ -133,7 +133,7 @@ $(document).ready(function() {
                         <h4 class="pile_title"><span data-id="{{ pile._id }}" class="editable pile_title">{{ pile.name }}</span></h4>
                         <div class="pile_options">
                             <a href="/delete?pile_id={{ pile._id }}&project_name={{ project.urlencoded_name
-                            }}">&nbsp;x&nbsp;</a>
+                            }}">&nbsp;<span class="icon">&#10060;</span>&nbsp;</a>
                         </div>
                     </div>
                     <div class="clear"></div>
@@ -168,18 +168,21 @@ $(document).ready(function() {
                                         {% endif %}
                                     </span>
                                 </p>
-                               
-                                <div class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div>
+                              
+                                <div>
 
-                                <span class="milestone">
-                                    {% if card.milestone.is_approved %}
-                                        <strike>
+                                    <div style="float: left;" class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div>
+
+                                    <div class="milestone" style="float: right">
+                                        {% if card.milestone.is_approved %}
+                                            <strike>
+                                                {{ card.milestone.name }}
+                                            </strike>
+                                        {% else %}
                                             {{ card.milestone.name }}
-                                        </strike>
-                                    {% else %}
-                                        {{ card.milestone.name }}
-                                    {% endif %}
-                                </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
                                 <div class="clear"></div>
                             </li>
                             {% endif %}

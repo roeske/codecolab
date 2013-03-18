@@ -11,8 +11,8 @@
 
 
         <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
-        <link rel="stylesheet" href="/css/app.css" type="text/css" />
         <link href="/css/bootstrap_slate.css" rel="stylesheet" />
+        <link rel="stylesheet" href="/css/app.css" type="text/css" />
 
         <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
         <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
@@ -40,7 +40,7 @@ $(document).ready(function() {
                     <ul style="float: right;" class="nav">
                         <li>
                             <a href="/profile/{{ luser._id }}">
-                                <img style="height: 24px; width: 24px; float: left;" src="{{ gravatar_url }}" />
+                                <img style="height: 24px; width: 24px;" src="{{ gravatar_url }}" />
                                 &nbsp;&nbsp;&nbsp;{{ email }}
                             </a>
                         </li>
@@ -78,9 +78,9 @@ $(document).ready(function() {
 
             <div class="minimalist_container minimalist_bottom">
                 <form action="/project/add" method="POST">
-                    <ul class="structural horizontal_right">
+                    <ul id="add_project_controls" class="structural horizontal_right">
                         <li>
-                            <input style="margin-left: .35em;" type="submit" name="submit" value="Add Project" class="btn"/>
+                            <input type="submit" name="submit" value="Add Project" class="btn"/>
                         </li>
                         <li>
                             <input type="text" placeholder="Project Name" name="project_name" id="project_name"/>

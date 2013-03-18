@@ -47,6 +47,25 @@ class ProjectLuser(db.Model, DictSerializable):
         db.Column("is_owner", db.Boolean, default=False))
 
 
+class ProjectInvite(db.Model, DictSerializable, FluxCapacitor):
+    """
+    Defines an invitation to a project. This is a relationship between
+    the host's user id, the project id, and the future user's email.
+
+    This is only used when the user is not yet a member. Existing users
+    will be added to the project automatically and if they don't like it,
+    they can simply opt out by removing themselves.
+    """
+
+    __tablename__ = "project_invite"
+
+    luser_id   = db.Column(db.Integer, db.ForeignKey("luser._id"), primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey("project._id"), primary_key=True)
+    email      = db.Column(db.String, nullable=False)
+    is_pending = db.Column(db.Boolean, default=True)
+    created    = db.Column(db.DateTime, default=func.now())
+
+
 class Luser(db.Model, DictSerializable):
     """
     Defines user table and model
@@ -61,6 +80,18 @@ class Luser(db.Model, DictSerializable):
 
     projects = db.relationship("Project", secondary=ProjectLuser.__table__)
     profile = db.relationship("LuserProfile")
+
+   
+    @property
+    def gravatar_url(self):
+        email_hash = md5(self.email.strip().lower()).hexdigest()
+        return "http://gravatar.com/avatar/%s?s=128" % email_hash
+
+
+    @property
+    def gravatar_profile_url(self):
+        email_hash = md5(self.email.strip().lower()).hexdigest()
+        return "http://gravatar.com/%s" % email_hash
 
 
 class LuserProfile(db.Model, DictSerializable):
@@ -94,6 +125,14 @@ class Project(db.Model, DictSerializable):
     lusers      = db.relationship("Luser", secondary=ProjectLuser.__table__)
     cards       = db.relationship("Card", order_by=lambda: Card.number)
     piles       = db.relationship("Pile", order_by=lambda: Pile.number)    
+    members     = db.relationship("ProjectLuser")
+
+    def is_owner(self, luser_id):
+        for member in self.members:
+            if member.luser_id == luser_id and member.is_owner:
+                return True
+        return False
+
 
     @property
     def urlencoded_name(self):

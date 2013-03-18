@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <!DOCTYPE html>
 <html>
     <head>
@@ -16,9 +15,10 @@
         <link href="/css/bootstrap_slate.css" rel="stylesheet" type="text/css" />
         <link href="/css/custom_tooltip.css" rel="stylesheet" type="text/css" />
 
+
         <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
         <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
-
+        <script src="http://malsup.github.com/jquery.form.js"></script> 
 
         <!-- Begin application code -->
         <script type="text/javascript">
@@ -74,7 +74,21 @@ $(function() {
             contentType: "application/json;charset=UTF-8"
         })
     })
+
+    // Find all the "Administrator?" checkbox forms.
+    var forms = $("form.is_owner")
+
+    // Make them ajax forms so they can submit without refreshing the page.
+    forms.ajaxForm()
+
+    console.log(forms)
+    // Register a callback on the checkbox click so that it can auto-submit
+    // the form to update the user's is_owner state in the database.
+    forms.find('input[type=checkbox]').click(function(event) {
+        $(this.form).submit()
+    })
 })
+
 ///////////////////////////////////////
         </script>
         <!-- End application code -->
@@ -87,7 +101,7 @@ $(function() {
                     <ul style="float: right;" class="nav">
                         <li>
                             <a href="/profile/{{ luser._id }}">
-                                <img style="height: 24px; width: 24px; float: left;" src="{{ gravatar_url }}" />
+                                <img style="height: 24px; width: 24px;" src="{{ gravatar_url }}" />
                                 &nbsp;&nbsp;&nbsp;{{ email }}
                             </a>
                         </li>
@@ -104,6 +118,65 @@ $(function() {
                 <h3 class="title">Project Manager: <a href="/project/{{ project.name }}">{{ project.name }}</a></h3>
                 <hr />
             </div>
+
+
+            <div id="project_members_container">
+                <h4>Members</h4>
+                <ul class="structural horizontal_left project_members" id="project_members_list">
+                    {% for member in project.lusers %}
+
+                        <li class="member_item">
+                            <div class="clear"></div>
+                            <ul class="project_member structural">
+                                <li>
+                                    <img src="{{ member.gravatar_url }}" />
+                                </li>
+                                <div class="clear"></div>
+                                <li class="member_username">
+
+                                    <a href="/profile/{{ member._id }}">{{ member.profile[0].username }}</a>
+
+                                    {% if member._id == luser._id %}
+                                        <small>(you)</small>
+                                    {% endif %}
+
+                                </li>
+                                <div class="clear"></div>
+    
+                                <!-- If this is the owner's item, don't let them un-admin
+                                    themselves! -->
+
+                                {% if member._id == luser._id %}
+                                    <li>
+                                        {% if project.is_owner(member._id) %}
+                                            Administrator <span class="icon">&#10003;</span>
+                                        {% else %}
+                                            Not an Administrator.
+                                        {% endif %}
+                                    </li>
+                                {% else %}
+                                    <li class="member_is_owner">
+                                        <form class="is_owner" action="/project/{{ project.name }}/luser/{{ member._id }}/is_owner" method="POST">
+                                                    <label  for="is_{{ member._id }}_owner" name="is_owner">Administrator:&nbsp;</label>
+                                                    {% if project.is_owner(member._id) %}
+                                                        <input id="is_{{member._id}}_owner" type="checkbox" checked />
+                                                    {% else %}
+                                                        <input id="is_{{member._id}}_owner" type="checkbox" />
+                                                    {% endif %}
+                                                <div class="clear"></div>
+                                        </form>
+
+                                    </li> 
+                                {% endif %}
+                            </ul> 
+                        </li> 
+                    {% endfor %}
+                </ul>
+                <div class="clear"></div>
+            </div>
+
+            <!-- end project_members_container -->
+
             <div id="milestones_container">
                 <h4>Milestones</h4>
                 
@@ -149,23 +222,20 @@ $(function() {
 
                 </table>
 
-                <form action="/project/{{ project.name }}/milestones/add" 
-                      id="form_add_milestone" 
-                      method="POST">
+                <form action="/project/{{ project.name }}/milestones/add" id="form_add_milestone" method="POST">
                    
                     <ul class="structural horizontal_left">
                         <li>
-                            <input id="milestone" type="text" name="name" 
-                                   placeholder="Milestone..." />
+                            <input id="milestone" type="text" name="name" placeholder="Milestone..." />
                         </li>
 
                         <li>
-                            <input id="add_milestone" type="submit" name="submit" 
-                                   value="Add Milestone" class="btn" />
+                            <input id="add_milestone" type="submit" name="submit" value="Add Milestone" class="btn" />
                         </li>
                     </ul>
                 </form>
             </div>
+            <!-- end milestones_container -->
         </div>
     </body>
 </html>
