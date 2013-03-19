@@ -965,15 +965,20 @@ def project(name):
 
 @app.route("/project/<project_name>/manage")
 @check_owner_privileges
-def project_manage(project_name=None, **kwargs):
+def project_manage(project_name=None, project=project, **kwargs):
     """
     Renders the project management view. 
 
     This view should allow project owners to create milestones, and
     view progress.
     """
-    
-    return cc_render_template("project_manage.html", **kwargs)
+  
+    # We also need to display project invites
+    invites = (models.ProjectInvite.query.filter_by(project_id=project._id)
+                     .all())
+
+    return cc_render_template("project_manage.html", project=project,
+                              invites=invites, **kwargs)
 
 
 @app.route("/project/<project_name>/luser/<int:luser_id>/is_owner",
@@ -992,6 +997,82 @@ def toggle_owner_permission(project_name=None, luser_id=None, project=None,
 
     return respond_with_json({"is_owner" : member.is_owner,
                               "luser_id" : luser_id })
+
+
+@app.route("/project/<project_name>/add_member", methods=["POST"])
+@check_owner_privileges
+def project_add_member(project=None, luser=None, **kwargs):
+    """
+    If user is already a codecolab member, add them to the project.
+    Otherwise, send an email invite to CodeColab and create an
+    entry in the ProjectInvite table. This will later be read back when the
+    user signs up and used to add them to any projects they have been invited
+    to, which still exist at the time.
+    """
+    email = flask.request.form["email"].strip()
+    member = models.Luser.query.filter_by(email=email).first()
+
+    # If the user is not yet signed up
+    if member is None:
+        existing_invite = models.ProjectInvite.query.filter_by(email=email).first()
+        if existing_invite is None:
+            # Create an invite that will be checked when the user 
+            # signs up and used to add them to any projects they
+            # have been invited to.
+            invite = models.ProjectInvite(luser_id=luser._id,
+                                          project_id=project._id,
+                                          email=email)
+            models.db.session.add(invite)
+
+            # Also create a BetaSignup and activate it so that the user
+            # doesn't get stuck at the beta wall.
+            beta = models.BetaSignup(email=email, is_activated=True)
+            models.db.session.add(beta)
+            
+
+            models.db.session.commit()
+            
+            flask.flash("Invited %s to the project." % email)
+        else: 
+            flask.flash("%s was already invited to this project. Re-sending "
+                        " email." % email)
+        
+        try:
+            text = """
+You've been invited to join a project on CodeColab!  Please sign up using this
+email and you will be added to the project automatically: %(base_url)ssignup.
+    """.replace("\n", " ") % { "base_url" : BASE_URL }
+
+            mailer = Mailer(**MAILER_PARAMS)
+            mailer.send(from_addr=MAIL_FROM, to_addr=email,
+                        subject="You've been invited to %s on CodeColab" % project.name,
+                        text=text)
+        except:
+            flask.flash("Failed to send email. Is %s added to amazon SES?" % email)
+
+    # The user is signed up already, check if hes a project member. If not,
+    # add him.
+    else:
+        existing = (models.ProjectLuser.query
+                          .filter(models.ProjectLuser.project_id==project._id)
+                          .filter(models.ProjectLuser.luser_id==models.Luser._id)
+                          .filter(models.Luser.email==email).first())
+
+        if existing is None:
+            new_member = models.Luser.query.filter_by(email=email).first()
+
+            member = models.ProjectLuser(project_id=project._id,
+                                         luser_id=new_member._id,
+                                         is_owner=False)
+
+            models.db.session.add(member)
+            models.db.session.commit()
+            flask.flash("Added %s to the project." % email)
+        else:
+            flask.flash("%s is already a member of this project." % email)
+        
+    return flask.redirect("/project/%s/manage" % project.name)
+
 
 # Index
 ###############################################################################
@@ -1109,6 +1190,18 @@ def perform_signup(email, password, confirm):
                                   username=email.split("@")[0])
 
     models.db.session.add(profile)
+
+
+    # Must also add the user to any projects he has been invited to:
+    invites = models.ProjectInvite.query.filter_by(email=email).all()
+    for invite in invites:
+        membership = models.ProjectLuser(project_id=invite.project_id,
+                            luser_id=user._id)
+        models.db.session.add(membership)
+        invite.is_pending = False
+
+
+    # Keep these changes.
     models.db.session.commit()
 
     # If signup was successful, just log the user in.

@@ -61,9 +61,18 @@ class ProjectInvite(db.Model, DictSerializable, FluxCapacitor):
 
     luser_id   = db.Column(db.Integer, db.ForeignKey("luser._id"), primary_key=True)
     project_id = db.Column(db.Integer, db.ForeignKey("project._id"), primary_key=True)
-    email      = db.Column(db.String, nullable=False)
+    email      = db.Column(db.String, nullable=False, primary_key=True)
     is_pending = db.Column(db.Boolean, default=True)
     created    = db.Column(db.DateTime, default=func.now())
+
+    inviter    = db.relationship("Luser")
+
+    @property
+    def status(self):
+        if self.is_pending:
+            return "Pending"
+        else:
+            return "Accepted"
 
 
 class Luser(db.Model, DictSerializable):

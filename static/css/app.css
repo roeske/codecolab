@@ -6,6 +6,21 @@ div.navbar { margin-bottom: 0 }
 textarea, input { color: #000; }
 textarea { display: block; }
 
+/* Flash messages ************************************************************/
+div.flashes {
+    position: fixed; 
+    top: 50%;
+    left: 25%;
+    width: 50%;
+    background-color: #222; 
+    font-size: 120%;
+    font-weight: 600;
+}
+
+div.flashes h4 {
+    padding: .5em;
+}
+
 /* Forms *********************************************************************/
 
 .structural { list-style: none; }

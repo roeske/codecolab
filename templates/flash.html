@@ -1,0 +1,30 @@
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="flashes">
+        <ul class="structural">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    
+    <script type="text/javascript">
+        // We'll sleep for longer if there are more messages to read
+        // so that the user can see them all.
+        var delay = {{ messages|count * 2250 }}
+
+        $(function() {
+            setTimeout(function() {
+                $("div.flashes").fadeOut(function() {
+                    $("div.flashes").remove()
+                })
+                // Seems like chrome has a problem with artifacts, at least here.
+                // The above removes the code from the DOM, so we know it's not the
+                // culprit.
+            }, delay)
+        })
+    </script>
+
+    {% endif %}
+{% endwith %}
