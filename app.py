@@ -566,21 +566,35 @@ def restore_card(project=None, card_id=None, **kwargs):
     return flask.redirect("/project/%s/archives" % project.urlencoded_name)
 
 
+def card_set_attributes(project=None, card_id=None, **kwargs):
+    """
+    Generically mutate the values of a card based on what keys 
+    and values are passed in the payload json object.
+    """
+    card = models.Card.query.filter_by(_id=card_id).first()
+    json = flask.request.json
+
+    for k in json.keys():
+        print k, json[k]
+        setattr(card, k, json[k])
+    
+    models.db.session.commit()
+    models.db.session.flush()
+    return respond_with_json({ "status" : "success" })
+
+
 @app.route("/project/<project_name>/cards/<int:card_id>/select_milestone",
             methods=["POST"])
 @check_project_privileges
 def card_select_milestone(project=None, card_id=None, **kwargs):
-    
-    card = models.Card.query.filter_by(_id=card_id).first()
+    return card_set_attributes(project=project, card_id=card_id, **kwargs)   
 
-    milestone_id = flask.request.json["milestone_id"]
-    card.milestone_id = milestone_id
-    models.db.session.commit()
-    models.db.session.flush()
 
-    message = "Added card %r to milestone %r" % (card_id, milestone_id)
-    return respond_with_json({ "status" : "success",
-                               "message" : message })                                 
+@app.route("/project/<project_name>/cards/<int:card_id>/assign_to",
+            methods=["POST"])
+@check_project_privileges
+def card_assign_to(project=None, card_id=None, **kwargs):
+    return card_set_attributes(project=project, card_id=card_id, **kwargs)   
 
 
 @app.route("/project/<name>/cards/edit/<int:card_id>", methods=["POST"])
@@ -690,19 +704,7 @@ def cards_reorder():
     Must be called at the end of any drag on the card list. Used to update
     the new sort order of the card-list in the database. Also repositions
     cards in appropriate piles.
-
-    Expected POST body:
-    ------------------
-        {
-            "updates" : [
-                { 
-                    _id : <integer id>,
-                    pile_id : <pile_id>,
-                    number : <new sort position number>
-                }, ...
-            ]
-        }
-   """
+    """
 
     print "%r" % flask.request.json
     for update in flask.request.json["updates"]:
@@ -729,17 +731,6 @@ def archives(**kwargs):
 def piles_reorder():
     """
     Must be called after piles are moved to update order.
-
-    Expected POST body:
-    ------------------
-        {
-            "updates" : [
-                { 
-                    _id : <integer id>,
-                    number : <new sort position number>
-                }, ...
-            ]
-        }
     """
     for update in flask.request.json["updates"]:
         _id = int(update["_id"])

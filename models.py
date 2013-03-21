@@ -298,11 +298,12 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
 
     __tablename__ = "card"
 
-    _id             = db.Column(db.Integer, primary_key=True)
 
-    project_id      = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False) 
+    _id             = db.Column(db.Integer, primary_key=True)
+    project_id      = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False)
     pile_id         = db.Column(db.Integer, db.ForeignKey(Pile._id))
     milestone_id    = db.Column(db.Integer, db.ForeignKey(Milestone._id))
+    assign_to_id    = db.Column(db.Integer, db.ForeignKey(Luser._id))
     is_archived     = db.Column(db.Boolean, default=False)
     text            = db.Column(db.String)
     score           = db.Column(db.Integer, default=DIFFICULTY_SCORE_NONE)

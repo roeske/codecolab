@@ -45,3 +45,30 @@ form.comments ul li textarea {
     margin-right: 2.1em;
     width: 100%;
 }
+
+div form.milestone {
+    float: left;
+    width: 200px;
+}
+
+div div.difficulty {
+    float: left;
+    width: 200px;
+}
+
+div form.assign_to {
+    float: left;
+    width: 200px;
+}
+
+div form.milestone select, 
+div form.assign_to select {
+    width: 140px;
+}
+
+.card_section {
+    font-size: 80%;
+    font-weight: bold;
+    color: #333;
+    text-shadow: none;
+}
