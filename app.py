@@ -633,11 +633,19 @@ def cards_get(project_name=None, card_id=None, project=None, **kwargs):
     """
     Used to render a card in a modal dialog.
     """
+
+    is_archived = ("is_archived" in flask.request.args and
+                   flask.request.args["is_archived"])
+
     card = query_card(card_id, project._id)
-    return flask.render_template("card.html", card=card, 
-                                              project=project,
-                                              project_name=project_name,
-                                              **kwargs)
+
+    if is_archived:
+        return flask.render_template("archived_card.html", card=card, project=project, 
+                                     project_name=project_name, **kwargs)
+    else:
+        return flask.render_template("card.html", card=card, project=project, 
+                                     project_name=project_name, **kwargs)
+
 
 
 

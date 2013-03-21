@@ -1,0 +1,18 @@
+<!-- BEGIN: Archived card info -->
+<div>
+    <h3 style="display: inline; color: red;">This card is archived.</h3>
+    
+    <div style="float: right; margin-top: 5px;">
+        <a style="color: white" href="/project/{{ project.urlencoded_name }}/cards/{{ card._id }}/restore" class="btn restore">
+            <div>Restore&nbsp;</div><div class="icon">&#8627;</div>
+        </a>
+
+        <a style="color: white" href="/delete?card_id={{ card._id }}&project_name={{ project.urlencoded_name }}&redirect_to=archives" class="btn delete icon">
+            <div>Delete&nbsp;</div><div class="icon">&#10060;</div>
+        </a>
+    </div>
+</div>
+<br />
+<br />
+<!-- END: Archived card info -->
+{% include "card.html" %}

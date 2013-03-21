@@ -290,13 +290,11 @@ function cc_setup_editable_fields(project_name) {
 }
 
 
-function cc_connect_card_to_modal(title, project_name, elem) {
+function cc_connect_card_to_modal(title, project_name, elem, is_archived) {
     // Create id to later reference modal with.
     var modal_id = "modal_" + $(elem).attr("data-id")
 
     var url = "/project/" + project_name + "/cards/" + $(elem).attr("data-id")
-
-    console.log("HIT")
 
     var options = {
         show: {
@@ -317,13 +315,24 @@ function cc_connect_card_to_modal(title, project_name, elem) {
     }
 
 
-    // Make it pop up a modal.
-    $(elem).dblclick(function() {
-        console.log("url="+ url)
-        var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
-        modal.dialog("open")
-        return false
-    })
+    if (is_archived) {
+        // Make it work like a normal link
+        $(elem).click(function() {
+            url = $(elem).attr("href")
+            console.log("url="+ url)
+            var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
+            modal.dialog("open")
+            return false
+        })
+    } else {
+        // It's a card, lets use double click.
+        $(elem).dblclick(function() {
+            console.log("url="+ url)
+            var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
+            modal.dialog("open")
+            return false
+        })
+    }
 }
 
 
