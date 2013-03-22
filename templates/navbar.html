@@ -1,0 +1,19 @@
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="brand" href="/">CodeColab</a>
+                <ul style="float: right;" class="nav">
+                    <li>
+                        <a href="/profile/{{ luser._id }}">
+                            <img style="height: 24px; width: 24px;" src="{{ gravatar_url }}" />
+                            &nbsp;&nbsp;&nbsp;{{ email }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/logout">Log out</a>
+                    </li>
+                </ul>
+            <div style="clear: both;"></div>
+        </div>
+    </div>
+</div>

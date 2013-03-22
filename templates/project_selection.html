@@ -1,94 +1,33 @@
-<?xml version="1.0"?>
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>CodeColab</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <!--[if lt IE 9]>
-            <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
+{% include "head.html" %}
+<div class="cc-container">
+  <h4>Projects</h4>
 
+  <ul id="project" class="structural project_list">
+    {% for pl in projects_and_lusers %}
+      <li class="project_item" data-id="{{ pl[0]._id }}">
+        <a href="/project/{{ pl[0].urlencoded_name }}">{{ pl[0].name }}</a> 
+        <!-- This value is set dynamically to denote that the user has
+           privileges for this project, and therefore can enter the
+           management area. -->
+        {% if pl[1].is_owner == True %}
+          <a href="/project/{{ pl[0].urlencoded_name }}/manage">&nbsp;[manage]</a> 
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
 
-        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
-        <link href="/css/bootstrap_slate.css" rel="stylesheet" />
-        <link rel="stylesheet" href="/css/app.css" type="text/css" />
-
-        <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
-        <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
-
-
-        <!-- Begin application code -->
-        <script type="text/javascript">
-// Run this code when the DOM is ready.
-$(document).ready(function() {
-    
-
-})
-///////////////////////////////////////
-        </script>
-        <!-- End application code -->
-
-
-
-    </head>
-    <body>
-        <div class="navbar">
-            <div class="navbar-inner">
-                <div class="container">
-                    <a class="brand" href="/">CodeColab</a>
-                    <ul style="float: right;" class="nav">
-                        <li>
-                            <a href="/profile/{{ luser._id }}">
-                                <img style="height: 24px; width: 24px;" src="{{ gravatar_url }}" />
-                                &nbsp;&nbsp;&nbsp;{{ email }}
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/logout">Log out</a>
-                        </li>
-                    </ul>
-                    <div style="clear: both;"></div>
-                </div>
-            </div>
-        </div>
-        <div class="content">
-            <div class="minimalist_container minimalist_top">
-                <h4>Projects</h4>
-            </div>
-
-            <ul id="project" class="structural project_list">
-                {% for pl in projects_and_lusers %}
-                    <li class="project_item" data-id="{{ pl[0]._id }}">
-
-
-
-                        <a href="/project/{{ pl[0].urlencoded_name }}">{{ pl[0].name }}</a> 
-                        <!-- This value is set dynamically to denote that the user has
-                             privileges for this project, and therefore can enter the
-                             management area. -->
-                        {% if pl[1].is_owner == True %}
-
-                            <a href="/project/{{ pl[0].urlencoded_name }}/manage">&nbsp;[manage]</a> 
-
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-
-            <div class="minimalist_container minimalist_bottom">
-                <form action="/project/add" method="POST">
-                    <ul id="add_project_controls" class="structural horizontal_right">
-                        <li>
-                            <input type="submit" name="submit" value="Add Project" class="btn"/>
-                        </li>
-                        <li>
-                            <input type="text" placeholder="Project Name" name="project_name" id="project_name"/>
-                        </li>
-                    </ul>
-                    <div class="clear"></div>
-                </form>
-            </div>
-        </div>
-    </body>
-</html>
+  <div>
+    <form action="/project/add" method="POST">
+      <ul id="add_project_controls" class="structural horizontal_right">
+        <li>
+          <input type="submit" name="submit" value="Add Project" class="btn"/>
+        </li>
+        <li>
+          <input type="text" placeholder="Project Name" name="project_name" id="project_name"/>
+        </li>
+      </ul>
+      <div class="clear"></div>
+    </form>
+  </div>
+</div> <!-- /container -->
+{% include "foot.html" %}

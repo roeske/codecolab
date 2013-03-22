@@ -1,0 +1,363 @@
+/* reset **********************************************************************/
+html, body { width: 100%; height: 100%; padding: 0; margin 0; }
+ul, ol, p, li, h1, h2, h3, h4, h5, h6, div { margin: 0, padding: 0; }
+form { padding-right: 5px; }
+div.navbar { margin-bottom: 0 }
+textarea, input { color: #000; }
+textarea { display: block; }
+
+/* Flash messages ************************************************************/
+div.flashes {
+    position: fixed; 
+    top: 50%;
+    left: 25%;
+    width: 50%;
+    background-color: #222; 
+    font-size: 120%;
+    font-weight: 600;
+}
+
+div.flashes h4 {
+    padding: .5em;
+}
+
+/* Forms *********************************************************************/
+
+.structural { list-style: none; }
+
+ul.structural.basic li input,
+ul.structural.basic li select,
+ul.structural.basic li label {
+    width: 10em;
+    margin: 1em;
+}
+
+ul.structural.basic li label { 
+    float: left; 
+    color: #ddd; 
+    font-weight: bold;
+    font-size: 110%; 
+}
+
+ul.structural.basic li.spacer {
+    height: 1em;
+    clear: both;
+}
+
+ul.structural.basic li input,
+ul.structural.basic li select { float: right; }
+
+.clear { clear: both; }
+
+form.basic { width: 30em; }
+
+/* Tables ********************************************************************/
+
+#add_project_controls input[type="text"],  #toolbox-list input[type="text"] {
+    width: 10em;
+    margin-right: 1em;
+}
+
+table {
+    margin: 2em 0 0 0;
+    padding: 0;
+    width: 100%;
+}
+
+table th {
+    font-weight: 700;
+    font-style: bold;
+}
+
+table th, table td {
+    text-align: left;   
+    padding: 1em;
+    margin: 1em;
+    font-size: 110%;
+    background-color: #222;
+    border: 1px solid #111;
+    border-radius: 2px;
+    color: #fff;
+}
+
+.wrap {
+    width: auto;
+}
+
+/** Font / Icons *************************************************************/
+
+@font-face {
+    font-family: entypo;
+    src: url("/css/entypo/entypo.ttf"),
+         url("/css/entypo/entypo.eot"),
+         url("/css/entypo/entypo.svg");
+}
+
+.icon {
+    font-family: entypo;
+    font-size: 200%;
+}
+
+a.btn div {
+    float: left;
+}
+
+/** custom scrollbars ********************************************************/
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 8px;
+}
+ 
+::-webkit-scrollbar-track {
+    border-radius: 5px;
+    background-color: #000;
+}
+ 
+::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background-color: #555;
+}
+
+/*****************************************************************************/
+
+/** fg color of 'complete' button */
+.btn.card_complete, .btn.accept_milestone { color: #fff; }
+
+/** do this so the table doesn't get resized when accept is clicked. */
+.btn.accept_milestone { width: 104px; }
+
+.empty_card a, .card_item a.archive.archive {
+    font-size: 225%;
+    float: right;
+}
+
+.empty_card p, .card_item p.text {
+    font-size: 110%;
+}
+
+.empty_card p, .card_item p.date {
+    font-size: 75%;
+}
+
+.card_list {
+    list-style-type: none;
+    margin: 0;
+}
+
+
+ul.card_list li {
+    background-color: #222;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.pile_container {
+    background-color: #222;
+    border-radius: 5px;
+}
+ 
+.pile_chrome_top {
+    padding: .08em 0em .08em 5px;
+}
+
+.pile_chrome_bottom {
+    padding: 5px 0em 0em 5px;
+}
+
+h4.pile_title {
+    float: left;
+    width: 10em;
+}
+
+div.pile_options {
+    float: right;
+    padding: 14px;
+}
+
+.minimalist_bottom {
+    padding-top: 5px;
+}
+
+.minimalist_top {
+    padding-bottom: 5px;
+}
+
+/*h1, h2, h3, h4, h5, h6 {
+    font-weight: 500;
+    font-size: 120%;
+}*/
+
+.top_corners {
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+}
+
+.bottom_corners {
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+ul#project { padding: 0; margin: 0; }
+
+.project_item {
+    padding: 1em;
+    border-bottom: 1px solid #111;
+}
+
+.horizontal_left li {
+    float: left;
+}
+
+.horizontal_right li {
+    float: right;
+}
+
+div.clear {
+    clear: both;
+}
+
+.content {
+    margin: 1em;
+}
+
+div#project_name { width: 50%; }
+
+div#project_name h3,
+div#project_name div.nav { float: left; margin: 10.5px 5px; 
+                            line-height: 42px;}
+
+#toolbox { width: 50%; }
+
+div#project_name, #toolbox {
+    float: left;
+}
+
+ul.controls li.button {
+    width: 7em;
+}
+
+ul.controls li.input {
+    width: 10em;
+} 
+
+ul.controls li.input input {
+    width: 8em;
+} 
+
+li.card_item p span {
+    white-space: normal;
+}
+
+li.empty_card, li.card_item {
+    min-height: 6em;
+}
+
+li.card_item div.milestone {
+    color: #0a0;
+    font-size: 80%;
+    line-height: 27px;
+    height: 21px;
+}
+
+.card_label {
+    color: #222;
+}
+
+.card_item {
+    margin-bottom: 5px;
+}
+
+@media(min-width: 900px) {
+    div.content { height: 94%; }
+
+    div#piles {
+        margin-top: .65em;
+        background-color: #151515;
+        border-radius: 5px;
+        height: 90%;
+        width: 100%;
+    /*    overflow-y: hidden; */
+        overflow-x: auto;
+    }
+
+    div#piles ul#pile_list {
+        list-style: none;
+        white-space: nowrap;
+        overflow: hidden;
+        float: left;
+        margin: 0;
+        padding: 0;
+        height: 99.5%;
+    }
+
+    div#piles ul#pile_list li {
+        max-height: 99%;
+    }
+
+    .pile_container {
+        margin-bottom: 1em;
+        margin: 5px 5px 5px 5px;
+        width: 278px;
+        float: left;
+        height: 100%;
+    }
+
+    .pile_container ul li {
+        width: 17em;
+    }
+
+
+    .pile_container ul.card_list {
+        min-height: 6em;
+        max-height: 73.5%;
+        overflow-x: hidden;
+        overfloy-y: scroll;
+        background-color: #171717;
+        padding: .5em .5em .1em .5em;
+        margin: .5em;
+        border-radius: 5px;
+    }
+}
+
+@media (max-width: 900px) {
+    div#piles {
+        margin-top: 5px;
+        background-color: #151515;
+        border-radius: 5px;
+    }
+
+    div#piles ul#pile_list {
+        list-style: none;
+        white-space: nowrap;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    }
+
+    .pile_container {
+        margin-bottom: 5px;
+        margin: 5px 5px 5px 5px;
+        float: left;
+        width: 100%;
+    }
+
+    li.pile_container,
+    .pile_chrome_top, .pile_chrome_bottom {
+        width: 99%;
+    }
+
+    li.pile_container 
+    li.card_item, .empty_card {
+        width: 98%; 
+    }
+
+    .pile_container ul.card_list {
+        min-height: 100px;
+        background-color: #171717;
+        border-radius: 5px;
+    }
+}
+
+.handle { background-color: #282828; height: 50px;}

@@ -310,7 +310,7 @@ function cc_connect_card_to_modal(title, project_name, elem, is_archived) {
         close: function() {
             // When the modal dialog is closed, completely remove it from the
             // DOM so that it is reloaded next time with fresh state. 
-            $("#" + "modal_id").dialog("destroy")
+            $("#" + modal_id).dialog("destroy")
         },
 
         modal: true,
@@ -321,20 +321,21 @@ function cc_connect_card_to_modal(title, project_name, elem, is_archived) {
         height: 700
     }
 
-    var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
 
     if (is_archived) {
         // Make it work like a normal link
         $(elem).click(function() {
             url = $(elem).attr("href")
-            console.log("url="+ url)
+            console.log("url="+url)
+            var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
             modal.dialog("open")
             return false
         })
     } else {
         // It's a card, lets use double click.
         $(elem).dblclick(function() {
-            console.log("url="+ url)
+            console.log("url="+url)
+            var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
             modal.dialog("open")
             return false
         })

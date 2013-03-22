@@ -1,0 +1,5 @@
+{% if luser.profile[0].theme != "dark" %}
+    {% include "themes/light.html" %}
+{% else %}
+    {% include "themes/dark.html" %}
+{% endif %}

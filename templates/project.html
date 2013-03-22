@@ -1,39 +1,136 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>CodeColab</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+{% include "head.html" %}
+<div class="content">
+  <div id="top_container">
+    <div id="project_name">
+      <h3>Project: <a href="#">{{ project.name }}</a></h3>
+      <div class="nav">
+        <a href="/project/{{ project.urlencoded_name }}/archives"
+           class="btn">
+           <div style="float; left"> Archives&nbsp;</div>
+           <div class="icon">&#59392;</div>
+           <div class="clear"></div>
+        </a>
+      </div>
+    </div>
 
-        <link href="/css/bootstrap_slate.css" rel="stylesheet"/>
-        <link href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" type="text/css" rel="stylesheet"/>
-        <link href="/css/app.css" type="text/css" rel="stylesheet"/>
-        <link href="/css/card.css" type="text/css" rel="stylesheet"/>
+    <div id="toolbox">
+      <form action="/piles/add" method="POST">
+        <input type="hidden" name="project_name" value="{{ project.name }}" />
+        <ul id="toolbox-list" class="controls structural horizontal_right">
+          <li>
+            <input type="submit" name="submit" value="Add Pile &#10133;" class="btn"/>
+          </li>
+          <li>
+            <input type="text" placeholder="Pile Name..." name="text" id="text"/>
+          </li>
+        </ul>
+      </form>
+    </div>
+  </div>
 
-        <!--[if lt IE 9]>
-            <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
-        <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
-        <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
-        <script type="text/javascript" src="/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="/js/theme.js"></script>
-        <script type="text/javascript" src="/js/jquery.jeditable.js"></script>
-        <script type="text/javascript" src="/js/raty/jquery.raty.js"></script>
-        <script src="http://malsup.github.com/jquery.form.js"></script> 
+  <div class="clear"></div>
 
-        <!-- include JS code for this screen -->
-        <script type="text/javascript" src="/js/project.js"></script>
+  <div id="piles">
+    <ul id="pile_list">
 
+    {% for pile in project.piles %}
+      <li class="pile_container" data-id="{{ pile._id}}" data-number="{{ pile.number }}">
 
-<!-- Begin application code -->
+        <div class="handle chrome pile_chrome_top top_corners">
+          <h4 class="pile_title"><span data-id="{{ pile._id }}" class="editable pile_title">{{ pile.name }}</span></h4>
+          <div class="pile_options">
+            <a href="/delete?pile_id={{ pile._id }}&project_name={{ project.urlencoded_name
+            }}">&nbsp;<span class="icon">&#10060;</span>&nbsp;</a>
+          </div>
+        </div>
+        <div class="clear"></div>
+
+        <ul id="{{ pile.pile_uuid }}" data-id="{{ pile._id }}" class="card_list">
+
+          {% for card in pile.cards %}
+            {% if not card.is_archived %}
+              <li id="{{ card.card_uuid }}" 
+                class="card_item ui-state-default"
+                data-pile-id="{{ card.pile_id }}"
+                data-id="{{ card._id }}" 
+                data-number="{{ card.number }}"
+                data-title="{{ card.title }}">
+               
+              <div>
+                <p style="float: left;" class="date">{{ card.created_as_timezone(luser.profile[0].timezone) }}</p> 
+                <a class="icon archive" style="float: right"
+                   href="/project/{{ project.urlencoded_name }}/card/{{ card._id }}/archive">&#59392;</a>
+              </div>
+              <div class="clear"></div>
+
+              <!-- card text -->
+              <p>
+                <span class="card text" 
+                    data-id="{{ card._id }}">
+               
+                  {% if card.is_completed %}
+                    <strike>{{ card.text }}</strike>
+                  {% else %}
+                    {{ card.text }}
+                  {% endif %}
+                </span>
+              </p>
+              
+              <div>
+
+                <div style="float: left;" class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div>
+
+                <div class="milestone" style="float: right">
+                  {% if card.milestone.is_approved %}
+                    <strike>
+                      {{ card.milestone.name }}
+                    </strike>
+                  {% else %}
+                    {{ card.milestone.name }}
+                  {% endif %}
+                </div>
+              </div>
+              <div class="clear"></div>
+            </li>
+            {% endif %}
+          {% endfor %}
+
+        </ul>
+
+        <div class="chrome pile_chrome_bottom bottom_corners">
+          <form action="/cards/add" method="POST">
+            <input type="hidden" name="project_name" value="{{ project.name }}" />
+            <input type="hidden" name="pile_id" value="{{ pile._id }}" />
+
+            <div class="clear"></div>
+            <ul class="controls structural horizontal_right">
+              <li class="button">
+                <input type="submit" name="submit" value="Add Card" class="btn"/>
+              </li>
+              <li class="input"> 
+                <input type="text" placeholder="I'm going to..." name="text" id="text"/>
+              </li>
+            </ul>
+          </form>
+        </div>
+      </li>
+    {% endfor %}
+    </ul>
+  </div>
+</div>
+
+{% include "common_js.html" %}
+
+<!-- BEGIN: JS -->
+<script type="text/javascript" src="/js/project.js"></script>
 <script type="text/javascript">
-
 // Run this code when the DOM is ready.
-$(document).ready(function() {
+$(function() {
+  
     // Make to-do lists sortable by dragging and save changes in the database.
     // Read pile ids via jinja2.
     pile_ids = {{ json_pile_ids|safe }}
-  
+    
     // Obtain reference to the project's name 
     project_name = "{{ project.name }}"
 
@@ -66,152 +163,8 @@ $(document).ready(function() {
         })
     })
 })
-
 </script>
-<!-- End application code -->
+<!-- END: JS -->
 
-</head>
-
-<body>
-    <div class="navbar">
-        <div class="navbar-inner">
-            <div class="container">
-                <a class="brand" href="/">CodeColab</a>
-                <ul style="float: right" class="nav">
-                    <li>
-                        <a href="/profile/{{ luser._id }}">
-                            <img style="height: 24px; width: 24px;" src="{{ gravatar_url }}" />
-                            &nbsp;&nbsp;&nbsp;{{ email }}
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/logout">Log out</a>
-                    </li>
-                </ul>
-                <div class="clear"></div>
-            </div>
-        </div>
-    </div>
-    <div class="content">
-        <div id="top_container">
-            <div id="project_name">
-                <h3>Project: <a href="#">{{ project.name }}</a></h3>
-                <div class="nav">
-                    <a href="/project/{{ project.urlencoded_name }}/archives"
-                       class="btn">
-                       <div style="float; left"> Archives&nbsp;</div>
-                       <div class="icon">&#59392;</div>
-                       <div class="clear"></div>
-                    </a>
-                </div>
-            </div>
-
-            <div id="toolbox">
-                <form action="/piles/add" method="POST">
-                    <input type="hidden" name="project_name" value="{{ project.name }}" />
-                    <ul id="toolbox-list" class="controls structural horizontal_right">
-                        <li>
-                            <input type="submit" name="submit" value="Add Pile &#10133;" class="btn"/>
-                        </li>
-                        <li>
-                            <input type="text" placeholder="Pile Name..." name="text" id="text"/>
-                        </li>
-                    </ul>
-                </form>
-            </div>
-        </div>
-
-        <div class="clear"></div>
-
-        <div id="piles">
-            <ul id="pile_list">
-
-            {% for pile in project.piles %}
-                <li class="pile_container" data-id="{{ pile._id}}" data-number="{{ pile.number }}">
-
-                    <div class="handle chrome pile_chrome_top top_corners">
-                        <h4 class="pile_title"><span data-id="{{ pile._id }}" class="editable pile_title">{{ pile.name }}</span></h4>
-                        <div class="pile_options">
-                            <a href="/delete?pile_id={{ pile._id }}&project_name={{ project.urlencoded_name
-                            }}">&nbsp;<span class="icon">&#10060;</span>&nbsp;</a>
-                        </div>
-                    </div>
-                    <div class="clear"></div>
- 
-                    <ul id="{{ pile.pile_uuid }}" data-id="{{ pile._id }}" class="card_list">
-
-                        {% for card in pile.cards %}
-                            {% if not card.is_archived %}
-                                <li id="{{ card.card_uuid }}" 
-                                    class="card_item ui-state-default"
-                                    data-pile-id="{{ card.pile_id }}"
-                                    data-id="{{ card._id }}" 
-                                    data-number="{{ card.number }}"
-                                    data-title="{{ card.title }}">
-                               
-                                <div>
-                                    <p style="float: left;" class="date">{{ card.created_as_timezone(luser.profile[0].timezone) }}</p> 
-                                    <a class="icon archive" style="float: right"
-                                       href="/project/{{ project.urlencoded_name }}/card/{{ card._id }}/archive">&#59392;</a>
-                                </div>
-                                <div class="clear"></div>
-
-                                <!-- card text -->
-                                <p>
-                                    <span class="card text" 
-                                          data-id="{{ card._id }}">
-                               
-                                        {% if card.is_completed %}
-                                            <strike>{{ card.text }}</strike>
-                                        {% else %}
-                                            {{ card.text }}
-                                        {% endif %}
-                                    </span>
-                                </p>
-                              
-                                <div>
-
-                                    <div style="float: left;" class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div>
-
-                                    <div class="milestone" style="float: right">
-                                        {% if card.milestone.is_approved %}
-                                            <strike>
-                                                {{ card.milestone.name }}
-                                            </strike>
-                                        {% else %}
-                                            {{ card.milestone.name }}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="clear"></div>
-                            </li>
-                            {% endif %}
-                        {% endfor %}
-
-                    </ul>
-
-                    <div class="chrome pile_chrome_bottom bottom_corners">
-                        <form action="/cards/add" method="POST">
-                            <input type="hidden" name="project_name" value="{{ project.name }}" />
-                            <input type="hidden" name="pile_id" value="{{ pile._id }}" />
-
-                            <div class="clear"></div>
-                            <ul class="controls structural horizontal_right">
-                                <li class="button">
-                                    <input type="submit" name="submit" value="Add Card" class="btn"/>
-                                </li>
-                                <li class="input"> 
-                                    <input type="text" placeholder="I'm going to..." name="text" id="text"/>
-                                </li>
-                            </ul>
-                        </form>
-                    </div>
-                </li>
-            {% endfor %}
-            </ul>
-
-        </div>
-    </div>
 </body>
-
 </html>
