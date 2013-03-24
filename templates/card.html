@@ -1,3 +1,5 @@
+<div style="width: 457px;">
+
 <!-- Static created timestamp -->
 <div class="card_top">
     <div>
@@ -38,7 +40,7 @@
 
 <div>
     
-    <div class="difficulty">
+    <div class="difficulty_section">
         <h3 class="card_section">Difficulty</h3>
         <div class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div></p>
     </div>
@@ -103,12 +105,13 @@
         </li>
 
         <li>
-            <input class="btn" style="float: right; margin-right: 0;" type="submit" name="submit" value="Add Comment" />
+            <input class="btn" style="float: right; margin-right: 0;" type="submit" name="submit" value="Add Comment &#10133;" />
             <div style="clear: both;"></div>
         </li>
     </ul>
 </form>
 
+<h3 class="comments_title">Attachments</h3>
 
 <form class="uploads" action="/project/{{ project_name }}/cards/{{ card._id }}/attach" method="POST">
     <ul class="structural">
@@ -119,14 +122,13 @@
 
         <li>
             <div style="float: right;">
-                <input type="submit" name="submit" value="Attach File" class="btn"/>
+                <input ="font-family: entypo" type="submit" name="submit" value="Attach File" class="btn"/>
             </div>
             <div style="clear: both;"></div>
         </li>
     </ul>
 </form>
 
-<h3 class="comments_title">Attachments</h3>
 
 <ul class="attachments structural">
    {% for file in card.attachments %}
@@ -135,6 +137,8 @@
    </li>
    {% endfor %}
 </ul>
+
+</div>
 <!-- Run code to make above editables work -->
 <script type="text/javascript">
 
