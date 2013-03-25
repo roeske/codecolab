@@ -1,279 +1,237 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>CodeColab</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <!--[if lt IE 9]>
-            <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
+{% include "head.html" %}
+<div class="content project_manage">
+  <div>
+    <h3 class="title">Project Manager: <a href="/project/{{ project.name }}">{{ project.name }}</a></h3>
+  </div>
+  <hr />
+
+  <div id="project_members_container">
+  <h4>Members</h4>
+  <ul class="structural horizontal_left project_members" id="project_members_list">
+    {% for member in project.lusers %}
+
+    <li class="member_item">
+      <ul class="structural">
+      <lip>
+        <img src="{{ member.gravatar_url }}" />
+      </li>
+      <div class="clear"></div>
+      <li class="member_username">
+        <a style="text-align: center; font-size: 110%; width: 128px; display: inline-block; margin: 7px 0px 7px;" href="/profile/{{ member._id }}">
+            {{ member.profile[0].username }}
+            {% if member._id == luser._id %}
+              <small>(you)</small>
+            {% endif %}
+        </a>
+        <div class="clear"></div>
+      </li>
+      
+      <!-- If this is the owner's item, don't let them un-admin
+        themselves! -->
+
+      {% if member._id == luser._id %}
+        <li>
+        {% if project.is_owner(member._id) %}
+          Administrator <span class="icon">&#10003;</span>
+        {% else %}
+          Not an Administrator.
+        {% endif %}
+        </li>
+      {% else %}
+        <li class="member_is_owner">
+
+        <form class="is_owner" action="/project/{{ project.name }}/luser/{{ member._id }}/is_owner" method="POST">
+            <label for="is_{{ member._id }}_owner" name="is_owner">&nbsp;Administrator:&nbsp;
+              {% if project.is_owner(member._id) %}
+                <input id="is_{{ member._id }}_owner" type="checkbox" checked />
+              {% else %}
+                <input id="is_{{ member._id }}_owner" type="checkbox" />
+              {% endif %}
+            </label>
+          <div class="clear"></div>
+        </form>
+
+        </li> 
+      {% endif %}
+      </ul> 
+    </li> 
+    {% endfor %}
+  </ul>
+    <div class="clear"></div>
+  </div>
+  
+  <!-- end project_members_container -->
+  <div id="invites_container">
+  <h4>Invites</h4>
+  {% if invites|count > 0 %}
+    <table>
+    <tr>
+      <th>Email</th>
+      <th>Status</th>
+      <th>Invited By</th>
+    </tr>
+    {% for invite in invites %}
+      <tr>
+      <td>{{ invite.email }}</td>
+      <td>{{ invite.status }}</td>
+      <td><a href="/profiles/{{ invite.inviter._id }}/">{{ invite.inviter.profile[0].username }}</a></td>
+      </tr>
+    {% endfor %}
+    </table>
+  {% else %}
+    <p> You have not invited anyone to this project. </p>
+  {% endif %}
+
+  <div style="float: right">
+    <form class="add_member" action="/project/{{ project.name }}/add_member"method="POST">
+    <ul class="project_manage structural controls horizontal_left">
+      <li>
+      <input type="email" placeholder="email..." name="email" />
+      </li>
+      <li>
+      <input class="btn" type="submit" value="Add Via Email &#10133; " />
+      </li>
+    </ul>
+    </form>
+  </div>
+  <div class="clear"></div>
+  </div>
+  <!-- end project_members_container -->
+
+  <div id="milestones_container">
+  <h4>Milestones</h4>
+  
+  <table id="milestones">
+  <!-- loop through each milestone -->
+  {% for milestone in project.milestones %}
+
+    <!-- print the table header -->
+    {% if loop.first %}
+    {% set i = 0 %}
+    {% for name in milestone.stat_names %}
+      <th title="{{ milestone.stat_tooltips[i] }}">
+      {{ name }}
+      </th>
+      {% set i = i + 1 %}  
+    {% endfor %}       
+    {% endif %}
+
+    <tr>
+    {% for stat in milestone.stats %}
+      <td>
+      <!-- if this is the 'milestone' stat, inject an
+      approve button into the table cell -->
+      {% if loop.first %}
+      <a style="float: right" href="/project/{{ project.name }}/milestone/{{ milestone._id }}/accept"
+      data-state="{{ milestone.is_approved }}"
+      class="btn accept_milestone ">
+      {% if milestone.is_approved %}
+        <span class="true">Accepted <span class="icon">&nbsp;&#10003;</span></span>
+        <span style="display: none;" class="false">Accept</span>
+      {% else %}
+        <span style="display: none;" class="true">Accepted &#10003;</span>
+        <span class="false">Accept</span>
+      {% endif %}
+      {% endif %}
+      </a>&nbsp;
+      {{ stat }}
+      <div class="clear"></div> 
+      </td>
+    {% endfor %}
+    </tr>
+  {% endfor %}
+
+  </table>
 
 
-        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
-        <link rel="stylesheet" href="/css/app.css" type="text/css" />
-        <link rel="stylesheet" href="/css/project_manage.css" type="text/css" />
-        <link href="/css/bootstrap_slate.css" rel="stylesheet" type="text/css" />
-        <link href="/css/custom_tooltip.css" rel="stylesheet" type="text/css" />
 
-<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
-        <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
-        <script src="http://malsup.github.com/jquery.form.js"></script> 
+  <form action="/project/{{ project.name }}/milestones/add" id="form_add_milestone" method="POST">
+     
+    <ul class="project_manage structural horizontal_left">
+    <li>
+      <input id="milestone" type="text" name="name" placeholder="Milestone..." />
+    </li>
 
-        <!-- Begin application code -->
-        <script type="text/javascript">
+    <li>
+      <input id="add_milestone" type="submit" name="submit" value="Add Milestone &#10133;" class="btn" />
+    </li>
+    </ul>
+  </form>
+  </div>
+  <!-- end milestones_container -->
+</div>
+
+{% include "common_js.html" %}
+{% include "flash.html" %}
+
+
+  <!-- Begin application code -->
+  <script type="text/javascript">
 // Run this code when the DOM is ready.
 $(function() {
-    // Show tooltips on the table headings on mouseover.
-    $(document).tooltip({
-      position: {
-        my: "left bottom-20",
-        at: "left top",
-        using: function(position, feedback) {
-          $(this).css(position);
-          $("<div>")
-            .addClass("arrow" )
-            .addClass(feedback.vertical)
-            .addClass(feedback.horizontal)
-            .appendTo(this)
-        }
-      }
-    })
+  // Show tooltips on the table headings on mouseover.
+  $(document).tooltip({
+  position: {
+  my: "left bottom-20",
+  at: "left top",
+  using: function(position, feedback) {
+    $(this).css(position);
+    $("<div>")
+    .addClass("arrow" )
+    .addClass(feedback.vertical)
+    .addClass(feedback.horizontal)
+    .appendTo(this)
+  }
+  }
+  })
 
-    // Handle clicks on the 'Accept' button. Toggle state
-    // of acceptance against the backend and update the DOM.
-    $("a.accept_milestone").click(function(event) {
-        event.preventDefault()
-        var that = this;
+  // Handle clicks on the 'Accept' button. Toggle state
+  // of acceptance against the backend and update the DOM.
+  $("a.accept_milestone").click(function(event) {
+  event.preventDefault()
+  var that = this;
 
-        // Instead, post the state to the href of the link.
-        $.ajax({
-            type: "POST",
-            url: $(this).attr("href"),
+  // Instead, post the state to the href of the link.
+  $.ajax({
+    type: "POST",
+    url: $(this).attr("href"),
 
-            // Get the new state each time we submit, to toggle.
-            data: JSON.stringify({state: $(that).data("state") == "True" }),
-            
-            success: function(data) {
-                console.log(data)
-                var toggle = $(that)
-                
-                if (data.state) {
-                    // Update the toggle button state
-                    toggle.find("span.true").show()
-                    toggle.find("span.false").hide()
-                    toggle.data("state", "True")
-                } else {
-                    // Update the toggle button state
-                    toggle.find("span.true").hide()
-                    toggle.find("span.false").show()
-                    toggle.data("state", "False")
-                }
-            },
+    // Get the new state each time we submit, to toggle.
+    data: JSON.stringify({state: $(that).data("state") == "True" }),
+    
+    success: function(data) {
+    console.log(data)
+    var toggle = $(that)
+    
+    if (data.state) {
+      // Update the toggle button state
+      toggle.find("span.true").show()
+      toggle.find("span.false").hide()
+      toggle.data("state", "True")
+    } else {
+      // Update the toggle button state
+      toggle.find("span.true").hide()
+      toggle.find("span.false").show()
+      toggle.data("state", "False")
+    }
+    },
 
-            contentType: "application/json;charset=UTF-8"
-        })
-    })
+    contentType: "application/json;charset=UTF-8"
+  })
+  })
 
-    // Find all the "Administrator?" checkbox forms.
-    var forms = $("form.is_owner")
+  // Find all the "Administrator?" checkbox forms.
+  var forms = $("form.is_owner")
 
-    // Make them ajax forms so they can submit without refreshing the page.
-    forms.ajaxForm()
+  // Make them ajax forms so they can submit without refreshing the page.
+  forms.ajaxForm()
 
-    console.log(forms)
-    // Register a callback on the checkbox click so that it can auto-submit
-    // the form to update the user's is_owner state in the database.
-    forms.find('input[type=checkbox]').click(function(event) {
-        $(this.form).submit()
-    })
+  console.log(forms)
+  // Register a callback on the checkbox click so that it can auto-submit
+  // the form to update the user's is_owner state in the database.
+  forms.find('input[type=checkbox]').click(function(event) {
+  $(this.form).submit()
+  })
 })
-
-///////////////////////////////////////
-        </script>
-        <!-- End application code -->
-    </head>
-    <body>
-        <div class="navbar">
-            <div class="navbar-inner">
-                <div class="container">
-                    <a class="brand" href="/">CodeColab</a>
-                    <ul style="float: right;" class="nav">
-                        <li>
-                            <a href="/profile/{{ luser._id }}">
-                                <img style="height: 24px; width: 24px;" src="{{ gravatar_url }}" />
-                                &nbsp;&nbsp;&nbsp;{{ email }}
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/logout">Log out</a>
-                        </li>
-                    </ul>
-                    <div style="clear: both;"></div>
-                </div>
-            </div>
-        </div>
-        <div class="content">
-            <div>
-                <h3 class="title">Project Manager: <a href="/project/{{ project.name }}">{{ project.name }}</a></h3>
-                <hr />
-            </div>
-
-
-            <div id="project_members_container">
-                <h4>Members</h4>
-                <ul class="structural horizontal_left project_members" id="project_members_list">
-                    {% for member in project.lusers %}
-
-                        <li class="member_item">
-                            <div class="clear"></div>
-                            <ul class="project_member structural">
-                                <li>
-                                    <img src="{{ member.gravatar_url }}" />
-                                </li>
-                                <div class="clear"></div>
-                                <li class="member_username">
-
-                                    <a href="/profile/{{ member._id }}">{{ member.profile[0].username }}</a>
-
-                                    {% if member._id == luser._id %}
-                                        <small>(you)</small>
-                                    {% endif %}
-
-                                </li>
-                                <div class="clear"></div>
-    
-                                <!-- If this is the owner's item, don't let them un-admin
-                                    themselves! -->
-
-                                {% if member._id == luser._id %}
-                                    <li>
-                                        {% if project.is_owner(member._id) %}
-                                            Administrator <span class="icon">&#10003;</span>
-                                        {% else %}
-                                            Not an Administrator.
-                                        {% endif %}
-                                    </li>
-                                {% else %}
-                                    <li class="member_is_owner">
-                                        <form class="is_owner" action="/project/{{ project.name }}/luser/{{ member._id }}/is_owner" method="POST">
-                                                    <label  for="is_{{ member._id }}_owner" name="is_owner">Administrator:&nbsp;</label>
-                                                    {% if project.is_owner(member._id) %}
-                                                        <input id="is_{{member._id}}_owner" type="checkbox" checked />
-                                                    {% else %}
-                                                        <input id="is_{{member._id}}_owner" type="checkbox" />
-                                                    {% endif %}
-                                                <div class="clear"></div>
-                                        </form>
-
-                                    </li> 
-                                {% endif %}
-                            </ul> 
-                        </li> 
-                    {% endfor %}
-                </ul>
-            </div>
-            
-            <!-- end project_members_container -->
-            <div id="invites_container">
-                <h4>Invites</h4>
-                {% if invites|count > 0 %}
-                    <table>
-                        <tr>
-                            <th>Email</th>
-                            <th>Status</th>
-                            <th>Invited By</th>
-                        </tr>
-                        {% for invite in invites %}
-                            <tr>
-                                <td>{{ invite.email }}</td>
-                                <td>{{ invite.status }}</td>
-                                <td><a href="/profiles/{{ invite.inviter._id }}/">{{ invite.inviter.profile[0].username }}</a></td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                {% else %}
-                    <p> You have not invited anyone to this project. </p>
-                {% endif %}
-
-                <div style="float: right">
-                    <form class="add_member" action="/project/{{ project.name }}/add_member"method="POST">
-                        <ul class="structural controls horizontal_left">
-                            <li>
-                                <input type="email" placeholder="email..." name="email" />
-                            </li>
-                            <li>
-                                <input class="btn" type="submit" value="Add Via Email &#10133; " />
-                            </li>
-                        </ul>
-                    </form>
-                </div>
-                <div class="clear"></div>
-            </div>
-            <!-- end project_members_container -->
-
-            <div id="milestones_container">
-                <h4>Milestones</h4>
-                
-                <table id="milestones">
-                <!-- loop through each milestone -->
-                {% for milestone in project.milestones %}
-
-                    <!-- print the table header -->
-                    {% if loop.first %}
-                        {% set i = 0 %}
-                        {% for name in milestone.stat_names %}
-                            <th title="{{ milestone.stat_tooltips[i] }}">
-                                {{ name }}
-                            </th>
-                            {% set i = i + 1 %}  
-                        {% endfor %}                     
-                    {% endif %}
-
-                    <tr>
-                        {% for stat in milestone.stats %}
-                            <td>
-                            <!-- if this is the 'milestone' stat, inject an
-                                approve button into the table cell -->
-                            {% if loop.first %}
-                            <a style="float: right" href="/project/{{ project.name }}/milestone/{{ milestone._id }}/accept"
-                            data-state="{{ milestone.is_approved }}"
-                            class="icon btn accept_milestone ">
-                                {% if milestone.is_approved %}
-                                    <span class="true">Accepted &#10003;</span>
-                                    <span style="display: none;" class="false">Accept</span>
-                                {% else %}
-                                    <span style="display: none;" class="true">Accepted &#10003;</span>
-                                    <span class="false">Accept</span>
-                                {% endif %}
-                            {% endif %}
-                            </a>&nbsp;
-                            {{ stat }}
-                            <div class="clear"></div> 
-                            </td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-
-                </table>
-
-    
-
-                <form action="/project/{{ project.name }}/milestones/add" id="form_add_milestone" method="POST">
-                   
-                    <ul class="structural horizontal_left">
-                        <li>
-                            <input id="milestone" type="text" name="name" placeholder="Milestone..." />
-                        </li>
-
-                        <li>
-                            <input id="add_milestone" type="submit" name="submit" value="Add Milestone &#10133;" class="btn" />
-                        </li>
-                    </ul>
-                </form>
-            </div>
-            <!-- end milestones_container -->
-        </div>
-
-        {% include "flash.html" %}
-    </body>
-</html>
+</script>
+{% include "foot.html" %}

@@ -1,3 +1,8 @@
+ul.project_manage li input[type="text"],
+ul.project_manage li input[type="email"] {
+  margin-right: 7px;
+}
+
 #form_add_milestone {
     float: right;
     margin: 1em 0;
@@ -5,19 +10,20 @@
 
 /* pluralization on this one only -- it's intentional */
 ul.project_members {
-    overflow-x: auto;
-    margin: 2em 0;
+    margin: 0;
+}
+
+form.add_member {
+    margin: 1em 0;
 }
 
 li.member_item {
-    background: #222;
-    height: 241px;
-    border: 1px solid #111;
-    margin: 0 1em 0 0;
-}
-
-li.member_item img {
-    margin-top: .6em;
+    height: 190px;
+    width: 140px;
+    border: 1px solid #ccc;
+    margin: 0;
+    padding: 12px 0px 6px 12px;
+    margin-right: 7px;
 }
 
 ul.project_member { margin: 0; }

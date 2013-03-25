@@ -1,5 +1,5 @@
-{% if luser.profile[0].theme != "dark" %}
-    {% include "themes/light.html" %}
-{% else %}
+{% if luser.profile[0].theme == "dark" %}
     {% include "themes/dark.html" %}
+{% else %}
+    {% include "themes/light.html" %}
 {% endif %}

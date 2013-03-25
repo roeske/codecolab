@@ -1,109 +1,60 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>CodeColab</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <!--[if lt IE 9]>
-            <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
+{% include "head.html" %}
+<div class="content">
+    <h3>Edit Profile: {{ profile.luser.email }}</h3>
+    <hr />
+        
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul style="list-style-type: none;" class=flashes>
+        {% for message in messages %}
+          <li style="font-size: 110%;">{{ message }}</li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
 
+    <form class="basic" action="/profile/{{ luser._id }}" method="POST">
+        <ul class="structural basic">
+            <li>
+                <label for="first_name">First Name:</label>
+                <input type="text" name="first_name" value="{{ profile.first_name }}" id="first_name" />
+                <div class="clear"></div>
+            </li>
 
-        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
-        <link rel="stylesheet" href="/css/app.css" type="text/css" />
-        <link href="/css/bootstrap_slate.css" rel="stylesheet" />
+            <li>
+                <label for="last_name">Last Name:</label>
+                <input type="text" name="last_name" value="{{ profile.last_name }}" id="last_name" />
+                <div class="clear"></div>
+            </li>
 
-        <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
-        <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
+            <li>
+                <label for="username">Username:</label>
+                <input type="text" name="username" value="{{ profile.username }}" id="username" />
+                <div class="clear"></div>
 
+            </li>
+            <li>
+                <label for="timezone">Timezone:</label>
+                <select name="timezone" id="timezone">
+                    {% for tz in timezones %}
+                        {% if tz == profile.timezone %} 
+                            <option value="{{ tz }}" selected>{{ tz }}</option>
+                        {% else %}
+                            <option value="{{ tz }}">{{ tz }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
 
-        <!-- Begin application code -->
-        <script type="text/javascript">
-// Run this code when the DOM is ready.
-$(document).ready(function() {
-    
+                <div class="clear"></div>
+            </li>
 
-})
-///////////////////////////////////////
-        </script>
-        <!-- End application code -->
-    </head>
-    <body>
-        <div class="navbar">
-            <div class="navbar-inner">
-                <div class="container">
-                    <a class="brand" href="/">CodeColab</a>
-                    <ul style="float: right;" class="nav">
-                        <li>
-                            <a href="/profile/{{ luser._id }}">
-                                <img style="height: 24px; width: 24px;" src="{{ gravatar_url }}" />
-                                &nbsp;&nbsp;&nbsp;{{ email }}
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/logout">Log out</a>
-                        </li>
-                    </ul>
-                    <div style="clear: both;"></div>
-                </div>
-            </div>
-        </div>
-        <div class="content">
-            <h3>Edit Profile: {{ profile.luser.email }}</h3>
-            <hr />
-                
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                <ul style="list-style-type: none;" class=flashes>
-                {% for message in messages %}
-                  <li style="font-size: 110%;">{{ message }}</li>
-                {% endfor %}
-                </ul>
-                {% endif %}
-            {% endwith %}
-
-            <form class="basic" action="/profile/{{ luser._id }}" method="POST">
-                <ul class="structural basic">
-                    <li>
-                        <label for="first_name">First Name:</label>
-                        <input type="text" name="first_name" value="{{ profile.first_name }}" id="first_name" />
-                        <div class="clear"></div>
-                    </li>
-
-                    <li>
-                        <label for="last_name">Last Name:</label>
-                        <input type="text" name="last_name" value="{{ profile.last_name }}" id="last_name" />
-                        <div class="clear"></div>
-                    </li>
-
-                    <li>
-                        <label for="username">Username:</label>
-                        <input type="text" name="username" value="{{ profile.username }}" id="username" />
-                        <div class="clear"></div>
-
-                    </li>
-                    <li>
-                        <label for="timezone">Timezone:</label>
-                        <select name="timezone" id="timezone">
-                            {% for tz in timezones %}
-                                {% if tz == profile.timezone %} 
-                                    <option value="{{ tz }}" selected>{{ tz }}</option>
-                                {% else %}
-                                    <option value="{{ tz }}">{{ tz }}</option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
-
-                        <div class="clear"></div>
-                    </li>
-
-                    <li>
-                        <label style="visibility: hidden;" for="submit">Submit</label>
-                        <input id="submit" class="btn" type="submit" name="submit" value="Update Profile" />
-                        <div class="clear"></div>
-                    </li>
-                </ul> 
-            </form>
-        </div>
-    </body>
-</html>
+            <li>
+                <label style="visibility: hidden;" for="submit">Submit</label>
+                <input id="submit" class="btn" type="submit" name="submit" value="Update Profile" />
+                <div class="clear"></div>
+            </li>
+        </ul> 
+    </form>
+</div>
+{% include "common_js.html" %}
+{% include "foot.html" %}
