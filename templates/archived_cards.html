@@ -1,84 +1,43 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>CodeColab</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <!--[if lt IE 9]>
-            <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
+{% include "head.html" %} 
+    <div class="content">
+      <div class="minimalist_container minimalist_top">
+        <h3>Archived Cards: <a href="/project/{{ project.urlencoded_name }}">{{ project.name }}</a></h3>
+      </div>
 
-
-        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
-        <link rel="stylesheet" href="/css/app.css" type="text/css" />
-        <link href="/css/bootstrap_slate.css" rel="stylesheet" />
-        <link href="/css/card.css" rel="stylesheet" type="text/css" />
-
-        {% include "common_js.html" %}
-
-        <script type="text/javascript">
-
-$(document).ready(function() {
-    var project_name = "{{ project.name }}"
-    $("a.archived_card").each(function(i, elem) {
-        cc_connect_card_to_modal($(elem).text(), project_name, $(elem), true)
-    })
-})
-
-        </script>
-
-
-    </head>
-    <body>
-        <div class="navbar">
-            <div class="navbar-inner">
-                <div class="container">
-                    <a class="brand" href="/">CodeColab</a>
-                    <ul style="float: right;" class="nav">
-                        <li>
-                            <a href="/profile/{{ luser._id }}">
-                                <img style="height: 24px; width: 24px;" src="{{ gravatar_url }}" />
-                                &nbsp;&nbsp;&nbsp;{{ email }}
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/logout">Log out</a>
-                        </li>
-                    </ul>
-                    <div style="clear: both;"></div>
-                </div>
-            </div>
-        </div>
-        <div class="content">
-            <div class="minimalist_container minimalist_top">
-                <h3>Archived Cards: <a href="/project/{{ project.urlencoded_name }}">{{ project.name }}</a></h3>
-            </div>
-
-            <table class="wrap" id="archived_cards">
-                <tr>
-                    <th> Card Text </th>
-                    <th> Restore </th>
-                    <th> Delete </th>
-                </tr>
-                {% for card in project.cards %}
-                    {% if card.is_archived %}
-                        <tr data-id="{{ card._id }}">
-                            <td class="wrap">
+      <table class="wrap" id="archived_cards">
+        <tr>
+          <th> Card Text </th>
+          <th> Restore </th>
+          <th> Delete </th>
+        </tr>
+        {% for card in project.cards %}
+          {% if card.is_archived %}
+            <tr data-id="{{ card._id }}">
+              <td class="wrap">
 <a data-id="{{ card._id }}" class="archived_card" href="/project/{{ project.name }}/cards/{{ card._id }}?is_archived=True">{{ card.text }}</a>
-                            </td>
+              </td>
 
-                            <td>
-                                <a href="/project/{{ project.urlencoded_name }}/cards/{{ card._id }}/restore" class="btn restore"><div>Restore&nbsp;</div><div class="icon">&#8627;</div></a>
-                            </td>
+              <td>
+                <a href="/project/{{ project.urlencoded_name }}/cards/{{ card._id }}/restore" class="btn restore"><div>Restore&nbsp;</div><div class="icon">&#8627;</div></a>
+              </td>
 
-                            <td>
-                                <a href="/delete?card_id={{ card._id }}&project_name={{ project.urlencoded_name }}&redirect_to=archives"
-                                   class="btn delete icon"><div>Delete&nbsp;</div> <div class="icon">&#10060;</div></a>
-                            </td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            </table>
-        </div>
-    </body>
-</html>
+              <td>
+                <a href="/delete?card_id={{ card._id }}&project_name={{ project.urlencoded_name }}&redirect_to=archives"
+                   class="btn delete"><div>Delete&nbsp;</div> <div class="icon">&#10060;</div></a>
+              </td>
+            </tr>
+          {% endif %}
+        {% endfor %}
+      </table>
+    </div>
+
+    {% include "common_js.html" %}
+    <script type="text/javascript">
+$(document).ready(function() {
+  var project_name = "{{ project.name }}"
+  $("a.archived_card").each(function(i, elem) {
+    cc_connect_card_to_modal($(elem).text(), project_name, $(elem), true)
+  })
+})
+    </script>
+{% include "foot.html" %}

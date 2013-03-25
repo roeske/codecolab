@@ -4,7 +4,7 @@ form, ul, ol, p, li, h1, h2, h3, h4, h5, h6, div { margin: 0, padding: 0; }
 div.navbar { margin-bottom: 0 }
 textarea, input { color: #000; }
 h1,h2,h3,h4,h5,h6 { line-height: auto; font-weight: 100; }
-
+* { text-shadow: none; }
 
 /** It's an application. */
 
@@ -98,19 +98,18 @@ table {
 }
 
 table th {
-    font-weight: 700;
-    font-style: bold;
+    font-weight: bold;
 }
 
-table th, table td {
+table th, table tr td {
     text-align: left;   
     padding: 1em;
     margin: 1em;
     font-size: 110%;
-    background-color: #ffdfde;
-    border: 1px solid #111;
+    background-color: #fff8f7;
+    border: 1px solid #ddd;
     border-radius: 3px;
-    color: #fff8f7;
+    color: #555;
 }
 
 .wrap {
@@ -270,9 +269,6 @@ li.card_item p span {
     white-space: normal;
 }
 
-li.empty_card, li.card_item {
-    min-height: 6em;
-}
 
 li.card_item div.milestone {
     color: #0a0;
@@ -285,8 +281,13 @@ li.card_item div.milestone {
     color: #fff8f7;
 }
 
-.card_item {
-    margin-bottom: 5px;
+li.empty_card, li.card_item {
+  min-height: 6em;
+  margin-bottom: 5px;
+}
+
+li.empty_card {
+  color: #fff8f7;
 }
 
 div#piles {
