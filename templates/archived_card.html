@@ -4,11 +4,11 @@
       <h3 style="display: inline; color: red; text-shadow: none;">This card is archived.</h3>
       
       <div style="float: right; margin-top: 5px;">
-          <a style="color: white" href="/project/{{ project.urlencoded_name }}/cards/{{ card._id }}/restore" class="btn restore">
+          <a href="/project/{{ project.urlencoded_name }}/cards/{{ card._id }}/restore" class="btn restore">
               <div>Restore&nbsp;</div><div class="icon">&#8627;</div>
           </a>
 
-          <a style="color: white" href="/delete?card_id={{ card._id }}&project_name={{ project.urlencoded_name }}&redirect_to=archives" class="btn delete icon">
+          <a href="/delete?card_id={{ card._id }}&project_name={{ project.urlencoded_name }}&redirect_to=archives" class="btn delete">
               <div>Delete&nbsp;</div><div class="icon">&#10060;</div>
           </a>
       </div>
