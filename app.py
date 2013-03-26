@@ -1212,9 +1212,14 @@ def perform_signup(email, password, confirm):
 
 @app.route("/profile/<int:luser_id>", methods=["GET", "POST"])
 @check_luser_privileges
-def profile(luser_id, luser=None, **kwargs):
+def get_profile(luser_id, luser=None, **kwargs):
+    """
+    Obtain a user's profile given their id.
+    """
     profile = models.LuserProfile.query.filter_by(luser_id=luser_id).first()
-    
+   
+    themes = ["light", "dark"]
+
     if flask.request.method == "GET":
         if profile is None:
             return flask.abort(404)
@@ -1229,6 +1234,7 @@ def profile(luser_id, luser=None, **kwargs):
             return cc_render_template("profile.html", luser=luser, 
                                       profile=profile,
                                       timezones=pytz.all_timezones,
+                                      themes=themes,
                                       **kwargs)
 
     else:
@@ -1240,6 +1246,7 @@ def profile(luser_id, luser=None, **kwargs):
         profile.last_name = flask.request.form["last_name"]
         profile.username = flask.request.form["username"]
         profile.timezone = flask.request.form["timezone"]
+        profile.theme = flask.request.form["theme"]
 
         models.db.session.commit()
         models.db.session.flush()
@@ -1248,6 +1255,7 @@ def profile(luser_id, luser=None, **kwargs):
         return cc_render_template("profile.html", luser=luser, 
                                   profile=profile,
                                   timezones=pytz.all_timezones,
+                                  themes=themes,
                                   **kwargs)
 
 ## Password Recovery

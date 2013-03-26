@@ -49,6 +49,21 @@
             </li>
 
             <li>
+                <label for="theme">Theme:</label>
+                <select name="theme" id="theme">
+                    {% for theme in themes %}
+                        {% if theme == profile.theme %} 
+                            <option value="{{ theme }}" selected>{{ theme }}</option>
+                        {% else %}
+                            <option value="{{ theme }}">{{ theme }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+
+                <div class="clear"></div>
+            </li>
+
+            <li>
                 <label style="visibility: hidden;" for="submit">Submit</label>
                 <input id="submit" class="btn" type="submit" name="submit" value="Update Profile" />
                 <div class="clear"></div>
