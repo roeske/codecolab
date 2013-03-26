@@ -236,28 +236,28 @@ class Milestone(db.Model, DictSerializable):
         
         progress = "%d%%" % (round(progress, 2) * 100)
 
-        return [self.name, progress, incomplete_cards, incomplete_score,
-                complete_cards, complete_score, total_cards, total_score,
-                rated_cards, unrated_cards]
+
+
+        card_completion = "%d / %d" % (complete_cards, total_cards)
+        point_completion = "%d / %d" % (complete_score, total_score)
+        rating_coverage = "%d / %d" % (rated_cards, total_cards)
+
+        return [self.name, progress, card_completion, point_completion,
+                rating_coverage]
 
     @property
     def stat_names(self):
-        return ["Milestone", "Progress", "Incomplete Cards",
-                "Incomplete Score", "Complete Cards", "Complete Score",
-                "Total Cards", "Total Score", "Rated Cards", "Unrated Cards"]
+        return ["Milestone", "Progress", "Card Completion",
+                "Point Completion", "Rating Coverage"]
+
 
     @property
     def stat_tooltips(self):
         return ["Name of goal",
                 "Percentage of completed points.",
-                "# of cards that have not been marked as complete",
-                "Total points of cards not marked complete",
-                "# of cards marked complete",
-                "Total points of all cards marked complete",
-                "Total # of cards assigned to this milestone.",
-                "Total number of points for all assigned cards",
-                "# of cards that have been rated",
-                "# of cards that have not been rated."]
+                "Ratio of cards that have been finished to unfinished.",
+                "Ratio of points that have been finished to unfinished.",
+                "Ratio of cards that have been rated to unrated."]
 
 
 class Pile(db.Model, DictSerializable):
