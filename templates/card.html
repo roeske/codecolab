@@ -2,31 +2,31 @@
 
 <!-- Static created timestamp -->
 <div class="card_top">
-    <div>
-        <a data-state="{{ card.is_completed }}" class="btn card_complete" href="/project/{{ project_name }}/cards/{{ card._id }}/complete">
-            <!-- Show the appropriate toggle state, but also make it easy
-                 to change from javascript by manipulating the DOM -->
-            {% if card.is_completed == True %}
-                {% set display_complete = "inline;" %}
-                {% set display_incomplete = "none;" %}
-            {% else %}
-                {% set display_incomplete = "inline;" %}
-                {% set display_complete = "none;" %}
-            {% endif %} 
+  <div>
+    <a data-state="{{ card.is_completed }}" class="btn card_complete" href="/project/{{ project_name }}/cards/{{ card._id }}/complete">
+      <!-- Show the appropriate toggle state, but also make it easy
+         to change from javascript by manipulating the DOM -->
+      {% if card.is_completed == True %}
+        {% set display_complete = "inline;" %}
+        {% set display_incomplete = "none;" %}
+      {% else %}
+        {% set display_incomplete = "inline;" %}
+        {% set display_complete = "none;" %}
+      {% endif %} 
 
-            <div style="display: {{ display_complete }}" 
-                  class="complete">
-                  <div style="float: left;">Complete&nbsp;</div>
-                  <div class="icon">&#10003;</div>
-                  <div class="clear"></div>
-            </div>
+      <div style="display: {{ display_complete }}" 
+          class="complete">
+          <div style="float: left;">Complete&nbsp;</div>
+          <div class="icon">&#10003;</div>
+          <div class="clear"></div>
+      </div>
 
-            
-            <div style="display: {{ display_incomplete }}"
-                  class="incomplete">Finish&nbsp;</div>
-        </a>
-    </div>
-    <div class="clear"></div>
+      
+      <div style="display: {{ display_incomplete }}"
+          class="incomplete">Finish&nbsp;</div>
+    </a>
+  </div>
+  <div class="clear"></div>
 </div>
 
 <!-- Editable Title "text" field -->
@@ -39,101 +39,102 @@
 <br />
 
 <div>
+  
+  <div class="difficulty_section">
+    <h3 class="card_section">Difficulty</h3>
+    <div class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div></p>
+  </div>
+  
+  <!-- Select milestone -->
+  <form action="/project/{{ project_name }}/cards/{{ card._id }}/select_milestone"
+      method="POST" 
+      class="milestone">
+     
+    <h3 class="card_section">Milestone</h3>
     
-    <div class="difficulty_section">
-        <h3 class="card_section">Difficulty</h3>
-        <div class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div></p>
-    </div>
+    <select data-card-id="{{ card._id }}" id="select_milestone">
+      <option data-id="-1">None</option>
+      {% for milestone in project.milestones %}
+      
+        <option 
+          {% if milestone._id == card.milestone_id %}
+            selected
+          {% endif %}
+          data-card-id="{{ card.milestone_id }}" 
+          data-id="{{ milestone._id }}">
+          
+          {{ milestone.name }}
+        </option>
+
+      {% endfor %}
+    </select>
+  </form>
+
+  <!-- Assign to user -->
+  <form action="/project/{{ project_name }}/cards/{{ card._id }}/assign_to"
+      method="POST" 
+      class="assign_to">
+     
+    <h3 class="card_section">Assign To</h3>
     
-    <!-- Select milestone -->
-    <form action="/project/{{ project_name }}/cards/{{ card._id }}/select_milestone"
-          method="POST" 
-          class="milestone">
-       
-        <h3 class="card_section">Milestone</h3>
-        
-        <select data-card-id="{{ card._id }}" id="select_milestone">
-            <option data-id="-1">None</option>
-            {% for milestone in project.milestones %}
-            
-                <option 
-                    {% if milestone._id == card.milestone_id %}
-                        selected
-                    {% endif %}
-                    data-card-id="{{ card.milestone_id }}" 
-                    data-id="{{ milestone._id }}">
-                    
-                    {{ milestone.name }}
-                </option>
-
-            {% endfor %}
-        </select>
-    </form>
-
-    <!-- Assign to user -->
-    <form action="/project/{{ project_name }}/cards/{{ card._id }}/assign_to"
-          method="POST" 
-          class="assign_to">
-       
-        <h3 class="card_section">Assign To</h3>
-        
-        <select id="select_assign_to">
-            <option data-card-id="{{ card._id }}" data-id="-1">None</option>
-            {% for member in project.lusers %}
-                <option 
-                    {% if member._id == card.assign_to_id %}
-                        selected
-                    {% endif %}
-                    
-                    data-card-id="{{ card.assign_to_id }}" 
-                    data-id="{{ member._id }}">
-                    
-                    {{ member.profile[0].username }}
-                </option>
-            {% endfor %}
-        </select>
-    </form>
+    <select id="select_assign_to">
+      <option data-card-id="{{ card._id }}" data-id="-1">None</option>
+      {% for member in project.lusers %}
+        <option 
+          {% if member._id == card.assign_to_id %}
+            selected
+          {% endif %}
+          
+          data-card-id="{{ card.assign_to_id }}" 
+          data-id="{{ member._id }}">
+          
+          {{ member.profile[0].username }}
+        </option>
+      {% endfor %}
+    </select>
+  </form>
 </div>
 <div class="clear"></div>
 
 {% include 'card_comments.html' %}
 
 <form class="comments" action="/project/{{ project_name }}/cards/{{ card._id }}/comment" method="POST">
-    <ul class="structural" style="padding: 0; margin: 0;">
-        <li> 
-            <textarea placeholder="Comment..." name="text" id="text"/>
-        </li>
+  <ul class="structural" style="padding: 0; margin: 0;">
+    <li> 
+      <textarea placeholder="Comment..." name="text" id="text"/>
+    </li>
 
-        <li>
-            <input class="btn" style="float: right; margin-right: 0;" type="submit" name="submit" value="Add Comment &#10133;" />
-            <div style="clear: both;"></div>
-        </li>
-    </ul>
+    <li>
+      <input class="btn" style="float: right; margin-right: 0;" type="submit" name="submit" value="Add Comment &#10133;" />
+      <div style="clear: both;"></div>
+    </li>
+  </ul>
 </form>
 
 <h3 class="comments_title">Attachments</h3>
 
 <form class="uploads" action="/project/{{ project_name }}/cards/{{ card._id }}/attach" method="POST">
-    <ul class="structural">
+  <ul class="structural">
 
-        <li> 
-            <input type="file"  name="file" id="file" />
-        </li>
+    <li> 
+      <div class="file btn">Select File</div>
+      <input class="btn" type="file" name="file" id="file" />
+    </li>
 
-        <li>
-            <div style="float: right;">
-                <input ="font-family: entypo" type="submit" name="submit" value="Attach File" class="btn"/>
-            </div>
-            <div style="clear: both;"></div>
-        </li>
-    </ul>
+    <li>
+      <div style="float: right;">
+        <input ="font-family: entypo" type="submit" name="submit" value="Upload" class="btn"/>
+      </div>
+      <div style="clear: both;"></div>
+    </li>
+  </ul>
 </form>
 
 
 <ul class="attachments structural">
    {% for file in card.attachments %}
    <li>
-        <a href="/uploads/{{ file.filename }}">{{ file.filename }}</a>
+    <a href="/uploads/{{ file.filename }}">{{ file.filename }}</a>
    </li>
    {% endfor %}
 </ul>
@@ -143,22 +144,22 @@
 <script type="text/javascript">
 
 $(document).ready(function() {
-    var project_name = "{{ project_name }}"
-    var card_id = "{{ card._id }}"
-    var modal_selector = "#modal_" + "{{ card._id }}"
+  var project_name = "{{ project_name }}"
+  var card_id = "{{ card._id }}"
+  var modal_selector = "#modal_" + "{{ card._id }}"
 
-    var modal = $(modal_selector)
+  var modal = $(modal_selector)
 
-    console.log("project_name="+project_name)
-    console.log("card_id="+card_id)
-    console.log("modal_selector="+modal_selector)
+  console.log("project_name="+project_name)
+  console.log("card_id="+card_id)
+  console.log("modal_selector="+modal_selector)
 
-    cc_make_card_editable(project_name, modal, card_id)
-    cc_connect_comment_form(project_name, modal, card_id)
-    cc_connect_upload_form(project_name, modal, card_id)
-    cc_connect_milestone_spinner(modal, card_id)
-    cc_connect_assign_to_spinner(modal, card_id)
-    cc_connect_complete_button(project_name, modal, card_id)
+  cc_make_card_editable(project_name, modal, card_id)
+  cc_connect_comment_form(project_name, modal, card_id)
+  cc_connect_upload_form(project_name, modal, card_id)
+  cc_connect_milestone_spinner(modal, card_id)
+  cc_connect_assign_to_spinner(modal, card_id)
+  cc_connect_complete_button(project_name, modal, card_id)
 })
 
 </script>

@@ -382,10 +382,30 @@ function cc_connect_comment_form(project_name, modal, card_id) {
 
 
 function cc_connect_upload_form(project_name, modal, card_id) {
+    var wrapper = $("<div/>").css({height:0, width:0, "overflow":"hidden"})
+    var file_input = $(":file").wrap(wrapper) 
+    var file_div = $("div.file")
+
+    file_input.change(function() {
+        $this = $(this)
+        var text = $this.val()
+        if ($.trim(text).length == 0) {
+            file_div.text("Select File")
+        } else {
+            file_div.text($this.val())
+        }
+    })
+
+    $(".file").click(function() {
+        file_input.click()
+    }).show()
+
     modal.find("form.uploads").ajaxForm({
         success: function(response, status_code) {
             filename = response.attachment.filename
-            modal.find("ul.attachments").append("<li><a href=\"/uploads/"+filename+"\">"+filename+"</a></li>")
+            modal.find("ul.attachments").prepend("<li><a href=\"/uploads/"+filename+"\">"+filename+"<span style=\"color: green;\" class=\"icon\">&nbsp;&#10003;</span></a><div class=\"clear\"></div></li>")
+
+            file_div.text("Select File")
         }
     })
 }
