@@ -84,7 +84,8 @@ class Luser(db.Model, DictSerializable):
 
     _id     = db.Column(db.Integer, primary_key=True)
     email   = db.Column(db.String, unique=True)
-    pw_hash = db.Column(db.String, nullable=False)    
+    pw_hash = db.Column(db.String, default=None)
+    google_id = db.Column(db.String, default=None)
     created = db.Column(db.DateTime, default=func.now())
 
     projects = db.relationship("Project", secondary=ProjectLuser.__table__)

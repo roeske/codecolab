@@ -13,9 +13,12 @@ from sqlalchemy import and_
 from md5 import md5
 
 from pidgey import Mailer
-from config import MAILER_PARAMS, MAIL_FROM, BASE_URL
+from config import MAILER_PARAMS, MAIL_FROM, BASE_URL 
 
 from datetime import datetime
+
+import httplib2
+from oauth2client.client import flow_from_clientsecrets
 
 app = models.app
 
@@ -98,7 +101,6 @@ def make_gravatar_url(email):
     email_hash = md5(email.strip().lower()).hexdigest()
     return "http://gravatar.com/avatar/%s" % email_hash
 
-
 def make_gravatar_profile_url(email):
     email_hash = md5(email.strip().lower()).hexdigest()
     return "http://gravatar.com/%s" % email_hash
@@ -175,20 +177,64 @@ def perform_login(email, password):
     # query the luser
     luser = models.Luser.query.filter_by(email=email).first()
 
-    # ensure that there is a login for this luser.
+    # Ensure that there is a login for this luser.
     if luser is None:
         error = "Email is not registered."
         return flask.render_template(template, email_error=error)
 
-    # ensure that this luser's password is correct.
+    # If the hash is null, the user previously signed in with google.
+    elif luser.pw_hash is None:
+        return flask.render_template(template, password_error="Please sign-in with google.")
+
+    # Ensure that this luser's password is correct.
     elif bcrypt.hashpw(password, luser.pw_hash) == luser.pw_hash:
         flask.session["email"] = email
         return flask.redirect(flask.url_for("index"))
 
-    # handle wrong passwords
+    # Handle wrong passwords.
     else:
         error = "Password is incorrect."
         return flask.render_template(template, password_error=error)
+
+
+def login_via_google(userinfo):
+    email = userinfo["email"]
+
+    # Match based on email so it works if your existing login is a google
+    # account.
+    luser = models.Luser.query.filter_by(email=email).first()
+
+    # If the user has tried to log-in via google but has not
+    # signed up yet, then do it now:
+    if luser is None:
+        luser = signup_via_google(userinfo)
+    
+    flask.session["email"] = luser.email
+    return flask.redirect(flask.url_for("index"))
+   
+
+def signup_via_google(userinfo):
+    """
+    Comprehensive list of data available from google userinfo api:
+        - id             <string>
+        - email          <email>
+        - verified_email <bool>
+        - name           <string>
+        - given_name     <string> -- this is the first name (eng)
+        - family_name    <string> -- this is the last name (eng)
+        - link           <url>
+        - picture        <url>
+        - gender         <string>
+        - locale         <string>
+    """
+        
+    luser = models.Luser(email=userinfo["email"], google_id=userinfo["id"])
+    models.db.session.add(luser)
+    models.db.session.flush()
+
+    create_luser_data(luser, first_name=userinfo["given_name"],
+                             last_name=userinfo["family_name"])
+    return luser
 
 
 # Delete
@@ -1114,6 +1160,47 @@ def login():
         return flask.render_template("login.html")
 
 
+@app.route("/oauth2login")
+def oauth2login():
+    # We'll need their profile and email.
+    auth_scopes = ["https://www.googleapis.com/auth/userinfo.profile",
+                   "https://www.googleapis.com/auth/userinfo.email"]
+
+    flow = flow_from_clientsecrets("client_secrets.json", auth_scopes,
+        redirect_uri=BASE_URL + "oauth2callback")
+
+    # Save a reference to the flow, since we need it when the user
+    # is returned.
+    flask.session["flow"] = flow 
+
+    # Begin the oauth authorization process.
+    auth_uri = flow.step1_get_authorize_url()
+    return flask.redirect(auth_uri)
+
+
+@app.route("/oauth2callback")
+def oauth2callback():
+    # The authorization code will be passed to the callback uri.
+    auth_code = flask.request.args["code"]
+
+    # get the stored flow.
+    flow = flask.session["flow"]
+
+    # Exchange the code for credentials
+    credentials = flow.step2_exchange(auth_code)
+
+    # Authorize an httplib2 instance to get user's data
+    http = httplib2.Http()
+    http = credentials.authorize(http)
+
+    # request from the userinfo api:
+    resp, content = http.request("https://www.googleapis.com/oauth2/v1/userinfo?alt=json")
+    
+    userinfo = json.loads(content)
+
+    return login_via_google(userinfo)
+
+
 ## Beta Signup
 ###############################################################################
 
@@ -1177,15 +1264,24 @@ def perform_signup(email, password, confirm):
     
     # So far, so good. Create a user.
     pw_hash = bcrypt.hashpw(password, bcrypt.gensalt())
-    user = models.Luser(email=email, pw_hash=pw_hash)
-    models.db.session.add(user)
+    luser = models.Luser(email=email, pw_hash=pw_hash)
+    models.db.session.add(luser)
     models.db.session.flush()
+
+    create_luser_data(luser)
+
+    # If signup was successful, just log the user in.
+    return perform_login(email, password)
+
+
+def create_luser_data(luser, first_name="Unknown", last_name="Unknown"):
+    email = luser.email
 
     # Must also create a profile for that user. Default the username
     # to the name part of the email.
-    profile = models.LuserProfile(luser_id=user._id,
-                                  first_name="Unknown",
-                                  last_name="Unknown",
+    profile = models.LuserProfile(luser_id=luser._id,
+                                  first_name=first_name,
+                                  last_name=last_name,
                                   username=email.split("@")[0])
 
     models.db.session.add(profile)
@@ -1195,16 +1291,13 @@ def perform_signup(email, password, confirm):
     invites = models.ProjectInvite.query.filter_by(email=email).all()
     for invite in invites:
         membership = models.ProjectLuser(project_id=invite.project_id,
-                            luser_id=user._id)
+                            luser_id=luser._id)
         models.db.session.add(membership)
         invite.is_pending = False
 
 
     # Keep these changes.
     models.db.session.commit()
-
-    # If signup was successful, just log the user in.
-    return perform_login(email, password)
 
 
 ## Luser Profile

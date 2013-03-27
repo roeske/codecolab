@@ -91,11 +91,18 @@
                             </div>
 
                             -->
-
                             <div class="form">
                                 <form method="POST" action="/login">
 
                                     <ul style="list-style-type: none">
+                                        <li>
+                                            <a class="bluebtn" style="width: 186px; text-align: center; display: inline-block; margin-bottom: 1em;"  href="/oauth2login">Sign in via Google</a>
+                                        </li>
+
+                                        <li>
+                                           <p style="width: 186px; text-align: center; margin-left: 1.5em;">or</p>
+                                        </li>
+
                                         <li>
                                             <input name="email" id="email" type="email" placeholder="Email">
                                             <p style="color: red">{{ email_error }}</p>

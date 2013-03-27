@@ -362,7 +362,7 @@
     color: #187CCC;
     border-color: #187CCC;
 }
-#sign_in2 .signin_box .box .form input[type="submit"]{
+.bluebtn, #sign_in2 .signin_box .box .form input[type="submit"]{
     text-transform: uppercase;
     color: #fff;
     background: #187CCC;
