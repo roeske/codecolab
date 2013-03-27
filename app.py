@@ -590,8 +590,8 @@ def archive(card_id=None, **kwargs):
     models.db.session.commit()
    
     return respond_with_json({ "status" : "success",
-                        "card_id" : card._id,
-                        "message" : "Archived card %d" % card._id })
+                               "card_id" : card._id,
+                               "message" : "Archived card %d" % card._id })
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/restore",
@@ -1274,6 +1274,36 @@ def perform_signup(email, password, confirm):
     return perform_login(email, password)
 
 
+def create_sample_project_for_luser(luser):
+    sample = models.Project(name="Sample")
+    models.db.session.add(sample)
+    models.db.session.flush()
+
+    assoc = models.ProjectLuser(luser_id=luser._id, 
+                                project_id=sample._id,
+                                is_owner=True)
+    models.db.session.add(assoc)
+    models.db.session.flush()
+
+    todo = models.Pile(project_id=sample._id, name="To-Do")
+    doing = models.Pile(project_id=sample._id, name="Doing")
+    done = models.Pile(project_id=sample._id, name="Done")
+
+    models.db.session.add(todo)
+    models.db.session.add(doing)
+    models.db.session.add(done)
+    models.db.session.flush()
+
+    card1 = models.Card(project_id=sample._id, text="Check out the app!", pile_id=todo._id, score=1)
+    card2 = models.Card(project_id=sample._id, text="Make some cards...", pile_id=todo._id, score=1)
+    card3 = models.Card(project_id=sample._id, text="Have fun!", pile_id=todo._id, score=0)
+    models.db.session.add(card1)
+    models.db.session.add(card2)
+    models.db.session.add(card3)
+    
+    models.db.session.commit()
+
+
 def create_luser_data(luser, first_name="Unknown", last_name="Unknown"):
     email = luser.email
 
@@ -1295,6 +1325,8 @@ def create_luser_data(luser, first_name="Unknown", last_name="Unknown"):
         models.db.session.add(membership)
         invite.is_pending = False
 
+    # every user should start out with a sample project
+    create_sample_project_for_luser(luser)
 
     # Keep these changes.
     models.db.session.commit()
