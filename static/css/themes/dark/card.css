@@ -57,7 +57,7 @@ form.comments ul li textarea {
 }
 
 .ui-dialog .ui-dialog-content {
-    padding: .5em;
+/*    padding: .5em; */
 }
 
 .ui-dialog > div form.milestone {
