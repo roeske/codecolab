@@ -1,15 +1,35 @@
 <div class="comments_container">
-
-    <h3 class="card_section">Comments</h3>
-    <ul class="comments structural">
-       {% for comment in card.comments %}
-       <li>
-            <p class="text">{{ comment.text }}</p>
-            <p class="email"><a href="/profile/{{ comment.luser._id }}">@{{ comment.luser.profile[0].username }}</a></p>
-            <p class="timestamp">{{ comment.created_as_timezone(luser.profile[0].timezone) }}</p>
+  <h3 class="card_section">Comments</h3>
+  <ul class="comments structural">
+     {% for comment in card.comments %}
+     <li id="comment_{{ comment._id }}">
+          <div>
+            <a data-comment-id="{{ comment._id }}" style="float: right;" class="delete_comment icon">&#10060;</a>
+            <p style="float: left; width: 395px;" class="text">{{ comment.text }}</p>
             <div class="clear"></div>
-       </li>
-       {% endfor %}
-    </ul>
+          </div>
+          <p class="email"><a href="/profile/{{ comment.luser._id }}">@{{ comment.luser.profile[0].username }}</a></p>
+          <p class="timestamp">{{ comment.created_as_timezone(luser.profile[0].timezone) }}</p>
+          <div class="clear"></div>
+     </li>
+     {% endfor %}
+  </ul>
+
+  <script type="text/javascript">
+    $(function() {
+      var project_name = "{{ project_name }}"
+
+      // hook up delete comment button
+      $(".delete_comment").click(function() {
+        var comment_id = $(this).data("comment-id")
+        var url = "/project/" + project_name + "/comment/" + comment_id + "/delete"
+        $.post(url, function(data) {
+          $("#comment_" + comment_id).remove()
+        })
+          
+        return false
+      })
+    })
+  </script>
 </div>
 

@@ -567,6 +567,21 @@ def cards_comment(project_name=None, card_id=None, **kwargs):
     return card_get_comments(project_name=project_name, card_id=card_id, **kwargs)
 
 
+@app.route("/project/<project_name>/comment/<int:comment_id>/delete",
+  methods=["POST"])
+@check_project_privileges
+def delete_comment(project_name=None, comment_id=None, **kwargs):
+    """
+    Delete a comment.
+    """
+
+    comment = models.CardComment.query.filter_by(_id=comment_id).first()
+    models.db.session.delete(comment)
+    models.db.session.commit()
+
+    return respond_with_json({ "status" : "success" })
+
+
 @app.route("/project/<project_name>/card/<int:card_id>/archive")
 @check_project_privileges
 def archive(card_id=None, **kwargs):
