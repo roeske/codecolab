@@ -64,7 +64,7 @@ form.comments ul li textarea {
     float: left;
     width: 150px;
     height: 70px;
-    padding: 0px 7px;
+    padding: 0px 7px 7px;
     background-color: #000;
     border: 1px solid #555;
 }
@@ -73,7 +73,7 @@ form.comments ul li textarea {
     float: left;
     width: 108px;
     height: 70px;
-    padding: 0px 7px;
+    padding: 0px 7px 7px;
     background-color: #000;
     border: 1px solid #555;
 }
@@ -82,7 +82,7 @@ form.comments ul li textarea {
     float: left;
     width: 150px;
     height: 70px;
-    padding: 0px 7px;
+    padding: 0px 7px 7px;
     background-color: #000;
     border: 1px solid #555;
 }

@@ -18,7 +18,7 @@ from oauth2client.client import flow_from_clientsecrets
 
 from helpers import (make_gravatar_url, make_gravatar_profile_url,
                      redirect_to, redirect_to_index, respond_with_json,
-                     jsonize)
+                     jsonize, get_luser_for_email)
 
 
 app = models.app
