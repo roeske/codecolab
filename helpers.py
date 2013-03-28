@@ -1,6 +1,7 @@
 import flask
 import models
 from md5 import md5
+import simplejson as json
 
 ################################################################################
 # Convenience Methods 
