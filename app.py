@@ -4,45 +4,37 @@ import models
 import bcrypt 
 import models
 import pytz
-
+import httplib2
 import simplejson as json
 
 from flaskext import uploads
 from functools import wraps
 from sqlalchemy import and_
 from md5 import md5
-
 from pidgey import Mailer
 from config import MAILER_PARAMS, MAIL_FROM, BASE_URL 
-
 from datetime import datetime
-
-import httplib2
 from oauth2client.client import flow_from_clientsecrets
 
+from helpers import (make_gravatar_url, make_gravatar_profile_url,
+                     redirect_to, redirect_to_index, respond_with_json,
+                     jsonize)
+
+
 app = models.app
-
 PORT = 8080
-
 files = uploads.UploadSet("files", uploads.ALL, default_dest=lambda app:"./uploads")
-
 uploads.configure_uploads(app, (files,))
 
-# JSONIZE!
-def _handler(o):
-    if hasattr(o, 'isoformat') and callable(o.isoformat):
-        return o.isoformat()
-    raise TypeError("Can't serialize %r" % (o,))
 
-jsonize = lambda d: json.dumps(d, default=_handler)
-
-
+# TODO: clean this up.
 def is_logged_in():
     return "email" in flask.session
 
 
+###############################################################################
 # Serve static files for development
-################################################
+###############################################################################
 
 file_suffix_to_mimetype = {
     '.css': 'text/css',
@@ -67,9 +59,9 @@ def static_file(path):
     return f.read()
 
 
+###############################################################################
 # Custom error pages
 ###############################################################################
-
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -93,37 +85,34 @@ def error_500():
     flask.abort(500)
 
 
-# Convenience Methods 
+
+###############################################################################
+# Index
 ###############################################################################
 
+@app.route("/", methods=["POST", "GET"])
+def index():
+    """
+    Serves the index. Responsible for delegating to several 
+    screens based on the state and type of request.
+    """
+   
+    logged_in = is_logged_in()
 
-def make_gravatar_url(email):
-    email_hash = md5(email.strip().lower()).hexdigest()
-    return "http://gravatar.com/avatar/%s" % email_hash
+    if flask.request.method == "GET" and logged_in: 
+        email = flask.session["email"]
 
-def make_gravatar_profile_url(email):
-    email_hash = md5(email.strip().lower()).hexdigest()
-    return "http://gravatar.com/%s" % email_hash
+        return render_index(email, gravatar_url=make_gravatar_url(email),
+                                   profile_url=make_gravatar_profile_url(email))
 
-
-def redirect_to(page, **kwargs):
-    url = flask.url_for(page, **kwargs)
-    return flask.redirect(url)
-
-
-def redirect_to_index():
-    return redirect_to("index")
+    if flask.request.method == "GET" and not logged_in:
+        return redirect_to("beta_signup") 
+    
+    else:
+        return redirect_to("login")
 
 
-def get_luser_for_email(email):
-    return models.Luser.query.filter_by(email=email).first()
-
-
-def respond_with_json(obj):
-    " Helper for returning a JSON response body."
-    mimetype = "application/json;charset=UTF-8"
-    return flask.Response(jsonize(obj), mimetype=mimetype)
-
+###############################################################################
 ## Project Selection 
 ###############################################################################
 
@@ -938,6 +927,7 @@ def pile_edit(name,pile_id):
     return name
 
        
+###############################################################################
 ## Projects
 ###############################################################################
 
@@ -1024,6 +1014,7 @@ def project_manage(project_name=None, project=project, **kwargs):
 
     return cc_render_template("project_manage.html", project=project,
                               invites=invites, **kwargs)
+
 
 
 @app.route("/project/<project_name>/luser/<int:luser_id>/is_owner",
@@ -1119,220 +1110,8 @@ email and you will be added to the project automatically: %(base_url)ssignup.
     return flask.redirect("/project/%s/manage" % project.name)
 
 
-# Index
 ###############################################################################
-
-@app.route("/", methods=["POST", "GET"])
-def index():
-    """
-    Serves the index. Responsible for delegating to several 
-    screens based on the state and type of request.
-    """
-   
-    logged_in = is_logged_in()
-
-    if flask.request.method == "GET" and logged_in: 
-        email = flask.session["email"]
-
-        return render_index(email, gravatar_url=make_gravatar_url(email),
-                                   profile_url=make_gravatar_profile_url(email))
-
-    if flask.request.method == "GET" and not logged_in:
-        return redirect_to("beta_signup") 
-    
-    else:
-        return redirect_to("login")
-
-
-# Login
-###############################################################################
-
-@app.route("/login", methods=["POST", "GET"])
-def login():
-
-    if flask.request.method == "POST":
-        # obtain form parameters
-        email = flask.request.form["email"]
-        password = flask.request.form["password"]
-        
-        return perform_login(email, password)
-    else:
-        return flask.render_template("login.html")
-
-
-@app.route("/oauth2login")
-def oauth2login():
-    # We'll need their profile and email.
-    auth_scopes = ["https://www.googleapis.com/auth/userinfo.profile",
-                   "https://www.googleapis.com/auth/userinfo.email"]
-
-    flow = flow_from_clientsecrets("client_secrets.json", auth_scopes,
-        redirect_uri=BASE_URL + "oauth2callback")
-
-    # Save a reference to the flow, since we need it when the user
-    # is returned.
-    flask.session["flow"] = flow 
-
-    # Begin the oauth authorization process.
-    auth_uri = flow.step1_get_authorize_url()
-    return flask.redirect(auth_uri)
-
-
-@app.route("/oauth2callback")
-def oauth2callback():
-    # The authorization code will be passed to the callback uri.
-    auth_code = flask.request.args["code"]
-
-    # get the stored flow.
-    flow = flask.session["flow"]
-
-    # Exchange the code for credentials
-    credentials = flow.step2_exchange(auth_code)
-
-    # Authorize an httplib2 instance to get user's data
-    http = httplib2.Http()
-    http = credentials.authorize(http)
-
-    # request from the userinfo api:
-    resp, content = http.request("https://www.googleapis.com/oauth2/v1/userinfo?alt=json")
-    
-    userinfo = json.loads(content)
-
-    return login_via_google(userinfo)
-
-
-## Beta Signup
-###############################################################################
-
-@app.route("/beta-signup", methods=["POST", "GET"])
-def beta_signup():
-    if flask.request.method == "GET":
-        # Render the beta signup form.
-        return flask.render_template("beta-signup.html")
-
-    elif flask.request.method == "POST":
-        # Receive the POST from the signup form.
-        
-        # Create a beta signup row for this prospective tester..
-        email = flask.request.form["email"]
-        beta_signup = models.BetaSignup(email=email)
-        models.db.session.add(beta_signup)
-        models.db.session.commit()
-
-        # Show the user a message on the same page.
-        flask.flash("Thanks! We'll ping you when it's ready.")
-        # TODO: redirect to blog instead after DNS is changed.
-        return redirect_to("index")
-
-    else:
-        # Bad request.
-        flask.abort(400)
-
-## Signup
-###############################################################################
-
-def perform_signup(email, password, confirm):
-    template = "sign-up.html"
-
-    # Ensure that no log-in already exists for this email.
-    existing = models.Luser.query.filter_by(email=email).first()
-    if existing is not None:
-        return flask.render_template(template,
-                    email_error="Email already registered.") 
- 
-    # Ensure that the user is on our beta list and is activated.
-    is_activated = (models.BetaSignup.query
-                    .filter_by(email=email, is_activated=True).first())
-
-    if is_activated is None:   
-        flask.flash("Please sign up for the beta and we'll ping you when it's"
-                    " ready.")
-        return redirect_to_index()
-
-
-    # Ensure that password is not absolutely stupid
-    if len(password) < 8:
-        return flask.render_template(template, 
-            password_error="Password must be at least 8 characters")
-    
-    
-    # Ensure that the password and confirm values match
-    if password != confirm:
-        return flask.render_template(template, 
-            password_error="Passwords do not match.")
-   
-    
-    # So far, so good. Create a user.
-    pw_hash = bcrypt.hashpw(password, bcrypt.gensalt())
-    luser = models.Luser(email=email, pw_hash=pw_hash)
-    models.db.session.add(luser)
-    models.db.session.flush()
-
-    create_luser_data(luser)
-
-    # If signup was successful, just log the user in.
-    return perform_login(email, password)
-
-
-def create_sample_project_for_luser(luser):
-    sample = models.Project(name="Sample")
-    models.db.session.add(sample)
-    models.db.session.flush()
-
-    assoc = models.ProjectLuser(luser_id=luser._id, 
-                                project_id=sample._id,
-                                is_owner=True)
-    models.db.session.add(assoc)
-    models.db.session.flush()
-
-    todo = models.Pile(project_id=sample._id, name="To-Do")
-    doing = models.Pile(project_id=sample._id, name="Doing")
-    done = models.Pile(project_id=sample._id, name="Done")
-
-    models.db.session.add(todo)
-    models.db.session.add(doing)
-    models.db.session.add(done)
-    models.db.session.flush()
-
-    card1 = models.Card(project_id=sample._id, text="Check out the app!", pile_id=todo._id, score=1)
-    card2 = models.Card(project_id=sample._id, text="Make some cards...", pile_id=todo._id, score=1)
-    card3 = models.Card(project_id=sample._id, text="Have fun!", pile_id=todo._id, score=0)
-    models.db.session.add(card1)
-    models.db.session.add(card2)
-    models.db.session.add(card3)
-    
-    models.db.session.commit()
-
-
-def create_luser_data(luser, first_name="Unknown", last_name="Unknown"):
-    email = luser.email
-
-    # Must also create a profile for that user. Default the username
-    # to the name part of the email.
-    profile = models.LuserProfile(luser_id=luser._id,
-                                  first_name=first_name,
-                                  last_name=last_name,
-                                  username=email.split("@")[0])
-
-    models.db.session.add(profile)
-
-
-    # Must also add the user to any projects he has been invited to:
-    invites = models.ProjectInvite.query.filter_by(email=email).all()
-    for invite in invites:
-        membership = models.ProjectLuser(project_id=invite.project_id,
-                            luser_id=luser._id)
-        models.db.session.add(membership)
-        invite.is_pending = False
-
-    # every user should start out with a sample project
-    create_sample_project_for_luser(luser)
-
-    # Keep these changes.
-    models.db.session.commit()
-
-
-## Luser Profile
+## User Profile
 ###############################################################################
 
 @app.route("/profile/<int:luser_id>", methods=["GET", "POST"])
@@ -1383,12 +1162,21 @@ def get_profile(luser_id, luser=None, **kwargs):
                                   themes=themes,
                                   **kwargs)
 
+
+###############################################################################
 ## Password Recovery
 ###############################################################################
 
 @app.route("/reset/<uuid>", methods=["POST", "GET"])
-def reset(uuid):
+def password_reset(uuid):
+    """
+    Password reset controller.
 
+        * POST checks the user's reset uuid (from URL) and if it's OK allows
+          the user to reset his password.
+
+        * GET serves the password reset page.
+    """
     request = models.ForgottenPasswordRequest.query.filter_by(uuid=uuid).first()
     
     if flask.request.method == "POST":
@@ -1431,8 +1219,13 @@ def reset(uuid):
 
 
 @app.route("/forgot", methods=["POST", "GET"])
-def forgot():
+def forgot_password():
+    """
+    Forgot password controller. 
 
+        * POST handles forgotten password request by sending an email. 
+        * GET serves forgot password page.
+    """
     if flask.request.method == "POST":
         email = flask.request.form["email"].strip()
         
@@ -1469,11 +1262,80 @@ to ignore it.
     else:
         return flask.render_template("forgot.html")
 
+
+###############################################################################
+# Login
+###############################################################################
+
+@app.route("/login", methods=["POST", "GET"])
+def login():
+
+    if flask.request.method == "POST":
+        # obtain form parameters
+        email = flask.request.form["email"]
+        password = flask.request.form["password"]
+        
+        return perform_login(email, password)
+    else:
+        return flask.render_template("login.html")
+
+
+###############################################################################
+# Google oAuth2 (does automatic signup when account is unknown, login
+# otherwise) 
+###############################################################################
+
+@app.route("/oauth2login")
+def oauth2login():
+    # We'll need their profile and email.
+    auth_scopes = ["https://www.googleapis.com/auth/userinfo.profile",
+                   "https://www.googleapis.com/auth/userinfo.email"]
+
+    flow = flow_from_clientsecrets("client_secrets.json", auth_scopes,
+        redirect_uri=BASE_URL + "oauth2callback")
+
+    # Save a reference to the flow, since we need it when the user
+    # is returned.
+    flask.session["flow"] = flow 
+
+    # Begin the oauth authorization process.
+    auth_uri = flow.step1_get_authorize_url()
+    return flask.redirect(auth_uri)
+
+
+@app.route("/oauth2callback")
+def oauth2callback():
+    # The authorization code will be passed to the callback uri.
+    auth_code = flask.request.args["code"]
+
+    # get the stored flow.
+    flow = flask.session["flow"]
+
+    # Exchange the code for credentials
+    credentials = flow.step2_exchange(auth_code)
+
+    # Authorize an httplib2 instance to get user's data
+    http = httplib2.Http()
+    http = credentials.authorize(http)
+
+    # request from the userinfo api:
+    resp, content = http.request("https://www.googleapis.com/oauth2/v1/userinfo?alt=json")
+    
+    userinfo = json.loads(content)
+
+    return login_via_google(userinfo)
+
+
+###############################################################################
 ## Signup
 ###############################################################################
 
 @app.route("/signup", methods=["POST", "GET"])
 def signup():
+    """
+    Signup controller. Delegates POST to perform_signup handler,
+    serves signup page on GET.
+    """
     template = "sign-up.html"    
 
     if flask.request.method == "POST":
@@ -1485,6 +1347,162 @@ def signup():
         return perform_signup(email, password, confirm)
     else:
         return flask.render_template("sign-up.html") 
+
+
+def perform_signup(email, password, confirm):
+    """
+    Handles a signup request. 
+    
+    Basic checks on password and confirm fields. Creates user account and
+    stores salted password hash.
+    """
+    template = "sign-up.html"
+
+    # Ensure that no log-in already exists for this email.
+    existing = models.Luser.query.filter_by(email=email).first()
+    if existing is not None:
+        return flask.render_template(template,
+                    email_error="Email already registered.") 
+ 
+    # Ensure that the user is on our beta list and is activated.
+    is_activated = (models.BetaSignup.query
+                    .filter_by(email=email, is_activated=True).first())
+
+    if is_activated is None:   
+        flask.flash("Please sign up for the beta and we'll ping you when it's"
+                    " ready.")
+        return redirect_to_index()
+
+
+    # Ensure that password is not absolutely stupid
+    if len(password) < 8:
+        return flask.render_template(template, 
+            password_error="Password must be at least 8 characters")
+    
+    
+    # Ensure that the password and confirm values match
+    if password != confirm:
+        return flask.render_template(template, 
+            password_error="Passwords do not match.")
+   
+    
+    # So far, so good. Create a user.
+    pw_hash = bcrypt.hashpw(password, bcrypt.gensalt())
+    luser = models.Luser(email=email, pw_hash=pw_hash)
+    models.db.session.add(luser)
+    models.db.session.flush()
+
+    create_luser_data(luser)
+
+    # If signup was successful, just log the user in.
+    return perform_login(email, password)
+
+
+def create_sample_project_for_luser(luser):
+    """
+    Creates a simple sample project for a user.
+    """
+
+    sample = models.Project(name="Sample")
+    models.db.session.add(sample)
+    models.db.session.flush()
+
+    assoc = models.ProjectLuser(luser_id=luser._id, project_id=sample._id,
+                                is_owner=True)
+
+    models.db.session.add(assoc)
+    models.db.session.flush()
+
+    todo = models.Pile(project_id=sample._id, name="To-Do")
+    doing = models.Pile(project_id=sample._id, name="Doing")
+    done = models.Pile(project_id=sample._id, name="Done")
+
+    models.db.session.add(todo)
+    models.db.session.add(doing)
+    models.db.session.add(done)
+    models.db.session.flush()
+
+    card1 = models.Card(project_id=sample._id, text="Check out the app!",
+                        pile_id=todo._id, score=1)
+
+    card2 = models.Card(project_id=sample._id, text="Make some cards...",
+                        pile_id=todo._id, score=1)
+
+    card3 = models.Card(project_id=sample._id, text="Have fun!", 
+                        pile_id=todo._id, score=0)
+
+    models.db.session.add(card1)
+    models.db.session.add(card2)
+    models.db.session.add(card3)
+    
+    models.db.session.commit()
+
+
+def create_luser_data(luser, first_name="Unknown", last_name="Unknown"):
+    """
+    Creates any data that must exist for each user after signup.
+
+    Includes:
+        * Profile
+        * Associations to projects with pending invites for user.
+        * Sample project.
+    """
+    email = luser.email
+
+    # Must also create a profile for that user. Default the username
+    # to the name part of the email.
+    profile = models.LuserProfile(luser_id=luser._id,
+                                  first_name=first_name,
+                                  last_name=last_name,
+                                  username=email.split("@")[0])
+
+    models.db.session.add(profile)
+
+
+    # Must also add the user to any projects he has been invited to:
+    invites = models.ProjectInvite.query.filter_by(email=email).all()
+    for invite in invites:
+        membership = models.ProjectLuser(project_id=invite.project_id,
+                            luser_id=luser._id)
+        models.db.session.add(membership)
+        invite.is_pending = False
+
+    # every user should start out with a sample project
+    create_sample_project_for_luser(luser)
+
+    # Keep these changes.
+    models.db.session.commit()
+
+
+###############################################################################
+## Beta Signup
+###############################################################################
+
+@app.route("/beta-signup", methods=["POST", "GET"])
+def beta_signup():
+    if flask.request.method == "GET":
+        # Render the beta signup form.
+        return flask.render_template("beta-signup.html")
+
+    elif flask.request.method == "POST":
+        # Receive the POST from the signup form.
+        
+        # Create a beta signup row for this prospective tester..
+        email = flask.request.form["email"]
+        beta_signup = models.BetaSignup(email=email)
+        models.db.session.add(beta_signup)
+        models.db.session.commit()
+
+        # Show the user a message on the same page.
+        flask.flash("Thanks! We'll ping you when it's ready.")
+        # TODO: redirect to blog instead after DNS is changed.
+        return redirect_to("index")
+
+    else:
+        # Bad request.
+        flask.abort(400)
+
+##############################################################################
 
 
 if __name__ == '__main__':
