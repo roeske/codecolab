@@ -29,7 +29,7 @@ div.clear { clear: both; }
 
 /* jquery ui tweaks ***********************************************************/
 .ui-dialog { padding: 0; }
-
+.ui-dialog-title { font-family: "Roboto"; }
 .ui-widget-header {
   border-top-left-radius: 3px;
   border-bottom-left-radius: 0px;
