@@ -100,8 +100,9 @@
 
         </ul>
 
+
         <div class="chrome pile_chrome_bottom bottom_corners">
-          <form action="/cards/add" method="POST">
+          <form action="/project/{{ project.name }}/cards/add" method="POST">
             <input type="hidden" name="project_name" value="{{ project.name }}" />
             <input type="hidden" name="pile_id" value="{{ pile._id }}" />
 
@@ -118,7 +119,17 @@
         </div>
       </li>
     {% endfor %}
+
     </ul>
+
+  </div>
+  <div id="activity_container">
+      <h4>&nbsp;Activity</h4>
+      <ul id="activity_list" class="structural">
+        {% for activity in project.activity %}
+        <li>{{ activity }}</li>
+        {% endfor %}
+      </ul>
   </div>
 </div>
 

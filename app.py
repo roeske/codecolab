@@ -7,6 +7,7 @@ import pytz
 import httplib2
 import simplejson as json
 
+from flask import request
 from flaskext import uploads
 from functools import wraps
 from sqlalchemy import and_
@@ -20,6 +21,7 @@ from helpers import (make_gravatar_url, make_gravatar_profile_url,
                      redirect_to, redirect_to_index, respond_with_json,
                      jsonize, get_luser_for_email)
 
+activity_logger = models.ActivityLogger()
 
 app = models.app
 PORT = 8080
@@ -83,8 +85,6 @@ def error_404():
 @app.route("/500")
 def error_500():
     flask.abort(500)
-
-
 
 ###############################################################################
 # Index
@@ -584,7 +584,7 @@ def delete_comment(project_name=None, comment_id=None, **kwargs):
 
 @app.route("/project/<project_name>/card/<int:card_id>/archive")
 @check_project_privileges
-def archive(card_id=None, **kwargs):
+def archive(luser=None, project=None, card_id=None, **kwargs):
     """
     Handles archival of cards.
     """
@@ -593,6 +593,8 @@ def archive(card_id=None, **kwargs):
     models.db.session.flush()
     models.db.session.commit()
    
+    activity_logger.log(luser._id, project._id, card_id, "card_archive")
+
     return respond_with_json({ "status" : "success",
                                "card_id" : card._id,
                                "message" : "Archived card %d" % card._id })
@@ -777,6 +779,7 @@ def archives(**kwargs):
 
 # Piles
 ##############################################################################
+
 @app.route("/piles/reorder", methods=["POST"])
 def piles_reorder():
     """
@@ -791,40 +794,20 @@ def piles_reorder():
     return respond_with_json({"status" : "success" })
 
 
-def perform_add_card(email, project_name, text, form=None):
-    """
-    Adds a card to a project. Do not invoke directly, pass as a callback 
-    to add_to_project.
-    """
-    
-    # Get the pile id, it's safe to do this here, because not all
-    # things we add might need a pile_id, and piles do not have
-    # their own permissions within a project.
-    if form is None:
-        print "[EE] Missing parameters."
-        flask.abort(500)
+@app.route("/project/<project_name>/cards/add", methods=["POST"])
+@check_project_privileges
+def cards_add(project=None, luser=None, **kwargs):
+    card_id = models.Card.create(project, request.form["pile_id"], request.form["text"])
+    activity_logger.log(luser._id, project._id, card_id, "card_created")
+    return redirect_to("project", name=project.name)
 
-    pile_id = int(form["pile_id"])
-
-    luser = get_luser_or_404(email)
-    project = get_project_or_404(project_name, luser._id)
-    params = (project_name, luser._id)
-
-    card = models.Card(project_id=project._id, text=text, pile_id=pile_id)
-    models.db.session.add(card)
-    models.db.session.commit()
-    return redirect_to("project", name=project_name)
-
-
-@app.route("/cards/add", methods=["POST"])
-def card_add():
-    return add_to_project(perform_add_card)
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/complete",
             methods=["POST"])
 @check_project_privileges
-def card_toggle_is_completed(project=None, card_id=None, **kwargs):
+def card_toggle_is_completed(project=None, card_id=None, luser=None,
+                             **kwargs):
     """
     Facilitate the toggling of the Card's "is_completed" state.
     """
@@ -839,7 +822,13 @@ def card_toggle_is_completed(project=None, card_id=None, **kwargs):
     models.db.session.commit()
     models.db.session.flush()
 
-    print "card.is_completed = %r" % card.is_completed
+    if card.is_completed:
+        type = "card_finished"
+    else:
+        type = "card_incomplete"
+
+    activity_logger.log(luser._id, project._id, card_id, type)
+
     return respond_with_json(dict(state=card.is_completed))
 
 

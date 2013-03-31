@@ -137,7 +137,8 @@ class Project(db.Model, DictSerializable):
     cards       = db.relationship("Card", order_by=lambda: Card.number)
     piles       = db.relationship("Pile", order_by=lambda: Pile.number)    
     members     = db.relationship("ProjectLuser")
-
+    activity    = db.relationship("Activity")
+    
     def is_owner(self, luser_id):
         for member in self.members:
             if member.luser_id == luser_id and member.is_owner:
@@ -337,6 +338,22 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
         return self.created.strftime("%A, %b. %d, %Y - %I:%M %p")
 
 
+    @staticmethod
+    def create(project, pile_id, text):
+        """
+        Adds a card to a specific pile of a project, with the specified
+        text.
+        """
+        card = Card(project_id=project._id, pile_id=pile_id, text=text)
+
+        db.session.add(card)
+        db.session.flush()
+        db.session.commit()
+        
+        return card._id
+
+
+
 # TODO: refactor, use mixin for 'created'
 class CardComment(db.Model, DictSerializable, FluxCapacitor):
 
@@ -407,11 +424,91 @@ class ForgottenPasswordRequest(db.Model, DictSerializable):
         self.expiration = datetime.utcnow() + timedelta(days=1)
 
 
+class ActivityType(db.Model, DictSerializable):
+
+    __tablename__ = "activity_type"
+
+    _id             = db.Column(db.Integer, primary_key=True)
+    type            = db.Column(db.String, nullable=False, unique=True)
+    format          = db.Column(db.String, nullable=False)
+
+
+class Activity(db.Model, DictSerializable):
+    
+    __tablename__ = "activity"
+
+    _id             = db.Column(db.Integer, primary_key=True)
+    luser_id        = db.Column(db.Integer, db.ForeignKey(Luser._id))
+    project_id      = db.Column(db.Integer, db.ForeignKey(Project._id))
+    type_id         = db.Column(db.Integer, db.ForeignKey(ActivityType._id))
+    card_id         = db.Column(db.Integer, db.ForeignKey(Card._id))
+
+    type            = db.relationship("ActivityType")
+    luser           = db.relationship("Luser")
+    card            = db.relationship("Card")
+
+    
+    def __str__(self):
+        return self.type.format % (self.luser.profile[0].username,
+                                   self.card.text)
+
+
+class ActivityLogger(object):
+    
+    def __init__(self):
+        activity_types = ActivityType.query.all()
+        self.type_map = {}
+
+        for type in activity_types:
+            self.type_map[type.type] = type._id
+
+
+    def log(self, luser_id, project_id, card_id, type):
+        type_id = self.type_map[type]
+
+        activity = Activity(luser_id=luser_id, project_id=project_id,
+                            card_id=card_id, type_id=type_id)
+        db.session.add(activity)
+        db.session.commit()
+
+
 if __name__ == "__main__":
 
     import sys
 
     if sys.argv[1] == "create":
         db.create_all()
+
+    if sys.argv[1] == "create_activity_types":
+        format = "%s created card %s"
+        card_created = ActivityType(type="card_created", format=format)
+        db.session.add(card_created)
+
+        format = "%s completed card %s"
+        card_finished = ActivityType(type="card_finished", format=format)
+        db.session.add(card_finished)
+
+        format = "%s marked card as incomplete %s"
+        card_incomplete = ActivityType(type="card_incomplete", format=format)
+        db.session.add(card_incomplete)
+
+        format = "%s commented on card %s"
+        card_comment = ActivityType(type="card_comment", format=format)
+        db.session.add(card_comment)
+
+        format = "%s changed card %s"
+        card_change = ActivityType(type="card_change", format=format) 
+        db.session.add(card_change)
+        
+        format = "%s deleted card %s"
+        card_delete = ActivityType(type="card_delete", format=format)
+        db.session.add(card_delete)
+
+        format = "%s archived card %s"
+        card_archive = ActivityType(type="card_archive", format=format)
+        db.session.add(card_archive)
+
+        db.session.commit()
+        
     elif sys.argv[1] == "drop":
         db.drop_all()
