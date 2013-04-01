@@ -1,0 +1,19 @@
+<div id="activity_container">
+  <h4>&nbsp;Activity</h4>
+  
+  <!-- include reloadable activity here -->
+  {% include "activity_list.html" %}
+
+  <script type="text/javascript">
+// call this function to reload activity, can be used wherever
+// activity.html is included. */
+function cc_activity_reload() {
+  var project_name = "{{ project.name }}"
+  var url = "/project/" + project_name + "/activity";
+  $.get(url, function(data) {
+    $("#activity_list").replaceWith(data)
+  })
+}
+  </script>
+</div>
+

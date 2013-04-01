@@ -371,6 +371,7 @@ function cc_project_init(project_name, pile_ids) {
     cc_setup_editable_fields(project_name)
 }
 
+
 function cc_connect_comment_form(project_name, modal, card_id) {
     modal.find("form.comments").ajaxForm({
         success: function(response, status_code) {

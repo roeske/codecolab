@@ -140,26 +140,25 @@
 </ul>
 
 </div>
+
 <!-- Run code to make above editables work -->
 <script type="text/javascript">
-
 $(document).ready(function() {
-  var project_name = "{{ project_name }}"
-  var card_id = "{{ card._id }}"
-  var modal_selector = "#modal_" + "{{ card._id }}"
+    var project_name = "{{ project_name }}"
+    var card_id = "{{ card._id }}"
+    var modal_selector = "#modal_" + "{{ card._id }}"
 
-  var modal = $(modal_selector)
+    var modal = $(modal_selector)
 
-  console.log("project_name="+project_name)
-  console.log("card_id="+card_id)
-  console.log("modal_selector="+modal_selector)
+    console.log("project_name="+project_name)
+    console.log("card_id="+card_id)
+    console.log("modal_selector="+modal_selector)
 
-  cc_make_card_editable(project_name, modal, card_id)
-  cc_connect_comment_form(project_name, modal, card_id)
-  cc_connect_upload_form(project_name, modal, card_id)
-  cc_connect_milestone_spinner(modal, card_id)
-  cc_connect_assign_to_spinner(modal, card_id)
-  cc_connect_complete_button(project_name, modal, card_id)
+    cc_make_card_editable(project_name, modal, card_id)
+    cc_connect_comment_form(project_name, modal, card_id)
+    cc_connect_upload_form(project_name, modal, card_id)
+    cc_connect_milestone_spinner(modal, card_id)
+    cc_connect_assign_to_spinner(modal, card_id)
+    cc_connect_complete_button(project_name, modal, card_id)
 })
-
 </script>

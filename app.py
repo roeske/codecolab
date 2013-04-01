@@ -535,6 +535,17 @@ def check_owner_privileges(func):
         return func(**kwargs)
     return wrap
 
+###############################################################################
+# Activity
+###############################################################################
+
+@app.route("/project/<project_name>/activity", methods=["GET"])
+@check_project_privileges
+def activity(**kwargs):
+    return flask.render_template("activity_list.html", **kwargs)
+
+
+##############################################################################
 ## Cards
 ##############################################################################
 

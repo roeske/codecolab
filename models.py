@@ -137,8 +137,9 @@ class Project(db.Model, DictSerializable):
     cards       = db.relationship("Card", order_by=lambda: Card.number)
     piles       = db.relationship("Pile", order_by=lambda: Pile.number)    
     members     = db.relationship("ProjectLuser")
-    activity    = db.relationship("Activity")
-    
+    activity    = db.relationship("Activity", order_by=lambda: Activity.created.desc())
+   
+
     def is_owner(self, luser_id):
         for member in self.members:
             if member.luser_id == luser_id and member.is_owner:
@@ -433,7 +434,7 @@ class ActivityType(db.Model, DictSerializable):
     format          = db.Column(db.String, nullable=False)
 
 
-class Activity(db.Model, DictSerializable):
+class Activity(db.Model, DictSerializable, FluxCapacitor):
     
     __tablename__ = "activity"
 
@@ -442,6 +443,7 @@ class Activity(db.Model, DictSerializable):
     project_id      = db.Column(db.Integer, db.ForeignKey(Project._id))
     type_id         = db.Column(db.Integer, db.ForeignKey(ActivityType._id))
     card_id         = db.Column(db.Integer, db.ForeignKey(Card._id))
+    created         = db.Column(db.DateTime, default=func.now())
 
     type            = db.relationship("ActivityType")
     luser           = db.relationship("Luser")

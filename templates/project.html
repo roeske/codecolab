@@ -1,136 +1,128 @@
 {% include "head.html" %}
 <div class="content">
   <div id="subnav">
-    <div id="project_name">
-      <h3><a href="#">
-      <div class="icon">&#128196;</div>
-      &nbsp;{{ project.name }}</a></h3>
-    </div>
+  <div id="project_name">
+    <h3><a href="#">
+    <div class="icon">&#128196;</div>
+    &nbsp;{{ project.name }}</a></h3>
+  </div>
 
-    <div class="buttons">
-      <a href="/project/{{ project.urlencoded_name }}/archives"
-         class="btn">
-         <div style="float; left"> Archives&nbsp;</div>
-         <div class="icon">&#59392;</div>
-      </a>
-      <div class="clear"></div>
-    </div>
+  <div class="buttons">
+    <a href="/project/{{ project.urlencoded_name }}/archives"
+     class="btn">
+     <div style="float; left"> Archives&nbsp;</div>
+     <div class="icon">&#59392;</div>
+    </a>
+    <div class="clear"></div>
+  </div>
 
-    <div style="padding-top: 7px;" id="toolbox">
-      <form action="/piles/add" method="POST">
-        <input type="hidden" name="project_name" value="{{ project.name }}" />
-        <ul id="toolbox-list" class="controls structural horizontal_right">
-          <li>
-            <input type="submit" name="submit" value="Add Pile " class="btn"/>
-          </li>
-          <li>
-            <input type="text" placeholder="Pile Name..." name="text" id="text"/>
-          </li>
-        </ul>
-      </form>
-    </div>
+  <div style="padding-top: 7px;" id="toolbox">
+    <form action="/piles/add" method="POST">
+    <input type="hidden" name="project_name" value="{{ project.name }}" />
+    <ul id="toolbox-list" class="controls structural horizontal_right">
+      <li>
+      <input type="submit" name="submit" value="Add Pile " class="btn"/>
+      </li>
+      <li>
+      <input type="text" placeholder="Pile Name..." name="text" id="text"/>
+      </li>
+    </ul>
+    </form>
+  </div>
   </div>
 
   <div class="clear"></div>
 
   <div id="piles">
-    <ul id="pile_list">
+  <ul id="pile_list">
 
-    {% for pile in project.piles %}
-      <li class="pile_container" data-id="{{ pile._id}}" data-number="{{ pile.number }}">
+  {% for pile in project.piles %}
+    <li class="pile_container" data-id="{{ pile._id}}" data-number="{{ pile.number }}">
 
-        <div class="handle chrome pile_chrome_top top_corners">
-          <h4 class="pile_title"><span data-id="{{ pile._id }}" class="editable pile_title">{{ pile.name }}</span></h4>
-          <div class="pile_options">
-            <a href="/delete?pile_id={{ pile._id }}&project_name={{ project.urlencoded_name
-            }}">&nbsp;<span class="icon">&#10060;</span>&nbsp;</a>
-          </div>
+    <div class="handle chrome pile_chrome_top top_corners">
+      <h4 class="pile_title"><span data-id="{{ pile._id }}" class="editable pile_title">{{ pile.name }}</span></h4>
+      <div class="pile_options">
+      <a href="/delete?pile_id={{ pile._id }}&project_name={{ project.urlencoded_name
+      }}">&nbsp;<span class="icon">&#10060;</span>&nbsp;</a>
+      </div>
+    </div>
+    <div class="clear"></div>
+
+    <ul id="{{ pile.pile_uuid }}" data-id="{{ pile._id }}" class="card_list">
+
+      {% for card in pile.cards %}
+      {% if not card.is_archived %}
+
+        <li id="{{ card.card_uuid }}" class="card_item ui-state-default"
+        data-pile-id="{{ card.pile_id }}" data-id="{{ card._id }}" 
+        data-number="{{ card.number }}" data-title="{{ card.title }}">
+         
+        <div>
+        <p style="float: left;" class="date">{{ card.created_as_timezone(luser.profile[0].timezone) }}</p> 
+        <a class="icon archive" style="float: right"
+           href="/project/{{ project.urlencoded_name }}/card/{{ card._id }}/archive">&#59392;</a>
         </div>
         <div class="clear"></div>
 
-        <ul id="{{ pile.pile_uuid }}" data-id="{{ pile._id }}" class="card_list">
+        <!-- card text -->
+        <p>
+        <span class="card text" data-id="{{ card._id }}">
+         
+          {% if card.is_completed %}
+          <strike>{{ card.text }}</strike>
+          {% else %}
+          {{ card.text }}
+          {% endif %}
+        </span>
+        </p>
+        
+        <div>
 
-          {% for card in pile.cards %}
-            {% if not card.is_archived %}
-              <li id="{{ card.card_uuid }}" 
-                class="card_item ui-state-default"
-                data-pile-id="{{ card.pile_id }}"
-                data-id="{{ card._id }}" 
-                data-number="{{ card.number }}"
-                data-title="{{ card.title }}">
-               
-              <div>
-                <p style="float: left;" class="date">{{ card.created_as_timezone(luser.profile[0].timezone) }}</p> 
-                <a class="icon archive" style="float: right"
-                   href="/project/{{ project.urlencoded_name }}/card/{{ card._id }}/archive">&#59392;</a>
-              </div>
-              <div class="clear"></div>
+        <div style="float: left;" class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div>
 
-              <!-- card text -->
-              <p>
-                <span class="card text" 
-                    data-id="{{ card._id }}">
-               
-                  {% if card.is_completed %}
-                    <strike>{{ card.text }}</strike>
-                  {% else %}
-                    {{ card.text }}
-                  {% endif %}
-                </span>
-              </p>
-              
-              <div>
-
-                <div style="float: left;" class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div>
-
-                <div class="milestone" style="float: right">
-                  {% if card.milestone.is_approved %}
-                    <strike>
-                      {{ card.milestone.name }}
-                    </strike>
-                  {% else %}
-                    {{ card.milestone.name }}
-                  {% endif %}
-                </div>
-              </div>
-              <div class="clear"></div>
-            </li>
-            {% endif %}
-          {% endfor %}
-
-        </ul>
-
-
-        <div class="chrome pile_chrome_bottom bottom_corners">
-          <form action="/project/{{ project.name }}/cards/add" method="POST">
-            <input type="hidden" name="project_name" value="{{ project.name }}" />
-            <input type="hidden" name="pile_id" value="{{ pile._id }}" />
-
-            <div class="clear"></div>
-            <ul class="add_card structural">
-              <li class="input"> 
-                <input type="text" placeholder="I'm going to..." name="text" id="text"/>
-              </li>
-              <li class="button">
-                <input type="submit" name="submit" value="Add Card " class="btn"/>
-              </li>
-            </ul>
-          </form>
+        <div class="milestone" style="float: right">
+          {% if card.milestone.is_approved %}
+          <strike>
+            {{ card.milestone.name }}
+          </strike>
+          {% else %}
+          {{ card.milestone.name }}
+          {% endif %}
         </div>
+        </div>
+        <div class="clear"></div>
       </li>
-    {% endfor %}
+      {% endif %}
+      {% endfor %}
 
     </ul>
 
-  </div>
-  <div id="activity_container">
-      <h4>&nbsp;Activity</h4>
-      <ul id="activity_list" class="structural">
-        {% for activity in project.activity %}
-        <li>{{ activity }}</li>
-        {% endfor %}
+
+    <div class="chrome pile_chrome_bottom bottom_corners">
+      <form action="/project/{{ project.name }}/cards/add" method="POST">
+      <input type="hidden" name="project_name" value="{{ project.name }}" />
+      <input type="hidden" name="pile_id" value="{{ pile._id }}" />
+
+      <div class="clear"></div>
+      <ul class="add_card structural">
+        <li class="input"> 
+        <input type="text" placeholder="I'm going to..." name="text" id="text"/>
+        </li>
+        <li class="button">
+        <input type="submit" name="submit" value="Add Card " class="btn"/>
+        </li>
       </ul>
+      </form>
+    </div>
+    </li>
+  {% endfor %}
+
+  </ul>
+
   </div>
+
+  {% include "activity.html" %}
+
 </div>
 
 {% include "common_js.html" %}
@@ -140,42 +132,42 @@
 <script type="text/javascript">
 // Run this code when the DOM is ready.
 $(function() {
+  // Make to-do lists sortable by dragging and save changes in the database.
+  // Read pile ids via jinja2.
+  pile_ids = {{ json_pile_ids|safe }}
   
-    // Make to-do lists sortable by dragging and save changes in the database.
-    // Read pile ids via jinja2.
-    pile_ids = {{ json_pile_ids|safe }}
+  // Obtain reference to the project's name 
+  project_name = "{{ project.name }}"
+
+  // Initialize project page
+  cc_project_init(project_name, pile_ids) 
+
+  $(".editable.difficulty").each(function(i, elem) {
+    elem = $(elem)
+    cc_connect_raty_score(elem, project_name, elem.data("card-id"))
+  })
+
+
+  // Handle clicks on 'archive' buttons 
+  // -- update server
+  // -- remove element from dom on success.
+  $("a.archive").click(function(event) {
+    event.preventDefault()
     
-    // Obtain reference to the project's name 
-    project_name = "{{ project.name }}"
 
-    // Initialize project page
-    cc_project_init(project_name, pile_ids) 
+    var that = this;
+    $.ajax({
+      type: "GET",
+      url: $(this).attr("href"),
+      
+      success: function(data) {
+        $(that).parent().parent().remove()
+        cc_activity_reload()
+      },
 
-    $(".editable.difficulty").each(function(i, elem) {
-        elem = $(elem)
-        cc_connect_raty_score(elem, project_name, elem.data("card-id"))
+      contentType: "application/json;charset=UTF-8"
     })
-
-
-    // Handle clicks on 'archive' buttons 
-    // -- update server
-    // -- remove element from dom on success.
-    $("a.archive").click(function(event) {
-        event.preventDefault()
-        
-        var that = this;
-        $.ajax({
-            type: "GET",
-            url: $(this).attr("href"),
-            
-            success: function(data) {
-                $(that).parent().parent().remove()
-                console.log(that)
-            },
-
-            contentType: "application/json;charset=UTF-8"
-        })
-    })
+  })
 })
 </script>
 <!-- END: JS -->

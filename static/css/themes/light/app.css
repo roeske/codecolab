@@ -318,24 +318,31 @@ div.pile_chrome_bottom {
         width: inherit;
     }
 
+
     div#activity_container {
       float: right;
       width: 16%;
+      height: 90%;
+      overflow-y: hidden;
+    }
+
+    ul#activity_list {
+      height: 90%;
+      overflow-y: scroll;
     }
 
     div#activity_container h4 {
       background-color: #ccc;
-      color: #fbfbfb;
-      padding: 1em 0;
+      color: #555;
+      padding: 7px 0;
       margin: 0;
+      font-weight: 400;
     }
       
     ul#activity_list li {
       padding: .5em 0;
       font-size: 110%;
     }
-
-    
     
     div#piles ul#pile_list li {
         max-height: 99%;
