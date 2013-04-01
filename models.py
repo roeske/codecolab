@@ -442,7 +442,7 @@ class Activity(db.Model, DictSerializable, FluxCapacitor):
     luser_id        = db.Column(db.Integer, db.ForeignKey(Luser._id))
     project_id      = db.Column(db.Integer, db.ForeignKey(Project._id))
     type_id         = db.Column(db.Integer, db.ForeignKey(ActivityType._id))
-    card_id         = db.Column(db.Integer, db.ForeignKey(Card._id))
+    card_id         = db.Column(db.Integer, db.ForeignKey(Card._id, ondelete="CASCADE"))
     created         = db.Column(db.DateTime, default=func.now())
 
     type            = db.relationship("ActivityType")
