@@ -33,7 +33,7 @@ class FluxCapacitor(object):
     
     def created_as_timezone(self, timezone_desc):
         d = Delorean(datetime=self.created, timezone=timezone_desc)
-        return d.datetime.strftime("%A, %b. %d, %Y - %I:%M %p")
+        return d.datetime.strftime("%A, %b. %d, %Y at %I:%M %p")
 
 
 class ProjectLuser(db.Model, DictSerializable):
@@ -90,14 +90,30 @@ class Luser(db.Model, DictSerializable):
 
     projects = db.relationship("Project", secondary=ProjectLuser.__table__)
     profile = db.relationship("LuserProfile")
+    activity = db.relationship("Activity")
+    reports = db.relationship("MemberReport",
+                              order_by="MemberReport.created.desc()")
 
-   
+    
+    @property
+    def recent_activity(self):
+        """ 
+        Gets only activity that was generated after the most recent
+        report.
+        """
+        if len(self.reports) == 0:
+            return self.activity
+        else:
+            cutoff_time = self.reports[0].created
+            return [a for a in self.activity if a.created > cutoff_time]
+
+
     @property
     def gravatar_url(self):
         email_hash = md5(self.email.strip().lower()).hexdigest()
         return "http://gravatar.com/avatar/%s?s=128" % email_hash
 
-
+    
     @property
     def gravatar_profile_url(self):
         email_hash = md5(self.email.strip().lower()).hexdigest()
@@ -204,6 +220,27 @@ class MemberScheduleTimeRanges(db.Model, DictSerializable):
     created     = db.Column(db.DateTime, default=func.now())
 
     day         = db.relationship("Day")
+
+
+class MemberReport(db.Model, DictSerializable, FluxCapacitor):
+    
+    __tablename__ = "member_report"
+
+    _id                 = db.Column(db.Integer, primary_key=True)
+    
+    luser_id            = db.Column(db.Integer, db.ForeignKey(Luser._id))
+    project_id          = db.Column(db.Integer, db.ForeignKey(Project._id))
+
+    subject             = db.Column(db.String, default="No Subject")
+    text                = db.Column(db.String)
+    report_date         = db.Column(db.DateTime, default=func.now(), nullable=False)
+    created             = db.Column(db.DateTime, default=func.now(), nullable=False)
+    is_user_submitted   = db.Column(db.Boolean, default=False)
+
+
+    def describe_with_time(self, tz):
+        timestamp = self.created_as_timezone(tz)
+        return '"%s" on %s' % (self.subject, timestamp)
 
 
 class Milestone(db.Model, DictSerializable):
@@ -316,7 +353,6 @@ class Milestone(db.Model, DictSerializable):
                 "Ratio of points that have been finished to unfinished.",
                 "Ratio of cards that have been rated to unrated."]
 
-
 class Pile(db.Model, DictSerializable):
     """
     Piles are containers for cards. A card can only be on
@@ -353,9 +389,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     DIFFICULTY_SCORE_MEDIUM = 2
     DIFFICULTY_SCORE_HARD = 3
 
-
     __tablename__ = "card"
-
 
     _id             = db.Column(db.Integer, primary_key=True)
     project_id      = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False)
@@ -390,7 +424,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
 
     @property
     def created_human(self):
-        return self.created.strftime("%A, %b. %d, %Y - %I:%M %p")
+        return self.created.strftime("%A, %b. %d, %Y at %I:%M %p")
 
 
     @staticmethod
@@ -430,7 +464,7 @@ class CardComment(db.Model, DictSerializable, FluxCapacitor):
 
     @property
     def created_human(self):
-        return self.created.strftime("%A, %b. %d, %Y - %I:%M %p")
+        return self.created.strftime("%A, %b. %d, %Y at %I:%M %p")
 
 
 # TODO: refactor, use mixin for 'created'
@@ -503,10 +537,18 @@ class Activity(db.Model, DictSerializable, FluxCapacitor):
     luser           = db.relationship("Luser")
     card            = db.relationship("Card")
 
-    
+   
+    def describe(self, username):
+        return self.type.format % (username, self.card.text)
+
+
+    def describe_with_time(self, username, tz):
+        timestamp = self.created_as_timezone(tz)
+        return (self.type.format + " on %s")  % (username, self.card.text,
+                                                 timestamp)
+
     def __str__(self):
-        return self.type.format % (self.luser.profile[0].username,
-                                   self.card.text)
+        return self.describe(self.luser.profile[0].username)
 
 
 class ActivityLogger(object):

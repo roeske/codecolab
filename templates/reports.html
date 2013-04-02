@@ -1,0 +1,67 @@
+{% include "head.html" %}
+<div class="content">
+  <h3>Reports</h3>
+
+  <div style="width: 100%;" >
+    <div style="width: 49.5%; float: left;">
+      <h4>Your Previous Reports</h4>
+      <ul>
+        {% for report in luser.reports %}
+          <li style="padding: 7px 0px 7px;">
+          <a class="report" href="/project/{{ project_name }}/reports/{{ report._id }}" href="#">{{ report.describe_with_time(luser.profile[0].timezone) }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div style="width: 49.5%; float: left;">
+    <form method="POST" style="width: 589px; "action="/project/{{ project_name }}/reports">
+      <h4>Make a New Report</h4>
+      <input type="text" name="subject" placeholder="Subject..." style="width: 576px;"/>
+  <!-- Don't refactor this. It is this way so that the whitespace formatting
+       is correct within the textarea -->
+      <textarea style="width: auto" cols="80" rows="20" name="text" id="report">
+[replace with your personal message]
+
+Here's my activity courtesy of CodeColab:
+{% if luser.recent_activity|length > 0 %}
+{% for item in luser.recent_activity -%}* {{ item.describe_with_time("", luser.profile[0].timezone) }} {{ "\n" }} {%- endfor %} 
+{% else %}
+No recent activity was logged.
+{% endif %}
+      </textarea>
+      <input type="submit" value="Submit" class="btn" style="float: right" />
+    </form>
+    </div>
+  </div>
+  <div class="clear"></div>
+
+{% include "common_js.html" %}
+
+<script type="text/javascript">
+$(function() {
+    var options = {
+        show: {
+            effect: "blind",
+        },
+
+        hide: {
+            effect: "blind",
+        },
+
+        modal: true,
+        autoOpen: false,
+        width: 600,
+        height: 480,
+        title: "Report"
+    }
+
+
+    $("a.report").click(function() {
+        var url = $(this).attr("href")
+        var modal = $("<div></div>").load(url).dialog(options)
+        modal.dialog("open")
+        return false
+    })
+})
+</script>
+{% include "foot.html" %}

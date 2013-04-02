@@ -6,6 +6,7 @@ textarea, input, .btn { color: #fff; text-shadow: none; }
 h1,h2,h3,h4,h5,h6 { line-height: auto; font-weight: 100; }
 * { text-shadow: none; }
 
+small { font-family: "Roboto"; }
 
 /* so 'editable' buttons don't display on the same line. */
 textarea { display: block; }

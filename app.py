@@ -1214,6 +1214,37 @@ def create_default_schedule(luser, project, day_collection):
     
     return schedule
 
+
+###############################################################################
+## Reports
+###############################################################################
+
+@app.route("/project/<project_name>/reports", methods=["GET", "POST"])
+@check_project_privileges
+def member_reports(luser=None, project=None, **kwargs):
+    
+    if request.method == "POST":
+        report = models.MemberReport(text=request.form["text"],
+                                     subject=request.form["subject"],
+                                     luser_id=luser._id,
+                                     project_id=project._id)
+        models.db.session.add(report)
+        models.db.session.commit()
+    
+    return cc_render_template("reports.html", luser=luser, project=project,
+                                              **kwargs)
+
+
+@app.route("/project/<project_name>/reports/<int:report_id>")
+@check_project_privileges
+def get_report(luser=None, project=None, report_id=None, **kwargs):
+
+    report = models.MemberReport.query.filter_by(_id=report_id).first()
+
+    return flask.render_template("report.html", luser=luser, project=project,
+                                 report=report, **kwargs)
+
+
 ###############################################################################
 ## User Profile
 ###############################################################################
