@@ -1,0 +1,86 @@
+{% include "head.html" %}
+<div class="content">
+    <h3>Edit Schedule
+      <span style="line-height: 1em; font-size: 70%;">for @{{ luser.profile[0].username }} on project "{{ project_name
+      }}"</span>
+    </h3>
+    <div class="clear"></div>
+
+    <form style="width: 36em;" action="/project/{{ project_name }}/schedule" method="POST">
+      <table>
+        <tr>
+          <th>Day</th>
+          <th>Start Time</th>
+          <th>End Time</th>
+          <th>Remove</th>
+        </tr>
+
+        {% for range in schedule.ranges %}
+          <tr>
+            <td>
+              <select name="day" class="daypicker" style="width: 8.5em;" id="day" type="text">
+                {% for day in days %}
+                  
+                  <option 
+                  {% if range.day_id == day._id %}
+                    selected
+                  {% endif %} value="{{ day._id }}">{{ day.name }}</option>
+
+                {% endfor %}
+              </select>
+            </td>
+            <td>
+              <input name="start_time" class="timepicker" style="width: 5em;" id="start_time" type="text" value="{{ range.start_time }}" />
+            </td>
+            <td>
+              <input name="end_time" class="timepicker" style="width: 5em;" id="end_time" type="text" value="{{ range.end_time }}" />
+            </td>
+            <td>
+              <input data-range-id="{{ range._id }}" class="btn" type="submit" name="remove" value="Remove" /> 
+            </td>
+          </tr>
+          <input type="hidden" name="range_id" value="{{ range._id }}" />
+        {% endfor %}
+        </table>
+        
+        <br />
+        <input name="add_day" style="float: right" class="btn" type="submit" value="Add Day" id="add_day" />
+
+
+        <input style="display:none; " type="submit" value="Submit" id="hidden_submit" />
+    </form>
+</div>
+
+{% include "common_js.html" %}
+
+<script type="text/javascript">
+$(function() {
+    $(".timepicker").timepicker()
+   
+    $(".timepicker").change(function() {
+        // update the value when the user changes the time so that it
+        // is submitted with the form.
+        $(this).attr("value", $(this).val())
+        //$("#hidden_submit").click()
+        $(this.form).ajaxSubmit()
+    })
+
+    $(".daypicker").change(function() {
+        //$("#hidden_submit").click()
+        $(this.form).ajaxSubmit()
+    })
+
+    $('input[value="Remove"]').click(function(event) {
+        var range_id = $(this).data("range-id")
+
+        $(this.form).append($("<input/>").attr("type", "hidden")
+                                 .attr("name", "range_id")
+                                 .attr("value", range_id ))
+
+        // proceed as normal, we just needed to append the range id.
+        return true
+    })
+})
+</script>
+
+{% include "foot.html" %}

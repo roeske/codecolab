@@ -1,7 +1,7 @@
 from context import app
 from sqlalchemy import func
 from flask.ext.sqlalchemy import SQLAlchemy
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from urllib2 import quote
 from md5 import md5
 from uuid import uuid4
@@ -150,6 +150,60 @@ class Project(db.Model, DictSerializable):
     @property
     def urlencoded_name(self):
         return quote(self.name)
+
+
+class Day(db.Model):
+    
+    __tablename__ = "day"
+   
+    _id     = db.Column(db.Integer, primary_key=True)
+    name    = db.Column(db.String, nullable=False, unique=True)
+    abbrev  = db.Column(db.String, nullable=False, unique=True)
+
+
+class Days(object):
+    def __init__(self):
+        self.days = Day.query.all()
+        self.day_map = {}
+
+        for day in self.days:
+            self.day_map[day.name] = day._id
+            
+
+class MemberSchedule(db.Model, DictSerializable):
+    """
+    Defines a collection of hours for a per-project, per-user schedule.
+    """
+
+    __tablename__ = "member_schedule"
+
+    # composite primary key to enforce uniqueness
+    _id         = db.Column(db.Integer, primary_key=True)
+    luser_id    = db.Column(db.Integer, nullable=False)
+    project_id  = db.Column(db.Integer, nullable=False)
+    created     = db.Column(db.DateTime, default=func.now())
+
+    ranges      = db.relationship("MemberScheduleTimeRanges",
+                    order_by="MemberScheduleTimeRanges.day_id")
+
+    __table_args__ = ( db.UniqueConstraint("luser_id", "project_id"), )
+
+
+class MemberScheduleTimeRanges(db.Model, DictSerializable):
+    """
+    Defines the actual hours of the schedule.
+    """
+
+    __tablename__ = "member_schedule_time_ranges"
+
+    _id         = db.Column(db.Integer, primary_key=True)
+    schedule_id = db.Column(db.Integer, db.ForeignKey(MemberSchedule._id))
+    day_id      = db.Column(db.Integer, db.ForeignKey(Day._id))
+    start_time  = db.Column(db.Time, default=time(hour=9))
+    end_time    = db.Column(db.Time, default=time(hour=17))
+    created     = db.Column(db.DateTime, default=func.now())
+
+    day         = db.relationship("Day")
 
 
 class Milestone(db.Model, DictSerializable):
@@ -480,6 +534,30 @@ if __name__ == "__main__":
 
     if sys.argv[1] == "create":
         db.create_all()
+
+    if sys.argv[1] == "create_weekdays":
+        day = Day(name="Monday", abbrev="Mon")
+        db.session.add(day)
+
+        day = Day(name="Tuesday", abbrev="Tue")
+        db.session.add(day)
+
+        day = Day(name="Wednesday", abbrev="Wed")
+        db.session.add(day)
+
+        day = Day(name="Thursday", abbrev="Thu")
+        db.session.add(day)
+
+        day = Day(name="Friday", abbrev="Fri")
+        db.session.add(day)
+
+        day = Day(name="Saturday", abbrev="Sat")
+        db.session.add(day)
+
+        day = Day(name="Sunday", abbrev="Sun")
+        db.session.add(day)
+
+        db.session.commit()
 
     if sys.argv[1] == "create_activity_types":
         format = "%s created card %s"

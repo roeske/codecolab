@@ -24,6 +24,8 @@ from helpers import (make_gravatar_url, make_gravatar_profile_url,
 activity_logger = models.ActivityLogger()
 
 app = models.app
+app.debug = True
+
 PORT = 8080
 files = uploads.UploadSet("files", uploads.ALL, default_dest=lambda app:"./uploads")
 uploads.configure_uploads(app, (files,))
@@ -1124,6 +1126,93 @@ email and you will be added to the project automatically: %(base_url)ssignup.
         
     return flask.redirect("/project/%s/manage" % project.name)
 
+
+###############################################################################
+## Member Schedule
+###############################################################################
+
+@app.route("/project/<project_name>/schedule", methods=["GET","POST"])
+@check_project_privileges
+def member_schedule(luser=None, project=None, **kwargs):
+    """
+    Defines a schedule per-user per-project.
+    """
+    # we need this every time
+    day_collection = models.Days()
+    days = day_collection.days
+
+    # Check for the existence of a schedule. If it does not exist,
+    # create it.
+    schedule = (models.MemberSchedule.query
+                      .filter_by(luser_id=luser._id, project_id=project._id)
+                      .first())
+    if schedule is None:
+        schedule = create_default_schedule(luser, project, day_collection)
+   
+    if request.method == "POST":
+        # IF the user clicked the "Add Day" button, add a day to their
+        # schedule.
+        if "add_day" in request.form:
+            print "add day!"
+            range = models.MemberScheduleTimeRanges(schedule_id=schedule._id)
+            models.db.session.add(range)
+            models.db.session.commit()
+            models.db.session.flush()
+
+        # IF the user clicked the "Remove" button, remove that time 
+        # range from their schedule.
+        elif "remove" in request.form:
+            range_id = int(request.form["range_id"])
+            range = (models.MemberScheduleTimeRanges.query
+                            .filter_by(_id=range_id).first())
+            models.db.session.delete(range)
+            models.db.session.commit()
+
+        else: 
+        # Otherwise, we must be updating days or times,
+        # as it was the programmatic submit from change()
+            range_ids = request.form.getlist("range_id")
+            day_updates = request.form.getlist("day")
+            start_time_updates = request.form.getlist("start_time")
+            end_time_updates = request.form.getlist("end_time")
+            zipped = zip(range_ids, day_updates, start_time_updates, end_time_updates)
+
+            format = "%I:%M%p"
+            convert = lambda t: datetime.strptime(t, format).time()
+
+            for (_id, day, start_time, end_time) in zipped:
+                range = (models.MemberScheduleTimeRanges.query
+                                .filter_by(_id=int(_id)).first())
+
+                range.day_id = day
+                range.start_time = convert(start_time)
+                range.end_time = convert(end_time)
+        
+            models.db.session.commit()
+            models.db.session.flush() 
+
+    return cc_render_template("member_schedule.html", days=days, 
+                              luser=luser, project=project,
+                              schedule=schedule, **kwargs)
+
+
+def create_default_schedule(luser, project, day_collection):
+    " creates default 9-5 schedule"
+    days = day_collection.days
+    day_map = day_collection.day_map
+
+    schedule = models.MemberSchedule(project_id=project._id, luser_id=luser._id)
+    models.db.session.add(schedule)
+    models.db.session.flush()
+
+    for d in days:
+        range = models.MemberScheduleTimeRanges(schedule_id=schedule._id,   
+                                                day_id=day_map[d.name])
+        models.db.session.add(range)
+    
+    models.db.session.commit()
+    
+    return schedule
 
 ###############################################################################
 ## User Profile
