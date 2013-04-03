@@ -94,7 +94,9 @@ class Luser(db.Model, DictSerializable):
     reports = db.relationship("MemberReport",
                               order_by="MemberReport.created.desc()")
 
-    
+    schedules = db.relationship("MemberSchedule")
+
+
     @property
     def recent_activity(self):
         """ 
@@ -195,12 +197,13 @@ class MemberSchedule(db.Model, DictSerializable):
 
     # composite primary key to enforce uniqueness
     _id         = db.Column(db.Integer, primary_key=True)
-    luser_id    = db.Column(db.Integer, nullable=False)
-    project_id  = db.Column(db.Integer, nullable=False)
+    luser_id    = db.Column(db.Integer, db.ForeignKey(Luser._id), nullable=False)
+    project_id  = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False)
     created     = db.Column(db.DateTime, default=func.now())
 
     ranges      = db.relationship("MemberScheduleTimeRanges",
                     order_by="MemberScheduleTimeRanges.day_id")
+    project     = db.relationship("Project")
 
     __table_args__ = ( db.UniqueConstraint("luser_id", "project_id"), )
 
@@ -220,7 +223,6 @@ class MemberScheduleTimeRanges(db.Model, DictSerializable):
     created     = db.Column(db.DateTime, default=func.now())
 
     day         = db.relationship("Day")
-
 
 class MemberReport(db.Model, DictSerializable, FluxCapacitor):
     
