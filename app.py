@@ -564,34 +564,42 @@ def card_get_comments(project=None, project_name=None, card_id=None, **kwargs):
 
 @app.route("/project/<project_name>/cards/<int:card_id>/comment", methods=["POST"])
 @check_project_privileges
-def cards_comment(project_name=None, card_id=None, **kwargs):
+def cards_comment(project_name=None, luser=None, project=None, card_id=None,
+                  **kwargs):
     """
     Update the database when a user posts a comment.
     """
-    luser = kwargs["luser"]
 
     text = flask.request.form["text"].encode("UTF-8").strip()
 
-    comment = models.CardComment(card_id=card_id, luser_id=luser._id, text=text)
+    comment = models.CardComment(card_id=card_id, luser_id=luser._id, 
+                                 text=text)
     models.db.session.add(comment)
     models.db.session.commit()
     models.db.session.flush()
 
-    return card_get_comments(project_name=project_name, card_id=card_id, **kwargs)
+    activity_logger.log(luser._id, project._id, card_id, "card_comment")
+    
+    return card_get_comments(project_name=project_name, project=project, 
+                             luser=luser, card_id=card_id, **kwargs)
 
 
 @app.route("/project/<project_name>/comment/<int:comment_id>/delete",
   methods=["POST"])
 @check_project_privileges
-def delete_comment(project_name=None, comment_id=None, **kwargs):
+def delete_comment(project=None, luser=None, project_name=None,
+                   comment_id=None, **kwargs):
     """
     Delete a comment.
     """
 
     comment = models.CardComment.query.filter_by(_id=comment_id).first()
+    card_id = comment.card_id
     models.db.session.delete(comment)
     models.db.session.commit()
 
+    activity_logger.log(luser._id, project._id, card_id, "card_comment_delete")
+    
     return respond_with_json({ "status" : "success" })
 
 
@@ -662,31 +670,20 @@ def card_assign_to(project=None, card_id=None, **kwargs):
     return card_set_attributes(project=project, card_id=card_id, **kwargs)   
 
 
-@app.route("/project/<name>/cards/edit/<int:card_id>", methods=["POST"])
-def card_edit(name,card_id):
+@app.route("/project/<project_name>/cards/edit/<int:card_id>", methods=["POST"])
+@check_project_privileges
+def card_edit(project=None, luser=None, project_name=None,card_id=None,
+              **kwargs):
     """
     Allow editing of card properties from within the modal.
     """
-
-    # Obtain email from session, otherwise, error 403
-    email = get_email_or_403()
-
-    # Obtain the luser, or return not found.
-    luser = get_luser_or_404(email)
- 
-    # Do this to make sure the luser is a member of the project. 
-    project = get_project_or_404(name, luser._id)
-
-
-    form = flask.request.form
-
     # Here we enumerate properties that can possibly be edited. Only
     # one is sent at a time.
-    if "text" in form:
-        value = form["text"].strip()
+    if "text" in request.form:
+        value = request.form["text"].strip()
         params = dict(text=value)
-    elif "description" in form:
-        value = form["description"].strip()
+    elif "description" in request.form:
+        value = request.form["description"].strip()
         params = dict(description=value)
     else:
         flask.abort(400)
@@ -694,8 +691,9 @@ def card_edit(name,card_id):
     (models.Card.query.filter(and_(models.Card._id==card_id,
                                    models.Card.project_id==project._id))
                      .update(params))
-
     models.db.session.commit()
+
+    activity_logger.log(luser._id, project._id, card_id, "card_edit")
 
     return value
 

@@ -14,6 +14,8 @@ function cc_make_card_editable(project_name, elem, card_id) {
             console.log("settings=" + settings)
             console.log("value=" + value)
 
+            cc_activity_reload()
+
             // Must update the card in the list (not modal) when the modal
             // is changed so they do not come out of sync with each other.
             $("li[data-id=" + card_id + "].card_item").find("p span.text").text(value)
@@ -31,6 +33,7 @@ function cc_make_card_editable(project_name, elem, card_id) {
         type: "textarea",
         width: "400px",
         height: "100px",
+        callback: cc_activity_reload
     })
 
     cc_connect_raty_score($(elem).find(".editable.difficulty"),
@@ -377,6 +380,7 @@ function cc_connect_comment_form(project_name, modal, card_id) {
         success: function(response, status_code) {
             var list = modal.find("div.comments_container").replaceWith(response)
             modal.find("form textarea").val("")
+            cc_activity_reload()
         }
     })
 }
@@ -527,6 +531,8 @@ function cc_connect_complete_button(project_name, modal, card_id) {
                     var target = $(card_item_selector + " strike")
                     $(card_item_selector).html(target.html())
                 }
+
+                cc_activity_reload()
             },
 
             contentType: "application/json;charset=UTF-8"

@@ -620,6 +620,15 @@ if __name__ == "__main__":
         card_comment = ActivityType(type="card_comment", format=format)
         db.session.add(card_comment)
 
+        format = "%s deleted comment on card %s"
+        card_comment_delete = ActivityType(type="card_comment_delete",
+                                           format=format)
+        db.session.add(card_comment_delete)
+
+        format = "%s edited card %s"
+        card_edit = ActivityType(type="card_edit", format=format) 
+        db.session.add(card_edit)
+
         format = "%s changed card %s"
         card_change = ActivityType(type="card_change", format=format) 
         db.session.add(card_change)
