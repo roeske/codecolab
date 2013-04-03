@@ -1,0 +1,4 @@
+#!/bin/sh
+
+source venv/bin/activate
+python tasks/remind_user_to_report.py
