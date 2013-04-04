@@ -1,0 +1,38 @@
+{% include "head.html" %}
+<div class="content">
+  <h4>Invites</h4>
+  {% if invites|count > 0 %}
+    <table>
+    <tr>
+      <th>Email</th>
+      <th>Status</th>
+      <th>Invited By</th>
+    </tr>
+    {% for invite in invites %}
+      <tr>
+      <td>{{ invite.email }}</td>
+      <td>{{ invite.status }}</td>
+      <td><a href="/profiles/{{ invite.inviter._id }}/">{{ invite.inviter.profile[0].username }}</a></td>
+      </tr>
+    {% endfor %}
+    </table>
+  {% else %}
+    <p> You have not invited anyone to this project. </p>
+  {% endif %}
+
+  <div style="float: right">
+    <form class="add_member" action="/project/{{ project.name }}/add_member"method="POST">
+    <ul class="project_manage structural controls horizontal_left">
+      <li>
+      <input type="email" placeholder="email..." name="email" />
+      </li>
+      <li>
+      <input class="btn" type="submit" value="Add Via Email  " />
+      </li>
+    </ul>
+    </form>
+  </div>
+</div>
+{% include "common_js.html" %}
+{% include "flash.html" %}
+{% include "foot.html" %}

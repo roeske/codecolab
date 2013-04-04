@@ -143,6 +143,7 @@ def render_index(email, **kwargs):
     return render_project_selection(email, **kwargs)
 
 
+
 ## Log out
 ###############################################################################
 
@@ -537,6 +538,24 @@ def check_owner_privileges(func):
         return func(**kwargs)
     return wrap
 
+
+###############################################################################
+## Invites
+###############################################################################
+
+@app.route("/project/<project_name>/invites")
+@check_owner_privileges
+def invites(project=None, **kwargs):
+
+    # We also need to display project invites
+    invites = (models.ProjectInvite.query.filter_by(project_id=project._id)
+                     .all())
+
+    return cc_render_template("invites.html", invites=invites,
+                                              project=project,
+                                              **kwargs)
+
+
 ###############################################################################
 # Activity
 ###############################################################################
@@ -847,7 +866,7 @@ def card_toggle_is_completed(project=None, card_id=None, luser=None,
 ###############################################################################
 
 @app.route("/project/<project_name>/milestones/add", methods=["POST"])
-@check_owner_privileges
+@check_project_privileges
 def milestones_add(project=None, **kwargs):
     """
     Adds a new milestone. Confirms that user is an owner of this project,
@@ -861,7 +880,7 @@ def milestones_add(project=None, **kwargs):
     models.db.session.add(milestone)
     models.db.session.commit()
     
-    return redirect_to("project_manage", **kwargs)
+    return redirect_to("project_progress", **kwargs)
 
 
 @app.route("/project/<project_name>/milestone/<int:milestone_id>/accept",
@@ -1013,22 +1032,20 @@ def project(name):
         flask.abort(403)
 
 
-@app.route("/project/<project_name>/manage")
+@app.route("/project/<project_name>/progress")
 @check_owner_privileges
-def project_manage(project_name=None, project=project, **kwargs):
+def project_progress(project_name=None, luser=None,  project=None, **kwargs):
     """
     Renders the project management view. 
 
     This view should allow project owners to create milestones, and
     view progress.
     """
-  
-    # We also need to display project invites
-    invites = (models.ProjectInvite.query.filter_by(project_id=project._id)
-                     .all())
+    member = models.ProjectLuser.query.filter_by(luser_id=luser._id).first()
 
-    return cc_render_template("project_manage.html", project=project,
-                              invites=invites, **kwargs)
+    return cc_render_template("project_progress.html", luser=luser,
+                               is_owner=member.is_owner, project=project,
+                               invites=invites, **kwargs)
 
 
 
@@ -1122,7 +1139,7 @@ email and you will be added to the project automatically: %(base_url)ssignup.
         else:
             flask.flash("%s is already a member of this project." % email)
         
-    return flask.redirect("/project/%s/manage" % project.name)
+    return flask.redirect("/project/%s/invites" % project.name)
 
 
 ###############################################################################

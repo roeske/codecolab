@@ -1,0 +1,69 @@
+<div id="project_members_container">
+  <h4>Members</h4>
+  <ul class="structural horizontal_left project_members" id="project_members_list">
+    {% for member in project.lusers %}
+
+    <li class="member_item">
+      <ul class="structural">
+      <li>
+        <img style="height: 96px; width: 96px;" src="{{ member.gravatar_url }}" />
+      </li>
+      <div class="clear"></div>
+      <li class="member_username">
+        <a href="/profile/{{ member._id }}">
+            {{ member.profile[0].username }}
+            {% if member._id == luser._id %}
+              <small>(you)</small>
+            {% endif %}
+        </a>
+        <div class="clear"></div>
+      </li>
+
+      <!-- If this is the owner's item, don't let them un-admin
+        themselves! -->
+
+      {% if member._id == luser._id %}
+        <li>
+        {% if project.is_owner(member._id) %}
+          Admin<span class="icon">&#10003;</span>
+        {% else %}
+          Not an Admin.
+        {% endif %}
+        </li>
+      {% else %}
+        <li class="member_is_owner">
+
+        <form class="is_owner" action="/project/{{ project.name }}/luser/{{ member._id }}/is_owner" method="POST">
+            <label for="is_{{ member._id }}_owner" name="is_owner">&nbsp;Admin:&nbsp;
+              {% if project.is_owner(member._id) %}
+                <input id="is_{{ member._id }}_owner" type="checkbox" checked />
+              {% else %}
+                <input id="is_{{ member._id }}_owner" type="checkbox" />
+              {% endif %}
+            </label>
+          <div class="clear"></div>
+        </form>
+
+        </li> 
+      {% endif %}
+      </ul> 
+    </li> 
+    {% endfor %}
+  </ul>
+  <div class="clear"></div>
+</div>
+<script type="text/javascript">
+  // Find all the "Administrator?" checkbox forms.
+  var forms = $("form.is_owner")
+
+  // Make them ajax forms so they can submit without refreshing the page.
+  forms.ajaxForm()
+  console.log(forms)
+
+  // Register a callback on the checkbox click so that it can auto-submit
+  // the form to update the user's is_owner state in the database.
+  forms.find('input[type=checkbox]').click(function(event) {
+    $(this.form).ajaxSubmit()
+  })
+</script>
+<!-- end project_members_container -->

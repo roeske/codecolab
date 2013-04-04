@@ -22,7 +22,7 @@
            privileges for this project, and therefore can enter the
            management area. -->
         {% if pl[1].is_owner == True %}
-          <a class="btn" href="/project/{{ pl[0].urlencoded_name }}/manage">
+          <a class="btn" href="/project/{{ pl[0].urlencoded_name }}/progress">
           <div style="float: left;">&nbsp;Progress</div>
           <div class="icon">&#128318;</div>
           <div class="clear"></div>
@@ -40,6 +40,15 @@
          <div style="float; left">My Reports&nbsp;</div>
          <div class="icon">&#59190;</div>
         </a>
+
+        {% if pl[1].is_owner == True %}
+        <a href="/project/{{ pl[0].urlencoded_name }}/invites"
+         class="btn">
+         <div style="float; left">Invites&nbsp;</div>
+         <div class="icon">&#59136;</div>
+        </a>
+        {% endif %}
+
         <div class="clear"></div>
       </li>
     {% endfor %}
