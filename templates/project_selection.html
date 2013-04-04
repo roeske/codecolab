@@ -1,4 +1,5 @@
 {% include "head.html" %}
+{% include "common_js.html" %}
 <div class="content">
   <h4>Projects</h4>
 
@@ -12,12 +13,17 @@
           </a> 
         </h3>
 
+        {% set project = pl[0] %}
+
+        {% include "members.html" %}
+
+        <br />
         <!-- This value is set dynamically to denote that the user has
            privileges for this project, and therefore can enter the
            management area. -->
         {% if pl[1].is_owner == True %}
           <a class="btn" href="/project/{{ pl[0].urlencoded_name }}/manage">
-          <div style="float: left;">&nbsp;progress</div>
+          <div style="float: left;">&nbsp;Progress</div>
           <div class="icon">&#128318;</div>
           <div class="clear"></div>
           </a>

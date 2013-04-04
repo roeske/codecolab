@@ -18,8 +18,8 @@ form.add_member {
 }
 
 li.member_item {
-    height: 190px;
-    width: 140px;
+    height: 150px;
+    width: 108px;
     border: 1px solid #ccc;
     margin: 0;
     padding: 12px 0px 6px 12px;
@@ -30,20 +30,20 @@ ul.project_member { margin: 0; }
 
 ul.project_member li {
     width: 140px;
-    text-align: center;
 }
 
-ul.project_member li.member_username {
+ul li.member_username {
     color: #fff;
     font-weight: bold;
     font-size: 105%;
+    width: 108px;
+    text-align: center;
+    overflow: hidden;
 }
 
-ul.project_member li.member_is_owner label {
-    color: #fff;
-    display: inline;
+ul.project_member li label {
+    width: 108px;
+    text-align: center;
+    margin-left: 7px;
 }
 
-ul.project_member li.member_is_owner input {
-    margin: 0;
-}

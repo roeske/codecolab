@@ -113,7 +113,7 @@ class Luser(db.Model, DictSerializable):
     @property
     def gravatar_url(self):
         email_hash = md5(self.email.strip().lower()).hexdigest()
-        return "http://gravatar.com/avatar/%s?s=128" % email_hash
+        return "http://gravatar.com/avatar/%s?s=96" % email_hash
 
     
     @property
@@ -151,7 +151,9 @@ class Project(db.Model, DictSerializable):
     created     = db.Column(db.DateTime, default=func.now())
     
     milestones  = db.relationship("Milestone", order_by=lambda: Milestone.created)
-    lusers      = db.relationship("Luser", secondary=ProjectLuser.__table__)
+    lusers      = db.relationship("Luser", secondary=ProjectLuser.__table__,
+                                           order_by=lambda: Luser.created)
+
     cards       = db.relationship("Card", order_by=lambda: Card.number)
     piles       = db.relationship("Pile", order_by=lambda: Pile.number)    
     members     = db.relationship("ProjectLuser")
