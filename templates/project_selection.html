@@ -5,13 +5,36 @@
   <ul id="project" class="structural project_list">
     {% for pl in projects_and_lusers %}
       <li class="project_item" data-id="{{ pl[0]._id }}">
-        <a href="/project/{{ pl[0].urlencoded_name }}">{{ pl[0].name }}</a> 
+
+        <h3>
+          <a href="/project/{{ pl[0].urlencoded_name }}">
+            {{ pl[0].name }}
+          </a> 
+        </h3>
+
         <!-- This value is set dynamically to denote that the user has
            privileges for this project, and therefore can enter the
            management area. -->
         {% if pl[1].is_owner == True %}
-          <a href="/project/{{ pl[0].urlencoded_name }}/manage">&nbsp;[manage]</a> 
+          <a class="btn" href="/project/{{ pl[0].urlencoded_name }}/manage">
+          <div style="float: left;">&nbsp;progress</div>
+          <div class="icon">&#128318;</div>
+          <div class="clear"></div>
+          </a>
         {% endif %}
+
+        <a href="/project/{{ pl[0].urlencoded_name }}/schedule"
+         class="btn">
+         <div style="float; left">My Schedule&nbsp;</div>
+         <div class="icon">&#128197;</div>
+        </a>
+
+        <a href="/project/{{ pl[0].urlencoded_name }}/reports"
+         class="btn">
+         <div style="float; left">My Reports&nbsp;</div>
+         <div class="icon">&#59190;</div>
+        </a>
+        <div class="clear"></div>
       </li>
     {% endfor %}
   </ul>
