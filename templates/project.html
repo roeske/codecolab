@@ -5,8 +5,7 @@
     <h3><a href="#">
     <div class="icon">&#128196;</div>
     &nbsp;{{ project.name }}</a></h3>
-  </div>
-
+  </div> 
   <div class="buttons">
     <a href="/project/{{ project.urlencoded_name }}/archives"
      class="btn">
@@ -48,59 +47,13 @@
     <div class="clear"></div>
 
     <ul id="{{ pile.pile_uuid }}" data-id="{{ pile._id }}" class="card_list">
-
       {% for card in pile.cards %}
-      {% if not card.is_archived %}
-
-        <li id="{{ card.card_uuid }}" class="card_item ui-state-default"
-        data-pile-id="{{ card.pile_id }}" data-id="{{ card._id }}" 
-        data-number="{{ card.number }}" data-title="#{{ card._id }} | {{ card.title }}">
-         
-        <div>
-        <p style="float: left;" class="date"><b>#{{ card._id }}</b> | {{ card.created_as_timezone(luser.profile[0].timezone) }}</p> 
-        <a class="icon archive" style="float: right"
-           href="/project/{{ project.urlencoded_name }}/card/{{ card._id }}/archive">&#59392;</a>
-        </div>
-        <div class="clear"></div>
-
-        <!-- card text -->
-        <p>
-        <span class="card text" data-id="{{ card._id }}">
-         
-          {% if card.is_completed %}
-          <strike>{{ card.text }}</strike>
-          {% else %}
-          {{ card.text }}
-          {% endif %}
-        </span>
-        </p>
-        
-        <div>
-
-        <!-- hide score when not in use. -->
-        <div style="{% if card.score == 0 %} display: none; {% endif %}float: left;" class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div>
-
-
-        <div class="milestone" style="float: right; {% if card.milestone == None %} display: none; {% endif %}">
-          {% if card.milestone.is_approved %}
-          <strike>
-            {{ card.milestone.name }}
-          </strike>
-          {% else %}
-          {{ card.milestone.name }}
-          {% endif %}
-        </div>
-        </div>
-        <div class="clear"></div>
-      </li>
-      {% endif %}
+        {% include "minicard.html" %}
       {% endfor %}
-
     </ul>
 
-
     <div class="chrome pile_chrome_bottom bottom_corners">
-      <form action="/project/{{ project.name }}/cards/add" method="POST">
+      <form data-pile-id="{{ pile.pile_uuid }}" class="add_card" action="/project/{{ project.name }}/cards/add" method="POST">
       <input type="hidden" name="project_name" value="{{ project.name }}" />
       <input type="hidden" name="pile_id" value="{{ pile._id }}" />
 
@@ -131,6 +84,24 @@
 <!-- BEGIN: JS -->
 <script type="text/javascript" src="/js/project.js"></script>
 <script type="text/javascript">
+
+function handle_archive_click(event) {
+    event.preventDefault()
+
+    var that = this;
+    $.ajax({
+        type: "GET",
+        url: $(this).attr("href"),
+        
+        success: function(data) {
+            $(that).parent().parent().remove()
+            cc_activity_reload()
+        },
+
+        contentType: "application/json;charset=UTF-8"
+    })
+}
+
 // Run this code when the DOM is ready.
 $(function() {
   // Make to-do lists sortable by dragging and save changes in the database.
@@ -152,22 +123,32 @@ $(function() {
   // Handle clicks on 'archive' buttons 
   // -- update server
   // -- remove element from dom on success.
-  $("a.archive").click(function(event) {
-    event.preventDefault()
-    
+  $("a.archive").click(handle_archive_click)
 
-    var that = this;
-    $.ajax({
-      type: "GET",
-      url: $(this).attr("href"),
-      
-      success: function(data) {
-        $(that).parent().parent().remove()
-        cc_activity_reload()
-      },
 
-      contentType: "application/json;charset=UTF-8"
-    })
+  // append new cards to the top of the pile via ajax
+  $("form.add_card").each(function(i, elem) {
+      var pile_selector = "#" + $(elem).data("pile-id")
+      $(elem).ajaxForm({
+          success: function(text) {
+              $(pile_selector).prepend(text)
+              
+              var selector = $(pile_selector + " li.card_item")
+              var selector_func = function() { return selector }
+              var updates = cc_cards_reorder_update_dom(selector_func)
+
+              cc_reorder_post("cards", updates)
+
+              var selector = pile_selector + " li.card_item:first"
+              cc_connect_card(selector)
+             
+              
+              // connect the raty widget when adding a new card via ajax.
+              var elem = $($(selector).find(".difficulty"))
+              cc_connect_raty_score(elem, project_name, elem.data("card-id"))
+              $($(selector).find("a.archive")).click(handle_archive_click)
+          } 
+      })
   })
 })
 </script>

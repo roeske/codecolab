@@ -1,0 +1,43 @@
+{% if not card.is_archived %}
+<li id="{{ card.card_uuid }}" class="card_item ui-state-default"
+  data-pile-id="{{ card.pile_id }}" data-id="{{ card._id }}" 
+  data-number="{{ card.number }}" data-title="#{{ card._id }} | {{ card.title }}">
+   
+  <div>
+  <p style="float: left;" class="date"><b>#{{ card._id }}</b> | {{ card.created_as_timezone(luser.profile[0].timezone) }}</p> 
+  <a class="icon archive" style="float: right"
+     href="/project/{{ project.urlencoded_name }}/card/{{ card._id }}/archive">&#59392;</a>
+  </div>
+  <div class="clear"></div>
+
+  <!-- card text -->
+  <p>
+  <span class="card text" data-id="{{ card._id }}">
+   
+    {% if card.is_completed %}
+    <strike>{{ card.text }}</strike>
+    {% else %}
+    {{ card.text }}
+    {% endif %}
+  </span>
+  </p>
+  
+  <div>
+  <!-- hide score when not in use. -->
+    <div style="{% if card.score == 0 %} display: none; {% endif %}float: left;" class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}">
+  </div>
+
+
+  <div class="milestone" style="float: right; {% if card.milestone == None %} display: none; {% endif %}">
+    {% if card.milestone.is_approved %}
+    <strike>
+      {{ card.milestone.name }}
+    </strike>
+    {% else %}
+    {{ card.milestone.name }}
+    {% endif %}
+  </div>
+  </div>
+  <div class="clear"></div>
+</li>
+{% endif %}

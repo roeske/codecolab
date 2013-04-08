@@ -443,7 +443,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
         db.session.flush()
         db.session.commit()
         
-        return card._id
+        return card
 
 
 

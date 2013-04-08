@@ -807,30 +807,20 @@ def archives(**kwargs):
     return cc_render_template("archived_cards.html", **kwargs)
 
 
-# Piles
-##############################################################################
-
-@app.route("/piles/reorder", methods=["POST"])
-def piles_reorder():
-    """
-    Must be called after piles are moved to update order.
-    """
-    for update in flask.request.json["updates"]:
-        _id = int(update["_id"])
-        number = int(update["number"])
-        models.Pile.query.filter_by(_id=_id).update(dict(number=number))
-    
-    models.db.session.commit()
-    return respond_with_json({"status" : "success" })
+@app.route("/project/<project_name>/minicards/<int:card_id>")
+@check_project_privileges
+def minicards_get(card_id=None, **kwargs):
+    card = models.Card.query.filter_by(_id=card_id).first() 
+    return flask.render_template("minicard.html", card=card, **kwargs)
 
 
 @app.route("/project/<project_name>/cards/add", methods=["POST"])
 @check_project_privileges
 def cards_add(project=None, luser=None, **kwargs):
-    card_id = models.Card.create(project, request.form["pile_id"], request.form["text"])
-    activity_logger.log(luser._id, project._id, card_id, "card_created")
-    return redirect_to("project", name=project.name)
-
+    card = models.Card.create(project, request.form["pile_id"], request.form["text"])
+    activity_logger.log(luser._id, project._id, card._id, "card_created")
+    return flask.render_template("minicard.html", card=card, luser=luser,
+                                 project=project, **kwargs)
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/complete",
@@ -861,7 +851,25 @@ def card_toggle_is_completed(project=None, card_id=None, luser=None,
 
     return respond_with_json(dict(state=card.is_completed))
 
+##############################################################################
+# Piles
+##############################################################################
 
+@app.route("/piles/reorder", methods=["POST"])
+def piles_reorder():
+    """
+    Must be called after piles are moved to update order.
+    """
+    for update in flask.request.json["updates"]:
+        _id = int(update["_id"])
+        number = int(update["number"])
+        models.Pile.query.filter_by(_id=_id).update(dict(number=number))
+    
+    models.db.session.commit()
+    return respond_with_json({"status" : "success" })
+
+
+###############################################################################
 ## Milestones
 ###############################################################################
 

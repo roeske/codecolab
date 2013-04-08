@@ -1,6 +1,6 @@
 /** Project View */
 
-function cc_make_card_editable(project_name, elem, card_id) {
+function cc_connect_editables(project_name, elem, card_id) {
     var id = card_id
 
     $(elem).find(".editable.text").editable("/project/" + project_name + "/cards/edit/" + id, {
@@ -36,8 +36,7 @@ function cc_make_card_editable(project_name, elem, card_id) {
         callback: cc_activity_reload
     })
 
-    cc_connect_raty_score($(elem).find(".editable.difficulty"),
-        project_name, card_id)
+    cc_connect_raty_score($(elem).find(".editable.difficulty"), project_name, card_id)
 }
 
 
@@ -81,6 +80,7 @@ function cc_connect_raty_score(elem, project_name, card_id) {
                     console.log(JSON.stringify(data))
                     // Update any other copies of this we have.
                     var selector  = ".difficulty[data-card-id="+card_id+"]"
+                    console.log("sel="+selector)
                     var other = $(selector)
                     other.data("score", score)
                     other.raty("score", score)
@@ -94,8 +94,6 @@ function cc_connect_raty_score(elem, project_name, card_id) {
 
                 contentType: "application/json;charset=UTF-8"
             })
-
-            
         }
     })
 }
@@ -352,6 +350,12 @@ function cc_connect_card_to_modal(title, project_name, elem, is_archived) {
 }
 
 
+function cc_connect_card(elem) {
+    var title = $(elem).data("title")
+    $(elem).attr("data-project-name", project_name)
+    cc_connect_card_to_modal(title, project_name, elem)
+}
+
 /**
  * Sets up all state of the project page.
  */
@@ -366,9 +370,7 @@ function cc_project_init(project_name, pile_ids) {
     }
 
     $("li.card_item").each(function(i, elem) {
-        var title = $(elem).data("title")
-        $(elem).attr("data-project-name", project_name)
-        cc_connect_card_to_modal(title, project_name, elem)
+        cc_connect_card(elem)
     })
 
     var pile_selector = "ul#pile_list"
@@ -476,7 +478,7 @@ function cc_connect_spinner(clazz, mommy, card_id) {
                     // Locate the label within that target.
                     var target_label = target.find("." + clazz)
 
-                    if (element_id < 0) {
+                    if (label == "None" || element_id < 0) {
                         // Clear text.
                         target_label.text("")
                         target_label.hide()
