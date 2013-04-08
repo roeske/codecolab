@@ -33,7 +33,7 @@ class FluxCapacitor(object):
     
     def created_as_timezone(self, timezone_desc):
         d = Delorean(datetime=self.created, timezone=timezone_desc)
-        return d.datetime.strftime("%A, %b. %d, %Y at %I:%M %p")
+        return d.datetime.strftime("%b. %d, %Y at %I:%M %p")
 
 
 class ProjectLuser(db.Model, DictSerializable):
@@ -428,7 +428,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
 
     @property
     def created_human(self):
-        return self.created.strftime("%A, %b. %d, %Y at %I:%M %p")
+        return self.created.strftime("%d, %Y at %I:%M %p")
 
 
     @staticmethod
@@ -468,7 +468,7 @@ class CardComment(db.Model, DictSerializable, FluxCapacitor):
 
     @property
     def created_human(self):
-        return self.created.strftime("%A, %b. %d, %Y at %I:%M %p")
+        return self.created.strftime("%d, %Y at %I:%M %p")
 
 
 # TODO: refactor, use mixin for 'created'

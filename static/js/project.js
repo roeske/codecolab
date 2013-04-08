@@ -84,6 +84,12 @@ function cc_connect_raty_score(elem, project_name, card_id) {
                     var other = $(selector)
                     other.data("score", score)
                     other.raty("score", score)
+
+                    // show the rating
+                    other.show()
+
+                    // also show milestone
+                    other.closest("div.milestone").show()
                 },
 
                 contentType: "application/json;charset=UTF-8"
@@ -473,9 +479,11 @@ function cc_connect_spinner(clazz, mommy, card_id) {
                     if (element_id < 0) {
                         // Clear text.
                         target_label.text("")
+                        target_label.hide()
                     } else {
                         // Set text.
                         target_label.text(label)
+                        target_label.show()
                     }
                 }
             },

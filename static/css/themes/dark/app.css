@@ -284,7 +284,7 @@ li.card_item div.milestone {
 }
 
 li.empty_card, li.card_item {
-  min-height: 6em;
+  min-height: 72px;
   margin-bottom: 5px;
 }
 
@@ -355,7 +355,7 @@ div.pile_chrome_bottom {
     }
 
     .pile_container ul.card_list {
-        min-height: 6.1em;
+        min-height: 80px;
         max-height: 70.5%;
         overflow-x: hidden;
         overfloy-y: scroll;

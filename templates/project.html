@@ -77,9 +77,11 @@
         
         <div>
 
-        <div style="float: left;" class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div>
+        <!-- hide score when not in use. -->
+        <div style="{% if card.score == 0 %} display: none; {% endif %}float: left;" class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div>
 
-        <div class="milestone" style="float: right">
+
+        <div class="milestone" style="float: right; {% if card.milestone == None %} display: none; {% endif %}">
           {% if card.milestone.is_approved %}
           <strike>
             {{ card.milestone.name }}
