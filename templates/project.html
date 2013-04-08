@@ -54,10 +54,10 @@
 
         <li id="{{ card.card_uuid }}" class="card_item ui-state-default"
         data-pile-id="{{ card.pile_id }}" data-id="{{ card._id }}" 
-        data-number="{{ card.number }}" data-title="{{ card.title }}">
+        data-number="{{ card.number }}" data-title="#{{ card._id }} | {{ card.title }}">
          
         <div>
-        <p style="float: left;" class="date">{{ card.created_as_timezone(luser.profile[0].timezone) }}</p> 
+        <p style="float: left;" class="date"><b>#{{ card._id }}</b> | {{ card.created_as_timezone(luser.profile[0].timezone) }}</p> 
         <a class="icon archive" style="float: right"
            href="/project/{{ project.urlencoded_name }}/card/{{ card._id }}/archive">&#59392;</a>
         </div>
