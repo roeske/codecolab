@@ -35,7 +35,13 @@
 <br />
 <!-- Editable description field -->
 <div class="clear"></div>
-<pre class="editable description">{{ card.description }}</pre>
+
+<div id="epiceditor_{{ card._id }}" style="border: 1px solid #ccc; height: 155px;"></div>
+<div>
+  <a style="float: right; margin-top: 7px;" class="save btn" href="#">Edit</a>
+  <div class="clear"></div>
+</div>
+
 <br />
 
 <div>
@@ -141,18 +147,15 @@
 
 </div>
 
+<script type="text/javascript" src="/js/epic/js/epiceditor.js" />
+
 <!-- Run code to make above editables work -->
 <script type="text/javascript">
 $(document).ready(function() {
     var project_name = "{{ project_name }}"
     var card_id = "{{ card._id }}"
     var modal_selector = "#modal_" + "{{ card._id }}"
-
     var modal = $(modal_selector)
-
-    console.log("project_name="+project_name)
-    console.log("card_id="+card_id)
-    console.log("modal_selector="+modal_selector)
 
     cc_connect_editables(project_name, modal, card_id)
     cc_connect_comment_form(project_name, modal, card_id)
@@ -160,5 +163,65 @@ $(document).ready(function() {
     cc_connect_milestone_spinner(modal, card_id)
     cc_connect_assign_to_spinner(modal, card_id)
     cc_connect_complete_button(project_name, modal, card_id)
+
+    // connect epiceditor. setTimeout is a workaround for a strange
+    // race condition caused by jqueryui modal.
+    setTimeout(function() {
+      
+      var opts = { 
+          basePath: "/js/epic/",
+          container: "epiceditor_" + card_id,
+          file: { autoSave: false },
+          theme: { editor: "/themes/editor/epic-light.css" }
+      }
+
+      var editor = new EpicEditor(opts)
+      
+      editor.load()
+
+      editor.preview()
+      
+      var lastText = null;
+
+      editor.on("save", function(data) {
+          $("a.save").text("Edit")
+
+          // don't use the network if no changes have been made.
+          if (text != lastText) {
+          
+              var url = "/project/" + project_name + "/cards/" + card_id + "/description"
+              $.ajax({ 
+                        url: url, 
+                        type: "POST",
+                        data: JSON.stringify(data),
+                        contentType: "application/json; charset=utf-8", 
+                        dataType: "json",
+                        success: function(data) {
+                           console.log(data) 
+                        }
+                    })
+
+              lastText = text;
+          }
+
+          // Whenever we save, make sure to hide the save button,
+          // as it is only relevant during an edit
+      })
+
+      editor.on("edit", function() {
+          // When editing, the save button needs to be shown.
+          $("a.save").text("Save")
+      })
+  
+      $("a.save").click(function() {
+          if ($(this).text() == "Edit") {
+              editor.edit()
+          } else {
+              editor.save()
+              editor.preview()
+          }
+      })
+
+   }, 500)
 })
 </script>

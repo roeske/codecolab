@@ -9,6 +9,8 @@ import simplejson as json
 
 from flask import request
 from flaskext import uploads
+from flaskext.markdown import Markdown
+
 from functools import wraps
 from sqlalchemy import and_
 from md5 import md5
@@ -24,6 +26,8 @@ from helpers import (make_gravatar_url, make_gravatar_profile_url,
 activity_logger = models.ActivityLogger()
 
 app = models.app
+Markdown(app)
+
 app.debug = True
 
 PORT = 8080
@@ -743,6 +747,16 @@ def cards_get(project_name=None, card_id=None, project=None, **kwargs):
                                      project_name=project_name, **kwargs)
 
 
+@app.route("/project/<project_name>/cards/<int:card_id>/description", methods=["POST"])
+@check_project_privileges
+def cards_description(project=None, card_id=None, **kwargs):
+    description = request.json["content"]
+    print description
+    card = models.Card.query.filter_by(_id=card_id).first()
+    card.description = description
+    models.db.session.commit()
+    return respond_with_json({ "status" : "success",
+                               "description" : description })
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/score", methods=["POST"])
