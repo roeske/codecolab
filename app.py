@@ -1507,6 +1507,20 @@ def signup():
         return flask.render_template("sign-up.html") 
 
 
+def send_welcome_email(luser):
+    text = """Welcome %(username)s,
+
+Thanks for signing up for CodeColab! Please tell us how you like it.
+
+Sincerely,
+The CodeColab Team
+""" % { "username" : luser.profile[0].username }
+
+    mailer = Mailer(**MAILER_PARAMS)
+    mailer.send(from_addr=MAIL_FROM, to_addr=luser.email,
+                    subject="Welcome to CodeColab!", text=text)
+
+
 def perform_signup(email, password, confirm):
     """
     Handles a signup request. 
@@ -1550,7 +1564,11 @@ def perform_signup(email, password, confirm):
     models.db.session.add(luser)
     models.db.session.flush()
 
+    # Create all dependent data (this includes the user's sample project)
     create_luser_data(luser)
+
+    # Welcome the user via email:
+    send_welcome_email(luser)
 
     # If signup was successful, just log the user in.
     return perform_login(email, password)
@@ -1609,10 +1627,8 @@ def create_luser_data(luser, first_name="Unknown", last_name="Unknown"):
 
     # Must also create a profile for that user. Default the username
     # to the name part of the email.
-    profile = models.LuserProfile(luser_id=luser._id,
-                                  first_name=first_name,
-                                  last_name=last_name,
-                                  username=email.split("@")[0])
+    profile = models.LuserProfile(luser_id=luser._id, first_name=first_name,
+                                  last_name=last_name, username=email.split("@")[0])
 
     models.db.session.add(profile)
 
