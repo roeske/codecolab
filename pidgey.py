@@ -67,7 +67,11 @@ class Mailer(object):
 
         msg["Subject"] = subject
         msg["From"] = from_addr
-        msg["To"] = to_addr
+
+        if not isinstance(to_addr, basestring):
+            msg["To"] = ", ".join(to_addr)
+        else:
+            msg["To"] = to_addr
 
         return msg
 
@@ -86,6 +90,7 @@ class Mailer(object):
 
         elif self.password is not None:
             raise ValueError("Password specified, but no username!")
+
 
 
         self.smtp.sendmail(from_addr, [to_addr], msg.as_string())

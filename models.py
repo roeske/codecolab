@@ -44,7 +44,14 @@ class ProjectLuser(db.Model, DictSerializable):
     __table__ = db.Table("project_lusers", db.Model.metadata,
         db.Column("project_id", db.Integer,  db.ForeignKey("project._id"), primary_key=True),
         db.Column("luser_id", db.Integer, db.ForeignKey("luser._id"), primary_key=True),
-        db.Column("is_owner", db.Boolean, default=False))
+        db.Column("is_owner", db.Boolean, default=False),
+        # Setting to true means you're interested in all updates about the
+        # project. Keeping it simple for MVP. For now, this will mainly be used
+        # for receiving "update" emails from developers.
+        db.Column("is_interested", db.Boolean, default=False))
+
+    luser   = db.relationship("Luser")
+    project = db.relationship("Project")
 
 
 class ProjectInvite(db.Model, DictSerializable, FluxCapacitor):
@@ -153,6 +160,8 @@ class Project(db.Model, DictSerializable):
     milestones  = db.relationship("Milestone", order_by=lambda: Milestone.created)
     lusers      = db.relationship("Luser", secondary=ProjectLuser.__table__,
                                            order_by=lambda: Luser.created)
+
+    plusers     = db.relationship("ProjectLuser")
 
     cards       = db.relationship("Card", order_by=lambda: Card.number)
     piles       = db.relationship("Pile", order_by=lambda: Pile.number)    

@@ -1247,12 +1247,23 @@ def create_default_schedule(luser, project, day_collection):
 def member_reports(luser=None, project=None, **kwargs):
     
     if request.method == "POST":
-        report = models.MemberReport(text=request.form["text"],
-                                     subject=request.form["subject"],
-                                     luser_id=luser._id,
-                                     project_id=project._id)
+        text = request.form["text"]
+        subject = request.form["subject"]
+
+        report = models.MemberReport(text=text, subject=subject,
+                                     luser_id=luser._id, project_id=project._id)
         models.db.session.add(report)
         models.db.session.commit()
+
+        # also, send a copy of the report via email to any interested parties
+        recipients = []
+        for pluser in project.plusers:
+            if pluser.is_interested:
+                recipients.append(pluser.luser.email)
+        
+        mailer = Mailer(**MAILER_PARAMS)
+        mailer.send(from_addr=MAIL_FROM, to_addr=recipients,
+                    subject=subject, text=text)
     
     return cc_render_template("reports.html", luser=luser, project=project,
                                               **kwargs)
@@ -1583,8 +1594,9 @@ def create_sample_project_for_luser(luser):
     models.db.session.add(sample)
     models.db.session.flush()
 
+    # default the creator of a project into updates as well as admin
     assoc = models.ProjectLuser(luser_id=luser._id, project_id=sample._id,
-                                is_owner=True)
+                                is_owner=True, is_interested=True)
 
     models.db.session.add(assoc)
     models.db.session.flush()
