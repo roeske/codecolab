@@ -222,6 +222,10 @@ $(document).ready(function() {
           }
       })
 
+      // workaround, for some reason loading the editor causes a scroll down when
+      // the card is too big for its y dimension
+      $(modal_selector).scrollTop(0)
+
    }, 500)
 })
 </script>

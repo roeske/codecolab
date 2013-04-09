@@ -325,7 +325,7 @@ function cc_connect_card_to_modal(title, project_name, elem, is_archived) {
         title: title,
         autoOpen: false,
         width: 488,
-        height: 650
+        height: 700, 
     }
 
 
