@@ -408,3 +408,8 @@ div.pile_chrome_bottom {
 }*/
 
 .handle { background-color: #ccc; height: 35px;}
+
+/** reports **/ 
+.report_summary ul {
+    margin-left: 1em;
+}
