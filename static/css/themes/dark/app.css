@@ -6,7 +6,7 @@ textarea, input, .btn { color: #fff; text-shadow: none; }
 h1,h2,h3,h4,h5,h6 { line-height: auto; font-weight: 100; }
 * { text-shadow: none; }
 
-small { font-family: "Roboto"; }
+small { font-family: "Open Sans"; }
 
 /* so 'editable' buttons don't display on the same line. */
 textarea { display: block; }
@@ -30,7 +30,7 @@ div.clear { clear: both; }
 
 /* jquery ui tweaks ***********************************************************/
 .ui-dialog { padding: 0; }
-.ui-dialog-title { font-family: "Roboto"; }
+.ui-dialog-title { font-family: "Open Sans"; }
 .ui-widget-header {
   border-top-left-radius: 3px;
   border-bottom-left-radius: 0px;
