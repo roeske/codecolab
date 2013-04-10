@@ -1532,7 +1532,7 @@ def signup():
 def send_welcome_email(luser):
     text = render_email("welcome.txt", luser=luser, meta=meta)
     html = render_email("welcome.html", luser=luser, meta=meta)
-    subject = render_email("welcome.sub.text", luser=luser, meta=meta)
+    subject = render_email("welcome.sub.txt", luser=luser, meta=meta)
     mailer = Mailer(**MAILER_PARAMS)
     mailer.send(from_addr=MAIL_FROM, to_addr=luser.email,
                     subject=subject, text=text)
