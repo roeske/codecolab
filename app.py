@@ -1129,9 +1129,9 @@ def project_add_member(project=None, luser=None, **kwargs):
                         " email." % email)
         
         try:
-            html = render_email("welcome.html", base_url=BASE_URL, meta=meta)
-            text = render_email("welcome.txt", base_url=BASE_URL, meta=meta)
-            subject = render_email("welcome.sub.txt", project=project, meta=meta)
+            html = render_email("project_invite.html", base_url=BASE_URL, project=project, meta=meta)
+            text = render_email("project_invite.txt", base_url=BASE_URL, project=project, meta=meta)
+            subject = render_email("project_invite.sub.txt", project=project, meta=meta)
             mailer = Mailer(**MAILER_PARAMS)
             mailer.send(from_addr=MAIL_FROM, to_addr=email, subject=subject,
                         text=text, html=html)
@@ -1530,7 +1530,6 @@ def signup():
 
 
 def send_welcome_email(luser):
-
     text = render_email("welcome.txt", luser=luser, meta=meta)
     html = render_email("welcome.html", luser=luser, meta=meta)
     subject = render_email("welcome.sub.text", luser=luser, meta=meta)

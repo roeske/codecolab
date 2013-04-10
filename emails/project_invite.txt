@@ -1,0 +1,6 @@
+Hey!
+
+You've been invited to join {{ project.name }} on {{ meta.app_name }}!
+
+See you soon,
+The CodeColab Team

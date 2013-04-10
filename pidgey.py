@@ -91,7 +91,9 @@ class Mailer(object):
         elif self.password is not None:
             raise ValueError("Password specified, but no username!")
 
-        
+       
+        print to_addr
+
         if isinstance(to_addr, basestring):
             self.smtp.sendmail(from_addr, [to_addr], msg.as_string())
         else:
