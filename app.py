@@ -37,7 +37,6 @@ PORT = 8080
 files = uploads.UploadSet("files", uploads.ALL, default_dest=lambda app:"./uploads")
 uploads.configure_uploads(app, (files,))
 
-mailer = Mailer(**MAILER_PARAMS)
 
 # TODO: clean this up.
 def is_logged_in():
@@ -1133,6 +1132,7 @@ def project_add_member(project=None, luser=None, **kwargs):
             html = render_email("welcome.html", base_url=BASE_URL, meta=meta)
             text = render_email("welcome.txt", base_url=BASE_URL, meta=meta)
             subject = render_email("welcome.sub.txt", project=project, meta=meta)
+            mailer = Mailer(**MAILER_PARAMS)
             mailer.send(from_addr=MAIL_FROM, to_addr=email, subject=subject,
                         text=text, html=html)
         except:
@@ -1276,6 +1276,7 @@ def member_reports(luser=None, project=None, **kwargs):
 
         html = render_email("report.html", report=report, meta=meta)
         text = render_email("report.txt", report=report, meta=meta)
+        mailer = Mailer(**MAILER_PARAMS)
         mailer.send(from_addr=MAIL_FROM, to_addr=recipients, subject=subject,
                     html=html, text=text)
     
@@ -1432,6 +1433,7 @@ def forgot_password():
 
         text = render_email("forgot_password.txt", link=link, meta=meta)
         html = render_email("forgot_password.html", link=link, meta=meta)
+        mailer = Mailer(**MAILER_PARAMS)
         mailer.send(from_addr=MAIL_FROM, to_addr=email,
                     subject="CodeColab password recovery.", text=text)
 
@@ -1532,6 +1534,7 @@ def send_welcome_email(luser):
     text = render_email("welcome.txt", luser=luser, meta=meta)
     html = render_email("welcome.html", luser=luser, meta=meta)
     subject = render_email("welcome.sub.text", luser=luser, meta=meta)
+    mailer = Mailer(**MAILER_PARAMS)
     mailer.send(from_addr=MAIL_FROM, to_addr=luser.email,
                     subject=subject, text=text)
 
