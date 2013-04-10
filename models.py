@@ -250,6 +250,9 @@ class MemberReport(db.Model, DictSerializable, FluxCapacitor):
     created             = db.Column(db.DateTime, default=func.now(), nullable=False)
     is_user_submitted   = db.Column(db.Boolean, default=False)
 
+    luser               = db.relationship("Luser")
+    project             = db.relationship("Project")
+
 
     def describe_with_time(self, tz):
         timestamp = self.created_as_timezone(tz)

@@ -21,11 +21,14 @@ from oauth2client.client import flow_from_clientsecrets
 
 from helpers import (make_gravatar_url, make_gravatar_profile_url,
                      redirect_to, redirect_to_index, respond_with_json,
-                     jsonize, get_luser_for_email)
+                     jsonize, get_luser_for_email, render_email)
 
 activity_logger = models.ActivityLogger()
 
 app = models.app
+
+meta = dict(app_name="CodeColab")
+
 Markdown(app)
 
 app.debug = True
@@ -34,6 +37,7 @@ PORT = 8080
 files = uploads.UploadSet("files", uploads.ALL, default_dest=lambda app:"./uploads")
 uploads.configure_uploads(app, (files,))
 
+mailer = Mailer(**MAILER_PARAMS)
 
 # TODO: clean this up.
 def is_logged_in():
@@ -1118,8 +1122,6 @@ def project_add_member(project=None, luser=None, **kwargs):
             # doesn't get stuck at the beta wall.
             beta = models.BetaSignup(email=email, is_activated=True)
             models.db.session.add(beta)
-            
-
             models.db.session.commit()
             
             flask.flash("Invited %s to the project." % email)
@@ -1128,15 +1130,11 @@ def project_add_member(project=None, luser=None, **kwargs):
                         " email." % email)
         
         try:
-            text = """
-You've been invited to join a project on CodeColab!  Please sign up using this
-email and you will be added to the project automatically: %(base_url)ssignup.
-    """.replace("\n", " ") % { "base_url" : BASE_URL }
-
-            mailer = Mailer(**MAILER_PARAMS)
-            mailer.send(from_addr=MAIL_FROM, to_addr=email,
-                        subject="You've been invited to %s on CodeColab" % project.name,
-                        text=text)
+            html = render_email("welcome.html", base_url=BASE_URL, meta=meta)
+            text = render_email("welcome.txt", base_url=BASE_URL, meta=meta)
+            subject = render_email("welcome.sub.txt", project=project, meta=meta)
+            mailer.send(from_addr=MAIL_FROM, to_addr=email, subject=subject,
+                        text=text, html=html)
         except:
             flask.flash("Failed to send email. Is %s added to amazon SES?" % email)
 
@@ -1274,13 +1272,15 @@ def member_reports(luser=None, project=None, **kwargs):
         for pluser in project.plusers:
             if pluser.is_interested:
                 recipients.append(pluser.luser.email)
-        
-        mailer = Mailer(**MAILER_PARAMS)
-        mailer.send(from_addr=MAIL_FROM, to_addr=recipients,
-                    subject=subject, text=text)
+       
+
+        html = render_email("report.html", report=report, meta=meta)
+        text = render_email("report.txt", report=report, meta=meta)
+        mailer.send(from_addr=MAIL_FROM, to_addr=recipients, subject=subject,
+                    html=html, text=text)
     
     return cc_render_template("reports.html", luser=luser, project=project,
-                                              **kwargs)
+                              **kwargs)
 
 
 @app.route("/project/<project_name>/reports/<int:report_id>")
@@ -1430,13 +1430,8 @@ def forgot_password():
  
         link = BASE_URL + "reset/%s" % request.uuid
 
-        text = """
-To reset your CodeColab password, please click this link:
-%s. If you received this email in error, it is safe
-to ignore it.
-""".replace("\n", " ") % link
-
-        mailer = Mailer(**MAILER_PARAMS)
+        text = render_email("forgot_password.txt", link=link, meta=meta)
+        html = render_email("forgot_password.html", link=link, meta=meta)
         mailer.send(from_addr=MAIL_FROM, to_addr=email,
                     subject="CodeColab password recovery.", text=text)
 
@@ -1533,17 +1528,12 @@ def signup():
 
 
 def send_welcome_email(luser):
-    text = """Welcome %(username)s,
 
-Thanks for signing up for CodeColab! Please tell us how you like it.
-
-Sincerely,
-The CodeColab Team
-""" % { "username" : luser.profile[0].username }
-
-    mailer = Mailer(**MAILER_PARAMS)
+    text = render_email("welcome.txt", luser=luser, meta=meta)
+    html = render_email("welcome.html", luser=luser, meta=meta)
+    subject = render_email("welcome.sub.text", luser=luser, meta=meta)
     mailer.send(from_addr=MAIL_FROM, to_addr=luser.email,
-                    subject="Welcome to CodeColab!", text=text)
+                    subject=subject, text=text)
 
 
 def perform_signup(email, password, confirm):

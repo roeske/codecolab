@@ -1,0 +1,10 @@
+Welcome {{ luser.profile[0].username }},
+
+Thanks for signing up for {{ meta.app_name }}! Please tell us how you like it.
+
+Sincerely,
+The CodeColab Team
+""" % { "username" : luser.profile[0].username }
+
+    mailer = Mailer(**MAILER_PARAMS)
+email and you will be added to the project automatically: {{ base_url }}
