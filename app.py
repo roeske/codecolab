@@ -13,10 +13,7 @@ from flaskext.markdown import Markdown
 
 from functools import wraps
 from sqlalchemy import and_
-from md5 import md5
-from pidgey import Mailer
-from config import MAILER_PARAMS, MAIL_FROM, BASE_URL 
-from datetime import datetime
+from md5 import md5 from pidgey import Mailer from config import MAILER_PARAMS, MAIL_FROM, BASE_URL from datetime import datetime
 from oauth2client.client import flow_from_clientsecrets
 
 from helpers import (make_gravatar_url, make_gravatar_profile_url,
@@ -151,6 +148,7 @@ def render_index(email, **kwargs):
 
 
 
+###############################################################################
 ## Log out
 ###############################################################################
 
@@ -161,6 +159,7 @@ def logout():
     return redirect_to_index()
 
 
+###############################################################################
 ## Log In
 ###############################################################################
 
@@ -236,6 +235,7 @@ def signup_via_google(userinfo):
     return luser
 
 
+###############################################################################
 # Delete
 ###############################################################################
 
@@ -336,6 +336,7 @@ def perform_delete_card(email, card_id, project_name, args):
         return redirect_to(page, name=project_name)
 
 
+###############################################################################
 # Add Project
 ###############################################################################
 
@@ -464,14 +465,14 @@ def add_to_project(callback):
         print "[EE] Insufficient parameters."
         flask.abort(400)
 
-#-----------------------------------------------------------------------------
+##############################################################################
 # Privilege Decorators 
 #
 # These functions are reusable security measures that can 'decorate'
 # any view function in order to prevent unauthorized users from 
 # obtaining access to them.
-#
 ##############################################################################
+
 
 def do_check_project_privileges(**kwargs):
     # Obtain email from session, otherwise, error 403
@@ -718,16 +719,14 @@ def card_edit(project=None, luser=None, project_name=None,card_id=None,
                                    models.Card.project_id==project._id))
                      .update(params))
     models.db.session.commit()
-
     activity_logger.log(luser._id, project._id, card_id, "card_edit")
-
     return value
 
 
 def query_card(card_id, project_id):
     return (models.Card.query.filter(and_(models.Card._id==card_id,
-                                   models.Card.project_id==project_id))
-                             .first())
+                   models.Card.project_id==project_id))
+                   .first())
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>", methods=["GET"])
@@ -978,8 +977,8 @@ def pile_edit(name,pile_id):
     print "pile_id = %d" % pile_id
 
     (models.Pile.query.filter(and_(models.Pile._id==pile_id,
-                                   models.Pile.project_id==project._id))
-                     .update(params))
+                 models.Pile.project_id==project._id))
+                .update(params))
 
     models.db.session.commit()
 
@@ -998,9 +997,9 @@ def get_project(project_name, luser_id):
     query = models.Project.query
 
     return  (query.filter(and_(models.Project.name==str(project_name),
-                             models.ProjectLuser.luser_id==luser_id,
-                             models.ProjectLuser.project_id==models.Project._id))
-                  .first())
+                 models.ProjectLuser.luser_id==luser_id,
+                 models.ProjectLuser.project_id==models.Project._id))
+                 .first())
 
 
 def cc_render_template(filename, email=None, **kwargs):
