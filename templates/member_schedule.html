@@ -1,12 +1,12 @@
 {% include "head.html" %}
 <div class="content">
-    <h3>Edit Schedule
+    <h3>Edit Office Hours 
       <span style="line-height: 1em; font-size: 70%;">for @{{ luser.profile[0].username }} on project "{{ project_name
       }}"</span>
     </h3>
     <div class="clear"></div>
 
-    <form style="width: 36em;" action="/project/{{ project_name }}/schedule" method="POST">
+    <form style="width: 36em;" action="/project/{{ project_name }}/office_hours" method="POST">
       <table>
         <tr>
           <th>Day</th>

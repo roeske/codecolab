@@ -13,7 +13,10 @@ from flaskext.markdown import Markdown
 
 from functools import wraps
 from sqlalchemy import and_
-from md5 import md5 from pidgey import Mailer from config import MAILER_PARAMS, MAIL_FROM, BASE_URL from datetime import datetime
+from md5 import md5 
+from pidgey import Mailer 
+from config import MAILER_PARAMS, MAIL_FROM, BASE_URL 
+from datetime import datetime
 from oauth2client.client import flow_from_clientsecrets
 
 from helpers import (make_gravatar_url, make_gravatar_profile_url,
@@ -1162,10 +1165,10 @@ def project_add_member(project=None, luser=None, **kwargs):
 
 
 ###############################################################################
-## Member Schedule
+## Member Office Hours 
 ###############################################################################
 
-@app.route("/project/<project_name>/schedule", methods=["GET","POST"])
+@app.route("/project/<project_name>/office_hours", methods=["GET","POST"])
 @check_project_privileges
 def member_schedule(luser=None, project=None, **kwargs):
     """
