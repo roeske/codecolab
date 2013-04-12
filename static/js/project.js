@@ -87,7 +87,7 @@ function cc_connect_raty_score(elem, project_name, card_id, is_cancellable) {
                 success: function(data) {
                     console.log(JSON.stringify(data))
                     // Update any other copies of this we have.
-                    var selector  = ".difficulty[data-card-id="+card_id+"]"
+                    var selector  = ".minicard.difficulty[data-card-id="+card_id+"]"
                     console.log("sel="+selector)
 
                      
