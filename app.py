@@ -770,7 +770,11 @@ def card_score(project_name=None, card_id=None, project=None, **kwargs):
     
     card = query_card(card_id, project._id)
     
-    score = int(flask.request.json["score"])
+    score = flask.request.json["score"]
+
+    if score is not None: 
+        score = int(score)
+
     print "score = %r" % score
     card.score = score
     

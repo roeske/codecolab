@@ -54,6 +54,13 @@ function cc_connect_raty_score(elem, project_name, card_id) {
             return score
         },
 
+        click: function(score, evt) {
+            console.log("score="+score)
+        },
+
+        cancel: true,
+        cancelHint: "Reset this score.",
+
         // Specify correct paths to images.
         starHalf:   "/js/raty/img/star-half.png",
         starOn:     "/js/raty/img/star-on.png",
@@ -69,6 +76,7 @@ function cc_connect_raty_score(elem, project_name, card_id) {
 
         // Allow the user to update the score on the backend by clicking.
         click: function(score, ev) {
+            
             $.ajax({
                 type: "POST",
 
@@ -81,12 +89,17 @@ function cc_connect_raty_score(elem, project_name, card_id) {
                     // Update any other copies of this we have.
                     var selector  = ".difficulty[data-card-id="+card_id+"]"
                     console.log("sel="+selector)
+
+                     
                     var other = $(selector)
                     other.data("score", score)
                     other.raty("score", score)
-
-                    // show the rating
-                    other.show()
+                                
+                    if (score == null) {
+                        other.hide()
+                    } else {
+                        other.show()
+                    }
 
                     // also show milestone
                     other.closest("div.milestone").show()

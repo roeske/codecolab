@@ -24,7 +24,7 @@
   
   <div>
   <!-- hide score when not in use. -->
-    <div style="{% if card.score == 0 %} display: none; {% endif %}float: left;" class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}">
+    <div style="{% if card.score == 0 or card.score is none %} display: none; {% endif %}float: left;" class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}">
   </div>
 
 
