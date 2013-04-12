@@ -475,7 +475,7 @@
                 '</div>'
     
     // The previewer is just an empty box for the generated HTML to go into
-    , previewer: '<div id="epiceditor-preview"></div>'
+    , previewer: '<div style="height: 141px;" id="epiceditor-preview"></div>'
     };
 
     // Write an iframe and then select it for the editor
@@ -668,7 +668,7 @@
       self.element.style.height = self._eeState.reflowHeight ? self._eeState.reflowHeight : '';
 
       utilBtns.style.visibility = 'visible';
-
+        
       if (!nativeFs) {
         document.body.style.overflow = 'auto';
       }
@@ -705,6 +705,7 @@
     
     fsElement = self.iframeElement;
 
+
     // Sets up the onclick event on utility buttons
     utilBtns.addEventListener('click', function (e) {
       var targetClass = e.target.className;
@@ -717,6 +718,12 @@
       else if (targetClass.indexOf('epiceditor-fullscreen-btn') > -1) {
         self._goFullscreen(fsElement);
       }
+    });
+
+
+    // when clicking the preview div, enter edit mode.
+    self.previewer.addEventListener('click', function (e) { 
+        self.edit();
     });
 
     // Sets up the NATIVE fullscreen editor/previewer for WebKit

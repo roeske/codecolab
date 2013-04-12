@@ -37,8 +37,8 @@
 <div class="clear"></div>
 
 <div id="epiceditor_{{ card._id }}" style="border: 1px solid #ccc; height: 159px;"></div>
-<div>
-  <a style="float: right; margin-top: 7px;" class="save btn" href="#">Edit</a>
+<div class="editor_hint">
+  <a style="float: right;" class="save" href="#">Click to edit</a>
   <div class="clear"></div>
 </div>
 
@@ -164,8 +164,6 @@ $(document).ready(function() {
     cc_connect_assign_to_spinner(modal, card_id)
     cc_connect_complete_button(project_name, modal, card_id)
 
-    // connect epiceditor. setTimeout is a workaround for a strange
-    // race condition caused by jqueryui modal.
     setTimeout(function() {
       
       var opts = { 
@@ -176,15 +174,13 @@ $(document).ready(function() {
       }
 
       var editor = new EpicEditor(opts)
-      
       editor.load()
-
       editor.preview()
       
       var lastText = null;
 
       editor.on("save", function(data) {
-          $("a.save").text("Edit")
+          $("a.save").text("Click to edit")
 
           // don't use the network if no changes have been made.
           if (text != lastText) {
@@ -212,9 +208,10 @@ $(document).ready(function() {
           // When editing, the save button needs to be shown.
           $("a.save").text("Save")
       })
-  
+
+
       $("a.save").click(function() {
-          if ($(this).text() == "Edit") {
+          if ($(this).text() == "Click to edit") {
               editor.edit()
           } else {
               editor.save()
