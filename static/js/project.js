@@ -36,7 +36,7 @@ function cc_connect_editables(project_name, elem, card_id) {
         callback: cc_activity_reload
     })
 
-    cc_connect_raty_score($(elem).find(".editable.difficulty"), project_name, card_id)
+    cc_connect_raty_score($(elem).find(".editable.difficulty"), project_name, card_id, true)
 }
 
 
@@ -45,7 +45,7 @@ function cc_connect_editables(project_name, elem, card_id) {
  * appropriate score from data-score attribute. Configures JSON 
  * postback against /project/<name>/cards/<id>/score POST API.
  */
-function cc_connect_raty_score(elem, project_name, card_id) {
+function cc_connect_raty_score(elem, project_name, card_id, is_cancellable) {
     // Setup difficulty rating widget.
     elem.raty({
         // Load correct score when document is loaded.
@@ -58,7 +58,7 @@ function cc_connect_raty_score(elem, project_name, card_id) {
             console.log("score="+score)
         },
 
-        cancel: true,
+        cancel: is_cancellable,
         cancelHint: "Reset this score.",
 
         // Specify correct paths to images.
