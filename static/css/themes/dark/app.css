@@ -413,3 +413,10 @@ div.pile_chrome_bottom {
 .report_summary ul {
     margin-left: 1em;
 }
+
+
+/** reset jquery-ui fonts */
+.ui-widget, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
+    font-family: "Open Sans", sans-serif;
+}
+
