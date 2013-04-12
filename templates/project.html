@@ -126,7 +126,7 @@ $(function() {
   $("a.archive").click(handle_archive_click)
 
 
-  // append new cards to the top of the pile via ajax
+  // append new cards to the bottom of the pile via ajax
   $("form.add_card").each(function(i, elem) {
       var pile_selector = "#" + $(elem).data("pile-id")
       $(elem).ajaxForm({
@@ -139,13 +139,13 @@ $(function() {
 
               cc_reorder_post("cards", updates)
 
-              var selector = pile_selector + " li.card_item:first"
+              var selector = pile_selector + " li.card_item:last"
               cc_connect_card(selector)
-             
               
               // connect the raty widget when adding a new card via ajax.
               var elem = $($(selector).find(".difficulty"))
               cc_connect_raty_score(elem, project_name, elem.data("card-id"))
+
               $($(selector).find("a.archive")).click(handle_archive_click)
           } 
       })
