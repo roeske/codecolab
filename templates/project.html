@@ -131,7 +131,7 @@ $(function() {
       var pile_selector = "#" + $(elem).data("pile-id")
       $(elem).ajaxForm({
           success: function(text) {
-              $(pile_selector).prepend(text)
+              $(pile_selector).append(text)
               
               var selector = $(pile_selector + " li.card_item")
               var selector_func = function() { return selector }
