@@ -1,0 +1,20 @@
+#menu {
+    width: 15%;
+    float: left;
+    margin-right: 1em;
+}
+
+#menu ul li {
+    padding: 7px 0px;
+}
+
+
+#right {
+    width: 80%;
+    float: left;
+}
+
+#frame {
+    height: 600px;
+}
+

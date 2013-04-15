@@ -1,58 +1,72 @@
 {% include "head.html" %}
 {% include "common_js.html" %}
 <div class="content">
-  <h4>Projects</h4>
 
-  <ul id="project" class="structural project_list">
-    {% for pl in projects_and_lusers %}
-      <li class="project_item" data-id="{{ pl[0]._id }}">
+  <div id="frame">
+    <div id="menu">
+      <h4>Projects</h4>
+      <ul>
+        {% for pl in projects_and_lusers %}
+          <li><a href="#" class="menu" data-id="{{ pl[0]._id }}">{{ pl[0].name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
 
-        <h3>
-          <a href="/project/{{ pl[0].urlencoded_name }}">
-            {{ pl[0].name }}
-          </a> 
-        </h3>
+    <div id="right">
+      <ul id="project" class="structural project_list">
+        {% for pl in projects_and_lusers %}
+          <li class="project_item" id="{{ pl[0]._id }}">
 
-        {% set project = pl[0] %}
+            <h3>
+              <a href="/project/{{ pl[0].urlencoded_name }}">
+                {{ pl[0].name }}
+              </a> 
+            </h3>
 
-        {% include "members.html" %}
+            {% set project = pl[0] %}
 
-        <br />
-        <!-- This value is set dynamically to denote that the user has
-           privileges for this project, and therefore can enter the
-           management area. -->
-        {% if pl[1].is_owner == True %}
-          <a class="btn" href="/project/{{ pl[0].urlencoded_name }}/progress">
-          <div style="float: left;">&nbsp;Progress</div>
-          <div class="icon">&#128318;</div>
-          <div class="clear"></div>
-          </a>
-        {% endif %}
+            {% include "members.html" %}
 
-        <a href="/project/{{ pl[0].urlencoded_name }}/office_hours"
-         class="btn">
-         <div style="float; left">My Office Hours&nbsp;</div>
-         <div class="icon">&#128197;</div>
-        </a>
+            <br />
+            <!-- This value is set dynamically to denote that the user has
+               privileges for this project, and therefore can enter the
+               management area. -->
+            {% if pl[1].is_owner == True %}
+              <a class="btn" href="/project/{{ pl[0].urlencoded_name }}/progress">
+              <div style="float: left;">&nbsp;Progress</div>
+              <div class="icon">&#128318;</div>
+              <div class="clear"></div>
+              </a>
+            {% endif %}
 
-        <a href="/project/{{ pl[0].urlencoded_name }}/reports"
-         class="btn">
-         <div style="float; left">My Reports&nbsp;</div>
-         <div class="icon">&#59190;</div>
-        </a>
+            <a href="/project/{{ pl[0].urlencoded_name }}/office_hours"
+             class="btn">
+             <div style="float; left">My Office Hours&nbsp;</div>
+             <div class="icon">&#128197;</div>
+            </a>
 
-        {% if pl[1].is_owner == True %}
-        <a href="/project/{{ pl[0].urlencoded_name }}/invites"
-         class="btn">
-         <div style="float; left">Invites&nbsp;</div>
-         <div class="icon">&#59136;</div>
-        </a>
-        {% endif %}
+            <a href="/project/{{ pl[0].urlencoded_name }}/reports"
+             class="btn">
+             <div style="float; left">My Reports&nbsp;</div>
+             <div class="icon">&#59190;</div>
+            </a>
 
-        <div class="clear"></div>
-      </li>
-    {% endfor %}
-  </ul>
+            {% if pl[1].is_owner == True %}
+            <a href="/project/{{ pl[0].urlencoded_name }}/invites"
+             class="btn">
+             <div style="float; left">Invites&nbsp;</div>
+             <div class="icon">&#59136;</div>
+            </a>
+            {% endif %}
+
+            <div class="clear"></div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <!-- end 'frame' -->
+  <div class="clear"></div>
 
   <div>
     <form action="/project/add" method="POST">
@@ -68,4 +82,17 @@
     </form>
   </div>
 </div> <!-- /container -->
+<script type="text/javascript">
+$(document).ready(function() {
+  $("li.project_item").hide()
+  var current = $("li.project_item:first").show()
+  $("a.menu").click(function(ev) {
+      var selector = "#" + $(this).data("id")      
+      $(current).hide()
+      $(selector).slideDown()
+      current = selector
+      return false
+  })
+})
+</script>
 {% include "foot.html" %}
