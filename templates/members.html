@@ -11,7 +11,7 @@
       <div class="clear"></div>
       <li class="member_username">
         <a href="/profile/{{ member._id }}">
-            {{ member.profile[0].username }}
+            {{ member.profile.username }}
             {% if member._id == luser._id %}
               <small>(you)</small>
             {% endif %}

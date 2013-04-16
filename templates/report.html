@@ -1,5 +1,5 @@
 <h4>{{ report.subject }}</h4>
-<small>On {{ report.created_as_timezone(luser.profile[0].timezone) }}</small>
+<small>On {{ report.created_as_timezone(luser.profile.timezone) }}</small>
 <div class="report_summary" style="padding: .5em; margin-top: 1em; border: 1px solid #ccc; background-color: #f5f2f1;">
 {{ report.text|markdown}}
 </div>

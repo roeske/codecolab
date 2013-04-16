@@ -4,7 +4,7 @@
   data-number="{{ card.number }}" data-title="#{{ card._id }} | {{ card.title }}">
    
   <div>
-  <p style="float: left;" class="date"><b>#{{ card._id }}</b> | {{ card.created_as_timezone(luser.profile[0].timezone) }}</p> 
+  <p style="float: left;" class="date"><b>#{{ card._id }}</b> | {{ card.created_as_timezone(luser.profile.timezone) }}</p> 
   <a class="icon archive" style="float: right"
      href="/project/{{ project.urlencoded_name }}/card/{{ card._id }}/archive">&#59392;</a>
   </div>

@@ -8,7 +8,7 @@
       <ul>
         {% for report in luser.reports %}
           <li style="padding: 7px 0px 7px;">
-          <a class="report" href="/project/{{ project_name }}/reports/{{ report._id }}" href="#">{{ report.describe_with_time(luser.profile[0].timezone) }}</a></li>
+          <a class="report" href="/project/{{ project_name }}/reports/{{ report._id }}" href="#">{{ report.describe_with_time(luser.profile.timezone) }}</a></li>
         {% endfor %}
       </ul>
     </div>
@@ -24,7 +24,7 @@
 
 Here's my activity courtesy of CodeColab:
 {% if luser.recent_activity|length > 0 %}
-{% for item in luser.recent_activity -%}* {{ item.describe_with_time("", luser.profile[0].timezone) }} {{ "\n" }} {%- endfor %} 
+{% for item in luser.recent_activity -%}* {{ item.describe_with_time("", luser.profile.timezone) }} {{ "\n" }} {%- endfor %} 
 {% else %}
 No recent activity was logged.
 {% endif %}

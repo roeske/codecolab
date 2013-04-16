@@ -12,7 +12,7 @@
       <tr>
       <td>{{ invite.email }}</td>
       <td>{{ invite.status }}</td>
-      <td><a href="/profiles/{{ invite.inviter._id }}/">{{ invite.inviter.profile[0].username }}</a></td>
+      <td><a href="/profiles/{{ invite.inviter._id }}/">{{ invite.inviter.profile.username }}</a></td>
       </tr>
     {% endfor %}
     </table>

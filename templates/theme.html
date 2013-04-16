@@ -2,7 +2,7 @@
 <link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"
 type="text/css">
 
-{% if luser.profile[0].theme == "dark" %}
+{% if luser.profile.theme == "dark" %}
     {% include "themes/dark.html" %}
 {% else %}
     {% include "themes/light.html" %}

@@ -96,7 +96,7 @@ class Luser(db.Model, DictSerializable):
     created = db.Column(db.DateTime, default=func.now())
 
     projects = db.relationship("Project", secondary=ProjectLuser.__table__)
-    profile = db.relationship("LuserProfile")
+    profile = db.relationship("LuserProfile", uselist=False)
     activity = db.relationship("Activity")
     reports = db.relationship("MemberReport",
                               order_by="MemberReport.created.desc()")

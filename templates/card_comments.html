@@ -8,8 +8,8 @@
             <p style="float: left; width: 395px;" class="text">{{ comment.text }}</p>
             <div class="clear"></div>
           </div>
-          <p class="email"><a href="/profile/{{ comment.luser._id }}">@{{ comment.luser.profile[0].username }}</a></p>
-          <p class="timestamp">{{ comment.created_as_timezone(luser.profile[0].timezone) }}</p>
+          <p class="email"><a href="/profile/{{ comment.luser._id }}">@{{ comment.luser.profile.username }}</a></p>
+          <p class="timestamp">{{ comment.created_as_timezone(luser.profile.timezone) }}</p>
           <div class="clear"></div>
      </li>
      {% endfor %}
