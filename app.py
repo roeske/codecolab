@@ -1187,6 +1187,7 @@ def member_schedule(luser=None, project=None, **kwargs):
     schedule = (models.MemberSchedule.query
                       .filter_by(luser_id=luser._id, project_id=project._id)
                       .first())
+
     if schedule is None:
         schedule = create_default_schedule(luser, project, day_collection)
    
@@ -1232,9 +1233,28 @@ def member_schedule(luser=None, project=None, **kwargs):
             models.db.session.commit()
             models.db.session.flush() 
 
-    return cc_render_template("member_schedule.html", days=days, 
-                              luser=luser, project=project,
-                              schedule=schedule, **kwargs)
+
+    # Sort members circularly by timezone offset, starting with the
+    # luser who is requesting the page, then ordering the closest 
+    # to him first, in the positive direction.
+
+    # First, sort by timezone.
+    key = lambda k : k.luser.profile.tz_utc_offset_seconds
+    project.members.sort(key=key)
+   
+    # Next, find the user who is requesting this:
+    i = 0
+    for other in project.members:
+        if luser._id == other.luser._id:
+            break
+        i += 1
+
+    # Now, reorder circularly from that index:
+    sorted_members = project.members[i:] + project.members[:i]
+
+    return cc_render_template("member_schedule.html", days=days, luser=luser,
+                              project=project, schedule=schedule, 
+                              sorted_members=sorted_members, **kwargs)
 
 
 def create_default_schedule(luser, project, day_collection):

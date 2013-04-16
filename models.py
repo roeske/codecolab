@@ -1,12 +1,15 @@
 from context import app
 from sqlalchemy import func
 from flask.ext.sqlalchemy import SQLAlchemy
+
 from datetime import datetime, timedelta, time
+from pytz import timezone 
+from delorean import Delorean
+
 from urllib2 import quote
 from md5 import md5
 from uuid import uuid4
 
-from delorean import Delorean
 
 db = SQLAlchemy(app)
 
@@ -52,6 +55,12 @@ class ProjectLuser(db.Model, DictSerializable):
 
     luser   = db.relationship("Luser")
     project = db.relationship("Project")
+
+    schedule = db.relationship("MemberSchedule", 
+primaryjoin="""and_(ProjectLuser.luser_id==MemberSchedule.luser_id,
+                  ProjectLuser.project_id==MemberSchedule.project_id)""",
+foreign_keys=[__table__.columns.luser_id, __table__.columns.project_id])
+
 
 
 class ProjectInvite(db.Model, DictSerializable, FluxCapacitor):
@@ -124,6 +133,12 @@ class Luser(db.Model, DictSerializable):
 
     
     @property
+    def small_gravatar_url(self):
+        email_hash = md5(self.email.strip().lower()).hexdigest()
+        return "http://gravatar.com/avatar/%s?s=64" % email_hash
+   
+
+    @property
     def gravatar_profile_url(self):
         email_hash = md5(self.email.strip().lower()).hexdigest()
         return "http://gravatar.com/%s" % email_hash
@@ -145,6 +160,30 @@ class LuserProfile(db.Model, DictSerializable):
     theme       = db.Column(db.String, default="light")
     luser       = db.relationship("Luser")
    
+
+    @property
+    def tz_utc_offset_seconds(self):
+        """
+        The distance of the user's timezone from UTC
+        in seconds.
+        """
+        return (datetime.now(timezone(self.timezone))
+                        .utcoffset().total_seconds())
+   
+
+    @property
+    def tz_utc_offset_hours(self):
+        return self.tz_utc_offset_seconds / 3600
+
+
+    @property 
+    def tz_utc_offset_human(self):
+        if self.tz_utc_offset_hours == 0:
+            return "UTC"
+        elif self.tz_utc_offset_hours > 0:
+            return "UTC +%d" % self.tz_utc_offset_hours
+        else:
+            return "UTC %d" % self.tz_utc_offset_hours
 
 class Project(db.Model, DictSerializable):
     """

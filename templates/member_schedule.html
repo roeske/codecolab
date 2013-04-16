@@ -3,20 +3,110 @@
   <h3>Office Hours: {{ project_name }}</h3>
   <div class="clear"></div>
 
-  {% for luser in project.lusers %}
-    {{ luser.profile.username }}
-  {% endfor %}
 
   <table>
 
+    {% for member in sorted_members %}
+      {% set luser = member.luser %}
+      <tr>
+        <td>
+          <div class="luser_hours">
+            <div class="left">
+              <img class="avatar" src="{{ luser.small_gravatar_url }}" />
+              <div class="username">{{ luser.profile.username }}</div>
+            </div>
+            <div class="right">
+              <div>{{ luser.profile.tz_utc_offset_human }}</div>
+              <div class="time" data-tz="{{ luser.profile.tz_utc_offset_seconds }}"></div>
+              <div class="date" data-tz="{{ luser.profile.tz_utc_offset_seconds }}"></div>
+            </div>
+            <div class="clear"></div>
+          </div>
+        </td>
+        {% for range in member.schedule.ranges %}
+          <td>
+            {{ range }} 
+          </td>
+        {% endfor %}
+      </tr> {% endfor %}
   </table>
 </div>
 
 {% include "common_js.html" %}
 
 <script type="text/javascript">
-$(function() {
+var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+              "Sep", "Oct", "Nov", "Dec"]
 
+
+function convert(now, offset) {
+    var msecs = now.getTime()    
+    return new Date(msecs + offset * 1000)
+}
+
+function pad(n) {
+    if (n < 10) 
+        return "0" + n
+    else
+        return "" + n
+}
+
+
+// returns naive 24 hour time as string
+function current_time(now, offset) {
+    var converted = convert(now, offset)
+    var hour = pad(converted.getHours())
+    var minute = pad(converted.getMinutes())
+    var seconds = pad(converted.getSeconds())
+
+    return hour + ":" + minute + ":" + seconds
+}
+
+
+// returns naive date as string
+function current_date(now, offset) {
+    var converted = convert(now, offset)
+ 
+    // build formatted date string:
+    var month = MONTHS[converted.getMonth()]
+    var day_of_month = converted.getDate()
+    var year = converted.getFullYear()
+
+    var date_format = month + " " + day_of_month + ", " + year
+    return date_format    
+}
+
+function utcnow() {
+    var now = new Date()
+    return new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+}
+
+
+function update_timestamps() {
+    var now = utcnow()
+
+    $(".date").each(function(i, elem) {
+        var offset = Number($(elem).data("tz"))
+        $(elem).text(current_date(now, offset))
+    })
+
+    $(".time").each(function(i, elem) {
+        var offset = Number($(elem).data("tz"))
+        $(elem).text(current_time(now, offset))
+    })
+}
+
+
+function keep_timestamps_updated() {
+    update_timestamps()
+    setTimeout(keep_timestamps_updated, 1000)
+}
+
+
+$(function() {
+    update_timestamps()
+    keep_timestamps_updated()
 })
+
 </script>
 {% include "foot.html" %}
