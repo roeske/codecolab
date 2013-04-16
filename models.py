@@ -173,7 +173,7 @@ class LuserProfile(db.Model, DictSerializable):
 
     @property
     def tz_utc_offset_hours(self):
-        return self.tz_utc_offset_seconds / 3600
+        return int(self.tz_utc_offset_seconds / 3600)
 
 
     @property 

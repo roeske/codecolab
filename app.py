@@ -1196,8 +1196,8 @@ def member_schedule(luser=None, project=None, **kwargs):
         # schedule.
         if "add_day" in request.form:
             print "add day!"
-            range = models.MemberScheduleTimeRanges(schedule_id=schedule._id)
-            models.db.session.add(range)
+            time_range = models.MemberScheduleTimeRanges(schedule_id=schedule._id)
+            models.db.session.add(time_range)
             models.db.session.commit()
             models.db.session.flush()
 
@@ -1205,9 +1205,9 @@ def member_schedule(luser=None, project=None, **kwargs):
         # range from their schedule.
         elif "remove" in request.form:
             range_id = int(request.form["range_id"])
-            range = (models.MemberScheduleTimeRanges.query
+            time_range = (models.MemberScheduleTimeRanges.query
                             .filter_by(_id=range_id).first())
-            models.db.session.delete(range)
+            models.db.session.delete(time_range)
             models.db.session.commit()
 
         else: 
@@ -1223,12 +1223,12 @@ def member_schedule(luser=None, project=None, **kwargs):
             convert = lambda t: datetime.strptime(t, format).time()
 
             for (_id, day, start_time, end_time) in zipped:
-                range = (models.MemberScheduleTimeRanges.query
+                time_range = (models.MemberScheduleTimeRanges.query
                                 .filter_by(_id=int(_id)).first())
 
-                range.day_id = day
-                range.start_time = convert(start_time)
-                range.end_time = convert(end_time)
+                time_range.day_id = day
+                time_range.start_time = convert(start_time)
+                time_range.end_time = convert(end_time)
         
             models.db.session.commit()
             models.db.session.flush() 
@@ -1251,10 +1251,28 @@ def member_schedule(luser=None, project=None, **kwargs):
 
     # Now, reorder circularly from that index:
     sorted_members = project.members[i:] + project.members[:i]
+    
+    # Calculate relative hours for each member, relative to the
+    # viewers hours 
+    member_hours = {} 
+    hours = range(24)
+    for m in sorted_members:
+        # don't convert our own
+        if m.luser_id == luser._id:
+            member_hours[luser._id] = hours
+            continue
+
+        hours_offset = m.luser.profile.tz_utc_offset_hours
+        relative_offset = luser.profile.tz_utc_offset_hours - hours_offset
+        print "%r" % relative_offset
+        relative_hours = hours[relative_offset:] + hours[:relative_offset]
+        member_hours[m.luser_id] = relative_hours
 
     return cc_render_template("member_schedule.html", days=days, luser=luser,
                               project=project, schedule=schedule, 
-                              sorted_members=sorted_members, **kwargs)
+                              sorted_members=sorted_members,
+                              hours=hours, member_hours=member_hours,
+                              **kwargs)
 
 
 def create_default_schedule(luser, project, day_collection):

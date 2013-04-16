@@ -3,33 +3,42 @@
   <h3>Office Hours: {{ project_name }}</h3>
   <div class="clear"></div>
 
-
-  <table>
-
+  <div class="days">
+    {% for day in days %}
+      <div class="day">{{ day.name }}</div>
+    {% endfor %}
+  </div>
+  <div class="clear"></div>
+  <div class="timefriend">
     {% for member in sorted_members %}
       {% set luser = member.luser %}
-      <tr>
-        <td>
-          <div class="luser_hours">
-            <div class="left">
-              <img class="avatar" src="{{ luser.small_gravatar_url }}" />
-              <div class="username">{{ luser.profile.username }}</div>
-            </div>
-            <div class="right">
-              <div>{{ luser.profile.tz_utc_offset_human }}</div>
-              <div class="time" data-tz="{{ luser.profile.tz_utc_offset_seconds }}"></div>
-              <div class="date" data-tz="{{ luser.profile.tz_utc_offset_seconds }}"></div>
-            </div>
-            <div class="clear"></div>
+      <div>
+        <div class="luser_time">
+          <div class="left">
+            <img class="avatar" src="{{ luser.small_gravatar_url }}" />
           </div>
-        </td>
-        {% for range in member.schedule.ranges %}
-          <td>
-            {{ range }} 
-          </td>
-        {% endfor %}
-      </tr> {% endfor %}
-  </table>
+          <div class="left">
+            <div class="username">{{ luser.profile.username }}</div>
+            <div>{{ luser.profile.tz_utc_offset_human }}</div>
+            <div class="time" data-tz="{{ luser.profile.tz_utc_offset_seconds }}"></div>
+            <div class="date" data-tz="{{ luser.profile.tz_utc_offset_seconds }}"></div>
+          </div>
+          <div class="clear"></div>
+        </div>
+        <div class="hours">
+          {% for hour in member_hours[member.luser_id] %}
+            <div data-luser-id="{{ member.luser_id }}" data-hour="{{ hour }}" class="hour">
+              <div class="inner">
+                <div data-hour="{{ hour }}" class="hour_of_day">{{ hour }}</div> 
+                <div data-hour="{{ hour }}" class="am_pm"></div>
+              </div>
+            </div>
+          {% endfor %}
+          <div class="clear"></div>
+        </div>
+        <div class="clear"></div>
+      </div> {% endfor %}
+  </div>
 </div>
 
 {% include "common_js.html" %}
@@ -103,9 +112,51 @@ function keep_timestamps_updated() {
 }
 
 
+function setup_12_hour_times()
+{
+  $(".hour_of_day").each(function(i, elem) {
+      var hour = $(elem).data("hour")
+
+      if (hour > 12) {
+          hour = hour - 12
+      } else if (hour == 0) {
+          hour = 12
+      }
+
+      $(elem).text(hour)
+  })
+
+  $(".am_pm").each(function(i, elem) {
+      var hour = $(elem).data("hour")
+
+      if (hour < 12) {
+          $(elem).text("am") 
+      } else {
+          $(elem).text("pm")
+      }
+  })
+}
+
 $(function() {
+    setup_12_hour_times()
     update_timestamps()
     keep_timestamps_updated()
+    
+    var luser_id = {{ luser._id }}
+    $(".hour").click(function(ev) {
+        var hour_luser_id = $(this).data("luser-id")
+
+        // only allow the changing of our own hours
+        var is_on = $(this).data("is-on")
+
+        if (hour_luser_id == luser_id && !is_on) {
+            $(this).addClass("on")
+            $(this).data("is-on", true)
+        } else if (hour_luser_id == luser_id) {
+            $(this).removeClass("on")
+            $(this).data("is-on", false)
+        }
+    })
 })
 
 </script>

@@ -1,6 +1,6 @@
 /* reset **********************************************************************/
 html, body { width: 100%; height: 100%; padding: 0; margin 0; }
-ul, ol, p, li, h1, h2, h3, h4, h5, h6, div { margin: 0, padding: 0; }
+ul, ol, p, li, h1, h2, h3, h4, h5, h6, div { margin: 0; padding: 0; }
 form { padding-right: 5px; }
 div.navbar { margin-bottom: 0 }
 textarea, input { color: #000; }
