@@ -17,7 +17,7 @@ from md5 import md5
 from pidgey import Mailer 
 from config import MAILER_PARAMS, MAIL_FROM, BASE_URL 
 
-from datetime import datetime
+from datetime import datetime, time
 from pytz import timezone
 
 from oauth2client.client import flow_from_clientsecrets
@@ -1182,6 +1182,66 @@ def project_add_member(project=None, luser=None, **kwargs):
 ## Member Office Hours 
 ###############################################################################
 
+@app.route("/project/<project_name>/office_hours/update", methods=["POST"])
+@check_project_privileges
+def update_office_hours(project, luser, **kwargs):
+    print "%r" % request.json
+
+    day_id = request.json["day_id"]
+    hour = request.json["hours"]
+
+    # Drop all the existing time ranges for this day,
+    # we are going to update them.
+    schedule = (models.MemberSchedule.query
+                      .filter_by(project_id=project._id)
+                      .filter_by(luser_id=luser._id).first())
+
+    ranges = (models.MemberScheduleTimeRanges.query
+                    .filter_by(day_id=day_id)
+                    .filter_by(schedule_id=schedule._id)
+                    .all())
+        
+    for range in ranges:
+        models.db.session.delete(range)
+
+    start_time = None
+    end_time = None
+
+    hours_len = len(hours)
+
+
+    # State machine converts discrete hour units to continuous
+    # time ranges.
+    for i in range(hours_len):
+        
+        if start_time is None:
+            start_time = time(hour=hour)
+
+        # IF: The next hour is present 
+        #   AND: The next hour is more than one more than the current
+        #        one.
+        # THEN: We should mark the current hour as the end time, 
+        #       save this time range, and begin a new time range 
+        #       on the next iteration. 
+        if ((i + 1 < hours_len and hours[i + 1] > hours[i] + 1) or
+            (i + 1 == hours_len and start_time != None)):     
+
+            # calculate end_time
+            end_time = time(hour=hour + 1)
+
+            # save new time range  
+            params = dict(schedule_id=schedule._id, day_id=day_id,    
+                          start_time=start_time, end_time=end_time)
+            range = models.MemberScheduleTimeRanges(**params)
+            models.db.session.add(range)
+           
+            # Reset state
+            start_time = end_time = None             
+
+    models.db.commit()
+    return respond_with_json({ "status" : "success" })
+
+
 @app.route("/project/<project_name>/office_hours", methods=["GET","POST"])
 @check_project_privileges
 def member_schedule(luser=None, project=None, **kwargs):
@@ -1282,12 +1342,15 @@ def member_schedule(luser=None, project=None, **kwargs):
         weekday = int(request.args["weekday"])
     else:
         weekday = datetime.now(timezone(luser.profile.timezone)).weekday()
-    
+   
+    weekday_id = models.Day.query.filter_by(ordinal=weekday).first()._id
+
     return cc_render_template("member_schedule.html", days=days, luser=luser,
                               project=project, schedule=schedule, 
                               sorted_members=sorted_members,
                               hours=hours, member_hours=member_hours,
-                              weekday=weekday, **kwargs)
+                              weekday=weekday, weekday_id=weekday_id,
+                              **kwargs)
 
 
 def create_default_schedule(luser, project, day_collection):

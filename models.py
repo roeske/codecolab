@@ -604,7 +604,7 @@ class Activity(db.Model, DictSerializable, FluxCapacitor):
                                                  timestamp)
 
     def __str__(self):
-        return self.describe(self.luser.profile[0].username)
+        return self.describe(self.luser.profile.username)
 
 
 class ActivityLogger(object):

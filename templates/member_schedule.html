@@ -31,7 +31,7 @@
 
             {% set dummy = [] %}              
             {% for range in member.schedule.ranges %}
-              {% if range.day._id == weekday and hour >= range.start_time.hour and hour < range.end_time.hour %}
+              {% if range.day.ordinal == weekday and hour >= range.start_time.hour and hour < range.end_time.hour %}
                 {% do dummy.append(true) %}
                 {% break %}
 
@@ -151,6 +151,29 @@ function setup_12_hour_times() {
   })
 }
 
+
+function get_is_on(elem) {
+    var truthiness = $(elem).data("is-on")
+    return truthiness != "False" && truthiness
+}
+
+
+function get_selected_hours(luser_id) {
+    var selected_hours = []
+
+    $(".hour").each(function(i, elem) {
+        var hour_luser_id = $(this).data("luser-id")
+        var is_on = get_is_on(elem)
+
+        if (is_on && luser_id == hour_luser_id) {
+            selected_hours.push(Number($(this).data("hour")))
+        }
+    })
+
+    return selected_hours
+}
+
+
 $(function() {
     setup_12_hour_times()
     update_timestamps()
@@ -158,14 +181,13 @@ $(function() {
     
     var luser_id = {{ luser._id }}
     var weekday = {{ weekday }}
-
+    var project_name = "{{ project.name }}"
+    
     $(".hour").click(function(ev) {
         var hour_luser_id = $(this).data("luser-id")
 
         // only allow the changing of our own hours
-        var truthiness = $(this).data("is-on")
-        var is_on = truthiness != "False" && truthiness
-
+        var is_on = get_is_on(this)
         var new_state = !is_on;
 
         if (hour_luser_id == luser_id && !is_on) {
@@ -173,7 +195,21 @@ $(function() {
         } else if (hour_luser_id == luser_id) {
             $(this).removeClass("on")
         }
+
         $(this).data("is-on", new_state)
+        console.log(get_selected_hours(luser_id))
+
+        var url = "/project/" + project_name + "/office_hours/update"
+        $.ajax({ 
+             url: url, 
+             type: "POST",
+             data: { weekday: weekday, updates: get_selected_hours(luser_id) },
+             contentType: "application/json; charset=utf-8",
+             dataType: "json",
+             success: function(data) {
+                console.log(data)
+             }
+        })
     })
 })
 
