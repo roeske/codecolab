@@ -227,11 +227,12 @@ class Day(db.Model):
     _id     = db.Column(db.Integer, primary_key=True)
     name    = db.Column(db.String, nullable=False, unique=True)
     abbrev  = db.Column(db.String, nullable=False, unique=True)
+    ordinal = db.Column(db.Integer)
 
 
 class Days(object):
     def __init__(self):
-        self.days = Day.query.all()
+        self.days = Day.query.order_by(Day.ordinal.asc()).all()
         self.day_map = {}
 
         for day in self.days:

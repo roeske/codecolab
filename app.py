@@ -1278,8 +1278,8 @@ def member_schedule(luser=None, project=None, **kwargs):
         relative_hours = hours[relative_offset:] + hours[:relative_offset]
         member_hours[m.luser_id] = relative_hours
 
-    if "day" in request.args:
-        weekday = flask.args["weekday"]
+    if "weekday" in request.args:
+        weekday = int(request.args["weekday"])
     else:
         weekday = datetime.now(timezone(luser.profile.timezone)).weekday()
     

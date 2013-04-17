@@ -5,7 +5,7 @@
 
   <div class="days">
     {% for i in range(days|count) %}
-      <div class="day {% if i == weekday %}on{% endif %}">{{ days[i].name }}</div>
+      <div class="day {% if i == weekday %}on{% endif %}"><a href="/project/{{ project.name }}/office_hours?weekday={{ i }}">{{ days[i].name }}</a></div>
     {% endfor %}
   </div>
   <div class="clear"></div>
@@ -31,7 +31,7 @@
 
             {% set dummy = [] %}              
             {% for range in member.schedule.ranges %}
-              {% if hour >= range.start_time.hour and hour < range.end_time.hour %}
+              {% if range.day._id == weekday and hour >= range.start_time.hour and hour < range.end_time.hour %}
                 {% do dummy.append(true) %}
                 {% break %}
 
@@ -163,7 +163,9 @@ $(function() {
         var hour_luser_id = $(this).data("luser-id")
 
         // only allow the changing of our own hours
-        var is_on = $(this).data("is-on")
+        var truthiness = $(this).data("is-on")
+        var is_on = truthiness != "False" && truthiness
+
         var new_state = !is_on;
 
         if (hour_luser_id == luser_id && !is_on) {
