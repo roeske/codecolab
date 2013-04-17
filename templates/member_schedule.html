@@ -4,12 +4,13 @@
   <div class="clear"></div>
 
   <div class="days">
-    {% for day in days %}
-      <div class="day">{{ day.name }}</div>
+    {% for i in range(days|count) %}
+      <div class="day {% if i == weekday %}on{% endif %}">{{ days[i].name }}</div>
     {% endfor %}
   </div>
   <div class="clear"></div>
   <div class="timefriend">
+    {% set viewer = luser %}
     {% for member in sorted_members %}
       {% set luser = member.luser %}
       <div>
@@ -27,7 +28,24 @@
         </div>
         <div class="hours">
           {% for hour in member_hours[member.luser_id] %}
-            <div data-luser-id="{{ member.luser_id }}" data-hour="{{ hour }}" class="hour">
+
+            {% set dummy = [] %}              
+            {% for range in member.schedule.ranges %}
+              {% if hour >= range.start_time.hour and hour < range.end_time.hour %}
+                {% do dummy.append(true) %}
+                {% break %}
+
+              {% endif %}
+            {% endfor %}
+
+            {% if dummy %} 
+              {% set is_on = true %} 
+            {% else %}
+              {% set is_on = false %}
+            {% endif %}
+
+            <div data-luser-id="{{ member.luser_id }}" data-hour="{{ hour }}" 
+              class="hour  {% if is_on %}on{% endif %} {% if member.luser_id == viewer._id %}you{% endif %}" data-is-on="{{ is_on }}">
               <div class="inner">
                 <div data-hour="{{ hour }}" class="hour_of_day">{{ hour }}</div> 
                 <div data-hour="{{ hour }}" class="am_pm"></div>
@@ -47,7 +65,6 @@
 var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
               "Sep", "Oct", "Nov", "Dec"]
 
-
 function convert(now, offset) {
     var msecs = now.getTime()    
     return new Date(msecs + offset * 1000)
@@ -60,7 +77,6 @@ function pad(n) {
         return "" + n
 }
 
-
 // returns naive 24 hour time as string
 function current_time(now, offset) {
     var converted = convert(now, offset)
@@ -70,7 +86,6 @@ function current_time(now, offset) {
 
     return hour + ":" + minute + ":" + seconds
 }
-
 
 // returns naive date as string
 function current_date(now, offset) {
@@ -112,8 +127,7 @@ function keep_timestamps_updated() {
 }
 
 
-function setup_12_hour_times()
-{
+function setup_12_hour_times() {
   $(".hour_of_day").each(function(i, elem) {
       var hour = $(elem).data("hour")
 
@@ -143,19 +157,21 @@ $(function() {
     keep_timestamps_updated()
     
     var luser_id = {{ luser._id }}
+    var weekday = {{ weekday }}
+
     $(".hour").click(function(ev) {
         var hour_luser_id = $(this).data("luser-id")
 
         // only allow the changing of our own hours
         var is_on = $(this).data("is-on")
+        var new_state = !is_on;
 
         if (hour_luser_id == luser_id && !is_on) {
             $(this).addClass("on")
-            $(this).data("is-on", true)
         } else if (hour_luser_id == luser_id) {
             $(this).removeClass("on")
-            $(this).data("is-on", false)
         }
+        $(this).data("is-on", new_state)
     })
 })
 

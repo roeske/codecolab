@@ -16,16 +16,26 @@ from sqlalchemy import and_
 from md5 import md5 
 from pidgey import Mailer 
 from config import MAILER_PARAMS, MAIL_FROM, BASE_URL 
+
 from datetime import datetime
+from pytz import timezone
+
 from oauth2client.client import flow_from_clientsecrets
 
 from helpers import (make_gravatar_url, make_gravatar_profile_url,
                      redirect_to, redirect_to_index, respond_with_json,
                      jsonize, get_luser_for_email, render_email)
 
+def debug(text):
+    print "DEBUG: %r" % text
+
 activity_logger = models.ActivityLogger()
 
 app = models.app
+
+app.jinja_env.filters["debug"] = debug
+app.jinja_env.add_extension("jinja2.ext.loopcontrols")
+app.jinja_env.add_extension("jinja2.ext.do")
 
 meta = dict(app_name="CodeColab")
 
@@ -1268,11 +1278,16 @@ def member_schedule(luser=None, project=None, **kwargs):
         relative_hours = hours[relative_offset:] + hours[:relative_offset]
         member_hours[m.luser_id] = relative_hours
 
+    if "day" in request.args:
+        weekday = flask.args["weekday"]
+    else:
+        weekday = datetime.now(timezone(luser.profile.timezone)).weekday()
+    
     return cc_render_template("member_schedule.html", days=days, luser=luser,
                               project=project, schedule=schedule, 
                               sorted_members=sorted_members,
                               hours=hours, member_hours=member_hours,
-                              **kwargs)
+                              weekday=weekday, **kwargs)
 
 
 def create_default_schedule(luser, project, day_collection):
