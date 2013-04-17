@@ -1,0 +1,89 @@
+div.luser_time {
+    width: 14%;
+    float: left;
+    border-bottom: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    margin: 0;
+    height: 100px;
+}
+
+div.hours {
+    width: 85.5%;
+    float: left;
+    margin: 0;
+}
+
+.luser_time .avatar { 
+    float: left;
+}
+
+.luser_time div.left {
+    float: left;
+    width: 96px;
+    margin: 8px auto;
+}
+
+.luser_time div.right {
+    float: right;
+    width: 96px;
+    margin: 8px auto;
+}
+
+.luser_time div.left img {
+    margin-left: 16px;
+    margin-right: 16px;
+    margin-bottom: 8px;
+    margin-top: 8px;
+}
+
+.luser_time div.left div.username {
+    width: 96px;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    font-weight: bold;
+}
+
+
+div.hour div.inner {
+    height: 50px;
+    margin: 25px auto;
+}
+
+div.days {    
+    margin-bottom: 8px;
+    
+}
+
+
+div.day {
+    float: left;
+    width: 14%;
+    border-top: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+}
+
+div.day:first-child {
+    border-left: 1px solid #ccc;
+}
+
+div.hour {
+    float: left;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: center;
+    width: 4.039%;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc; 
+}
+
+div.you {
+    background-color: #f0f0f0;
+}
+
+div.on {
+    background-color: #ddd;
+}
+
