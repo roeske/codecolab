@@ -126,27 +126,67 @@ $(function() {
   $("a.archive").click(handle_archive_click)
 
 
-  // append new cards to the bottom of the pile via ajax
+  // Append new cards to the bottom of the pile via AJAX.
   $("form.add_card").each(function(i, elem) {
       var pile_selector = "#" + $(elem).data("pile-id")
       $(elem).ajaxForm({
           success: function(text) {
+              // Add the card.
               $(pile_selector).append(text)
-              
+
+              // Scroll to the bottom so the card is visible.
+              $(pile_selector).scrollTop($(pile_selector)[0].scrollHeight)
+
+              // Select the newly added card.
               var selector = $(pile_selector + " li.card_item")
               var selector_func = function() { return selector }
+
+              // Update the order of the cards (there is an ordinal that
+              // needs to be set on each card to correctly designate its
+              // order, independent of how it is currently rendered)
               var updates = cc_cards_reorder_update_dom(selector_func)
 
+              // Update the above on the server.
               cc_reorder_post("cards", updates)
 
+              // Select the last card (newly added), so we can hook up its controls.
               var selector = pile_selector + " li.card_item:last"
               cc_connect_card(selector)
               
-              // connect the raty widget when adding a new card via ajax.
+              // Connect the raty widget when adding a new card via ajax.
               var elem = $($(selector).find(".difficulty"))
               cc_connect_raty_score(elem, project_name, elem.data("card-id"))
 
+              // Handle archive clicks on the new card.
               $($(selector).find("a.archive")).click(handle_archive_click)
+
+              // Make the new card border glow a bit when it is first shown.
+              var color = "#4DCDFF" // blue
+              var width = "2px"
+
+              var temporary = { 
+                  borderTopColor: color, 
+                  borderTopWidth: width, 
+                  borderLeftColor: color,
+                  borderLeftWidth: width,
+                  borderRightColor: color,
+                  borderRightWidth: width,
+                  borderBottomColor: color,
+                  borderBottomWidth: width
+              }
+
+              var invisible = "rgba(0,0,0,0);"
+
+              var invisible = { 
+                  borderTopColor: invisible, 
+                  borderLeftColor: invisible,
+                  borderRightColor: invisible,
+                  borderBottomColor: invisible 
+              }
+
+              $(selector).animate(temporary, 'slow', function() {
+                  $(selector).animate(invisible, 'slow')
+              })
           } 
       })
   })
