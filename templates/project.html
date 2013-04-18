@@ -60,7 +60,7 @@
       <div class="clear"></div>
       <ul class="add_card structural">
         <li class="input"> 
-        <input type="text" placeholder="I'm going to..." name="text" id="text"/>
+        <input type="text" class="add_card" placeholder="I'm going to..." name="text" id="text"/>
         </li>
         <li class="button">
         <input type="submit" name="submit" value="Add Card " class="btn"/>
@@ -187,6 +187,9 @@ $(function() {
               $(selector).animate(temporary, 'slow', function() {
                   $(selector).animate(invisible, 'slow')
               })
+
+              // Reset the add card textbox after the card is added.
+              $("input.add_card").val("")
           } 
       })
   })
