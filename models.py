@@ -35,8 +35,9 @@ class FluxCapacitor(object):
     """        
     
     def created_as_timezone(self, timezone_desc):
-        d = Delorean(datetime=self.created, timezone=timezone_desc)
-        return d.datetime.strftime("%b. %d, %Y at %I:%M %p")
+        d = Delorean(datetime=self.created, timezone="UTC")
+        d.shift(timezone_desc)
+        return d.datetime.strftime("----%b. %d, %Y at %I:%M %p")
 
 
 class ProjectLuser(db.Model, DictSerializable):
