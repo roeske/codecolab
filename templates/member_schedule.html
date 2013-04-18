@@ -31,7 +31,7 @@
 
             {% set dummy = [] %}              
             {% for range in member.schedule.ranges %}
-              {% if range.day.ordinal == weekday and hour >= range.start_time.hour and hour < range.end_time.hour %}
+              {% if range.day.ordinal == weekday and hour >= range.start_time.hour and hour < range.end_time|round_time_up %}
                 {% do dummy.append(true) %}
                 {% break %}
 
@@ -203,9 +203,8 @@ $(function() {
         $.ajax({ 
              url: url, 
              type: "POST",
-             data: { weekday: weekday, updates: get_selected_hours(luser_id) },
-             contentType: "application/json; charset=utf-8",
-             dataType: "json",
+             data: JSON.stringify({ weekday: weekday, hours: get_selected_hours(luser_id) }),
+             contentType: "application/json",
              success: function(data) {
                 console.log(data)
              }

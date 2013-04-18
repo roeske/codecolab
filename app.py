@@ -33,6 +33,22 @@ activity_logger = models.ActivityLogger()
 
 app = models.app
 
+
+def round_time_up(t):
+    """ 
+    Rounds a 'time' object up to the nearest hour. This means,
+    23:59:59.999999 will become 24.
+    """
+    # Avoid conditionals by using arithmetic. The same logic holds
+    # true.
+    if t.second + t.minute + t.microsecond > 0:
+        return t.hour + 1
+    else:
+        # The 'time' object already satisfies the rounding criteria.
+        return t.hour
+
+
+app.jinja_env.filters["round_time_up"] = round_time_up 
 app.jinja_env.filters["debug"] = debug
 app.jinja_env.add_extension("jinja2.ext.loopcontrols")
 app.jinja_env.add_extension("jinja2.ext.do")
@@ -1184,11 +1200,9 @@ def project_add_member(project=None, luser=None, **kwargs):
 
 @app.route("/project/<project_name>/office_hours/update", methods=["POST"])
 @check_project_privileges
-def update_office_hours(project, luser, **kwargs):
-    print "%r" % request.json
-
-    day_id = request.json["day_id"]
-    hour = request.json["hours"]
+def update_office_hours(project=None, luser=None, **kwargs):
+    weekday = request.json["weekday"]
+    hours = request.json["hours"]
 
     # Drop all the existing time ranges for this day,
     # we are going to update them.
@@ -1196,13 +1210,15 @@ def update_office_hours(project, luser, **kwargs):
                       .filter_by(project_id=project._id)
                       .filter_by(luser_id=luser._id).first())
 
+    day = models.Day.query.filter_by(ordinal=weekday).first()
+
     ranges = (models.MemberScheduleTimeRanges.query
-                    .filter_by(day_id=day_id)
+                    .filter_by(day_id=day._id)
                     .filter_by(schedule_id=schedule._id)
                     .all())
         
-    for range in ranges:
-        models.db.session.delete(range)
+    for r in ranges:
+        models.db.session.delete(r)
 
     start_time = None
     end_time = None
@@ -1212,10 +1228,11 @@ def update_office_hours(project, luser, **kwargs):
 
     # State machine converts discrete hour units to continuous
     # time ranges.
-    for i in range(hours_len):
+    # TODO: Figure out where you overwrote the 'range' ref.
+    for i in __builtins__.range(hours_len):
         
         if start_time is None:
-            start_time = time(hour=hour)
+            start_time = time(hour=hours[i])
 
         # IF: The next hour is present 
         #   AND: The next hour is more than one more than the current
@@ -1226,19 +1243,28 @@ def update_office_hours(project, luser, **kwargs):
         if ((i + 1 < hours_len and hours[i + 1] > hours[i] + 1) or
             (i + 1 == hours_len and start_time != None)):     
 
-            # calculate end_time
-            end_time = time(hour=hour + 1)
+            # Calculate end_time.
+            end_hour = hours[i] + 1 
+           
+            # The last hour will have to be encoded using lim->24 precision,
+            # as rolling over to the next day to encode it is not possible the
+            # way our ranges are implemented.
+            if end_hour == 24:
+                end_time = time(hour=23, minute=59, second=59, microsecond=999999)
+            else:
+                end_time = time(hour=end_hour)
 
-            # save new time range  
-            params = dict(schedule_id=schedule._id, day_id=day_id,    
+            
+            # Save new time range.  
+            params = dict(schedule_id=schedule._id, day_id=day._id,    
                           start_time=start_time, end_time=end_time)
             range = models.MemberScheduleTimeRanges(**params)
             models.db.session.add(range)
            
-            # Reset state
+            # Reset state.
             start_time = end_time = None             
 
-    models.db.commit()
+    models.db.session.commit()
     return respond_with_json({ "status" : "success" })
 
 
@@ -1363,9 +1389,9 @@ def create_default_schedule(luser, project, day_collection):
     models.db.session.flush()
 
     for d in days:
-        range = models.MemberScheduleTimeRanges(schedule_id=schedule._id,   
+        r = models.MemberScheduleTimeRanges(schedule_id=schedule._id,   
                                                 day_id=day_map[d.name])
-        models.db.session.add(range)
+        models.db.session.add(r)
     
     models.db.session.commit()
     
