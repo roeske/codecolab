@@ -30,7 +30,7 @@ function cc_setup_activity_toggle() {
     $(".activity_toggle_icon.show").hide()
     $(".activity_toggle_icon.hide").show()
 
-    var activity_container_width = $("#activity_container").width()
+    var activity_container_width = $("#activity_container").width() - 1
     var activity_toggle_width = $("#activity_toggle").width()
     var piles_original_width = $("#piles").width()
     var piles_expanded_width = activity_container_width - activity_toggle_width

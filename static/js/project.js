@@ -481,6 +481,7 @@ function cc_connect_complete_button(project_name, modal, card_id) {
 }
 
 function cc_on_modal_opened(project_name, card_id) {
+    var lastText = null;
     var modal_selector = "#modal_" + + card_id
     var modal = $(modal_selector)
 
@@ -551,7 +552,7 @@ function cc_on_modal_opened(project_name, card_id) {
             cc_connect_milestone_spinner(modal, card_id)
             cc_connect_assign_to_spinner(modal, card_id)
             cc_connect_complete_button(project_name, modal, card_id)
-    }, 400)
+    }, 500)
 }
 
 
