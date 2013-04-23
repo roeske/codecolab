@@ -467,7 +467,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     comments = db.relationship("CardComment", order_by=lambda: CardComment.created)
     attachments = db.relationship("CardFile", order_by=lambda: CardFile.created)
     milestone = db.relationship("Milestone")
-
+    project = db.relationship("Project")
 
     @property
     def title(self):
@@ -596,13 +596,18 @@ class Activity(db.Model, DictSerializable, FluxCapacitor):
 
    
     def describe(self, username):
-        return self.type.format % (username, self.card.text)
+        return self.type.format % { "user_id" : self.luser_id,
+                                    "username" : self.luser.profile.username,
+                                    "project_name" : self.card.project.name,
+                                    "card_id" : self.card._id,
+                                    "card_text" : self.card.text }
 
 
     def describe_with_time(self, username, tz):
         timestamp = self.created_as_timezone(tz)
         return (self.type.format + " on %s")  % (username, self.card.text,
                                                  timestamp)
+
 
     def __str__(self):
         return self.describe(self.luser.profile.username)
@@ -625,6 +630,21 @@ class ActivityLogger(object):
                             card_id=card_id, type_id=type_id)
         db.session.add(activity)
         db.session.commit()
+
+
+##############################################################################
+# Maintenance code
+##############################################################################
+
+def insert_or_update_activity_type(fmt, type):
+    activity_type = ActivityType.query.filter_by(type=type).first()
+    
+    if activity_type is not None:
+        activity_type.type = type
+        activity_type.format = fmt
+    else:
+        activity_type = ActivityType(type=type, fmt=fmt)
+        db.session.add(activity_type)
 
 
 if __name__ == "__main__":
@@ -659,44 +679,42 @@ if __name__ == "__main__":
         db.session.commit()
 
     if sys.argv[1] == "create_activity_types":
-        format = "%s created card %s"
-        card_created = ActivityType(type="card_created", format=format)
-        db.session.add(card_created)
-
-        format = "%s completed card %s"
-        card_finished = ActivityType(type="card_finished", format=format)
-        db.session.add(card_finished)
-
-        format = "%s marked card as incomplete %s"
-        card_incomplete = ActivityType(type="card_incomplete", format=format)
-        db.session.add(card_incomplete)
-
-        format = "%s commented on card %s"
-        card_comment = ActivityType(type="card_comment", format=format)
-        db.session.add(card_comment)
-
-        format = "%s deleted comment on card %s"
-        card_comment_delete = ActivityType(type="card_comment_delete",
-                                           format=format)
-        db.session.add(card_comment_delete)
-
-        format = "%s edited card %s"
-        card_edit = ActivityType(type="card_edit", format=format) 
-        db.session.add(card_edit)
-
-        format = "%s changed card %s"
-        card_change = ActivityType(type="card_change", format=format) 
-        db.session.add(card_change)
         
-        format = "%s deleted card %s"
-        card_delete = ActivityType(type="card_delete", format=format)
-        db.session.add(card_delete)
+        base_fmt = """
+<a class="activity_username" href="/profile/%%(user_id)d">@%%(username)s</a>
 
-        format = "%s archived card %s"
-        card_archive = ActivityType(type="card_archive", format=format)
-        db.session.add(card_archive)
+<span class="activity_action">%s</span>
 
+<a data-id="%%(card_id)d" class="activity_card" href="/project/%%(project_name)s/cards/%%(card_id)d">%%(card_text)s</a>
+"""
+        fmt = base_fmt % "created card"
+        insert_or_update_activity_type(fmt, "card_created")
+
+        fmt = base_fmt % "completed card"
+        insert_or_update_activity_type(fmt, "card_finished")
+
+        fmt = base_fmt % "marked card as incomplete"
+        insert_or_update_activity_type(fmt, "card_incomplete")
+
+        fmt = base_fmt % "commented on card"
+        insert_or_update_activity_type(fmt, "card_comment")
+
+        fmt = base_fmt % "deleted comment on card"
+        insert_or_update_activity_type(fmt, "card_comment_delete")
+        
+        fmt = base_fmt % "edited card"
+        insert_or_update_activity_type(fmt, "card_edit")
+
+        fmt = base_fmt % "changed card"
+        insert_or_update_activity_type(fmt, "card_change")
+        
+        fmt = base_fmt % "deleted card"
+        insert_or_update_activity_type(fmt, "card_delete")
+
+        fmt = base_fmt % "archived card"
+        insert_or_update_activity_type(fmt, "card_archive")
+        
         db.session.commit()
-        
+
     elif sys.argv[1] == "drop":
         db.drop_all()

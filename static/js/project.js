@@ -22,21 +22,23 @@ function cc_connect_editables(project_name, elem, card_id) {
         }
     })
 
-    $(elem).find(".editable.description").editable("/project/" + project_name + "/cards/edit/" + id, {
-        onblur: "submit",
-        name: "description",
-        event: "click",
-        style: "inherit",
-        tooltip: "Click to edit...",
-        cancel: "Cancel",
-        submit: "Save",
-        type: "textarea",
-        width: "400px",
-        height: "100px",
-        callback: cc_activity_reload
-    })
+    $(elem).find(".editable.description")
+        .editable("/project/" + project_name + "/cards/edit/" + id, {
+            onblur: "submit",
+            name: "description",
+            event: "click",
+            style: "inherit",
+            tooltip: "Click to edit...",
+            cancel: "Cancel",
+            submit: "Save",
+            type: "textarea",
+            width: "400px",
+            height: "100px",
+            callback: cc_activity_reload
+        })
 
-    cc_connect_raty_score($(elem).find(".editable.difficulty"), project_name, card_id, true)
+    cc_connect_raty_score($(elem).find(".editable.difficulty"), 
+                            project_name, card_id, true)
 }
 
 
@@ -310,92 +312,6 @@ function cc_setup_editable_fields(project_name) {
 }
 
 
-function cc_connect_card_to_modal(title, project_name, elem, is_archived) {
-    // Create id to later reference modal with.
-    var modal_id = "modal_" + $(elem).attr("data-id")
-
-    var url = "/project/" + project_name + "/cards/" + $(elem).attr("data-id")
-
-    var options = {
-        show: {
-            effect: "blind",
-            duration: 500
-        },
-
-        hide: {
-            effect: "blind",
-            duration: 500
-        },
-
-        close: function() {
-            // When the modal dialog is closed, completely remove it from the
-            // DOM so that it is reloaded next time with fresh state. 
-            $("#" + modal_id).dialog("destroy")
-        },
-
-        modal: true,
-
-        title: title,
-        autoOpen: false,
-        width: 488,
-        height: 700, 
-    }
-
-
-    if (is_archived) {
-        // Make it work like a normal link
-        $(elem).click(function() {
-            url = $(elem).attr("href")
-            console.log("url="+url)
-            var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
-            modal.dialog("open")
-            return false
-        })
-    } else {
-        // It's a card, lets use double click.
-        $(elem).dblclick(function() {
-            console.log("url="+url)
-            var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
-            modal.dialog("open")
-            return false
-        })
-    }
-}
-
-
-function cc_connect_card(elem) {
-    var title = $(elem).data("title")
-    $(elem).attr("data-project-name", project_name)
-    cc_connect_card_to_modal(title, project_name, elem)
-}
-
-/**
- * Sets up all state of the project page.
- */
-function cc_project_init(project_name, pile_ids) {
-    // Iterate pile ids and make sortable + droppable.
-    for (var key in pile_ids) {
-        id = pile_ids[key]
-        // Build selector.
-        var selector = "#" + id
-        // Make the target list sortable.
-        $(selector).sortable(cc_make_card_sorter(selector)).disableSelection()
-    }
-
-    $("li.card_item").each(function(i, elem) {
-        cc_connect_card(elem)
-    })
-
-    var pile_selector = "ul#pile_list"
-
-    $(pile_selector).sortable(cc_make_pile_sorter("ul#pile_list"))
-
-    $("ul, li").disableSelection()
-
-    cc_setup_editable_fields(project_name)
-}
-
-
 function cc_connect_comment_form(project_name, modal, card_id) {
     modal.find("form.comments").ajaxForm({
         success: function(response, status_code) {
@@ -516,10 +432,11 @@ function cc_connect_spinner(clazz, mommy, card_id) {
 function cc_connect_complete_button(project_name, modal, card_id) {
     // capture clicks on the complete button, which is really a link
     // with modified behavior.
-    modal.find("a.card_complete").click(function(event) {
+    var btn = modal.find("a.card_complete")
+    btn.click(function(event) {
         // Don't perform the default action of following the link.
         event.preventDefault()
-
+        
         var that = this;
 
         // Instead, post the state to the href of the link.
@@ -563,3 +480,159 @@ function cc_connect_complete_button(project_name, modal, card_id) {
     })
 }
 
+function cc_on_modal_opened(project_name, card_id) {
+    var modal_selector = "#modal_" + + card_id
+    var modal = $(modal_selector)
+
+    console.log("project_name="+project_name)
+    console.log("card_id="+card_id)
+
+    setTimeout(function() {
+        var opts = { 
+          basePath: "/js/epic/",
+          container: "epiceditor_" + card_id,
+          file: { autoSave: false },
+          theme: { editor: "/themes/editor/epic-light.css" }
+        }
+
+        var editor = new EpicEditor(opts)
+        editor.load()
+        editor.preview()
+
+        editor.on("save", function(data) {
+              $("a.save").text("Click to edit")
+
+              // don't use the network if no changes have been made.
+              if (text != lastText) {
+              
+                  var url = "/project/" + project_name + "/cards/" + card_id + "/description"
+                  $.ajax({ 
+                            url: url, 
+                            type: "POST",
+                            data: JSON.stringify(data),
+                            contentType: "application/json; charset=utf-8", 
+                            dataType: "json",
+                            success: function(data) {
+                               console.log(data) 
+                            }
+                        })
+
+                  lastText = text;
+              }
+
+              // Whenever we save, make sure to hide the save button,
+              // as it is only relevant during an edit
+            })
+
+            editor.on("edit", function() {
+              // When editing, the save button needs to be shown.
+              $("a.save").text("Save")
+            })
+
+
+            $("a.save").click(function() {
+              if ($(this).text() == "Click to edit") {
+                  editor.edit()
+              } else {
+                  editor.save()
+                  editor.preview()
+              }
+            })
+
+
+            // workaround, for some reason loading the editor causes a scroll
+            // down when the card is too big for its y dimension
+            $(modal_selector).scrollTop(0)
+
+
+            cc_connect_editables(project_name, modal, card_id)
+            cc_connect_comment_form(project_name, modal, card_id)
+            cc_connect_upload_form(project_name, modal, card_id)
+            cc_connect_milestone_spinner(modal, card_id)
+            cc_connect_assign_to_spinner(modal, card_id)
+            cc_connect_complete_button(project_name, modal, card_id)
+    }, 400)
+}
+
+
+function cc_connect_card_to_modal(title, project_name, elem, is_link) {
+    // Create id to later reference modal with.
+    var modal_id = "modal_" + $(elem).attr("data-id")
+    var card_id = $(elem).attr('data-id')
+
+    var url = "/project/" + project_name + "/cards/" + card_id
+
+    var options = {
+        show: {
+            effect: "blind",
+            duration: 500
+        },
+
+        hide: {
+            effect: "blind",
+            duration: 500
+        },
+
+
+        close: function() {
+            // When the modal dialog is closed, completely remove it from the
+            // DOM so that it is reloaded next time with fresh state. 
+            $("#" + modal_id).dialog("destroy")
+        },
+
+        modal: true,
+        title: title,
+        autoOpen: false,
+        width: 488,
+        height: 700, 
+
+        open: function() {
+            cc_on_modal_opened(project_name, card_id)
+        }
+    }
+
+    
+    if (is_link) {
+        $(elem).click(function(ev) {
+            ev.preventDefault()
+            url = $(elem).attr("href")
+            console.log("url="+url)
+            var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
+            modal.dialog("open")
+        })
+    } else {
+        $(elem).dblclick(function(ev) {
+            var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
+            modal.dialog("open")
+        })
+    }
+}
+
+
+function cc_connect_card(elem) {
+    var title = $(elem).data("title")
+    $(elem).attr("data-project-name", project_name)
+    cc_connect_card_to_modal(title, project_name, elem)
+}
+
+
+/** Sets up all state of the project page. */
+function cc_project_init(project_name, pile_ids) {
+    // Iterate pile ids and make sortable + droppable.
+    for (var key in pile_ids) {
+        id = pile_ids[key]
+        // Build selector.
+        var selector = "#" + id
+        // Make the target list sortable.
+        $(selector).sortable(cc_make_card_sorter(selector)).disableSelection()
+    }
+
+    $("li.card_item").each(function(i, elem) {
+        cc_connect_card(elem)
+    })
+
+    var pile_selector = "ul#pile_list"
+    $(pile_selector).sortable(cc_make_pile_sorter("ul#pile_list"))
+    $("ul, li").disableSelection()
+    cc_setup_editable_fields(project_name)
+}

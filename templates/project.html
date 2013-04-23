@@ -82,6 +82,7 @@
 {% include "common_js.html" %}
 
 <!-- BEGIN: JS -->
+<script type="text/javascript" src="/js/epic/js/epiceditor.js" />
 <script type="text/javascript" src="/js/project.js"></script>
 <script type="text/javascript">
 
@@ -127,8 +128,10 @@ $(function() {
 
 
   // Append new cards to the bottom of the pile via AJAX.
-  $("form.add_card").each(function(i, elem) {
+  $("form.add_card").each(function(i, elem) { 
+
       var pile_selector = "#" + $(elem).data("pile-id")
+
       $(elem).ajaxForm({
           success: function(text) {
               // Add the card.
@@ -193,6 +196,9 @@ $(function() {
           } 
       })
   })
+
+    cc_setup_activity_toggle()
+    cc_setup_activity_links()
 })
 </script>
 <!-- END: JS -->
