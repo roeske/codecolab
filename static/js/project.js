@@ -552,7 +552,7 @@ function cc_on_modal_opened(project_name, card_id) {
             cc_connect_milestone_spinner(modal, card_id)
             cc_connect_assign_to_spinner(modal, card_id)
             cc_connect_complete_button(project_name, modal, card_id)
-    }, 500)
+    }, 600)
 }
 
 
