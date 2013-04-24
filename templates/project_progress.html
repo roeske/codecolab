@@ -88,7 +88,7 @@ $(function() {
   // Draw bar chart for team cadence. (array is from template)
   var data = {{ team_cadence_data|safe }}
 
-  $("#team_cadence").jqBarGraph({data: data, color: "#555" })
+  $("#team_cadence").jqBarGraph({data: data, color: "#555", width: 800 })
 
   // Show tooltips on the table headings on mouseover.
   $(document).tooltip({
