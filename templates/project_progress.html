@@ -1,10 +1,16 @@
 {% include "head.html" %}
 <div class="content project_manage">
   <div>
-    <h3 class="title">Project Manager: <a href="/project/{{ project.name }}">{{ project.name }}</a></h3>
+    <h3 class="title">Progress <a href="/project/{{ project.name }}">{{ project.name }}</a></h3>
   </div>
   <hr />
 
+  <div id="stats_container">
+    <h4>Statistics</h4>
+
+    <h5>Team Cadence</h5>
+    <div id="team_cadence"></div> 
+  </div>
 
   <div id="milestones_container">
   <h4>Milestones</h4>
@@ -70,61 +76,66 @@
 {% include "common_js.html" %}
 
 
-  <!-- Begin application code -->
-  <script type="text/javascript">
+<script type="text/javascript" src="/js/jqBarGraph.1.1.min.js"></script>
+<script type="text/javascript">
+
+  
+
 // Run this code when the DOM is ready.
 $(function() {
+  // Draw bar chart for team cadence. (array is from template)
+  var data = {{ team_cadence_data|safe }}
+
+  $("#team_cadence").jqBarGraph({data: data, color: "#555" })
+
   // Show tooltips on the table headings on mouseover.
   $(document).tooltip({
-  position: {
-  my: "left bottom-20",
-  at: "left top",
-  using: function(position, feedback) {
-    $(this).css(position);
-    $("<div>")
-    .addClass("arrow" )
-    .addClass(feedback.vertical)
-    .addClass(feedback.horizontal)
-    .appendTo(this)
-  }
-  }
+    position: {
+      my: "left bottom-20",
+      at: "left top",
+      using: function(position, feedback) {
+        $(this).css(position);
+        $("<div>")
+        .addClass("arrow" )
+        .addClass(feedback.vertical)
+        .addClass(feedback.horizontal)
+        .appendTo(this)
+      }
+    }
   })
 
   // Handle clicks on the 'Accept' button. Toggle state
   // of acceptance against the backend and update the DOM.
   $("a.accept_milestone").click(function(event) {
-  event.preventDefault()
-  var that = this;
+      event.preventDefault()
+      var that = this;
 
-  // Instead, post the state to the href of the link.
-  $.ajax({
-    type: "POST",
-    url: $(this).attr("href"),
+      // Instead, post the state to the href of the link.
+      $.ajax({
+            type: "POST",
+            url: $(this).attr("href"),
 
-    // Get the new state each time we submit, to toggle.
-    data: JSON.stringify({state: $(that).data("state") == "True" }),
-    
-    success: function(data) {
-    console.log(data)
-    var toggle = $(that)
-    
-    if (data.state) {
-      // Update the toggle button state
-      toggle.find("span.true").show()
-      toggle.find("span.false").hide()
-      toggle.data("state", "True")
-    } else {
-      // Update the toggle button state
-      toggle.find("span.true").hide()
-      toggle.find("span.false").show()
-      toggle.data("state", "False")
-    }
-    },
-
-    contentType: "application/json;charset=UTF-8"
+            // Get the new state each time we submit, to toggle.
+            data: JSON.stringify({state: $(that).data("state") == "True" }),
+            
+            success: function(data) {
+            console.log(data)
+            var toggle = $(that)
+            
+            if (data.state) {
+                // Update the toggle button state
+                toggle.find("span.true").show()
+                toggle.find("span.false").hide()
+                toggle.data("state", "True")
+            } else {
+                // Update the toggle button state
+                toggle.find("span.true").hide()
+                toggle.find("span.false").show()
+                toggle.data("state", "False")
+            }
+        }, 
+        contentType: "application/json;charset=UTF-8" 
+      })
   })
-  })
-
 })
 </script>
-{% include "foot.html" %}

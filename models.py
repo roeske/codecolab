@@ -499,6 +499,19 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
         return card
 
 
+class CardCompletions(db.Model):
+    __tablename__ = "card_completions"
+
+    _id         = db.Column(db.Integer, primary_key=True)
+
+    card_id     = db.Column(db.Integer, db.ForeignKey(Card._id), 
+                            nullable=False)
+
+    luser_id    = db.Column(db.Integer, db.ForeignKey(Luser._id), 
+                            nullable=False)
+
+    created     = db.Column(db.DateTime, default=func.now())
+
 
 # TODO: refactor, use mixin for 'created'
 class CardComment(db.Model, DictSerializable, FluxCapacitor):

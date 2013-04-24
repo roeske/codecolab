@@ -17,7 +17,7 @@ from md5 import md5
 from pidgey import Mailer 
 from config import MAILER_PARAMS, MAIL_FROM, BASE_URL 
 
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from pytz import timezone
 
 from oauth2client.client import flow_from_clientsecrets
@@ -895,17 +895,33 @@ def card_toggle_is_completed(project=None, card_id=None, luser=None,
 
     print "state=%r" % state
 
+    # Update the is_complete boolean
     card = models.Card.query.filter_by(_id=card_id).first()
-
     card.is_completed = not state
-
-    models.db.session.commit()
     models.db.session.flush()
+
+    # Also insert or delete a CardCompletion object, for the charts.
+    card_completion = (models.CardCompletions.query.filter_by(card_id=card_id) 
+                                                  .first())
+
+    # If the card is complete, and there is no entry in the card
+    # completion table, then make one now:
+    if card.is_completed and card_completion is None:
+        card_completion = models.CardCompletions(card_id=card._id,
+                                                luser_id=luser._id)
+        models.db.session.add(card_completion)
+
+    # If the card is not complete, and an entry exists in the card
+    # completion table, then remove it.
+    elif not card.is_completed and card_completion is not None:
+        models.db.session.delete(card_completion)
 
     if card.is_completed:
         type = "card_finished"
     else:
         type = "card_incomplete"
+
+    models.db.session.commit()
 
     activity_logger.log(luser._id, project._id, card_id, type)
 
@@ -1111,9 +1127,27 @@ def project_progress(project_name=None, luser=None,  project=None, **kwargs):
     """
     member = models.ProjectLuser.query.filter_by(luser_id=luser._id).first()
 
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    completions = (models.CardCompletions.query
+                   .filter(models.CardCompletions.created > week_ago).all())
+
+    # Calculate the team cadence.
+    team_cadence_data = []
+    team_cadence_map = {}
+
+    for i in range(7):
+        date = (week_ago + timedelta(days=i)).date()
+        team_cadence_data.append([0, "-".join(str(date).split("-")[1:])])
+        team_cadence_map[date] = i
+
+    for c in completions:
+        date = c.created.date()
+        team_cadence_data[team_cadence_map[date]][0] += 1
+   
     return cc_render_template("project_progress.html", luser=luser,
                                is_owner=member.is_owner, project=project,
-                               invites=invites, **kwargs)
+                               team_cadence_data=team_cadence_data,
+                               **kwargs)
 
 
 
