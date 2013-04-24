@@ -510,7 +510,7 @@ class CardCompletions(db.Model):
     luser_id    = db.Column(db.Integer, db.ForeignKey(Luser._id), 
                             nullable=False)
 
-    created     = db.Column(db.DateTime, default=func.now())
+    created     = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 # TODO: refactor, use mixin for 'created'

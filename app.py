@@ -1127,16 +1127,19 @@ def project_progress(project_name=None, luser=None,  project=None, **kwargs):
     """
     member = models.ProjectLuser.query.filter_by(luser_id=luser._id).first()
 
-    week_ago = datetime.utcnow() - timedelta(days=7)
-    completions = (models.CardCompletions.query
-                   .filter(models.CardCompletions.created > week_ago).all())
-
     # Calculate the team cadence.
+    now = datetime.utcnow().date()
+    week_ago = now - timedelta(days=7)
+    print "%r" % now
+    completions = (models.CardCompletions.query
+                   .filter(models.CardCompletions.created > week_ago)
+                   .filter(models.CardCompletions.created < now).all())
+
     team_cadence_data = []
     team_cadence_map = {}
 
     for i in range(7):
-        date = (week_ago + timedelta(days=i)).date()
+        date = week_ago + timedelta(days=i)
         team_cadence_data.append([0, "-".join(str(date).split("-")[1:])])
         team_cadence_map[date] = i
 
