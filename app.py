@@ -580,17 +580,28 @@ def check_owner_privileges(func):
 ## Invites
 ###############################################################################
 
-@app.route("/project/<project_name>/invites")
+@app.route("/project/<project_name>/members")
 @check_owner_privileges
-def invites(project=None, **kwargs):
-
+def members(project=None, **kwargs):
     # We also need to display project invites
     invites = (models.ProjectInvite.query.filter_by(project_id=project._id)
                      .all())
 
-    return cc_render_template("invites.html", invites=invites,
-                                              project=project,
-                                              **kwargs)
+    return cc_render_template("invites.html", members=members, 
+                              invites=invites, project=project, **kwargs)
+
+
+@app.route("/project/<project_name>/members/<int:member_id>/remove")
+@check_owner_privileges
+def remove_member(project=None, member_id=None, **kwargs):
+    
+    member = (models.ProjectLuser.query.filter_by(project_id=project._id)
+                                       .filter_by(luser_id=member_id)
+                                       .first())
+    models.db.session.delete(member)
+    models.db.session.commit()
+                
+    return respond_with_json({ "status" : "success" })
 
 
 ###############################################################################

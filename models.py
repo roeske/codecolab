@@ -130,7 +130,7 @@ class Luser(db.Model, DictSerializable):
     @property
     def gravatar_url(self):
         email_hash = md5(self.email.strip().lower()).hexdigest()
-        return "http://gravatar.com/avatar/%s?s=96" % email_hash
+        return "http://gravatar.com/avatar/%s?s=128" % email_hash
 
     
     @property

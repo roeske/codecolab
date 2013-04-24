@@ -1,5 +1,8 @@
 {% include "head.html" %}
 <div class="content">
+  <br />
+  {% include "members.html" %}
+  <br />
   <h4>Invites</h4>
   {% if invites|count > 0 %}
     <table>
@@ -34,5 +37,8 @@
   </div>
 </div>
 {% include "common_js.html" %}
+<script type="text/javascript">
+  cc_initialize_members()
+</script>
 {% include "flash.html" %}
 {% include "foot.html" %}

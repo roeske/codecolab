@@ -1,0 +1,14 @@
+.inner_member li {
+    float: none;
+}
+
+.member_username_container {
+    text-align: center;
+    padding: 8px;
+}
+
+li.member_item {
+    border: 1px solid #ccc;
+    margin: 4px;
+    padding: 8px;
+}
