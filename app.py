@@ -1241,7 +1241,7 @@ def project_add_member(project=None, luser=None, **kwargs):
         else:
             flask.flash("%s is already a member of this project." % email)
         
-    return flask.redirect("/project/%s/invites" % project.name)
+    return flask.redirect("/project/%s/members" % project.name)
 
 
 ###############################################################################
