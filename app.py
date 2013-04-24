@@ -1142,7 +1142,10 @@ def project_progress(project_name=None, luser=None,  project=None, **kwargs):
 
     for i in range(15):
         date = week_ago + timedelta(days=i)
-        team_cadence_data.append([0, "-".join(str(date).split("-")[1:])])
+
+        formatted_date = date.strftime("%b %d")
+
+        team_cadence_data.append([0, formatted_date])
         team_cadence_map[date] = i
 
     for c in completions:
