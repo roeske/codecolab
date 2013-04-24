@@ -50,7 +50,7 @@
       <div class="clear"></div>
 
       {% if project.is_owner(luser._id) and member._id != luser._id %}
-        <a data-username={{ member.profile.username }}" class="member_remove" 
+        <a data-username="{{ member.profile.username }}" class="member_remove" 
         style="text-align: center; color: #f00; font-size: 80%; display: block; text-decoration: underline;" 
           href="/project/{{ project.name }}/members/{{ member._id }}/remove">
           remove member

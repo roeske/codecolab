@@ -23,6 +23,8 @@
     <p> You have not invited anyone to this project. </p>
   {% endif %}
 
+
+  <br />
   <div style="float: right">
     <form class="add_member" action="/project/{{ project.name }}/add_member"method="POST">
     <ul class="project_manage structural controls horizontal_left">
@@ -30,7 +32,7 @@
       <input type="email" placeholder="email..." name="email" />
       </li>
       <li>
-      <input class="btn" type="submit" value="Add Via Email  " />
+        &nbsp;&nbsp;<input class="btn" type="submit" value="Add Via Email  " />
       </li>
     </ul>
     </form>
