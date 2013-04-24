@@ -1132,6 +1132,8 @@ def project_progress(project_name=None, luser=None,  project=None, **kwargs):
     week_ago = now - timedelta(days=7)
     print "%r" % now
     completions = (models.CardCompletions.query
+                   .filter(models.CardCompletions.card_id==models.Card._id)
+                   .filter(models.Card.project_id==project._id)
                    .filter(models.CardCompletions.created > week_ago)
                    .filter(models.CardCompletions.created < now).all())
 
