@@ -1129,7 +1129,7 @@ def project_progress(project_name=None, luser=None,  project=None, **kwargs):
 
     # Calculate the team cadence.
     now = datetime.utcnow().date()
-    week_ago = now - timedelta(days=7)
+    week_ago = now - timedelta(days=14)
     print "%r" % now
     completions = (models.CardCompletions.query
                    .filter(models.CardCompletions.card_id==models.Card._id)
@@ -1140,7 +1140,7 @@ def project_progress(project_name=None, luser=None,  project=None, **kwargs):
     team_cadence_data = []
     team_cadence_map = {}
 
-    for i in range(7):
+    for i in range(15):
         date = week_ago + timedelta(days=i)
         team_cadence_data.append([0, "-".join(str(date).split("-")[1:])])
         team_cadence_map[date] = i
