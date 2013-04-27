@@ -590,6 +590,7 @@ class ActivityType(db.Model, DictSerializable):
     _id             = db.Column(db.Integer, primary_key=True)
     type            = db.Column(db.String, nullable=False, unique=True)
     format          = db.Column(db.String, nullable=False)
+    text_format     = db.Column(db.String, nullable=False)
 
 
 class Activity(db.Model, DictSerializable, FluxCapacitor):
@@ -617,9 +618,8 @@ class Activity(db.Model, DictSerializable, FluxCapacitor):
 
 
     def describe_with_time(self, username, tz):
-        timestamp = self.created_as_timezone(tz)
-        return (self.type.format + " on %s")  % (username, self.card.text,
-                                                 timestamp)
+        return self.type.text_format % { "card_text" : self.card.text,
+                                "username" : self.luser.profile.username }
 
 
     def __str__(self):
@@ -649,14 +649,16 @@ class ActivityLogger(object):
 # Maintenance code
 ##############################################################################
 
-def insert_or_update_activity_type(fmt, type):
+def insert_or_update_activity_type(fmt, text_fmt, type):
     activity_type = ActivityType.query.filter_by(type=type).first()
     
     if activity_type is not None:
         activity_type.type = type
         activity_type.format = fmt
+        activity_type.text_format = text_fmt
     else:
-        activity_type = ActivityType(type=type, fmt=fmt)
+        activity_type = ActivityType(type=type, format=fmt,
+                                    text_format=text_fmt)
         db.session.add(activity_type)
 
 
@@ -700,32 +702,44 @@ if __name__ == "__main__":
 
 <a data-id="%%(card_id)d" class="activity_card" href="/project/%%(project_name)s/cards/%%(card_id)d">%%(card_text)s</a>
 """
+
+        base_text_fmt = "%s %%(card_text)s"
+
         fmt = base_fmt % "created card"
-        insert_or_update_activity_type(fmt, "card_created")
+        text_fmt = base_text_fmt % "created card"
+        insert_or_update_activity_type(fmt, text_fmt, "card_created")
 
         fmt = base_fmt % "completed card"
-        insert_or_update_activity_type(fmt, "card_finished")
+        text_fmt = base_text_fmt % "completed card"
+        insert_or_update_activity_type(fmt, text_fmt, "card_finished")
 
         fmt = base_fmt % "marked card as incomplete"
-        insert_or_update_activity_type(fmt, "card_incomplete")
+        text_fmt = base_text_fmt % "marked card as incomplete"
+        insert_or_update_activity_type(fmt, text_fmt, "card_incomplete")
 
         fmt = base_fmt % "commented on card"
-        insert_or_update_activity_type(fmt, "card_comment")
+        text_fmt = base_text_fmt % "commented on card"
+        insert_or_update_activity_type(fmt, text_fmt, "card_comment")
 
         fmt = base_fmt % "deleted comment on card"
-        insert_or_update_activity_type(fmt, "card_comment_delete")
+        text_fmt = base_text_fmt % "deleted comment on card"
+        insert_or_update_activity_type(fmt, text_fmt, "card_comment_delete")
         
         fmt = base_fmt % "edited card"
-        insert_or_update_activity_type(fmt, "card_edit")
+        text_fmt = base_text_fmt % "edited card"
+        insert_or_update_activity_type(fmt, text_fmt, "card_edit")
 
         fmt = base_fmt % "changed card"
-        insert_or_update_activity_type(fmt, "card_change")
+        text_fmt = base_text_fmt % "changed card"
+        insert_or_update_activity_type(fmt, text_fmt, "card_change")
         
         fmt = base_fmt % "deleted card"
-        insert_or_update_activity_type(fmt, "card_delete")
+        text_fmt = base_text_fmt % "deleted card"
+        insert_or_update_activity_type(fmt, text_fmt, "card_delete")
 
         fmt = base_fmt % "archived card"
-        insert_or_update_activity_type(fmt, "card_archive")
+        text_fmt = base_text_fmt % "archived card"
+        insert_or_update_activity_type(fmt, text_fmt, "card_archive")
         
         db.session.commit()
 
