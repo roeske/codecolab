@@ -1,5 +1,61 @@
-/** Project View */
+/** Card editor */
+function cc_setup_card_description_editor(project_name, card_id) {
+    // Setup pagedown
+    var converter = Markdown.getSanitizingConverter()
+    var editor = new Markdown.Editor(converter)
+    editor.run()
 
+    // This feature makes no sense with the way our project
+    // is currently configured
+    $("#wmd-image-button").hide()
+
+
+    // Setup toggle preview / save
+    $("a.save").click(function() {
+      if ($(this).text() == "Edit") {
+
+          $(this).text("Save")
+          $("#wmd-preview").hide()
+          $("#editor_container").show()
+      } else {
+          // Post the new content
+          var description = $("#wmd-input").val()
+          var url = "/project/" + project_name + "/cards/" 
+                    + card_id + "/description";
+    
+          console.log(url)
+
+          var that = this; 
+          $.ajax({
+              type: "POST",
+
+              url: url,
+
+              contentType: "application/json;charset=UTF-8",
+
+              // Get the new state each time we submit, to toggle.
+              data: JSON.stringify({description: description}),
+    
+              success: function(data) {
+                  console.log(data)
+
+                  // Show edit mode
+                  $(that).text("Edit")
+                  $("#wmd-preview").show()
+                  $("#editor_container").hide()
+              }
+          })
+      }
+    })
+}
+
+
+function cc_setup_card(project_name, card_id) {
+    cc_setup_card_description_editor(project_name, card_id)
+}
+
+
+/** Project View */
 function cc_connect_editables(project_name, elem, card_id) {
     var id = card_id
 
@@ -480,79 +536,19 @@ function cc_connect_complete_button(project_name, modal, card_id) {
     })
 }
 
+
 function cc_on_modal_opened(project_name, card_id) {
-    var lastText = null;
     var modal_selector = "#modal_" + + card_id
     var modal = $(modal_selector)
 
-    console.log("project_name="+project_name)
-    console.log("card_id="+card_id)
 
-    setTimeout(function() {
-        var opts = { 
-          basePath: "/js/epic/",
-          container: "epiceditor_" + card_id,
-          file: { autoSave: false },
-          theme: { editor: "/themes/editor/epic-light.css" }
-        }
-
-        var editor = new EpicEditor(opts)
-        editor.load()
-        editor.preview()
-
-        editor.on("save", function(data) {
-              $("a.save").text("Click to edit")
-
-              // don't use the network if no changes have been made.
-              if (text != lastText) {
-              
-                  var url = "/project/" + project_name + "/cards/" + card_id + "/description"
-                  $.ajax({ 
-                            url: url, 
-                            type: "POST",
-                            data: JSON.stringify(data),
-                            contentType: "application/json; charset=utf-8", 
-                            dataType: "json",
-                            success: function(data) {
-                               console.log(data) 
-                            }
-                        })
-
-                  lastText = text;
-              }
-
-              // Whenever we save, make sure to hide the save button,
-              // as it is only relevant during an edit
-            })
-
-            editor.on("edit", function() {
-              // When editing, the save button needs to be shown.
-              $("a.save").text("Save")
-            })
-
-
-            $("a.save").click(function() {
-              if ($(this).text() == "Click to edit") {
-                  editor.edit()
-              } else {
-                  editor.save()
-                  editor.preview()
-              }
-            })
-
-
-            // workaround, for some reason loading the editor causes a scroll
-            // down when the card is too big for its y dimension
-            $(modal_selector).scrollTop(0)
-
-
-            cc_connect_editables(project_name, modal, card_id)
-            cc_connect_comment_form(project_name, modal, card_id)
-            cc_connect_upload_form(project_name, modal, card_id)
-            cc_connect_milestone_spinner(modal, card_id)
-            cc_connect_assign_to_spinner(modal, card_id)
-            cc_connect_complete_button(project_name, modal, card_id)
-    }, 600)
+    cc_connect_editables(project_name, modal, card_id)
+    cc_connect_comment_form(project_name, modal, card_id)
+    cc_connect_upload_form(project_name, modal, card_id)
+    cc_connect_milestone_spinner(modal, card_id)
+    cc_connect_assign_to_spinner(modal, card_id)
+    cc_connect_complete_button(project_name, modal, card_id)
+    cc_setup_card(project_name, card_id) 
 }
 
 
@@ -581,29 +577,31 @@ function cc_connect_card_to_modal(title, project_name, elem, is_link) {
             $("#" + modal_id).dialog("destroy")
         },
 
-        modal: true,
+        // We need true, but it's breaking focus on sub-dialogs, so...
+        //modal: true,
+        modal: false,
+
         title: title,
         autoOpen: false,
-        width: 488,
+        width: 490,
         height: 700, 
-
-        open: function() {
-            cc_on_modal_opened(project_name, card_id)
-        }
     }
 
+    var on_load = function() {
+        cc_on_modal_opened(project_name, card_id)
+    }
     
     if (is_link) {
         $(elem).click(function(ev) {
             ev.preventDefault()
             url = $(elem).attr("href")
             console.log("url="+url)
-            var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
+            var modal = $("<div id=" + modal_id + "></div>").load(url, on_load).dialog(options)
             modal.dialog("open")
         })
     } else {
         $(elem).dblclick(function(ev) {
-            var modal = $("<div id=" + modal_id + "></div>").load(url).dialog(options)
+            var modal = $("<div id=" + modal_id + "></div>").load(url, on_load).dialog(options)
             modal.dialog("open")
         })
     }

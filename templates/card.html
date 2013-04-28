@@ -1,150 +1,156 @@
-<div style="width: 457px; padding-top: 7px;">
+<div style="width: 455px; padding-top: 8px;">
+  <!-- Static created timestamp -->
+  <div class="card_top">
+    <div>
+      <a data-state="{{ card.is_completed }}" class="btn card_complete" href="/project/{{ project_name }}/cards/{{ card._id }}/complete">
+        <!-- Show the appropriate toggle state, but also make it easy
+           to change from javascript by manipulating the DOM -->
+        {% if card.is_completed == True %}
+          {% set display_complete = "inline;" %}
+          {% set display_incomplete = "none;" %}
+        {% else %}
+          {% set display_incomplete = "inline;" %}
+          {% set display_complete = "none;" %}
+        {% endif %} 
 
-<!-- Static created timestamp -->
-<div class="card_top">
+        <div style="display: {{ display_complete }}" 
+            class="complete">
+            <div style="float: left;">Complete&nbsp;</div>
+            <div class="icon">&#10003;</div>
+            <div class="clear"></div>
+        </div>
+
+        
+        <div style="display: {{ display_incomplete }}"
+            class="incomplete">Finish&nbsp;</div>
+      </a>
+    </div>
+    <div class="clear"></div>
+  </div>
+
+  <!-- Editable Title "text" field -->
+  <p style="margin-bottom: 16px;font-size: 90%; width: 380px;"><span class="editable text">{{ card.text }}</span></p>
+
+  <!-- Editable description field -->
+  <div class="clear"></div>
+
+  <h3 class="card_section">Description</h3>
+
+  <div class="wmd-panel">
+    <div style="display: none;" id="editor_container">
+      <div id="wmd-button-bar"></div>
+      <textarea class="wmd-input" id="wmd-input">
+        {{ card.description }}
+      </textarea>
+    </div>
+    <div class="wmd-preview" id="wmd-preview"></div>
+  </div>
+
+  <div class="editor_hint">
+    <a style="float: right;" class="save btn" href="#">Edit</a>
+    <div class="clear"></div>
+  </div>
+
+  <br />
+
   <div>
-    <a data-state="{{ card.is_completed }}" class="btn card_complete" href="/project/{{ project_name }}/cards/{{ card._id }}/complete">
-      <!-- Show the appropriate toggle state, but also make it easy
-         to change from javascript by manipulating the DOM -->
-      {% if card.is_completed == True %}
-        {% set display_complete = "inline;" %}
-        {% set display_incomplete = "none;" %}
-      {% else %}
-        {% set display_incomplete = "inline;" %}
-        {% set display_complete = "none;" %}
-      {% endif %} 
-
-      <div style="display: {{ display_complete }}" 
-          class="complete">
-          <div style="float: left;">Complete&nbsp;</div>
-          <div class="icon">&#10003;</div>
-          <div class="clear"></div>
-      </div>
-
+    
+    <div class="difficulty_section">
+      <h3 class="card_section">Difficulty</h3>
+      <div class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div></p>
+    </div>
+    
+    <!-- Select milestone -->
+    <form action="/project/{{ project_name }}/cards/{{ card._id }}/select_milestone"
+        method="POST" 
+        class="milestone">
+       
+      <h3 class="card_section">Milestone</h3>
       
-      <div style="display: {{ display_incomplete }}"
-          class="incomplete">Finish&nbsp;</div>
-    </a>
+      <select data-card-id="{{ card._id }}" id="select_milestone">
+        <option data-id="-1">None</option>
+        {% for milestone in project.milestones %}
+        
+          <option 
+            {% if milestone._id == card.milestone_id %}
+              selected
+            {% endif %}
+            data-card-id="{{ card.milestone_id }}" 
+            data-id="{{ milestone._id }}">
+            
+            {{ milestone.name }}
+          </option>
+
+        {% endfor %}
+      </select>
+    </form>
+
+    <!-- Assign to user -->
+    <form action="/project/{{ project_name }}/cards/{{ card._id }}/assign_to"
+        method="POST" 
+        class="assign_to">
+       
+      <h3 class="card_section">Assign To</h3>
+      
+      <select id="select_assign_to">
+        <option data-card-id="{{ card._id }}" data-id="-1">None</option>
+        {% for member in project.lusers %}
+          <option 
+            {% if member._id == card.assign_to_id %}
+              selected
+            {% endif %}
+            
+            data-card-id="{{ card.assign_to_id }}" 
+            data-id="{{ member._id }}">
+            
+            {{ member.profile.username }}
+          </option>
+        {% endfor %}
+      </select>
+    </form>
   </div>
   <div class="clear"></div>
-</div>
 
-<!-- Editable Title "text" field -->
-<p><span class="editable text">{{ card.text }}</span></p>
+  {% include 'card_comments.html' %}
 
-<br />
-<!-- Editable description field -->
-<div class="clear"></div>
+  <form class="comments" action="/project/{{ project_name }}/cards/{{ card._id }}/comment" method="POST">
+    <ul class="structural" style="padding: 0; margin: 0;">
+      <li> 
+        <textarea placeholder="Comment..." name="text" id="text"/>
+      </li>
 
-<div id="epiceditor_{{ card._id }}" style="border: 1px solid #ccc; height: 159px;"></div>
-<div class="editor_hint">
-  <a style="float: right;" class="save" href="#">Click to edit</a>
-  <div class="clear"></div>
-</div>
-
-<br />
-
-<div>
-  
-  <div class="difficulty_section">
-    <h3 class="card_section">Difficulty</h3>
-    <div class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div></p>
-  </div>
-  
-  <!-- Select milestone -->
-  <form action="/project/{{ project_name }}/cards/{{ card._id }}/select_milestone"
-      method="POST" 
-      class="milestone">
-     
-    <h3 class="card_section">Milestone</h3>
-    
-    <select data-card-id="{{ card._id }}" id="select_milestone">
-      <option data-id="-1">None</option>
-      {% for milestone in project.milestones %}
-      
-        <option 
-          {% if milestone._id == card.milestone_id %}
-            selected
-          {% endif %}
-          data-card-id="{{ card.milestone_id }}" 
-          data-id="{{ milestone._id }}">
-          
-          {{ milestone.name }}
-        </option>
-
-      {% endfor %}
-    </select>
+      <li>
+        <input class="btn" style="float: right; margin-right: 0;" type="submit" name="submit" value="Add Comment"/>
+        <div style="clear: both;"></div>
+      </li>
+    </ul>
   </form>
 
-  <!-- Assign to user -->
-  <form action="/project/{{ project_name }}/cards/{{ card._id }}/assign_to"
-      method="POST" 
-      class="assign_to">
-     
-    <h3 class="card_section">Assign To</h3>
-    
-    <select id="select_assign_to">
-      <option data-card-id="{{ card._id }}" data-id="-1">None</option>
-      {% for member in project.lusers %}
-        <option 
-          {% if member._id == card.assign_to_id %}
-            selected
-          {% endif %}
-          
-          data-card-id="{{ card.assign_to_id }}" 
-          data-id="{{ member._id }}">
-          
-          {{ member.profile.username }}
-        </option>
-      {% endfor %}
-    </select>
+  <h3 class="comments_title">Attachments</h3>
+
+  <form class="uploads" action="/project/{{ project_name }}/cards/{{ card._id }}/attach" method="POST">
+    <ul class="structural">
+
+      <li> 
+        <div class="file btn">Select File</div>
+        <input class="btn" type="file" name="file" id="file" />
+      </li>
+
+      <li>
+        <div style="float: right;">
+          <input ="font-family: entypo" type="submit" name="submit" value="Upload" class="btn"/>
+        </div>
+        <div style="clear: both;"></div>
+      </li>
+    </ul>
   </form>
-</div>
-<div class="clear"></div>
 
-{% include 'card_comments.html' %}
 
-<form class="comments" action="/project/{{ project_name }}/cards/{{ card._id }}/comment" method="POST">
-  <ul class="structural" style="padding: 0; margin: 0;">
-    <li> 
-      <textarea placeholder="Comment..." name="text" id="text"/>
-    </li>
-
-    <li>
-      <input class="btn" style="float: right; margin-right: 0;" type="submit" name="submit" value="Add Comment"/>
-      <div style="clear: both;"></div>
-    </li>
+  <ul class="attachments structural">
+     {% for file in card.attachments %}
+     <li>
+      <a href="/uploads/{{ file.filename }}">{{ file.filename }}</a>
+     </li>
+     {% endfor %}
   </ul>
-</form>
-
-<h3 class="comments_title">Attachments</h3>
-
-<form class="uploads" action="/project/{{ project_name }}/cards/{{ card._id }}/attach" method="POST">
-  <ul class="structural">
-
-    <li> 
-      <div class="file btn">Select File</div>
-      <input class="btn" type="file" name="file" id="file" />
-    </li>
-
-    <li>
-      <div style="float: right;">
-        <input ="font-family: entypo" type="submit" name="submit" value="Upload" class="btn"/>
-      </div>
-      <div style="clear: both;"></div>
-    </li>
-  </ul>
-</form>
-
-
-<ul class="attachments structural">
-   {% for file in card.attachments %}
-   <li>
-    <a href="/uploads/{{ file.filename }}">{{ file.filename }}</a>
-   </li>
-   {% endfor %}
-</ul>
-
 </div>
-
-</script>

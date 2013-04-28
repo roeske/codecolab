@@ -792,8 +792,7 @@ def cards_get(project_name=None, card_id=None, project=None, **kwargs):
 @app.route("/project/<project_name>/cards/<int:card_id>/description", methods=["POST"])
 @check_project_privileges
 def cards_description(project=None, card_id=None, **kwargs):
-    description = request.json["content"]
-    print description
+    description = request.json["description"]
     card = models.Card.query.filter_by(_id=card_id).first()
     card.description = description
     models.db.session.commit()
