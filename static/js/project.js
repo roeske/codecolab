@@ -632,6 +632,6 @@ function cc_project_init(project_name, pile_ids) {
 
     var pile_selector = "ul#pile_list"
     $(pile_selector).sortable(cc_make_pile_sorter("ul#pile_list"))
-    $("ul, li").disableSelection()
+    $("ul.card_item, li.card_item").disableSelection()
     cc_setup_editable_fields(project_name)
 }

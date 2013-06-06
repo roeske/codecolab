@@ -108,6 +108,20 @@ function handle_archive_click(event) {
 
 // Run this code when the DOM is ready.
 $(function() {
+  // We need to set the width of the pile list to the length of all the 
+  // piles. This is because some browsers will make the inner list too
+  // small and cause it not to contain all of them horizontally.
+  // Mainly, firefox.
+  var total_width = 0
+  $(".pile_container").each(function(i, elem) {
+      total_width += $(elem).width()
+  })
+  console.log("total_width="+total_width)
+
+  // Now set the inner #pile_list width to the total width
+  $("#pile_list").width(total_width)
+
+
   // Make to-do lists sortable by dragging and save changes in the database.
   // Read pile ids via jinja2.
   pile_ids = {{ json_pile_ids|safe }}

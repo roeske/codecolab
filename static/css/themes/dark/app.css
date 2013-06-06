@@ -305,12 +305,13 @@ div.pile_chrome_bottom {
     div#piles {
         border-radius: 3px;
         height: 90%;
-        overflow-x: auto;
+        overflow-x: scroll;
         width: 83.6%;
         float: left;
     }
 
     div#piles ul#pile_list {
+        width: 9999px; /* hack to fix firefox horiz scroll. */
         list-style: none;
         white-space: nowrap;
         overflow: hidden;

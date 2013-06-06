@@ -278,7 +278,7 @@ li.card_item div.milestone {
         height: 90%;
         width: 100%;
     /*    overflow-y: hidden; */
-        overflow-x: auto;
+        overflow-x: scroll;
     }
 
     div#piles ul#pile_list {
