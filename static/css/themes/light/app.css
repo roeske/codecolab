@@ -400,3 +400,9 @@ div.pile_chrome_bottom {
 .ui-widget, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
     font-family: "Open Sans", sans-serif;
 }
+
+.thumb {
+    margin: 7px;
+    border: 1px solid #ccc;
+}
+

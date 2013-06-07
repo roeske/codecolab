@@ -147,7 +147,14 @@
   <ul class="attachments structural">
      {% for file in card.attachments %}
      <li>
-      <a href="/uploads/{{ file.filename }}">{{ file.filename }}</a>
+      <a href="/uploads/{{ file.filename }}">
+        {% if file.is_image %}
+          <img class="thumb" src="/thumbnail/uploads/{{ file.filename }}"/>
+        {% else %}
+          {{ file.filename }}
+        {% endif %}
+      </a>
+
      </li>
      {% endfor %}
   </ul>

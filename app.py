@@ -2,10 +2,12 @@ import os
 import flask
 import models
 import bcrypt 
-import models
 import pytz
 import httplib2
 import simplejson as json
+
+import Image
+from StringIO import StringIO
 
 from flask import request
 from flaskext import uploads
@@ -15,7 +17,7 @@ from functools import wraps
 from sqlalchemy import and_
 from md5 import md5 
 from pidgey import Mailer 
-from config import MAILER_PARAMS, MAIL_FROM, BASE_URL 
+from config import *
 
 from datetime import datetime, time, timedelta
 from pytz import timezone
@@ -96,6 +98,22 @@ def static_file(path):
     return f.read()
 
 
+@app.route("/thumbnail/<path:path>")
+def thumbnail(path):
+    infile = open(path)
+
+    size = THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH
+
+    image_buffer = StringIO()
+    image = Image.open(infile)
+    image.thumbnail(size, Image.ANTIALIAS)
+
+    root, ext = os.path.splitext(path)
+    image.save(image_buffer, format=FORMATS[ext.lower()])
+
+    if ext in file_suffix_to_mimetype:
+        return flask.Response(image_buffer.getvalue(), mimetype=file_suffix_to_mimetype[ext])
+
 ###############################################################################
 # Custom error pages
 ###############################################################################
@@ -120,6 +138,7 @@ def error_404():
 @app.route("/500")
 def error_500():
     flask.abort(500)
+
 
 ###############################################################################
 # Index

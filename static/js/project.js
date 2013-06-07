@@ -1,3 +1,7 @@
+String.prototype.endsWith = function(suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
+
 /** Card editor */
 function cc_setup_card_description_editor(project_name, card_id) {
     // Setup pagedown
@@ -401,7 +405,19 @@ function cc_connect_upload_form(project_name, modal, card_id) {
     modal.find("form.uploads").ajaxForm({
         success: function(response, status_code) {
             filename = response.attachment.filename
+            var tmpFilename = filename.toLowerCase()
+            if (tmpFilename.endsWith("png") ||
+                tmpFilename.endsWith("jpg") ||
+                tmpFilename.endsWith("gif") ||
+                tmpFilename.endsWith("jpeg")) {
+    
+            modal.find("ul.attachments").prepend("<li><a href=\"/uploads/"+filename+"\"><img class=\"thumb\" src=\"/thumbnail/uploads/"+filename+"\"/></a><div class=\"clear\"></div></li>")
+
+            } else {    
+
             modal.find("ul.attachments").prepend("<li><a href=\"/uploads/"+filename+"\">"+filename+"<span style=\"color: green;\" class=\"icon\">&nbsp;&#10003;</span></a><div class=\"clear\"></div></li>")
+
+            }
 
             file_div.text("Select File")
         }

@@ -10,6 +10,8 @@ from urllib2 import quote
 from md5 import md5
 from uuid import uuid4
 
+from config import FORMATS
+import os
 
 db = SQLAlchemy(app)
 
@@ -549,6 +551,12 @@ class CardFile(db.Model, DictSerializable):
     filename    = db.Column(db.String, nullable=False)
    
     luser       = db.relationship("Luser")
+
+
+    @property
+    def is_image(self):
+        root, ext = os.path.splitext(self.filename)
+        return ext.lower() in FORMATS
 
 
 class BetaSignup(db.Model, DictSerializable):

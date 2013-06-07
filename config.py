@@ -12,3 +12,10 @@ LOCAL_BASE_URL = "http://localhost:8080/"
 
 BASE_URL = HEROKU_BASE_URL
 #BASE_URL = LOCAL_BASE_URL
+
+THUMBNAIL_HEIGHT = 256
+THUMBNAIL_WIDTH = 256
+
+FORMATS = { ".jpg" : "JPEG",
+            ".png" : "PNG",
+            ".gif" : "GIF" }

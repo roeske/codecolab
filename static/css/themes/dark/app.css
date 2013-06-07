@@ -421,3 +421,8 @@ div.pile_chrome_bottom {
     font-family: "Open Sans", sans-serif;
 }
 
+
+.thumb {
+    margin: 7px;
+    border: 1px solid #ccc;
+}
