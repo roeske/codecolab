@@ -62,7 +62,7 @@ form.comments ul li textarea {
 
 .ui-dialog > div form.milestone {
     float: left;
-    width: 150px;
+    width: 31%;
     height: 70px;
     padding: 0px 7px;
     background-color: #f5f2f1;
@@ -71,7 +71,7 @@ form.comments ul li textarea {
 
 .ui-dialog > div div.difficulty_section {
     float: left;
-    width: 108px;
+    width: 25%;
     height: 70px;
     padding: 0px 7px;
     background-color: #f5f2f1;
@@ -80,7 +80,7 @@ form.comments ul li textarea {
 
 .ui-dialog > div form.assign_to {
     float: left;
-    width: 149px;
+    width: 31%;
     height: 70px;
     padding: 0px 7px;
     background-color: #f5f2f1;
@@ -107,3 +107,17 @@ div form.assign_to select {
 div.editorhint {
 
 }
+/* upload progressbar */
+
+.progress-container {
+    width: 200px;
+    height: 5px;
+    background-color: white;
+}
+
+.progress-bar {
+    width: 0%;
+    height: 5px;
+    background: gray;
+}
+

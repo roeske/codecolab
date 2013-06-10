@@ -126,6 +126,7 @@
 
   <h3 class="comments_title">Attachments</h3>
 
+{% if False %}
   <form class="uploads" action="/project/{{ project_name }}/cards/{{ card._id }}/attach" method="POST">
     <ul class="structural">
 
@@ -158,4 +159,10 @@
      </li>
      {% endfor %}
   </ul>
+{% endif %}
+
+    <input type="file" name="file" id="file"/>
+    <div class="progress-container">
+        <div class="progress-bar">
+    </div> 
 </div>

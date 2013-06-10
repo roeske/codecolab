@@ -81,13 +81,16 @@
 
 {% include "common_js.html" %}
 
-<!-- BEGIN: JS -->
-<script type="text/javascript" src="/pagedown/Markdown.Converter.js"></script>
-<script type="text/javascript" src="/pagedown/Markdown.Sanitizer.js"></script>
-<script type="text/javascript" src="/pagedown/Markdown.Editor.js"></script>
+<!--<script src="/js/underscore.js"></script> -->
+<script src="/js/lodash.min.js"></script> 
+<script src="/js/s3upload.js"></script>
 
-<script type="text/javascript" src="/js/project.js"></script>
-<script type="text/javascript">
+<script src="/pagedown/Markdown.Converter.js"></script>
+<script src="/pagedown/Markdown.Sanitizer.js"></script>
+<script src="/pagedown/Markdown.Editor.js"></script>
+
+<script src="/js/project.js"></script>
+<script>
 
 function handle_archive_click(event) {
     event.preventDefault()
@@ -116,6 +119,7 @@ $(function() {
   $(".pile_container").each(function(i, elem) {
       total_width += $(elem).width()
   })
+  total_width += 100
   console.log("total_width="+total_width)
 
   // Now set the inner #pile_list width to the total width

@@ -383,9 +383,60 @@ function cc_connect_comment_form(project_name, modal, card_id) {
 }
 
 
+function s3_upload(project_name, card_id, filename) {
+    var s3upload = new S3Upload({
+        file_dom_selector: '#file',
+        s3_sign_put_url: '/sign_s3_upload/',
+
+        onProgress: function(percent, message) { 
+            console.log("onProgress: percent: ", percent, "message: ", message)
+        },
+
+        onFinishS3Put: function(url) { 
+            console.log("onFinishS3Put: finish: ", url)
+        },
+
+        onError: function(status) {
+            alert("Error uploading file. Please try again.")
+            $("#file").val("")
+        }
+    }, card_id + "/" + filename);
+}
+
+
+function get_filename_from_input(id) {
+    var fullPath = $(id).val()
+
+    if (fullPath) {
+        var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : 
+                            fullPath.lastIndexOf('/'));
+
+        var filename = fullPath.substring(startIndex);
+
+        if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
+            filename = filename.substring(1);
+        }
+        
+
+        console.log("filename="+filename)
+
+        return filename
+    }
+
+    return ""
+}
+
+
 function cc_connect_upload_form(project_name, modal, card_id) {
+    $(":file").change(function() {
+        var filename = get_filename_from_input(":file")
+        s3_upload(project_name, card_id, filename)
+    })
+/*
     var wrapper = $("<div/>").css({height:0, width:0, "overflow":"hidden"})
+
     var file_input = $(":file").wrap(wrapper) 
+
     var file_div = $("div.file")
 
     file_input.change(function() {
@@ -401,7 +452,7 @@ function cc_connect_upload_form(project_name, modal, card_id) {
     $(".file").click(function() {
         file_input.click()
     }).show()
-
+*/
     modal.find("form.uploads").ajaxForm({
         success: function(response, status_code) {
             filename = response.attachment.filename

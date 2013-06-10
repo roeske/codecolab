@@ -6,6 +6,11 @@ import pytz
 import httplib2
 import simplejson as json
 
+import time
+import base64
+import hmac
+import sha
+
 import Image
 from StringIO import StringIO
 
@@ -19,14 +24,21 @@ from md5 import md5
 from pidgey import Mailer 
 from config import *
 
-from datetime import datetime, time, timedelta
+from datetime import datetime, timedelta
 from pytz import timezone
 
 from oauth2client.client import flow_from_clientsecrets
 
+from urllib import quote
+
 from helpers import (make_gravatar_url, make_gravatar_profile_url,
                      redirect_to, redirect_to_index, respond_with_json,
                      jsonize, get_luser_for_email, render_email)
+
+AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY_ID')       
+AWS_SECRET_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+S3_BUCKET = os.environ.get('S3_BUCKET')
+
 
 def debug(text):
     print "DEBUG: %r" % text
@@ -70,6 +82,37 @@ uploads.configure_uploads(app, (files,))
 def is_logged_in():
     return "email" in flask.session
 
+
+
+###############################################################################
+# Sign S3 Uploads
+###############################################################################
+
+# Used for expiration time since it is a required field.
+# our files will expire on 2033-06-05, by then hopefully there
+# will be a better solution than files.
+FUTURE = 2001613951
+
+@app.route('/sign_s3_upload/')
+def sign_s3():
+    object_name = request.args.get('s3_object_name')
+    mime_type = request.args.get('s3_object_type')
+
+    expires = FUTURE
+    amz_headers = "x-amz-acl:public-read"
+
+    put_request = "PUT\n\n%s\n%d\n%s\n/%s/%s" % (mime_type, expires, amz_headers, S3_BUCKET, object_name)
+
+    signature = base64.encodestring(hmac.new(AWS_SECRET_KEY, put_request, sha).digest())
+    signature = quote(signature)
+    
+    url = 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, object_name)
+    signed_request = '%s?AWSAccessKeyId=%s&Expires=%d&Signature=%s' % (url, 
+        AWS_ACCESS_KEY, expires, signature)
+    
+    print "put_request=%r" % put_request
+
+    return json.dumps(dict(signed_request=signed_request, url=url))
 
 ###############################################################################
 # Serve static files for development
@@ -1303,7 +1346,7 @@ def update_office_hours(project=None, luser=None, **kwargs):
     for i in __builtins__.range(hours_len):
         
         if start_time is None:
-            start_time = time(hour=hours[i])
+            start_time = datetime.time(hour=hours[i])
 
         # IF: The next hour is present 
         #   AND: The next hour is more than one more than the current
@@ -1321,9 +1364,9 @@ def update_office_hours(project=None, luser=None, **kwargs):
             # as rolling over to the next day to encode it is not possible the
             # way our ranges are implemented.
             if end_hour == 24:
-                end_time = time(hour=23, minute=59, second=59, microsecond=999999)
+                end_time = datetime.time(hour=23, minute=59, second=59, microsecond=999999)
             else:
-                end_time = time(hour=end_hour)
+                end_time = datetime.time(hour=end_hour)
 
             
             # Save new time range.  
