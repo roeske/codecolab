@@ -4,36 +4,31 @@ import models
 import bcrypt 
 import pytz
 import httplib2
-import simplejson as json
-
 import time
 import base64
 import hmac
 import sha
-
 import Image
-from StringIO import StringIO
-
-from flask import request
-from flaskext import uploads
-from flaskext.markdown import Markdown
-
-from functools import wraps
-from sqlalchemy import and_
-from md5 import md5 
-from pidgey import Mailer 
-from config import *
-
-from datetime import datetime, timedelta
-from pytz import timezone
-
-from oauth2client.client import flow_from_clientsecrets
-
 import urllib
 import re
 import string
 import uuid
+import simplejson as json
 
+from StringIO import StringIO
+from flask import request
+from flaskext import uploads
+from flaskext.markdown import Markdown
+from functools import wraps
+from sqlalchemy import and_
+from md5 import md5 
+from pidgey import Mailer 
+from datetime import datetime, timedelta
+from pytz import timezone
+from oauth2client.client import flow_from_clientsecrets
+
+
+from config import *
 from helpers import (make_gravatar_url, make_gravatar_profile_url,
                      redirect_to, redirect_to_index, respond_with_json,
                      jsonize, get_luser_for_email, render_email)
@@ -699,15 +694,27 @@ def activity(**kwargs):
 ## Cards
 ##############################################################################
 
-def card_get_comments(project=None, project_name=None, card_id=None, **kwargs):
+def render_card(template, project=None, project_name=None, card_id=None, **kwargs):
+    card = query_card(card_id, project._id)
+    return flask.render_template(template, card=card, 
+                                 project_name=project_name, card_id=card_id,
+                                **kwargs)
+
+
+def card_get_comments(**kwargs):
     """
     Called via .ajax to refresh comments after a comment is added.
     """
-    card = query_card(card_id, project._id)
-    return flask.render_template("card_comments.html", card=card, 
-                                                       project_name=project_name,
-                                                       card_id=card_id,
-                                                       **kwargs)
+    return render_card("card_comments.html", **kwargs)
+
+
+@app.route("/project/<project_name>/cards/<int:card_id>/attachments")
+@check_project_privileges
+def card_get_attachments(**kwargs):
+    """
+    Called via ajax to refresh attachments after an attachment is added.
+    """
+    return render_card("card_attachments.html", **kwargs)
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/comment", methods=["POST"])

@@ -124,45 +124,30 @@
     </ul>
   </form>
 
+  <!-- [attachments] -->
   <h3 class="comments_title">Attachments</h3>
-
-{% if False %}
-  <form class="uploads" action="/project/{{ project_name }}/cards/{{ card._id }}/attach" method="POST">
+  <form>
     <ul class="structural">
-
       <li> 
-        <div class="file btn">Select File</div>
-        <input class="btn" type="file" name="file" id="file" />
-      </li>
-
-      <li>
-        <div style="float: right;">
-          <input ="font-family: entypo" type="submit" name="submit" value="Upload" class="btn"/>
-        </div>
-        <div style="clear: both;"></div>
+        <input id="{{ card._id }}_file_input" type="file" name="file" id="file"/>
+        <div class="progress-container">
+            <div id="{{ card._id }}_progress_bar" class="progress-bar">
+        </div> 
       </li>
     </ul>
   </form>
-
-
-  <ul class="attachments structural">
-     {% for file in card.attachments %}
-     <li>
-      <a href="/uploads/{{ file.filename }}">
-        {% if file.is_image %}
-          <img class="thumb" src="/thumbnail/uploads/{{ file.filename }}"/>
-        {% else %}
-          {{ file.filename }}
-        {% endif %}
-      </a>
-
-     </li>
-     {% endfor %}
-  </ul>
-{% endif %}
-
-    <input type="file" name="file" id="file"/>
-    <div class="progress-container">
-        <div class="progress-bar">
-    </div> 
+  {% include "card_attachments.html" %}
+  <script src="/js/card_attachments.js"></script>
+  <script> 
+var card_id = {{ card._id }};
+var project_name = "{{ project.name }}";
+var card_attachments = new CardAttachments({
+  file_input: require("#" + card_id + "_file_input:file"),
+  progress_bar: require("#" + card_id  + "_progress_bar"),
+  card_attachments: require("#" + card_id + "_card_attachments"),
+  project_name: project_name,
+  card_id: card_id
+});
+  </script>
+  <!-- [/attachments] --> 
 </div>

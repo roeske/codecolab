@@ -20,7 +20,7 @@
 
     function S3Upload(options, s3_object_name) {
       if (options == null) options = {};
-      console.log(options)
+      console.log(options);
       _.extend(this, options);
       this.s3_object_name = s3_object_name;
       this.handleFileSelect(jQuery(this.file_dom_selector).get(0));
@@ -41,11 +41,10 @@
       // Fallback on application/octet-stream if filetype is unknown or
       // upload will fail.
 
-      var file_type;
-      if (file.type == '') {
+      if (mime_type == '') {
         return "binary/octet-stream";
       } else {
-        return file.type;
+        return mime_type;
       }
     }
 

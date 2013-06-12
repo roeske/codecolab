@@ -5,65 +5,62 @@ String.prototype.endsWith = function(suffix) {
 /** Card editor */
 function cc_setup_card_description_editor(project_name, card_id) {
     // Setup pagedown
-    var converter = Markdown.getSanitizingConverter()
-    var editor = new Markdown.Editor(converter)
-    editor.run()
+    var converter = Markdown.getSanitizingConverter();
+    var editor = new Markdown.Editor(converter);
+    editor.run();
 
     // This feature makes no sense with the way our project
     // is currently configured
-    $("#wmd-image-button").hide()
+    $("#wmd-image-button").hide();
 
 
     // Setup toggle preview / save
     $("a.save").click(function() {
       if ($(this).text() == "Edit") {
 
-          $(this).text("Save")
-          $("#wmd-preview").hide()
-          $("#editor_container").show()
+          $(this).text("Save");
+          $("#wmd-preview").hide();
+          $("#editor_container").show();
       } else {
           // Post the new content
-          var description = $("#wmd-input").val()
-          var url = "/project/" + project_name + "/cards/" 
-                    + card_id + "/description";
+          var description = $("#wmd-input").val();
+          var url = "/project/" + project_name + 
+                    "/cards/" + card_id + "/description";
     
-          console.log(url)
 
           var that = this; 
           $.ajax({
               type: "POST",
-
               url: url,
-
               contentType: "application/json;charset=UTF-8",
 
               // Get the new state each time we submit, to toggle.
               data: JSON.stringify({description: description}),
     
               success: function(data) {
-                  console.log(data)
-
+                  console.log(data);
                   // Show edit mode
-                  $(that).text("Edit")
-                  $("#wmd-preview").show()
-                  $("#editor_container").hide()
+                  $(that).text("Edit");
+                  $("#wmd-preview").show();
+                  $("#editor_container").hide();
               }
-          })
+          });
       }
-    })
+    });
 }
 
 
 function cc_setup_card(project_name, card_id) {
-    cc_setup_card_description_editor(project_name, card_id)
+    cc_setup_card_description_editor(project_name, card_id);
 }
 
 
 /** Project View */
 function cc_connect_editables(project_name, elem, card_id) {
-    var id = card_id
+    var id = card_id;
 
-    $(elem).find(".editable.text").editable("/project/" + project_name + "/cards/edit/" + id, {
+    var url = "/project/" + project_name + "/cards/edit/" + id;
+    $(elem).find(".editable.text").editable(url, {
         name: "text",
         event: "click",
         style: "inherit",
@@ -71,34 +68,34 @@ function cc_connect_editables(project_name, elem, card_id) {
         tooltip: "Click to edit...",
 
         callback: function(value, settings) {
-            console.log("settings=" + settings)
-            console.log("value=" + value)
+            console.log("settings=" + settings);
+            console.log("value=" + value);
 
-            cc_activity_reload()
+            cc_activity_reload();
 
             // Must update the card in the list (not modal) when the modal
             // is changed so they do not come out of sync with each other.
-            $("li[data-id=" + card_id + "].card_item").find("p span.text").text(value)
+            $("li[data-id=" + card_id + "].card_item").find("p span.text").text(value);
         }
-    })
+    });
 
-    $(elem).find(".editable.description")
-        .editable("/project/" + project_name + "/cards/edit/" + id, {
-            onblur: "submit",
-            name: "description",
-            event: "click",
-            style: "inherit",
-            tooltip: "Click to edit...",
-            cancel: "Cancel",
-            submit: "Save",
-            type: "textarea",
-            width: "400px",
-            height: "100px",
-            callback: cc_activity_reload
-        })
+    url = "/project/" + project_name + "/cards/edit/" + id;
+    $(elem).find(".editable.description").editable(url, {
+        onblur: "submit",
+        name: "description",
+        event: "click",
+        style: "inherit",
+        tooltip: "Click to edit...",
+        cancel: "Cancel",
+        submit: "Save",
+        type: "textarea",
+        width: "400px",
+        height: "100px",
+        callback: cc_activity_reload
+    });
 
-    cc_connect_raty_score($(elem).find(".editable.difficulty"), 
-                            project_name, card_id, true)
+    cc_connect_raty_score($(elem).find(".editable.difficulty"), project_name,
+                                        card_id, true);
 }
 
 
@@ -112,12 +109,12 @@ function cc_connect_raty_score(elem, project_name, card_id, is_cancellable) {
     elem.raty({
         // Load correct score when document is loaded.
         score: function() { 
-            score = $(this).data("score")
-            return score
+            score = $(this).data("score");
+            return score;
         },
 
         click: function(score, evt) {
-            console.log("score="+score)
+            console.log("score="+score);
         },
 
         cancel: is_cancellable,
@@ -147,30 +144,30 @@ function cc_connect_raty_score(elem, project_name, card_id, is_cancellable) {
                 data: JSON.stringify({score: score}),
                 
                 success: function(data) {
-                    console.log(JSON.stringify(data))
+                    console.log(JSON.stringify(data));
                     // Update any other copies of this we have.
-                    var selector  = ".minicard.difficulty[data-card-id="+card_id+"]"
-                    console.log("sel="+selector)
+                    var selector  = ".minicard.difficulty[data-card-id="+card_id+"]";
+                    console.log("sel="+selector);
 
                      
-                    var other = $(selector)
-                    other.data("score", score)
-                    other.raty("score", score)
+                    var other = $(selector);
+                    other.data("score", score);
+                    other.raty("score", score);
                                 
-                    if (score == null) {
-                        other.hide()
+                    if (score === null) {
+                        other.hide();
                     } else {
-                        other.show()
+                        other.show();
                     }
 
                     // also show milestone
-                    other.closest("div.milestone").show()
+                    other.closest("div.milestone").show();
                 },
 
                 contentType: "application/json;charset=UTF-8"
-            })
+            });
         }
-    })
+    });
 }
 
 
@@ -180,18 +177,18 @@ function cc_connect_raty_score(elem, project_name, card_id, is_cancellable) {
  */
 function cc_sort_into_numbers_array(elems) {
     // Iterate the children and obtain the data-number values:
-    var sort_numbers = []
+    var sort_numbers = [];
     
     elems.each(function(i, elem) {
-        sort_numbers.push($(elem).data("number"))
-    })
+        sort_numbers.push($(elem).data("number"));
+    });
     
     // Sort the data number values least to greatest.
     var sorted_numbers = sort_numbers.sort(function(a,b) {
-        return a - b
-    })
+        return a - b;
+    });
 
-    return sorted_numbers
+    return sorted_numbers;
 }
 
 
@@ -205,41 +202,41 @@ function cc_sort_into_numbers_array(elems) {
  */
 function cc_cards_reorder_update_dom(children) {
     // Now, update the pile id of the card in the database, too.
-    var updates = []
+    var updates = [];
 
-    var sorted_numbers = cc_sort_into_numbers_array(children())
+    var sorted_numbers = cc_sort_into_numbers_array(children());
 
     // Re-iterate the existing children and write the numbers back
     // in order, while pushing updates onto the updates array.
     children().each(function(i, elem) {
-        var number = sorted_numbers[i]
-        elem = $(elem)
+        var number = sorted_numbers[i];
+        elem = $(elem);
+        elem.data("number", number);
         
-        elem.data("number", number)
         updates.push({
             _id: elem.data("id"),
             number: number,
             pile_id: elem.data("pile-id")
-        })
-    })
+        });
+    });
   
     return updates;
 }
 
 
 function cc_piles_reorder_update_dom(elems) {
-    var sorted_numbers = cc_sort_into_numbers_array(elems)
-    var updates = []
+    var sorted_numbers = cc_sort_into_numbers_array(elems);
+    var updates = [];
 
     elems.each(function(i, elem) {
         // Update the 'sort number' in the DOM
-        elem = $(elem)
-        elem.data("number", sorted_numbers[i])
+        elem = $(elem);
+        elem.data("number", sorted_numbers[i]);
         updates.push({
             _id: elem.data("id"),
-            number: sorted_numbers[i],
-        })
-    })
+            number: sorted_numbers[i]
+        });
+    });
 
     return updates;
 }
@@ -255,11 +252,11 @@ function cc_reorder_post(name, updates) {
         data: JSON.stringify({updates: updates}),
         
         success: function(data) {
-            console.log(JSON.stringify(data))
+            console.log(JSON.stringify(data));
         },
 
         contentType: "application/json;charset=UTF-8"
-    })
+    });
 }
 
 
@@ -269,7 +266,7 @@ function cc_reorder_post(name, updates) {
  * Expected format: [{ _id : <int>, pile_id: <int>, number: <int>}, ...]
  */
 function cc_cards_reorder_post(updates) {
-    return cc_reorder_post("cards", updates)
+    return cc_reorder_post("cards", updates);
 }
 
 
@@ -279,7 +276,7 @@ function cc_cards_reorder_post(updates) {
  * Expected format: [{ _id : <int>,  number: <int>}, ...]
  */
 function cc_piles_reorder_post(updates) {
-    return cc_reorder_post("piles", updates)
+    return cc_reorder_post("piles", updates);
 }
 
 
@@ -288,8 +285,8 @@ function cc_piles_reorder_post(updates) {
  */
 function cc_make_card_sorter(selector) {
     var children = function() { 
-        return $(selector + " li.card_item").not("li.ui-sortable-placeholder") 
-    }
+        return $(selector + " li.card_item").not("li.ui-sortable-placeholder");
+    };
 
     var that = {
         delay: 100,
@@ -300,34 +297,34 @@ function cc_make_card_sorter(selector) {
         placeholder: "empty_card",
 
         receive: function(event, ui) {
-            console.log("receive")
+            console.log("receive");
 
             // Update the pile id of the card, because we just
             // dropped it into a pile.
-            $(ui.item).data("pile-id", $(this).data("id"))
+            $(ui.item).data("pile-id", $(this).data("id"));
   
             // Update the values in the DOM to reflect the current
             // state of the cards.
-            var updates = cc_cards_reorder_update_dom(children)
+            var updates = cc_cards_reorder_update_dom(children);
             
             // Post those updates back to the server.
-            cc_cards_reorder_post(updates)
+            cc_cards_reorder_post(updates);
         },
 
 
         stop: function(event, ui) {
-            console.log("stop")
+            console.log("stop");
            
             // Update the values in the DOM to reflect the current
             // state of the cards.
-            var updates = cc_cards_reorder_update_dom(children)
+            var updates = cc_cards_reorder_update_dom(children);
             
             // Post those updates back to the server.
-            cc_cards_reorder_post(updates)
+            cc_cards_reorder_post(updates);
         }
-    }
+    };
 
-    return that
+    return that;
 }
 
 
@@ -342,14 +339,14 @@ function cc_make_pile_sorter(selector) {
         stop: function(event, ui) {
             // Update the values in the DOM to reflect the current
             // state of the cards.
-            var updates = cc_piles_reorder_update_dom($(selector).children())
-            console.log(updates)            
+            var updates = cc_piles_reorder_update_dom($(selector).children());
+            console.log(updates);            
             // Post those updates back to the server.
-            cc_piles_reorder_post(updates)
+            cc_piles_reorder_post(updates);
         }
-    }
+    };
 
-    return that
+    return that;
 }
 
 /** 
@@ -357,146 +354,53 @@ function cc_make_pile_sorter(selector) {
  * changes to backend when the user presses 'enter'.
  */
 function cc_setup_editable_fields(project_name) {
-    var selector = ".editable.pile_title"
+    var selector = ".editable.pile_title";
 
     // Make pile names editable
     $(selector).each(function(i, elem) {
-        var id = $(elem).attr("data-id")
+        var id = $(elem).attr("data-id");
         $(elem).editable("/project/" + project_name + "/piles/edit/" + id, {
             event: "click",
             style: "inherit",
             onblur: "submit",
             width: $(elem).width() + 20 + "px"
-        })
-    })
+        });
+    });
 }
 
 
 function cc_connect_comment_form(project_name, modal, card_id) {
     modal.find("form.comments").ajaxForm({
         success: function(response, status_code) {
-            var list = modal.find("div.comments_container").replaceWith(response)
-            modal.find("form textarea").val("")
-            cc_activity_reload()
+            var list = modal.find("div.comments_container").replaceWith(response);
+            modal.find("form textarea").val("");
+            cc_activity_reload();
         }
-    })
-}
-
-
-function s3_upload(project_name, card_id, filename) {
-    var s3upload = new S3Upload({
-        file_dom_selector: '#file',
-        s3_sign_put_url: '/sign_s3_upload/',
-
-        onProgress: function(percent, message) { 
-            console.log("onProgress: percent: ", percent, "message: ", message)
-        },
-
-        onFinishS3Put: function(url) { 
-            console.log("onFinishS3Put: finish: ", url)
-        },
-
-        onError: function(status) {
-            alert("Error uploading file. Please try again.")
-            $("#file").val("")
-        }
-    }, card_id + "_" + filename);
-}
-
-
-function get_filename_from_input(id) {
-    var fullPath = $(id).val()
-
-    if (fullPath) {
-        var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : 
-                            fullPath.lastIndexOf('/'));
-
-        var filename = fullPath.substring(startIndex);
-
-        if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
-            filename = filename.substring(1);
-        }
-        
-
-        console.log("filename="+filename)
-
-        return filename
-    }
-
-    return ""
-}
-
-
-function cc_connect_upload_form(project_name, modal, card_id) {
-    $(":file").change(function() {
-        var filename = get_filename_from_input(":file")
-        s3_upload(project_name, card_id, filename)
-    })
-/*
-    var wrapper = $("<div/>").css({height:0, width:0, "overflow":"hidden"})
-
-    var file_input = $(":file").wrap(wrapper) 
-
-    var file_div = $("div.file")
-
-    file_input.change(function() {
-        $this = $(this)
-        var text = $this.val()
-        if ($.trim(text).length == 0) {
-            file_div.text("Select File")
-        } else {
-            file_div.text($this.val())
-        }
-    })
-
-    $(".file").click(function() {
-        file_input.click()
-    }).show()
-*/
-    modal.find("form.uploads").ajaxForm({
-        success: function(response, status_code) {
-            filename = response.attachment.filename
-            var tmpFilename = filename.toLowerCase()
-            if (tmpFilename.endsWith("png") ||
-                tmpFilename.endsWith("jpg") ||
-                tmpFilename.endsWith("gif") ||
-                tmpFilename.endsWith("jpeg")) {
-    
-            modal.find("ul.attachments").prepend("<li><a href=\"/uploads/"+filename+"\"><img class=\"thumb\" src=\"/thumbnail/uploads/"+filename+"\"/></a><div class=\"clear\"></div></li>")
-
-            } else {    
-
-            modal.find("ul.attachments").prepend("<li><a href=\"/uploads/"+filename+"\">"+filename+"<span style=\"color: green;\" class=\"icon\">&nbsp;&#10003;</span></a><div class=\"clear\"></div></li>")
-
-            }
-
-            file_div.text("Select File")
-        }
-    })
+    });
 }
 
 
 function cc_connect_milestone_spinner(mommy, card_id) {
-    return cc_connect_spinner("assign_to", mommy, card_id)
+    return cc_connect_spinner("assign_to", mommy, card_id);
 }
 
 
 function cc_connect_assign_to_spinner(mommy, card_id) {
-    return cc_connect_spinner("milestone", mommy, card_id)
+    return cc_connect_spinner("milestone", mommy, card_id);
 }
 
 
 function cc_connect_spinner(clazz, mommy, card_id) {
-    var form = mommy.find("form." + clazz)
+    var form = mommy.find("form." + clazz);
 
     // Fire this function when the milestone spinner's value is changed.
     mommy.find("form." + clazz + " select").change(function() {
 
         // Find the newly selected element
-        var changed = $(this).find("option:selected")
+        var changed = $(this).find("option:selected");
 
         // Find the element_id of the element
-        var element_id = changed.data("id")
+        var element_id = changed.data("id");
 
         // If the milestone id is negative, that is being used to encode
         // 'None', so use the appropriate value.
@@ -505,10 +409,10 @@ function cc_connect_spinner(clazz, mommy, card_id) {
         }
        
         // Find the label of the element (to update state on DOM)
-        var label = changed.text()
+        var label = changed.text();
 
-        var data = {}
-        data[clazz + "_id"] = element_id
+        var data = {};
+        data[clazz + "_id"] = element_id;
 
         // Update the card with the newly chosen milestone id.
         $.ajax({
@@ -518,47 +422,47 @@ function cc_connect_spinner(clazz, mommy, card_id) {
             data: JSON.stringify(data),
             
             success: function(data) {
-                console.log(JSON.stringify(data))
+                console.log(JSON.stringify(data));
 
                 // Find the correct card item based on id.
-                var target = $("li.card_item[data-id="+card_id+"]")
+                var target = $("li.card_item[data-id="+card_id+"]");
 
                 
                 // Update the text of the label with the new value.
                 // If the milestone id is < 0, set it to the empty string.
-                if (target != null) {
+                if (target !== null) {
                     // Locate the label within that target.
-                    var target_label = target.find("." + clazz)
+                    var target_label = target.find("." + clazz);
 
                     if (label == "None" || element_id < 0) {
                         // Clear text.
-                        target_label.text("")
-                        target_label.hide()
+                        target_label.text("");
+                        target_label.hide();
                     } else {
                         // Set text.
-                        target_label.text(label)
-                        target_label.show()
+                        target_label.text(label);
+                        target_label.show();
                     }
                 }
             },
 
             failure: function(data) {
-                alert("Failed to change milestone.")
+                alert("Failed to change milestone.");
             },
                 
             contentType: "application/json;charset=UTF-8"
-        })
-    })
+        });
+    });
 }
 
 
 function cc_connect_complete_button(project_name, modal, card_id) {
     // capture clicks on the complete button, which is really a link
     // with modified behavior.
-    var btn = modal.find("a.card_complete")
+    var btn = modal.find("a.card_complete");
     btn.click(function(event) {
         // Don't perform the default action of following the link.
-        event.preventDefault()
+        event.preventDefault();
         
         var that = this;
 
@@ -571,60 +475,59 @@ function cc_connect_complete_button(project_name, modal, card_id) {
             data: JSON.stringify({state: $(that).data("state") == "True" }),
             
             success: function(data) {
-                var toggle = $(that)
-                var card_item_selector = "li.card_item[data-id="+card_id+"] p span.card"
+                var toggle = $(that);
+                var card_item_selector = "li.card_item[data-id="+card_id+"] p span.card";
                
                 if (data.state) {
                     // Update the toggle button state
-                    toggle.find("div.complete").show()
-                    toggle.find("div.incomplete").hide()
-                    toggle.data("state", "True")
+                    toggle.find("div.complete").show();
+                    toggle.find("div.incomplete").hide();
+                    toggle.data("state", "True");
                     
                     // Update the card item text strikethrough
-                    var target = $(card_item_selector)
-                    target.html("<strike>" + target.text() + "</strike>")
+                    var target = $(card_item_selector);
+                    target.html("<strike>" + target.text() + "</strike>");
                 } else {
                     // Update the toggle button state
-                    toggle.find("div.complete").hide()
-                    toggle.find("div.incomplete").show()
-                    toggle.data("state", "False")
+                    toggle.find("div.complete").hide();
+                    toggle.find("div.incomplete").show();
+                    toggle.data("state", "False");
 
                     // Update the card item text strikethrough
-                    var selector = "li.card_item[data-id="+card_id+"] p span.card_text"
-                    var target = $(card_item_selector + " strike")
-                    $(card_item_selector).html(target.html())
+                    var selector = "li.card_item[data-id=" +card_id+"] p span.card_text";
+                    target = $(card_item_selector + " strike");
+                    $(card_item_selector).html(target.html());
                 }
 
-                cc_activity_reload()
+                cc_activity_reload();
             },
 
             contentType: "application/json;charset=UTF-8"
-        })
-    })
+        });
+    });
 }
 
 
 function cc_on_modal_opened(project_name, card_id) {
-    var modal_selector = "#modal_" + + card_id
-    var modal = $(modal_selector)
+    var modal_selector = "#modal_" + + card_id;
+    var modal = $(modal_selector);
 
 
-    cc_connect_editables(project_name, modal, card_id)
-    cc_connect_comment_form(project_name, modal, card_id)
-    cc_connect_upload_form(project_name, modal, card_id)
-    cc_connect_milestone_spinner(modal, card_id)
-    cc_connect_assign_to_spinner(modal, card_id)
-    cc_connect_complete_button(project_name, modal, card_id)
-    cc_setup_card(project_name, card_id) 
+    cc_connect_editables(project_name, modal, card_id);
+    cc_connect_comment_form(project_name, modal, card_id);
+    cc_connect_milestone_spinner(modal, card_id);
+    cc_connect_assign_to_spinner(modal, card_id);
+    cc_connect_complete_button(project_name, modal, card_id);
+    cc_setup_card(project_name, card_id);
 }
 
 
 function cc_connect_card_to_modal(title, project_name, elem, is_link) {
     // Create id to later reference modal with.
-    var modal_id = "modal_" + $(elem).attr("data-id")
-    var card_id = $(elem).attr('data-id')
+    var modal_id = "modal_" + $(elem).attr("data-id");
+    var card_id = $(elem).attr('data-id');
 
-    var url = "/project/" + project_name + "/cards/" + card_id
+    var url = "/project/" + project_name + "/cards/" + card_id;
 
     var options = {
         show: {
@@ -641,7 +544,7 @@ function cc_connect_card_to_modal(title, project_name, elem, is_link) {
         close: function() {
             // When the modal dialog is closed, completely remove it from the
             // DOM so that it is reloaded next time with fresh state. 
-            $("#" + modal_id).dialog("destroy")
+            $("#" + modal_id).dialog("destroy");
         },
 
         // We need true, but it's breaking focus on sub-dialogs, so...
@@ -651,34 +554,34 @@ function cc_connect_card_to_modal(title, project_name, elem, is_link) {
         title: title,
         autoOpen: false,
         width: 490,
-        height: 700, 
-    }
+        height: 700 
+    };
 
     var on_load = function() {
-        cc_on_modal_opened(project_name, card_id)
-    }
+        cc_on_modal_opened(project_name, card_id);
+    };
     
     if (is_link) {
         $(elem).click(function(ev) {
-            ev.preventDefault()
-            url = $(elem).attr("href")
-            console.log("url="+url)
-            var modal = $("<div id=" + modal_id + "></div>").load(url, on_load).dialog(options)
-            modal.dialog("open")
-        })
+            ev.preventDefault();
+            url = $(elem).attr("href");
+            console.log("url="+url);
+            var modal = $("<div id=" + modal_id + "></div>").load(url, on_load).dialog(options);
+            modal.dialog("open");
+        });
     } else {
         $(elem).dblclick(function(ev) {
-            var modal = $("<div id=" + modal_id + "></div>").load(url, on_load).dialog(options)
-            modal.dialog("open")
-        })
+            var modal = $("<div id=" + modal_id + "></div>").load(url, on_load).dialog(options);
+            modal.dialog("open");
+        });
     }
 }
 
 
 function cc_connect_card(elem) {
-    var title = $(elem).data("title")
-    $(elem).attr("data-project-name", project_name)
-    cc_connect_card_to_modal(title, project_name, elem)
+    var title = $(elem).data("title");
+    $(elem).attr("data-project-name", project_name);
+    cc_connect_card_to_modal(title, project_name, elem);
 }
 
 
@@ -686,19 +589,19 @@ function cc_connect_card(elem) {
 function cc_project_init(project_name, pile_ids) {
     // Iterate pile ids and make sortable + droppable.
     for (var key in pile_ids) {
-        id = pile_ids[key]
+        id = pile_ids[key];
         // Build selector.
-        var selector = "#" + id
+        var selector = "#" + id;
         // Make the target list sortable.
-        $(selector).sortable(cc_make_card_sorter(selector)).disableSelection()
+        $(selector).sortable(cc_make_card_sorter(selector)).disableSelection();
     }
 
     $("li.card_item").each(function(i, elem) {
-        cc_connect_card(elem)
-    })
+        cc_connect_card(elem);
+    });
 
-    var pile_selector = "ul#pile_list"
-    $(pile_selector).sortable(cc_make_pile_sorter("ul#pile_list"))
-    $("ul.card_item, li.card_item").disableSelection()
-    cc_setup_editable_fields(project_name)
+    var pile_selector = "ul#pile_list";
+    $(pile_selector).sortable(cc_make_pile_sorter("ul#pile_list"));
+    $("ul.card_item, li.card_item").disableSelection();
+    cc_setup_editable_fields(project_name);
 }
