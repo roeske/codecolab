@@ -26,6 +26,29 @@
       this.handleFileSelect(jQuery(this.file_dom_selector).get(0));
     }
 
+    S3Upload.prototype.safeMimeType = function(mime_type) {
+      // application/octet-stream can be used for unknown filetypes, per
+      // RFC 2046: 'The "octet-stream" subtype is used to indicate that
+      // a body contains arbitrary binary data'
+      //
+      // see: http://stackoverflow.com/questions/1176022/unknown-file-type-mime
+      // 
+      // Without this code, the upload fails in chrome and probably other
+      // browsers for simple things like .json files. Of course, we could
+      // get more elaborate with mimetypes here, but we at least need
+      // to fall back on a valid one.
+      //
+      // Fallback on application/octet-stream if filetype is unknown or
+      // upload will fail.
+
+      var file_type;
+      if (file.type == '') {
+        return "binary/octet-stream";
+      } else {
+        return file.type;
+      }
+    }
+
     S3Upload.prototype.handleFileSelect = function(file_element) {
       var f, files, output, _i, _len, _results;
       this.onProgress(0, 'Upload started.');
@@ -57,7 +80,9 @@
       var this_s3upload, xhr;
       this_s3upload = this;
       xhr = new XMLHttpRequest();
-      xhr.open('GET', this.s3_sign_put_url + '?s3_object_type=' + file.type + '&s3_object_name=' + this.s3_object_name, true);
+
+      var file_type = this.safeMimeType(file.type);
+      xhr.open('GET', this.s3_sign_put_url + '?s3_object_type=' + file_type + '&s3_object_name=' + this.s3_object_name, true);
       xhr.overrideMimeType('text/plain; charset=x-user-defined');
       xhr.onreadystatechange = function(e) {
         var result;
@@ -103,7 +128,8 @@
           }
         };
       }
-      xhr.setRequestHeader('Content-Type', file.type);
+      var file_type = this.safeMimeType(file.type);
+      xhr.setRequestHeader('Content-Type', file_type);
       xhr.setRequestHeader('x-amz-acl', 'public-read');
       return xhr.send(file);
     };

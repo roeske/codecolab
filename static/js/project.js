@@ -400,7 +400,7 @@ function s3_upload(project_name, card_id, filename) {
             alert("Error uploading file. Please try again.")
             $("#file").val("")
         }
-    }, card_id + "/" + filename);
+    }, card_id + "_" + filename);
 }
 
 
