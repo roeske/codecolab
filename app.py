@@ -101,24 +101,49 @@ def sign_s3_put():
     The authorization portion is taken from Example 3 on
     http://s3.amazonaws.com/doc/s3-developer-guide/RESTAuthentication.html
     """
-    # don't give user full control over filename - avoid ability to overwrite files
-    random = base64.urlsafe_b64encode(os.urandom(2))[:-1] + "_"
-    object_name = random+request.args.get('s3_object_name')
-    object_name = urllib.quote_plus(object_name) # make sure it works for filenames with spaces, etc.
-    mime_type = request.args.get('s3_object_type')
-    print "mime_type=%r" % mime_type 
-    
-    expires = int(time.time()+300) # PUT request to S3 must start within X seconds
-    amz_headers = "x-amz-acl:public-read" # set the public read permission on the uploaded file
-    resource = '%s/%s' % (S3_BUCKET, object_name)
-    str_to_sign = "PUT\n\n{mime_type}\n{expires}\n{amz_headers}\n/{resource}".format(
-        mime_type=mime_type,
-        expires=expires,
-        amz_headers=amz_headers,
-        resource=resource
-    )
-    sig = urllib.quote_plus(base64.encodestring(hmac.new(AWS_SECRET_ACCESS_KEY, str_to_sign, sha).digest()).strip())
- 
+
+    # Thanks AWS. Perhaps you should fix S3. Seeing as how this bug with
+    # signatures has existed since like, 2007 or something. %2B and "+"
+    # both seem to break S3 uploads when present in the signature.
+    while True:
+        # Don't give user full control over filename - avoid ability to
+        # overwrite files.
+        random = base64.urlsafe_b64encode(os.urandom(2))[:-1] + "_"
+        object_name = random+request.args.get('s3_object_name')
+
+        # We don't want to sign the urlencoded version of the object name. That
+        # will cause a SignatureMismatchError.
+        orig_object_name = object_name
+
+        # Make sure it works for filenames with spaces, etc.
+        # But also make sure it works for filenames with dollar signs!
+        object_name = urllib.quote_plus(object_name, safe="$/") 
+
+        mime_type = request.args.get('s3_object_type')
+
+        print "mime_type=%r" % mime_type 
+        print "object_name=%r" % object_name
+        
+        expires = int(time.time()+300) # PUT request to S3 must start within X seconds
+        amz_headers = "x-amz-acl:public-read" # set the public read permission on the uploaded file
+        resource = '%s/%s' % (S3_BUCKET, object_name)
+        str_to_sign = "PUT\n\n{mime_type}\n{expires}\n{amz_headers}\n/{resource}".format(
+            mime_type=mime_type,
+            expires=expires,
+            amz_headers=amz_headers,
+            resource=resource
+        )
+
+        sig = urllib.quote_plus(base64.encodestring(hmac.new(AWS_SECRET_ACCESS_KEY, str_to_sign, sha).digest()).strip())
+
+        # The workaround. If our str_to_sign results in a hash that contains
+        # any semblance of a plus sign, we need to generate a new random 
+        # prefix and recompute.
+        if "+" not in sig and "%2B" not in sig:
+            break
+
+    print "sig=%r" % sig
+
     url = 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, object_name)
     return json.dumps({
         'signed_request':
