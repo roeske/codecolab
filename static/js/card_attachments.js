@@ -2,15 +2,15 @@
  * Prototype for CardAttachments object. This allows the user
  * to upload a file directly via Amazon S3 and then attach it to
  * a card. Attachments are then made visible in the card
- * automatically via the reload() method.
+ * automatically via the save_and_reload() method.
  */
 (function() {
     window.CardAttachments = (function() {
         CardAttachments.prototype.project_name      = null;
         CardAttachments.prototype.card_id           = null;
-        CardAttachments.prototype.file_input        = null;
-        CardAttachments.prototype.progress_bar      = null;
+        CardAttachments.prototype.file_input        = null; CardAttachments.prototype.progress_bar      = null;
         CardAttachments.prototype.card_attachments  = null;
+
 
         function CardAttachments(options) {
             // copy parameters
@@ -24,6 +24,7 @@
             });
         }
 
+
         CardAttachments.prototype.s3_upload = function(filename) {
             var that = this;
             var s3upload = new S3Upload({
@@ -36,7 +37,7 @@
 
                 onFinishS3Put: function(url) { 
                     console.log("onFinishS3Put: finish: ", url);
-                    that.reload();
+                    that.save_and_reload(url, filename);
                     jQuery(that.progress_bar).width(0);
                 },
 
@@ -48,6 +49,7 @@
 
             }, filename);
         };
+
 
         CardAttachments.prototype.get_filename = function(file_input) {
             var fullPath = jQuery(this.file_input).val();
@@ -68,10 +70,25 @@
             return "unknown_filename";
         };
 
-        CardAttachments.prototype.reload = function() {
-            var url = this.project_name + "/cards/" + this.card_id + "/attachments";
-            $.get(url, function(data) {
-                jQuery(this.card_attachments).replaceWith(data);
+
+        CardAttachments.prototype.save_and_reload = function(url, filename) {
+            var api_url = this.project_name + "/cards/" + this.card_id + "/attachments";
+
+            var data = JSON.stringify({url: url, filename: filename});
+
+            var that = this;
+            $.ajax({
+                type: "POST",
+                url: api_url,
+                data: data, 
+                success: function(data) {
+                    jQuery(that.card_attachments).replaceWith(data);
+                },
+                failure: function(data) {
+                    alert("Failed to refresh attachments. Please reload the page.");
+                },
+                dataType: "html",
+                contentType: "application/json;charset=UTF-8"
             });
         };
 

@@ -467,7 +467,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     created = db.Column(db.DateTime, default=func.now())
 
     comments = db.relationship("CardComment", order_by=lambda: CardComment.created)
-    attachments = db.relationship("CardFile", order_by=lambda: CardFile.created)
+    attachments = db.relationship("CardFile", order_by=lambda: CardFile.created.desc())
     milestone = db.relationship("Milestone")
     project = db.relationship("Project")
 
@@ -549,7 +549,8 @@ class CardFile(db.Model, DictSerializable):
     luser_id    = db.Column(db.Integer, db.ForeignKey(Luser._id), nullable=False)
     card_id     = db.Column(db.Integer, db.ForeignKey(Card._id), nullable=False)
     filename    = db.Column(db.String, nullable=False)
-   
+    url         = db.Column(db.String, nullable=False)
+
     luser       = db.relationship("Luser")
 
 

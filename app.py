@@ -721,6 +721,7 @@ def activity(**kwargs):
 
 def render_card(template, project=None, project_name=None, card_id=None, **kwargs):
     card = query_card(card_id, project._id)
+    print "returning from render card, for card %d" % card._id
     return flask.render_template(template, card=card, 
                                  project_name=project_name, card_id=card_id,
                                 **kwargs)
@@ -733,13 +734,25 @@ def card_get_comments(**kwargs):
     return render_card("card_comments.html", **kwargs)
 
 
-@app.route("/project/<project_name>/cards/<int:card_id>/attachments")
+@app.route("/project/<project_name>/cards/<int:card_id>/attachments", methods=["POST"])
 @check_project_privileges
-def card_get_attachments(**kwargs):
+def card_get_attachments(card_id=None, luser=None, **kwargs):
     """
     Called via ajax to refresh attachments after an attachment is added.
     """
-    return render_card("card_attachments.html", **kwargs)
+    url = flask.request.json["url"]
+    filename = flask.request.json["filename"]
+
+    attachment = models.CardFile(card_id=card_id, luser_id=luser._id, 
+                    filename=filename, url=url)
+    
+    models.db.session.add(attachment)
+    models.db.session.flush()
+    models.db.session.commit()
+
+    stuff = render_card("card_attachments.html", card_id=card_id, luser=luser, **kwargs)
+    print "stuff=%r" % stuff
+    return stuff
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/comment", methods=["POST"])
@@ -930,26 +943,6 @@ def card_score(project_name=None, card_id=None, project=None, **kwargs):
     models.db.session.commit()
     return respond_with_json({ "status" : "success",
                                "message" : "updated card %d" % card._id })
-
-
-@app.route("/project/<project_name>/cards/<int:card_id>/attach", methods=["POST"])
-@check_project_privileges
-def card_attach_file(project_name=None, card_id=None, luser=None, **kwargs):
-    """
-    Upload a file & attach it to a card.
-    """
-
-    if flask.request.method == 'POST' and "file" in flask.request.files:
-        filename = files.save(flask.request.files["file"])
-
-        attachment = models.CardFile(card_id=card_id, luser_id=luser._id, 
-                        filename=filename)
-        
-        models.db.session.add(attachment)
-        models.db.session.flush()
-        models.db.session.commit()
-
-    return respond_with_json(dict(attachment=attachment, luser=luser))
 
 
 @app.route("/cards/reorder", methods=["POST"])
