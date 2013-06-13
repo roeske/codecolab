@@ -15,7 +15,7 @@
         CardAttachments.prototype.progress          = null;
         CardAttachments.prototype.progress_bar      = null;
         CardAttachments.prototype.progress_text     = null;
-        CardAttachments.prototype.card_attachments  = null;
+        CardAttachments.prototype.attachments_selector  = null;
 
         function CardAttachments(options) { 
             // copy parameters
@@ -110,8 +110,12 @@
                 url: api_url,
                 data: data, 
                 success: function(data) {
-                    that.card_attachments.replaceWith(data);
-                    that.progress.fadeOut();
+                    console.log("fade");
+                    that.progress.fadeOut("slow", function() {
+                        console.log("replaceWith");
+                        console.log(data);
+                        jQuery(that.attachments_selector).replaceWith(data);
+                    });
                 },
                 failure: function(data) {
                     alert("Failed to refresh attachments. Please reload the page.");

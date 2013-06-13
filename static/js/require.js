@@ -14,3 +14,13 @@ function require(selector) {
 
     return obj;
 }
+
+function require_selector(selector) {
+    var obj = $(selector);
+
+    if (obj.length === 0) {
+        alert("Selector: " + selector + " matched no elements.");
+    } 
+
+    return selector;
+}
