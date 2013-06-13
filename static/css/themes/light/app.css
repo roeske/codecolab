@@ -1,9 +1,9 @@
 /* reset **********************************************************************/
-html, body { width: 100%; height: 100%; padding: 0; margin 0; }
-form, ul, ol, p, li, h1, h2, h3, h4, h5, h6, div { margin: 0, padding: 0; }
+html, body { width: 100%; height: 100%; padding: 0; margin: 0; }
+form, ul, ol, p, li, h1, h2, h3, h4, h5, h6, div { margin: 0; padding: 0; }
 div.navbar { margin-bottom: 0 }
 textarea, input { color: #000; }
-h1,h2,h3,h4,h5,h6 { line-height: auto; font-weight: 100; }
+h1,h2,h3,h4,h5,h6 { font-weight: 100; }
 * { text-shadow: none; }
 small { font-family: "Open Sans"; }
 
@@ -340,7 +340,8 @@ div.pile_chrome_bottom {
         min-height: 80px;
         max-height: 70.5%;
         overflow-x: hidden;
-        overfloy-y: scroll;
+        /* might be something we want to remove. */
+        /* overflow-y: scroll; */
         background-color: #bbb;
         padding: .5em .5em 0em .5em;
         margin: .5em .5em 0em .5em;

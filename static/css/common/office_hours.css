@@ -73,7 +73,7 @@ div.hour {
     float: left;
     font-weight: bold;
     text-align: center;
-    vertical-align: center;
+    vertical-align: middle;
     width: 4.039%;
     border-right: 1px solid #ccc;
     border-bottom: 1px solid #ccc; 
