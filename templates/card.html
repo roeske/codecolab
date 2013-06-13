@@ -130,9 +130,14 @@
     <ul class="structural">
       <li> 
         <input id="{{ card._id }}_file_input" type="file" name="file" id="file"/>
-        <div class="progress-container">
-            <div id="{{ card._id }}_progress_bar" class="progress-bar">
-        </div> 
+        <input style="float: right" class="btn" value="Choose File" type="button" id="{{ card._id }}_file_input_button" readonly/>
+        <div class="clear"></div>
+        <div id="{{ card._id }}_progress" class="progress">
+          <p class="progress-text">&nbsp;</p>
+          <div class="progress-bar-container">
+              <div class="progress-bar"/>
+          </div> 
+        </div>
       </li>
     </ul>
   </form>
@@ -142,11 +147,12 @@
 var card_id = {{ card._id }};
 var project_name = "{{ project.name }}";
 var card_attachments = new CardAttachments({
-  file_input: require("#" + card_id + "_file_input:file"),
-  progress_bar: require("#" + card_id  + "_progress_bar"),
-  card_attachments: require("#" + card_id + "_card_attachments"),
-  project_name: project_name,
-  card_id: card_id
+    file_input: require("#" + card_id + "_file_input:file"),
+    file_input_button: require("#" + card_id + "_file_input_button"),
+    progress: require("#" + card_id  + "_progress"),
+    card_attachments: require("#" + card_id + "_card_attachments"),
+    project_name: project_name,
+    card_id: card_id
 });
   </script>
   <!-- [/attachments] --> 

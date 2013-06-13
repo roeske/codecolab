@@ -109,15 +109,29 @@ div.editorhint {
 }
 /* upload progressbar */
 
-.progress-container {
-    width: 200px;
-    height: 5px;
+.progress {
+    width: 96%;
+    padding: 7px;
+    margin-top: 15px;
+    background-color: #ccc;
+    border: 1px solid #bbb;
+    height: 40px;
+    display: none;
+}
+
+.progress-text {
+    font-size: 12px;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 10px;
     background-color: white;
 }
 
 .progress-bar {
     width: 0%;
-    height: 5px;
+    height: 10px;
     background: gray;
 }
 

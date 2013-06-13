@@ -6,9 +6,11 @@
  * where it is OK for the selector to not match, as well.
  */
 function require(selector) {
-    if ($(selector).length === 0) {
+    var obj = $(selector);
+
+    if (obj.length === 0) {
         alert("Selector: " + selector + " matched no elements.");
     } 
 
-    return selector;
+    return obj;
 }
