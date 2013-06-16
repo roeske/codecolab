@@ -13,8 +13,7 @@ import urllib
 import re
 import string
 import uuid
-import simplejson as json
-
+import simplejson as json 
 from StringIO import StringIO
 from flask import request
 from flaskext import uploads
@@ -394,31 +393,6 @@ def delete():
     flask.abort(400)
 
 
-def perform_delete_pile(email, pile_id, project_name):
-    """
-    Deletes a pile by id. Performs basic security checks first.
-    Does NOT delete associated cards. They remain orphaned in
-    the database.
-    """
-    luser = get_luser_or_404(email)
-    project = get_project_or_404(project_name, luser._id)
-    
-    if luser not in project.lusers:
-        print "[EE] User is not a member of this project."
-        flask.abort(403)
-
-    # Set card pile_id's to null if they are a member of the target pile.
-    params = dict(pile_id=None)
-    models.Card.query.filter_by(pile_id=pile_id).update(params)
-    models.db.session.flush()
-
-    # Should now be safe to delete the pile.
-    pile = models.Pile.query.filter_by(_id=pile_id).first()
-    models.db.session.delete(pile)
-    models.db.session.commit()
-
-    return redirect_to("project", name=project_name)
-
 
 def perform_delete_card(email, card_id, project_name, args):
     """
@@ -675,6 +649,20 @@ def check_owner_privileges(func):
         is_owner_or_403(kwargs["luser"], kwargs["project"])
         return func(**kwargs)
     return wrap
+
+
+###############################################################################
+## Lists 
+###############################################################################
+
+@app.route("/<project_name>/list/<int:list_id>/delete")
+@check_project_privileges
+def list_delete(list_id=None, luser=None, **kwargs):
+    pile = models.Pile.query.filter_by(_id=list_id).first()
+    models.db.session.delete(pile)
+    models.db.session.commit()
+
+    return respond_with_json(dict(status=True))
 
 
 ###############################################################################

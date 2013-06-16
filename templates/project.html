@@ -12,8 +12,7 @@
      <div style="float: left"> Archives&nbsp;</div>
      <div class="icon">&#59392;</div>
     </a>
-  </div>
-
+  </div> 
   <div style="padding-top: 7px;" id="toolbox">
     <form action="/piles/add" method="POST">
     <input type="hidden" name="project_name" value="{{ project.name }}" />
@@ -40,8 +39,11 @@
     <div class="handle chrome pile_chrome_top top_corners">
       <h4 class="pile_title"><span data-id="{{ pile._id }}" class="editable pile_title">{{ pile.name }}</span></h4>
       <div class="pile_options">
-      <a href="/delete?pile_id={{ pile._id }}&project_name={{ project.urlencoded_name
-      }}">&nbsp;<span class="icon">&#10060;</span>&nbsp;</a>
+
+      <a data-list-id="{{ pile._id }}" class="list_delete" href="#">
+        &nbsp;<span class="icon">&#10060;</span>&nbsp;
+      </a>
+
       </div>
     </div>
     <div class="clear"></div>
@@ -142,6 +144,24 @@ $(function() {
   })
 
 
+  // Async list delete
+  $(".list_delete").click(function() {
+      var list_id = $(this).data('list-id')
+    
+      // If the list has no cards, it is safe to delete.
+
+      var card_count = $("ul[data-id=" + list_id + "] li").size()
+      alert(card_count)
+
+      if (card_count  == 0) {
+        delete_list(project_name, list_id, function() {
+          $("li[data-id=" +  list_id + "]").remove()
+        })
+      } else {
+        alert("Please remove all cards from this list before deleting it.")
+      }
+  });
+
   // Handle clicks on 'archive' buttons 
   // -- update server
   // -- remove element from dom on success.
@@ -221,6 +241,20 @@ $(function() {
     cc_setup_activity_toggle()
     cc_setup_activity_links()
 })
+
+function delete_list(project_name, list_id, callback) {
+    $.ajax({
+        type: "GET",
+        url: "/" + project_name + "/list/" + list_id + "/delete",
+        
+        success: function(data) {
+            callback(data)
+        },
+
+        contentType: "application/json;charset=UTF-8"
+    })
+}
+
 </script>
 <!-- END: JS -->
 
