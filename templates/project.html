@@ -151,7 +151,6 @@ $(function() {
       // If the list has no cards, it is safe to delete.
 
       var card_count = $("ul[data-id=" + list_id + "] li").size()
-      alert(card_count)
 
       if (card_count  == 0) {
         delete_list(project_name, list_id, function() {
