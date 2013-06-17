@@ -14,16 +14,20 @@
     </a>
   </div> 
   <div style="padding-top: 7px;" id="toolbox">
-    <form action="/piles/add" method="POST">
+
+    <form id="add_list_form" action="/{{ project.urlencoded_name }}/piles/add" method="POST">
+
     <input type="hidden" name="project_name" value="{{ project.name }}" />
+
     <ul id="toolbox-list" class="controls structural horizontal_right">
       <li>
-      <input type="submit" name="submit" value="Add Pile " class="btn"/>
+        <input type="submit" name="submit" value="Add List" class="btn"/>
       </li>
       <li>
-      <input type="text" placeholder="Pile Name..." name="text" id="text"/>
+        <input type="text" placeholder="list name..." name="text" id="text"/>
       </li>
     </ul>
+
     </form>
   </div>
   </div>
@@ -34,43 +38,7 @@
   <ul id="pile_list">
 
   {% for pile in project.piles %}
-    <li class="pile_container" data-id="{{ pile._id}}" data-number="{{ pile.number }}">
-
-    <div class="handle chrome pile_chrome_top top_corners">
-      <h4 class="pile_title"><span data-id="{{ pile._id }}" class="editable pile_title">{{ pile.name }}</span></h4>
-      <div class="pile_options">
-
-      <a data-list-id="{{ pile._id }}" class="list_delete" href="#">
-        &nbsp;<span class="icon">&#10060;</span>&nbsp;
-      </a>
-
-      </div>
-    </div>
-    <div class="clear"></div>
-
-    <ul id="{{ pile.pile_uuid }}" data-id="{{ pile._id }}" class="card_list">
-      {% for card in pile.cards %}
-        {% include "minicard.html" %}
-      {% endfor %}
-    </ul>
-
-    <div class="chrome pile_chrome_bottom bottom_corners">
-      <form data-pile-id="{{ pile.pile_uuid }}" class="add_card" action="/project/{{ project.name }}/cards/add" method="POST">
-      <input type="hidden" name="project_name" value="{{ project.name }}" />
-      <input type="hidden" name="pile_id" value="{{ pile._id }}" />
-
-      <div class="clear"></div>
-      <ul class="add_card structural">
-        <li class="input"> 
-        <input type="text" class="add_card" placeholder="I'm going to..." name="text" id="text"/>
-        </li>
-        <li class="button">
-        <input type="submit" name="submit" value="Add Card " class="btn"/>
-        </li>
-      </ul>
-      </form>
-    </div>
-    </li>
+    {% include "list.html" %}
   {% endfor %}
 
   </ul>
@@ -116,7 +84,6 @@ $(function() {
   // Keep the container at the correct width
   recalculate_container_width()
 
-
   // Make to-do lists sortable by dragging and save changes in the database.
   // Read pile ids via jinja2.
   pile_ids = {{ json_pile_ids|safe }}
@@ -132,103 +99,21 @@ $(function() {
     cc_connect_raty_score(elem, project_name, elem.data("card-id"), false)
   })
 
-
-  // Async list delete
-  $(".list_delete").click(function() {
-      var list_id = $(this).data('list-id')
-    
-      // If the list has no cards, it is safe to delete.
-
-      var card_count = $("ul[data-id=" + list_id + "] li").size()
-
-      if (card_count  == 0) {
-        delete_list(project_name, list_id, function() {
-          $("li[data-id=" +  list_id + "]").remove()
-          recalculate_container_width()
-        })
-      } else {
-        alert("Please remove all cards from this list before deleting it.")
-      }
+  // Async list add
+  $("#add_list_form").ajaxForm({
+    success: function(data) {
+      $("ul#pile_list").append(data); 
+      recalculate_container_width();
+      cc_init_list_controls("");
+      cc_initialize_lists();
+      cc_initialize_cards();
+      cc_make_list_sortable($("ul#pile_list > li > ul.card_list").last());
+    }
   });
 
-  // Handle clicks on 'archive' buttons 
-  // -- update server
-  // -- remove element from dom on success.
-  $("a.archive").click(handle_archive_click)
-
-
-  // Append new cards to the bottom of the pile via AJAX.
-  $("form.add_card").each(function(i, elem) { 
-
-      var pile_selector = "#" + $(elem).data("pile-id")
-
-      $(elem).ajaxForm({
-          success: function(text) {
-              // Add the card.
-              $(pile_selector).append(text)
-
-              // Scroll to the bottom so the card is visible.
-              $(pile_selector).scrollTop($(pile_selector)[0].scrollHeight)
-
-              // Select the newly added card.
-              var selector = $(pile_selector + " li.card_item")
-              var selector_func = function() { return selector }
-
-              // Update the order of the cards (there is an ordinal that
-              // needs to be set on each card to correctly designate its
-              // order, independent of how it is currently rendered)
-              var updates = cc_cards_reorder_update_dom(selector_func)
-
-              // Update the above on the server.
-              cc_reorder_post("cards", updates)
-
-              // Select the last card (newly added), so we can hook up its controls.
-              var selector = pile_selector + " li.card_item:last"
-              cc_connect_card(selector)
-              
-              // Connect the raty widget when adding a new card via ajax.
-              var elem = $($(selector).find(".difficulty"))
-              cc_connect_raty_score(elem, project_name, elem.data("card-id"))
-
-              // Handle archive clicks on the new card.
-              $($(selector).find("a.archive")).click(handle_archive_click)
-
-              // Make the new card border glow a bit when it is first shown.
-              var color = "#4DCDFF" // blue
-              var width = "2px"
-
-              var temporary = { 
-                  borderTopColor: color, 
-                  borderTopWidth: width, 
-                  borderLeftColor: color,
-                  borderLeftWidth: width,
-                  borderRightColor: color,
-                  borderRightWidth: width,
-                  borderBottomColor: color,
-                  borderBottomWidth: width
-              }
-
-              var invisible = "rgba(0,0,0,0);"
-
-              var invisible = { 
-                  borderTopColor: invisible, 
-                  borderLeftColor: invisible,
-                  borderRightColor: invisible,
-                  borderBottomColor: invisible 
-              }
-
-              $(selector).animate(temporary, 'slow', function() {
-                  $(selector).animate(invisible, 'slow')
-              })
-
-              // Reset the add card textbox after the card is added.
-              $("input.add_card").val("")
-          } 
-      })
-  })
-
-    cc_setup_activity_toggle()
-    cc_setup_activity_links()
+  cc_init_list_controls("")
+  cc_setup_activity_toggle()
+  cc_setup_activity_links()
 })
 
 function delete_list(project_name, list_id, callback) {
@@ -244,17 +129,7 @@ function delete_list(project_name, list_id, callback) {
     })
 }
 
-function recalculate_container_width() {
-  var total_width = 0
-  $(".pile_container").each(function(i, elem) {
-      total_width += $(elem).width()
-  })
-  total_width += 100
-  console.log("total_width="+total_width)
 
-  // Now set the inner #pile_list width to the total width
-  $("#pile_list").width(total_width)
-}
 
 </script>
 <!-- END: JS -->

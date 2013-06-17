@@ -651,9 +651,9 @@ def check_owner_privileges(func):
     return wrap
 
 
-###############################################################################
+##########################################################################
 ## Lists 
-###############################################################################
+##########################################################################
 
 @app.route("/<project_name>/list/<int:list_id>/delete")
 @check_project_privileges
@@ -1020,9 +1020,9 @@ def card_toggle_is_completed(project=None, card_id=None, luser=None,
 
     return respond_with_json(dict(state=card.is_completed))
 
-##############################################################################
+############################################################################
 # Piles
-##############################################################################
+############################################################################
 
 @app.route("/piles/reorder", methods=["POST"])
 def piles_reorder():
@@ -1038,9 +1038,9 @@ def piles_reorder():
     return respond_with_json({"status" : "success" })
 
 
-###############################################################################
+############################################################################
 ## Milestones
-###############################################################################
+############################################################################
 
 @app.route("/project/<project_name>/milestones/add", methods=["POST"])
 @check_project_privileges
@@ -1080,31 +1080,24 @@ def milestone_toggle_is_accepted(project=None, milestone_id=None, **kwargs):
     return respond_with_json(dict(state=milestone.is_approved))
 
 
+##########################################################################
 # Piles
-##############################################################################
+##########################################################################
 
-def perform_add_pile(email, project_name, name, form=None):
-    """
-    Adds a pile to a project. Do not invoke directly, pass as a callback 
-    to add_to_project.
-    """
-    luser = get_luser_or_404(email)
-    project = get_project_or_404(project_name, luser._id)
-
-    name = name.strip()
-    if name == "":
-        name = "Unnamed Pile"
-    
-    card = models.Pile(project_id=project._id, name=name)
-    models.db.session.add(card)
+def add_pile(project, name="Unnamed List"):
+    pile = models.Pile(project_id=project._id, name=name)
+    models.db.session.add(pile)
     models.db.session.commit()
+    models.db.session.flush()
+    return pile
 
-    return redirect_to("project", name=project_name)
 
-
-@app.route("/piles/add", methods=["POST"])
-def pile_add():
-    return add_to_project(perform_add_pile)
+@app.route("/<project_name>/piles/add", methods=["POST"])
+@check_project_privileges
+def pile_add(project=None, luser=None, **kwargs):
+    pile = add_pile(project, request.form["text"])
+    return cc_render_template("list.html", project=project,
+                              luser=luser, pile=pile, **kwargs)
 
 
 @app.route("/project/<name>/piles/edit/<int:pile_id>", methods=["POST"])

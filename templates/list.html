@@ -1,0 +1,37 @@
+<li class="pile_container" id="pile_{{ pile._id }}" data-id="{{ pile._id}}" data-number="{{ pile.number }}">
+
+<div class="handle chrome pile_chrome_top top_corners">
+  <h4 class="pile_title"><span data-id="{{ pile._id }}" class="editable pile_title">{{ pile.name }}</span></h4>
+  <div class="pile_options">
+
+  <a data-list-id="{{ pile._id }}" class="list_delete" href="#">
+    &nbsp;<span class="icon">&#10060;</span>&nbsp;
+  </a>
+
+  </div>
+</div>
+<div class="clear"></div>
+
+<ul id="{{ pile.pile_uuid }}" data-id="{{ pile._id }}" class="card_list">
+  {% for card in pile.cards %}
+    {% include "minicard.html" %}
+  {% endfor %}
+</ul>
+
+<div class="chrome pile_chrome_bottom bottom_corners">
+  <form data-pile-id="{{ pile.pile_uuid }}" class="add_card" action="/project/{{ project.name }}/cards/add" method="POST">
+  <input type="hidden" name="project_name" value="{{ project.name }}" />
+  <input type="hidden" name="pile_id" value="{{ pile._id }}" />
+
+  <div class="clear"></div>
+  <ul class="add_card structural">
+    <li class="input"> 
+    <input type="text" class="add_card" placeholder="I'm going to..." name="text" id="text"/>
+    </li>
+    <li class="button">
+    <input type="submit" name="submit" value="Add Card " class="btn"/>
+    </li>
+  </ul>
+  </form>
+</div>
+</li>

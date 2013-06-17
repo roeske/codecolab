@@ -2,6 +2,112 @@ String.prototype.endsWith = function(suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
 
+function recalculate_container_width() {
+  var total_width = 0;
+  $(".pile_container").each(function(i, elem) {
+      total_width += $(elem).width();
+  });
+  total_width += 100;
+  console.log("total_width="+total_width);
+
+  // Now set the inner #pile_list width to the total width
+  $("#pile_list").width(total_width);
+}
+
+function cc_init_list_controls(selector_prefix) {
+  // Async list delete
+  $(selector_prefix + ".list_delete").click(function() {
+      var list_id = $(this).data('list-id');
+    
+      // If the list has no cards, it is safe to delete.
+      var card_count = $("ul[data-id=" + list_id + "] li").size();
+      if (card_count === 0) {
+        delete_list(project_name, list_id, function() {
+          $("li[data-id=" +  list_id + "]").remove();
+          recalculate_container_width();
+        });
+      } else {
+        alert("Please remove all cards from this list before deleting it.");
+      }
+  });
+
+  // Handle clicks on 'archive' buttons 
+  // -- update server
+  // -- remove element from dom on success.
+  $(selector_prefix + "a.archive").click(handle_archive_click);
+
+  // Append new cards to the bottom of the pile via AJAX.
+  $(selector_prefix + "form.add_card").each(function(i, elem) { 
+
+      var pile_selector = "#" + $(elem).data("pile-id");
+
+      $(elem).ajaxForm({
+          success: function(text) {
+              // Add the card.
+              $(pile_selector).append(text);
+
+              // Scroll to the bottom so the card is visible.
+              $(pile_selector).scrollTop($(pile_selector)[0].scrollHeight);
+
+              // Select the newly added card.
+              var selector = $(pile_selector + " li.card_item");
+              var selector_func = function() { return selector; };
+
+              // Update the order of the cards (there is an ordinal that
+              // needs to be set on each card to correctly designate its
+              // order, independent of how it is currently rendered)
+              var updates = cc_cards_reorder_update_dom(selector_func);
+
+              // Update the above on the server.
+              cc_reorder_post("cards", updates);
+
+              // Select newly added card to hook up controls
+              selector = pile_selector + " li.card_item:last";
+              cc_connect_card(selector);
+              
+              // Connect the raty widget when adding a new card via ajax.
+              var elem = $($(selector).find(".difficulty"));
+              cc_connect_raty_score(elem, project_name, elem.data("card-id"));
+
+              // Handle archive clicks on the new card.
+              $($(selector).find("a.archive")).click(handle_archive_click);
+
+              // Make the new card border glow a bit when it is first shown.
+              var color = "#4DCDFF"; // blue
+              var width = "2px";
+
+              var temporary = { 
+                  borderTopColor: color, 
+                  borderTopWidth: width, 
+                  borderLeftColor: color,
+                  borderLeftWidth: width,
+                  borderRightColor: color,
+                  borderRightWidth: width,
+                  borderBottomColor: color,
+                  borderBottomWidth: width
+              };
+
+              var transparent = "rgba(0,0,0,0);";
+
+              var invisible = { 
+                  borderTopColor: transparent, 
+                  borderLeftColor: transparent,
+                  borderRightColor: transparent,
+                  borderBottomColor: transparent 
+              };
+
+              $(selector).animate(temporary, 'slow', function() {
+                  $(selector).animate(invisible, 'slow');
+              });
+
+              // Reset the add card textbox after the card is added.
+              $("input.add_card").val("");
+          } 
+      });
+  });
+}
+
+
 /** Card editor */
 function cc_setup_card_description_editor(project_name, card_id) {
     // Setup pagedown
@@ -585,21 +691,37 @@ function cc_connect_card(elem) {
 }
 
 
+function cc_make_list_sortable(selector) {
+    var sorter = cc_make_card_sorter(selector);
+    console.log("sorter=" + sorter);
+
+    console.log("selector=");
+    console.log(selector);
+    var matches = $(selector);
+    console.log("#matches=" + matches.length);
+    console.log(matches);
+    matches.sortable(sorter);//.disableSelection();
+}
+
+
 /** Sets up all state of the project page. */
 function cc_project_init(project_name, pile_ids) {
     // Iterate pile ids and make sortable + droppable.
     for (var key in pile_ids) {
-        id = pile_ids[key];
-        // Build selector.
-        var selector = "#" + id;
-        // Make the target list sortable.
-        $(selector).sortable(cc_make_card_sorter(selector)).disableSelection();
+        cc_make_list_sortable("#" + pile_ids[key]);
     }
+    
+    cc_initialize_cards();
+    cc_initialize_lists();
+}
 
+function cc_initialize_cards() {
     $("li.card_item").each(function(i, elem) {
         cc_connect_card(elem);
     });
+}
 
+function cc_initialize_lists() {
     var pile_selector = "ul#pile_list";
     $(pile_selector).sortable(cc_make_pile_sorter("ul#pile_list"));
     $("ul.card_item, li.card_item").disableSelection();
