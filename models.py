@@ -412,6 +412,7 @@ class Milestone(db.Model, DictSerializable):
                 "Ratio of points that have been finished to unfinished.",
                 "Ratio of cards that have been rated to unrated."]
 
+
 class Pile(db.Model, DictSerializable):
     """
     Piles are containers for cards. A card can only be on
@@ -423,10 +424,11 @@ class Pile(db.Model, DictSerializable):
     _id         = db.Column(db.Integer, primary_key=True)
     number      = db.Column(db.Integer, default=func.currval("pile__id_seq"))
     project_id  = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False)
+    is_deleted  = db.Column(db.Boolean, default=False)
     name        = db.Column(db.String, nullable=False, default="Unnamed Pile")
     created     = db.Column(db.DateTime, default=func.now())
-    cards       = db.relationship("Card", order_by=lambda: Card.number)
 
+    cards       = db.relationship("Card", order_by=lambda: Card.number)
     @property
     def pile_uuid(self):
         return "pile_" + md5(str(self._id) + self.name + str(self.created)).hexdigest()
@@ -470,6 +472,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     attachments = db.relationship("CardFile", order_by=lambda: CardFile.created.desc())
     milestone = db.relationship("Milestone")
     project = db.relationship("Project")
+    pile = db.relationship("Pile")
 
     @property
     def title(self):

@@ -12,6 +12,7 @@ function recalculate_container_width() {
 
   // Now set the inner #pile_list width to the total width
   $("#pile_list").width(total_width);
+  return total_width;
 }
 
 function cc_init_list_controls(selector_prefix) {
@@ -21,13 +22,14 @@ function cc_init_list_controls(selector_prefix) {
     
       // If the list has no cards, it is safe to delete.
       var card_count = $("ul[data-id=" + list_id + "] li").size();
-      if (card_count === 0) {
+      var confirm_delete_msg = "This will archive all the cards in the list. \
+Continue?";
+
+      if (card_count === 0 || confirm(confirm_delete_msg)) {
         delete_list(project_name, list_id, function() {
           $("li[data-id=" +  list_id + "]").remove();
           recalculate_container_width();
         });
-      } else {
-        alert("Please remove all cards from this list before deleting it.");
       }
   });
 

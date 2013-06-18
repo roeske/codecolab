@@ -658,8 +658,20 @@ def check_owner_privileges(func):
 @app.route("/<project_name>/list/<int:list_id>/delete")
 @check_project_privileges
 def list_delete(list_id=None, luser=None, **kwargs):
+    """
+    'Deletes' a list. Note, lists are NEVER really deleted,
+    since any archived cards still related to them will require
+    their existence.
+    """
+
+    # When 'deleting' a list, automatically archive all its cards.
+    cards = models.Card.query.filter_by(pile_id=list_id).all()
+    for card in cards:
+        card.is_archived = True
+
+
     pile = models.Pile.query.filter_by(_id=list_id).first()
-    models.db.session.delete(pile)
+    pile.is_deleted = True
     models.db.session.commit()
 
     return respond_with_json(dict(status=True))
@@ -813,10 +825,10 @@ def restore_card(project=None, card_id=None, **kwargs):
     """
     card = models.Card.query.filter_by(_id=card_id).first()
     card.is_archived = False
+    card.pile.is_deleted = False
     models.db.session.flush()
     models.db.session.commit()
 
-    ## todo: ajaxify 
     return flask.redirect("/project/%s/archives" % project.urlencoded_name)
 
 
