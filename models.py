@@ -205,7 +205,7 @@ class Project(db.Model, DictSerializable):
 
     plusers     = db.relationship("ProjectLuser")
 
-    cards       = db.relationship("Card", order_by=lambda: Card.number)
+    cards       = db.relationship("Card", order_by=lambda: Card.number.desc())
     piles       = db.relationship("Pile", order_by=lambda: Pile.number)    
     members     = db.relationship("ProjectLuser")
     activity    = db.relationship("Activity", order_by=lambda: Activity.created.desc())
