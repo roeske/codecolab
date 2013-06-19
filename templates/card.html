@@ -1,4 +1,4 @@
-<div style="width: 455px; padding-top: 8px;">
+<div>
   <!-- Static created timestamp -->
   <div class="card_top">
     <div>
@@ -29,7 +29,7 @@
   </div>
 
   <!-- Editable Title "text" field -->
-  <p style="margin-bottom: 16px;font-size: 90%; width: 380px;"><span class="editable text">{{ card.text }}</span></p>
+  <p><span class="editable text">{{ card.text }}</span></p>
 
   <!-- Editable description field -->
   <div class="clear"></div>
@@ -49,7 +49,6 @@
     <div class="clear"></div>
   </div>
 
-  <br />
 
   <div>
     
@@ -65,7 +64,7 @@
        
       <h3 class="card_section">Milestone</h3>
       
-      <select data-card-id="{{ card._id }}" id="select_milestone">
+      <select data-card-id="{{ card._id }}" class="card_select" id="select_milestone">
         <option data-id="-1">None</option>
         {% for milestone in project.milestones %}
         
@@ -90,7 +89,7 @@
        
       <h3 class="card_section">Assign To</h3>
       
-      <select id="select_assign_to">
+      <select id="select_assign_to" class="card_select">
         <option data-card-id="{{ card._id }}" data-id="-1">None</option>
         {% for member in project.lusers %}
           <option 
@@ -112,21 +111,21 @@
   {% include 'card_comments.html' %}
 
   <form class="comments" action="/project/{{ project_name }}/cards/{{ card._id }}/comment" method="POST">
-    <ul class="structural" style="padding: 0; margin: 0;">
+    <ul class="structural">
       <li> 
         <textarea placeholder="Comment..." name="text" id="text"/>
       </li>
 
       <li>
-        <input class="btn" style="float: right; margin-right: 0;" type="submit" name="submit" value="Add Comment"/>
+        <input class="btn" style="float: right;" type="submit" name="submit" value="Add Comment"/>
         <div style="clear: both;"></div>
       </li>
     </ul>
   </form>
 
   <!-- [attachments] -->
-  <h3 class="comments_title">Attachments</h3>
-  <form>
+  <h3 class="card_section">Attachments</h3>
+  <form class="attachment_form">
     <ul class="structural">
       <li> 
         <input id="{{ card._id }}_file_input" type="file" name="file" id="file"/>

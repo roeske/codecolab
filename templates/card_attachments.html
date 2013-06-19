@@ -10,7 +10,7 @@
       <li>
         <a href="{{ file.url }}">
           {% if file.is_image %}
-            <img class="thumb" src="{{ file.url }}"/>
+            <img style="max-width: 97%; max-height: 300px;" class="thumb" src="{{ file.url }}"/>
             <p>{{ file.filename }}</p>
           {% else %}
             {{ file.filename }}

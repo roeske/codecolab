@@ -43,10 +43,10 @@ ul.comments li p.text {
 }
 
 form.comments ul li textarea {
-    width: 443px;
+    width: 97%;
 }
 
-.ui-dialog > form ul li { width: 442px; }
+.ui-dialog > form ul li { width: 80%; }
 
 .ui-dialog > br {
     line-height: .2em;
@@ -65,8 +65,6 @@ form.comments ul li textarea {
     width: 31%;
     height: 70px;
     padding: 0px 7px;
-    background-color: #f5f2f1;
-    border: 1px solid #ccc;
 }
 
 .ui-dialog > div div.difficulty_section {
@@ -74,8 +72,6 @@ form.comments ul li textarea {
     width: 25%;
     height: 70px;
     padding: 0px 7px;
-    background-color: #f5f2f1;
-    border: 1px solid #ccc;
 }
 
 .ui-dialog > div form.assign_to {
@@ -83,8 +79,6 @@ form.comments ul li textarea {
     width: 31%;
     height: 70px;
     padding: 0px 7px;
-    background-color: #f5f2f1;
-    border: 1px solid #ccc;
 }
 
 pre.description {
@@ -93,22 +87,16 @@ pre.description {
 
 div form.milestone select, 
 div form.assign_to select {
-    width: 140px;
+    width: 90%;
 }
 
 .card_section {
-    font-size: 80%;
-    font-weight: bold;
+    font-size: 1em;
     color: #333;
-    text-shadow: none;
-    line-height: 1em;
+    text-shadow: 1px 1px #aaa;
 }
 
-div.editorhint {
-
-}
 /* upload progressbar */
-
 .progress {
     width: 96%;
     padding: 7px;
@@ -135,3 +123,18 @@ div.editorhint {
     background: gray;
 }
 
+.wmd-preview {
+    border: 1px solid #ccc;
+}
+
+
+.card_select{
+    max-width: 175px;
+    width: 175px;
+}
+
+.editor_hint { margin-top: 15px; }
+
+.attachment_form {
+    margin-bottom: 15px;
+}

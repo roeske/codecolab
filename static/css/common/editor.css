@@ -6,23 +6,21 @@ blockquote {
 
 
 .wmd-panel {
-    width: 455px;
-    margin-bottom: 8px;
 }
 
 .wmd-button-bar {
-    width: 455px;
 }
 
 .wmd-input { 
+    width: 97%;
     height: 300px;
-    width: 441px;
     background-color: #f5f2f1;
     border: 1px solid #ccc;
 }
 
 .wmd-preview { 
-    width: 100%;
+    width: 97%;
+    padding: 7px;
 }
 
 .wmd-preview > ol,

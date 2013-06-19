@@ -120,7 +120,10 @@ function cc_setup_card_description_editor(project_name, card_id) {
     // This feature makes no sense with the way our project
     // is currently configured
     $("#wmd-image-button").hide();
-
+    
+    $("#wmd-preview").click(function() {
+        $("a.save").click();
+    });
 
     // Setup toggle preview / save
     $("a.save").click(function() {
@@ -629,6 +632,17 @@ function cc_on_modal_opened(project_name, card_id) {
     cc_setup_card(project_name, card_id);
 }
 
+function cc_open_modal(modal_id, options, url, on_load) {
+    var modal = $("<div id=" + modal_id + "></div>").load(url, on_load) 
+                                                    .dialog(options);
+    modal.dialog("open").on('dialogresize', function() {
+        cc_resize_card($("#" + modal_id).width());
+    });
+}
+
+function cc_resize_card(width) {
+
+}
 
 function cc_connect_card_to_modal(title, project_name, elem, is_link) {
     // Create id to later reference modal with.
@@ -638,6 +652,8 @@ function cc_connect_card_to_modal(title, project_name, elem, is_link) {
     var url = "/project/" + project_name + "/cards/" + card_id;
 
     var options = {
+        dialogClass: "card_modal",
+
         show: {
             effect: "blind",
             duration: 500
@@ -647,7 +663,6 @@ function cc_connect_card_to_modal(title, project_name, elem, is_link) {
             effect: "blind",
             duration: 500
         },
-
 
         close: function() {
             // When the modal dialog is closed, completely remove it from the
@@ -661,8 +676,11 @@ function cc_connect_card_to_modal(title, project_name, elem, is_link) {
 
         title: title,
         autoOpen: false,
-        width: 490,
-        height: 700 
+
+        width: 500,
+        minWidth: 500,
+        height: 700, 
+        minHeight: 700
     };
 
     var on_load = function() {
@@ -674,13 +692,11 @@ function cc_connect_card_to_modal(title, project_name, elem, is_link) {
             ev.preventDefault();
             url = $(elem).attr("href");
             console.log("url="+url);
-            var modal = $("<div id=" + modal_id + "></div>").load(url, on_load).dialog(options);
-            modal.dialog("open");
+            cc_open_modal(modal_id, options, url, on_load);
         });
     } else {
         $(elem).dblclick(function(ev) {
-            var modal = $("<div id=" + modal_id + "></div>").load(url, on_load).dialog(options);
-            modal.dialog("open");
+            cc_open_modal(modal_id, options, url, on_load);
         });
     }
 }
