@@ -17,7 +17,7 @@ function recalculate_container_width() {
 
 function cc_init_list_controls(selector_prefix) {
   // Async list delete
-  $(selector_prefix + ".list_delete").click(function() {
+  $(selector_prefix + " .list_delete").click(function() {
       var list_id = $(this).data('list-id');
     
       // If the list has no cards, it is safe to delete.

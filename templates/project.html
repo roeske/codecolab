@@ -105,12 +105,15 @@ $(function() {
   $("#add_list_form").ajaxForm({
     success: function(data) {
       $("ul#pile_list").append(data); 
+
+      var new_pile = $("ul#pile_list > li > ul").last(); 
+      
       var width = recalculate_container_width();
-      cc_init_list_controls("");
+
+      cc_init_list_controls("#pile_" + new_pile.data("id") + " ");
       cc_initialize_lists();
 
       console.log("new_pile...");
-      var new_pile = $("ul#pile_list > li > ul").last();
       console.log(new_pile);
 
       cc_initialize_cards("#" + new_pile.attr("id") + " > ");
