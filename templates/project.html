@@ -24,7 +24,7 @@
         <input type="submit" name="submit" value="Add List" class="btn"/>
       </li>
       <li>
-        <input type="text" placeholder="list name..." name="text" id="text"/>
+        <input type="text" placeholder="pile name..." name="text" id="text"/>
       </li>
     </ul>
 
@@ -113,6 +113,7 @@ $(function() {
       // finally, scroll the piles div all the way to the right so it 
       // can be seen
       $("div#piles").animate({ scrollLeft: width });
+      $('#add_list_form input[type="text"]').val("");
     }
   });
 
