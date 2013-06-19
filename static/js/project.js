@@ -677,10 +677,10 @@ function cc_connect_card_to_modal(title, project_name, elem, is_link) {
         title: title,
         autoOpen: false,
 
-        width: 500,
-        minWidth: 500,
-        height: 600, 
-        minHeight: 600
+        width: screen.width * 0.4,
+        minWidth: screen.width * 0.4,
+        height: screen.height * 0.8,
+        minHeight: screen.height * 0.8
     };
 
     var on_load = function() {
