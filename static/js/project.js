@@ -170,13 +170,15 @@ function cc_setup_card(project_name, card_id) {
 function cc_connect_editables(project_name, elem, card_id) {
     var id = card_id;
 
+    // Edit card title
     var url = "/project/" + project_name + "/cards/edit/" + id;
     $(elem).find(".editable.text").editable(url, {
         name: "text",
         event: "click",
-        style: "inherit",
         onblur: "submit",
         tooltip: "Click to edit...",
+        cssclass: "jeditable",
+        height: "24px",
 
         callback: function(value, settings) {
             console.log("settings=" + settings);
@@ -190,6 +192,7 @@ function cc_connect_editables(project_name, elem, card_id) {
         }
     });
 
+    /*
     url = "/project/" + project_name + "/cards/edit/" + id;
     $(elem).find(".editable.description").editable(url, {
         onblur: "submit",
@@ -204,6 +207,7 @@ function cc_connect_editables(project_name, elem, card_id) {
         height: "100px",
         callback: cc_activity_reload
     });
+    */
 
     cc_connect_raty_score($(elem).find(".editable.difficulty"), project_name,
                                         card_id, true);

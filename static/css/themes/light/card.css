@@ -138,3 +138,7 @@ div form.assign_to select {
 .attachment_form {
     margin-bottom: 15px;
 }
+
+div.editable {
+    width: 85%;
+}
