@@ -733,12 +733,12 @@ function cc_project_init(project_name, pile_ids) {
         cc_make_list_sortable("#" + pile_ids[key]);
     }
     
-    cc_initialize_cards();
+    cc_initialize_cards("");
     cc_initialize_lists();
 }
 
-function cc_initialize_cards() {
-    $("li.card_item").each(function(i, elem) {
+function cc_initialize_cards(selector_prefix) {
+    $(selector_prefix + "li.card_item").each(function(i, elem) {
         cc_connect_card(elem);
     });
 }

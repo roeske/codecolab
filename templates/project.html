@@ -108,7 +108,13 @@ $(function() {
       var width = recalculate_container_width();
       cc_init_list_controls("");
       cc_initialize_lists();
-      cc_initialize_cards();
+
+      console.log("new_pile...");
+      var new_pile = $("ul#pile_list > li > ul").last();
+      console.log(new_pile);
+
+      cc_initialize_cards("#" + new_pile.attr("id") + " > ");
+
       cc_make_list_sortable($("ul#pile_list > li > ul.card_list").last());
       // finally, scroll the piles div all the way to the right so it 
       // can be seen
