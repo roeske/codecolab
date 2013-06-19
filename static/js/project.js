@@ -679,8 +679,8 @@ function cc_connect_card_to_modal(title, project_name, elem, is_link) {
 
         width: 500,
         minWidth: 500,
-        height: 700, 
-        minHeight: 700
+        height: 600, 
+        minHeight: 600
     };
 
     var on_load = function() {
