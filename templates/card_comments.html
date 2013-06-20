@@ -3,14 +3,46 @@
   <ul class="comments structural">
      {% for comment in card.comments %}
      <li id="comment_{{ comment._id }}">
-          <div>
-            <a data-comment-id="{{ comment._id }}" style="float: right;" class="delete_comment icon">&#10060;</a>
-            <p style="float: left; width: 395px;" class="text">{{ comment.text }}</p>
-            <div class="clear"></div>
-          </div>
-          <p class="email"><a href="/profile/{{ comment.luser._id }}">@{{ comment.luser.profile.username }}</a></p>
+     <div class="comment">
+       <!-- /icons -->
+
+        <div>
+         <div class="user_info">
+
+           <img src="{{ comment.luser.tiny_gravatar_url }}" />
+           <p class="username">
+             <a href="/profile/{{ comment.luser._id }}">@{{ comment.luser.profile.username }}</a>
+           </p>
+         </div>
+
+
+        <div class="comment_part">
+          <!-- comment -->
+          <p class="comment_text">{{ comment.text }}</p>
+          <!-- /comment -->
+        </div>
+
+        </div>
+
+        <div class="clear"></div>
+
+        <div class="timestamp_part">
           <p class="timestamp">{{ comment.created_as_timezone(luser.profile.timezone) }}</p>
-          <div class="clear"></div>
+
+        <!-- icons -->
+       <a class="mini_icon delete" data-comment-id="{{ comment._id }}" 
+          style="float: right;">
+         <img class="mini_icon" src="/assets/ic_trash.png"/>
+       </a>
+
+       <a class="mini_icon edit"  data-comment-id="{{ comment._id }}" 
+          style="float: right;">
+         <img class="mini_icon" src="/assets/ic_pencil.png"/>
+       </a>
+        </div>
+
+        <div class="clear"></div>
+     </div>
      </li>
      {% endfor %}
   </ul>
@@ -20,7 +52,7 @@
       var project_name = "{{ project_name }}"
 
       // hook up delete comment button
-      $(".delete_comment").click(function() {
+      $(".mini_icon.delete").click(function() {
         var comment_id = $(this).data("comment-id")
         var url = "/project/" + project_name + "/comment/" + comment_id + "/delete"
         $.post(url, function(data) {
