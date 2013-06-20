@@ -1,3 +1,6 @@
+/* TODO: remove more css and rename. It's not really bootstrap now. */
+
+/* old */
 label,
 select,
 button,
@@ -893,7 +896,6 @@ legend small {
 label,
 input,
 button,
-select,
 textarea {
   font-size: 14px;
   font-weight: normal;
@@ -912,7 +914,6 @@ label {
   margin-bottom: 5px;
 }
 
-select,
 textarea,
 input[type="text"],
 input[type="password"],
@@ -1017,37 +1018,6 @@ input[type="checkbox"] {
   width: auto;
 }
 
-select,
-input[type="file"] {
-  height: 30px;
-  /* In IE7, the height of the select element cannot be changed by height, only font-size */
-
-  margin-top: 4px;
-  /* For IE7, add top margin to align select with labels */
-
-  line-height: 30px;
-}
-
-select {
-  width: 220px;
-  background-color: #ffffff;
-  border: 1px solid #cccccc;
-}
-
-select[multiple],
-select[size] {
-  height: auto;
-}
-
-select:focus,
-input[type="file"]:focus,
-input[type="radio"]:focus,
-input[type="checkbox"]:focus {
-  outline: thin dotted #333;
-  outline: 5px auto -webkit-focus-ring-color;
-  outline-offset: -2px;
-}
-
 .uneditable-input,
 .uneditable-textarea {
   color: #999999;
@@ -1138,11 +1108,9 @@ textarea::-webkit-input-placeholder {
 }
 
 input[class*="span"],
-select[class*="span"],
 textarea[class*="span"],
 .uneditable-input[class*="span"],
 .row-fluid input[class*="span"],
-.row-fluid select[class*="span"],
 .row-fluid textarea[class*="span"],
 .row-fluid .uneditable-input[class*="span"] {
   float: none;
@@ -1154,7 +1122,6 @@ textarea[class*="span"],
 .input-prepend input[class*="span"],
 .input-prepend .uneditable-input[class*="span"],
 .row-fluid input[class*="span"],
-.row-fluid select[class*="span"],
 .row-fluid textarea[class*="span"],
 .row-fluid .uneditable-input[class*="span"],
 .row-fluid .input-prepend [class*="span"],
@@ -1269,10 +1236,8 @@ textarea.span1,
 }
 
 input[disabled],
-select[disabled],
 textarea[disabled],
 input[readonly],
-select[readonly],
 textarea[readonly] {
   cursor: not-allowed;
   background-color: #eeeeee;
@@ -1294,13 +1259,11 @@ input[type="checkbox"][readonly] {
 .control-group.warning .checkbox,
 .control-group.warning .radio,
 .control-group.warning input,
-.control-group.warning select,
 .control-group.warning textarea {
   color: #d9831f;
 }
 
 .control-group.warning input,
-.control-group.warning select,
 .control-group.warning textarea {
   border-color: #d9831f;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
@@ -1308,7 +1271,6 @@ input[type="checkbox"][readonly] {
 }
 
 .control-group.warning input:focus,
-.control-group.warning select:focus,
 .control-group.warning textarea:focus {
   border-color: #ac6819;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ebb473;
@@ -1331,13 +1293,11 @@ input[type="checkbox"][readonly] {
 .control-group.error .checkbox,
 .control-group.error .radio,
 .control-group.error input,
-.control-group.error select,
 .control-group.error textarea {
   color: #002b36;
 }
 
 .control-group.error input,
-.control-group.error select,
 .control-group.error textarea {
   border-color: #002b36;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
@@ -1345,7 +1305,6 @@ input[type="checkbox"][readonly] {
 }
 
 .control-group.error input:focus,
-.control-group.error select:focus,
 .control-group.error textarea:focus {
   border-color: #a91b0c;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #f46a5a;
@@ -1368,13 +1327,11 @@ input[type="checkbox"][readonly] {
 .control-group.success .checkbox,
 .control-group.success .radio,
 .control-group.success input,
-.control-group.success select,
 .control-group.success textarea {
   color: #3d9400;
 }
 
 .control-group.success input,
-.control-group.success select,
 .control-group.success textarea {
   border-color: #3d9400;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
@@ -1382,7 +1339,6 @@ input[type="checkbox"][readonly] {
 }
 
 .control-group.success input:focus,
-.control-group.success select:focus,
 .control-group.success textarea:focus {
   border-color: #286100;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #67fa00;
@@ -1405,13 +1361,11 @@ input[type="checkbox"][readonly] {
 .control-group.info .checkbox,
 .control-group.info .radio,
 .control-group.info input,
-.control-group.info select,
 .control-group.info textarea {
   color: #029acf;
 }
 
 .control-group.info input,
-.control-group.info select,
 .control-group.info textarea {
   border-color: #029acf;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
@@ -1419,7 +1373,6 @@ input[type="checkbox"][readonly] {
 }
 
 .control-group.info input:focus,
-.control-group.info select:focus,
 .control-group.info textarea:focus {
   border-color: #02749c;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #3acbfd;
@@ -1435,14 +1388,12 @@ input[type="checkbox"][readonly] {
 
 input:focus:invalid,
 textarea:focus:invalid,
-select:focus:invalid {
   color: #b94a48;
   border-color: #ee5f5b;
 }
 
 input:focus:invalid:focus,
 textarea:focus:invalid:focus,
-select:focus:invalid:focus {
   border-color: #e9322d;
   -webkit-box-shadow: 0 0 6px #f8b9b7;
           box-shadow: 0 0 6px #f8b9b7;
@@ -1494,8 +1445,6 @@ select:focus:invalid:focus {
 
 .input-append input,
 .input-prepend input,
-.input-append select,
-.input-prepend select,
 .input-append .uneditable-input,
 .input-prepend .uneditable-input,
 .input-append .dropdown-menu,
@@ -1507,8 +1456,6 @@ select:focus:invalid:focus {
 
 .input-append input,
 .input-prepend input,
-.input-append select,
-.input-prepend select,
 .input-append .uneditable-input,
 .input-prepend .uneditable-input {
   position: relative;
@@ -1521,8 +1468,6 @@ select:focus:invalid:focus {
 
 .input-append input:focus,
 .input-prepend input:focus,
-.input-append select:focus,
-.input-prepend select:focus,
 .input-append .uneditable-input:focus,
 .input-prepend .uneditable-input:focus {
   z-index: 2;
@@ -1573,14 +1518,12 @@ select:focus:invalid:focus {
 }
 
 .input-append input,
-.input-append select,
 .input-append .uneditable-input {
   -webkit-border-radius: 0 0 0 0;
           border-radius: 0 0 0 0;
 }
 
 .input-append input + .btn-group .btn:last-child,
-.input-append select + .btn-group .btn:last-child,
 .input-append .uneditable-input + .btn-group .btn:last-child {
   -webkit-border-radius: 0 0 0 0;
           border-radius: 0 0 0 0;
@@ -1600,14 +1543,12 @@ select:focus:invalid:focus {
 }
 
 .input-prepend.input-append input,
-.input-prepend.input-append select,
 .input-prepend.input-append .uneditable-input {
   -webkit-border-radius: 0;
           border-radius: 0;
 }
 
 .input-prepend.input-append input + .btn-group .btn,
-.input-prepend.input-append select + .btn-group .btn,
 .input-prepend.input-append .uneditable-input + .btn-group .btn {
   -webkit-border-radius: 0 0 0 0;
           border-radius: 0 0 0 0;
@@ -1677,9 +1618,6 @@ input.search-query {
 .form-search textarea,
 .form-inline textarea,
 .form-horizontal textarea,
-.form-search select,
-.form-inline select,
-.form-horizontal select,
 .form-search .help-inline,
 .form-inline .help-inline,
 .form-horizontal .help-inline,
@@ -1782,7 +1720,6 @@ legend + .control-group {
 }
 
 .form-horizontal input + .help-block,
-.form-horizontal select + .help-block,
 .form-horizontal textarea + .help-block,
 .form-horizontal .uneditable-input + .help-block,
 .form-horizontal .input-prepend + .help-block,
@@ -3577,14 +3514,12 @@ input[type="submit"].btn.btn-mini {
 }
 
 .navbar-form input,
-.navbar-form select,
 .navbar-form .radio,
 .navbar-form .checkbox {
   margin-top: 5px;
 }
 
 .navbar-form input,
-.navbar-form select,
 .navbar-form .btn {
   display: inline-block;
   margin-bottom: 0;
