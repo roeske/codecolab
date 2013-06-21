@@ -900,12 +900,13 @@ def edit_comment(project=None, luser=None, project_name=None, comment_id=None,
     else:
         flask.abort(400)
 
-    (models.CardComment.query.filter(and_(models.CardComment._id==comment_id,
-                        models.CardComment.luser_id==luser._id))
-                        .update(params))
+    card_comment = models.CardComment.query.filter(and_(models.CardComment._id==comment_id,
+                        models.CardComment.luser_id==luser._id)).first()
+    card_comment.text = value
+
+    activity_logger.log(luser._id, project._id, card_comment.card_id, "edit_comment")
     models.db.session.commit()
 
-    activity_logger.log(luser._id, project._id, comment_id, "edit_comment")
     return value
 
 

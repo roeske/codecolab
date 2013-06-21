@@ -536,8 +536,8 @@ class CardComment(db.Model, DictSerializable, FluxCapacitor):
     text        = db.Column(db.String)
    
     luser       = db.relationship("Luser")
+    card        = db.relationship("Card")
 
-    
     @property
     def email(self):
         return self.luser.email
