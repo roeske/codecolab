@@ -889,6 +889,26 @@ def card_edit(project=None, luser=None, project_name=None,card_id=None,
     return value
 
 
+@app.route("/project/<project_name>/comments/edit/<int:comment_id>", methods=["POST"])
+@check_project_privileges
+def edit_comment(project=None, luser=None, project_name=None, comment_id=None,
+                 **kwargs):
+
+    if "text" in request.form:
+        value = request.form["text"].strip()
+        params = dict(text=value)
+    else:
+        flask.abort(400)
+
+    (models.CardComment.query.filter(and_(models.CardComment._id==comment_id,
+                        models.CardComment.luser_id==luser._id))
+                        .update(params))
+    models.db.session.commit()
+
+    activity_logger.log(luser._id, project._id, comment_id, "edit_comment")
+    return value
+
+
 def query_card(card_id, project_id):
     return (models.Card.query.filter(and_(models.Card._id==card_id,
                    models.Card.project_id==project_id))

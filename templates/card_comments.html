@@ -18,9 +18,11 @@
 
         <div class="comment_part">
           <!-- comment -->
-          <p class="comment_text">{{ comment.text }}</p>
+          <p data-comment-id="{{ comment._id }}" id="editable_comment_{{ comment._id }}" class="quoted comment_text {% if comment.luser._id == luser._id %} editable_comment {% endif %}">{{ comment.text }}</p>
+
           <!-- /comment -->
         </div>
+
 
         </div>
 
@@ -29,16 +31,19 @@
         <div class="timestamp_part">
           <p class="timestamp">{{ comment.created_as_timezone(luser.profile.timezone) }}</p>
 
-        <!-- icons -->
-       <a class="mini_icon delete" data-comment-id="{{ comment._id }}" 
-          style="float: right;">
-         <img class="mini_icon" src="/assets/ic_trash.png"/>
-       </a>
 
-       <a class="mini_icon edit"  data-comment-id="{{ comment._id }}" 
-          style="float: right;">
-         <img class="mini_icon" src="/assets/ic_pencil.png"/>
-       </a>
+       {% if comment.luser._id == luser._id %}
+          <!-- icons -->
+         <a class="mini_icon delete" data-comment-id="{{ comment._id }}" 
+            style="float: right;">
+           <img class="mini_icon" src="/assets/ic_trash.png"/>
+         </a>
+
+         <a class="mini_icon edit"  data-comment-id="{{ comment._id }}" 
+            style="float: right;">
+           <img class="mini_icon" src="/assets/ic_pencil.png"/>
+         </a>
+       {% endif %}
         </div>
 
         <div class="clear"></div>
@@ -49,18 +54,49 @@
 
   <script type="text/javascript">
     $(function() {
-      var project_name = "{{ project_name }}"
+      var project_name = "{{ project_name }}";
 
       // hook up delete comment button
       $(".mini_icon.delete").click(function() {
-        var comment_id = $(this).data("comment-id")
+        var comment_id = $(this).data("comment-id");
         var url = "/project/" + project_name + "/comment/" + comment_id + "/delete"
         $.post(url, function(data) {
-          $("#comment_" + comment_id).remove()
+          $("#comment_" + comment_id).remove();
         })
           
-        return false
-      })
+        return false;
+      });
+
+      $(".editable_comment").each(function(i, value) {
+        var comment_id = $(value).data('comment-id');
+        console.log(value);
+        var url = "/project/{{ project_name }}/comments/edit/" + comment_id;
+        console.log("url="+url);
+
+        $(value).editable(url, {
+          type: "textarea",
+          name: "text",
+          event: "clickEdit",
+          tooltip: "Click to edit...",
+          cssclass: "jeditable",
+          height: "4em",
+          submit: "save",
+          onblur: "cancel",
+
+
+          callback: function(value, settings) {
+            $(this).addClass("quoted");
+          }
+         });
+      });
+
+      $(".mini_icon.edit").click(function() {
+        var comment_id = $(this).data('comment-id'); 
+        var selector = "#editable_comment_" + comment_id;
+        var editable = $(selector);
+        editable.trigger("clickEdit");
+        editable.removeClass("quoted");
+      });
     })
   </script>
 </div>

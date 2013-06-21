@@ -759,6 +759,11 @@ if __name__ == "__main__":
         text_fmt = base_text_fmt % "archived card"
         insert_or_update_activity_type(fmt, text_fmt, "card_archive")
         
+        fmt = base_fmt % "edit comment"
+        text_fmt = base_text_fmt % "edit comment"
+        insert_or_update_activity_type(fmt, text_fmt, "edit_comment")
+
+
         db.session.commit()
 
     elif sys.argv[1] == "drop":

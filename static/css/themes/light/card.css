@@ -160,8 +160,8 @@ a.mini_icon :active {
     display: table-cell;
 }
 
-.comment_text:before,
-.comment_text:after {
+.quoted:before,
+.quoted:after {
     content: "\"";
     font-size: 1.0em;
     font-weight: bold;
