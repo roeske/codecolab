@@ -1,5 +1,24 @@
-<h4>{{ report.subject }}</h4>
-<small>On {{ report.created_as_timezone(luser.profile.timezone) }}</small>
-<div class="report_summary" style="padding: .5em; margin-top: 1em; border: 1px solid #ccc; background-color: #f5f2f1;">
-{{ report.text|markdown}}
+<div>
+  <div class="user_info_section">
+    <img src="{{ report.luser.gravatar_url_48 }}"/>
+    <div class="clear"></div>
+    <a href="/profiles/{{ report.luser._id }}" class="username">@{{ report.luser.profile.username }}</a>
+    <div class="clear"></div>
+  </div>
+
+
+  <div class="report_info_section">
+    <div>
+      <h4>{{ report.subject }}</h4>
+      <small>On {{ report.created_as_timezone(luser.profile.timezone) }}</small>
+    </div>
+
+    <hr class="report_rule"/>
+
+    <div class="report_summary">
+    {{ report.text | markdown}}
+    </div>
+  </div>
+  
+  <div class="clear"></div>
 </div>

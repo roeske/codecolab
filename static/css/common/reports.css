@@ -1,0 +1,76 @@
+.report {
+    padding-bottom: 7px;
+    box-shadow: 2px 2px 7px #aaa;
+    padding: 7px;
+    margin-bottom: 7px;
+}
+
+.user_info_section {
+    float: right;
+    width: 10%;
+}
+
+.user_info_section > img,
+.user_info_section > a {
+    float: right;
+}
+
+.user_info_section > a {
+    width: 49px;
+}
+
+.report_info_section div {
+}
+
+.report_info_section {
+    float: left;
+    width: 90%;
+}
+
+.section_team_reports > ul {
+    list-style-type: none;
+}
+
+a.username {
+    display: block;
+    text-align: center;
+}
+
+.report_rule {
+    margin: 7px 15px 7px 0px;
+    width: 90%;
+}
+
+.report_summary {
+    width: 90%;
+}
+
+.tabs_container {
+    margin-top: 7px;
+    margin-bottom: 7px;
+}
+
+.tab {
+    margin-right: 7px;
+}
+
+.section_create_report {
+    overflow-x: hidden;
+}
+
+.section_create_report > form {
+    margin: auto;
+}
+
+.section_create_report > form > input,
+.section_create_report > form > textarea {
+    width: 99%;
+}
+
+.section_create_report > form > input.btn {
+    width: 99.7%;
+}
+
+.tab.active {
+    border-bottom: 1px solid #ccc;
+}

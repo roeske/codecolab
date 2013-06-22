@@ -139,7 +139,13 @@ class Luser(db.Model, DictSerializable):
     def small_gravatar_url(self):
         email_hash = md5(self.email.strip().lower()).hexdigest()
         return "http://gravatar.com/avatar/%s?s=64" % email_hash
- 
+
+
+    @property
+    def gravatar_url_48(self):
+        email_hash = md5(self.email.strip().lower()).hexdigest()
+        return "http://gravatar.com/avatar/%s?s=48" % email_hash
+
 
     @property
     def tiny_gravatar_url(self):
@@ -216,6 +222,8 @@ class Project(db.Model, DictSerializable):
     members     = db.relationship("ProjectLuser")
     activity    = db.relationship("Activity", order_by=lambda: Activity.created.desc())
    
+    reports     = db.relationship("MemberReport", order_by=lambda:
+                                  MemberReport.created.desc())
 
     def is_owner(self, luser_id):
         for member in self.members:
@@ -284,6 +292,7 @@ class MemberScheduleTimeRanges(db.Model, DictSerializable):
 
     day         = db.relationship("Day")
 
+
 class MemberReport(db.Model, DictSerializable, FluxCapacitor):
     
     __tablename__ = "member_report"
@@ -303,8 +312,12 @@ class MemberReport(db.Model, DictSerializable, FluxCapacitor):
     project             = db.relationship("Project")
 
 
+    def timestamp(self, tz):
+        return self.created_as_timezone(tz)
+
+
     def describe_with_time(self, tz):
-        timestamp = self.created_as_timezone(tz)
+        timestamp = self.timestamp(tz)
         return '"%s" on %s' % (self.subject, timestamp)
 
 

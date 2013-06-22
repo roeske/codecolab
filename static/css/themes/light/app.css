@@ -387,7 +387,8 @@ div.pile_chrome_bottom {
         background-color: #bbb;
         border-radius: 3px;
     }
-}*/
+}
+*/
 
 .handle { background-color: #ccc; height: 35px;}
 
@@ -407,3 +408,7 @@ div.pile_chrome_bottom {
     border: 1px solid #ccc;
 }
 
+ul {
+    list-style-type: disc;
+}
+    
