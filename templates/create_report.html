@@ -1,0 +1,18 @@
+<div class="section_create_report">
+  <form method="POST" action="/project/{{ project_name }}/reports">
+      <input type="text" name="subject" placeholder="Subject..." />
+  <!-- Don't refactor this. It is this way so that the whitespace formatting
+       is correct within the textarea -->
+<textarea cols="80" rows="25" name="text" id="report">
+[replace with your personal message]
+
+Here's my activity courtesy of CodeColab:
+{% if luser.recent_activity|length > 0 %}
+{% for item in luser.recent_activity -%}* {{ item.describe_with_time("", luser.profile.timezone) }} {{ "\n" }} {%- endfor %} 
+{% else %}
+No recent activity was logged.
+{% endif %}
+</textarea>
+      <input type="submit" value="Submit" class="btn" />
+  </form>
+</div>

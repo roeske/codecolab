@@ -1,0 +1,17 @@
+<div class="section_team_reports">
+  <ul>
+    {% for report in project.reports %}
+      <li class="report">
+        {% include "report.html" %}
+      
+        <!--
+        <a class="report_link" href="/project/{{ project_name }}/reports/{{ report._id }}"
+          data-title="{{ report.subject }}"
+          data-timestamp="{{ report.timestamp(luser.profile.timezone) }}">
+          {{ report.describe_with_time(luser.profile.timezone) }}
+        </a>
+        -->
+      </li>
+    {% endfor %}
+  </ul>
+</div>
