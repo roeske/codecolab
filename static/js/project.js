@@ -167,12 +167,12 @@ function cc_setup_card(project_name, card_id) {
 
 
 /** Project View */
-function cc_connect_editables(project_name, elem, card_id) {
+function cc_connect_editables(project_name, modal, card_id) {
     var id = card_id;
 
     // Edit card title
     var url = "/project/" + project_name + "/cards/edit/" + id;
-    $(elem).find(".editable.text").editable(url, {
+    $(modal).find(".editable.text").editable(url, {
         name: "text",
         event: "click",
         onblur: "submit",
@@ -189,6 +189,8 @@ function cc_connect_editables(project_name, elem, card_id) {
             // Must update the card in the list (not modal) when the modal
             // is changed so they do not come out of sync with each other.
             $("li[data-id=" + card_id + "].card_item").find("p span.text").text(value);
+
+            modal.dialog('option', 'title', value);
         }
     });
 
@@ -209,7 +211,7 @@ function cc_connect_editables(project_name, elem, card_id) {
     });
     */
 
-    cc_connect_raty_score($(elem).find(".editable.difficulty"), project_name,
+    cc_connect_raty_score($(modal).find(".editable.difficulty"), project_name,
                                         card_id, true);
 }
 
