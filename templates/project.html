@@ -62,7 +62,18 @@
 <script src="/pagedown/Markdown.Editor.js"></script>
 
 <script src="/js/project.js"></script>
+<script src="/js/activity_feed.js"></script>
 <script>
+var activity_feed = new ActivityFeed({
+    toggle_icon_show: require('.activity_toggle_icon.show'),
+    toggle_icon_hide: require('.activity_toggle_icon.hide'),
+    toggle: require('#activity_toggle'),
+    list_container: require('#activity_list_container'),
+    list: require('#activity_list'),
+    container: require('#activity_container'),
+    piles: require('#piles')
+});
+
 
 function handle_archive_click(event) {
     event.preventDefault()
@@ -127,8 +138,6 @@ $(function() {
   });
 
   cc_init_list_controls("")
-  cc_setup_activity_toggle()
-  cc_setup_activity_links()
 })
 
 function delete_list(project_name, list_id, callback) {

@@ -717,13 +717,7 @@ function cc_connect_card(elem) {
 
 function cc_make_list_sortable(selector) {
     var sorter = cc_make_card_sorter(selector);
-    console.log("sorter=" + sorter);
-
-    console.log("selector=");
-    console.log(selector);
     var matches = $(selector);
-    console.log("#matches=" + matches.length);
-    console.log(matches);
     matches.sortable(sorter);//.disableSelection();
 }
 
