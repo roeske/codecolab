@@ -13,7 +13,7 @@
         ActivityFeed.prototype.piles                    = null;
         ActivityFeed.prototype.piles_width              = null;
         ActivityFeed.prototype.piles_expanded_width     = null;
-        
+       
         function ActivityFeed(options) { 
             // copy parameters
             _.extend(this, options);
@@ -32,6 +32,7 @@
                                         this.toggle_width +
                                         this.piles_width;
 
+
             this.toggle.click(function() {
                 var is_visible = $(this).data('is-visible');
                 if (is_visible || is_visible == 'true') {
@@ -46,8 +47,30 @@
             });
 
             this._connect_activity_links();
+
+            that.resize();
+            // setup activity paginator:
+            this.list.jscroll({ 
+                nextSelector: '.activity_paginator',
+                callback: this._connect_activity_links,
+            });
+
+            // keep activity section height up to date based on window
+            // size.
+            // 
+            $(window).bind('resize', function() {
+                that.resize(); 
+            });
         }
       
+        ActivityFeed.prototype.resize = function() {
+            var title_height = this.list_container.closest("h4").height();
+            this.height = this.piles.height() - title_height - 37;
+            this.width = this.list.width();
+            this.list.height(this.height);
+            this.list.css('overflow-y', 'scroll');
+        };
+
         ActivityFeed.prototype._connect_activity_links = function() {
             $("a.activity_card").each(function(i, elem) {
                 // TODO: Refactor

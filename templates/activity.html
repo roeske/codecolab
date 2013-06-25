@@ -1,11 +1,15 @@
 <div id="activity_container">
   <div id="activity_list_container">
     <h4>&nbsp;Activity</h4>
-    
+
+    <div id="activity_list" class="structural">
+      <a class="activity_paginator"
+         href="/project/{{ project.name }}/activity?page=0"></a>
+    </div>
     <!-- include reloadable activity here -->
-    {% include "activity_list.html" %} </div>
+  </div>
   <div data-is-visible="true" id="activity_toggle">
-    <div class="activity_toggle_icon show icon">&#59237;</div>
+    <div style="display: none;" class="activity_toggle_icon show icon">&#59237;</div>
     <div class="activity_toggle_icon hide icon">&#59238;</div>
   </div>
 </div>

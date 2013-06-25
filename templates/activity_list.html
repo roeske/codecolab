@@ -1,5 +1,8 @@
-<ul id="activity_list" class="structural">
-  {% for activity in project.activity %}
-  <li>{{ activity|safe }}</li>
-  {% endfor %}
-</ul>
+{% for item in activity %}
+<div class="activity_list_item">{{ item|safe }}</div>
+{% endfor %}
+
+{% if not is_end %}
+  <a href="/project/{{ project_name }}/activity?page={{ next_page }}"
+     class="activity_paginator"></a>
+{% endif %}

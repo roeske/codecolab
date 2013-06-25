@@ -708,11 +708,25 @@ def remove_member(project=None, member_id=None, **kwargs):
 ###############################################################################
 # Activity
 ###############################################################################
+ACTIVITY_ITEMS_PER_PAGE = 50
 
 @app.route("/project/<project_name>/activity", methods=["GET"])
 @check_project_privileges
-def activity(**kwargs):
-    return flask.render_template("activity_list.html", **kwargs)
+def activity(project=None, **kwargs):
+    page = int(request.args.get('page', 0))
+    start = page * ACTIVITY_ITEMS_PER_PAGE
+    end = start + ACTIVITY_ITEMS_PER_PAGE
+
+    total = models.Activity.query.count()
+    activity = (models.Activity.query.filter_by(project_id=project._id)
+                      .order_by(models.Activity.created.desc())
+                      .offset(start).limit(end).all())
+    is_end = end >= total
+    next_page = page + 1
+
+    return flask.render_template("activity_list.html", activity=activity,
+                                 is_end=is_end, next_page=next_page,
+                                 **kwargs)
 
 
 ##############################################################################

@@ -412,3 +412,12 @@ ul {
     list-style-type: disc;
 }
     
+
+/* activity */
+.activity_list_item {
+    padding-bottom: 7px;
+}
+
+.activity_list_item:first {
+    padding-top: 7px;
+}
