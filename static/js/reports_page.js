@@ -31,11 +31,23 @@
             // Reference outer scope.
             var that = this;
 
-            // Setup accordion
-            this.reports_accordion.accordion({
-                header: '.report_header',
-                heightStyle: 'content'
-            });
+            var setup = function(elem, is_first) {
+                // Setup accordion
+                if (!is_first) {
+                    elem.accordion('destroy');
+                }
+                elem.accordion({
+                    header: '.report_header',
+                    heightStyle: 'content'
+                }).jscroll({ 
+                    nextSelector: '.reports_paginator',
+                    callback: function() {
+                        setup(elem, false);
+                    }
+                });
+            };
+
+            setup(this.reports_accordion, true);
 
             // If the team reports tab is clicked, but the section is not
             // already shown, show it.

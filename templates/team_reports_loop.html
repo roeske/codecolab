@@ -1,0 +1,14 @@
+{% for report in reports %}
+    {% include "report.html" %}
+  
+    <!--
+    <a class="report_link" href="/project/{{ project_name }}/reports/{{ report._id }}"
+      data-title="{{ report.subject }}"
+      data-timestamp="{{ report.timestamp(luser.profile.timezone) }}">
+      {{ report.describe_with_time(luser.profile.timezone) }}
+    </a>
+    -->
+{% endfor %}
+{% if has_next %}
+  <a class="reports_paginator" href="/project/{{ project.name }}/team_reports?page={{ next_page }}"/>
+{% endif %}

@@ -2,16 +2,6 @@
   <h4>Team Reports</h4>
   <br />
   <div class="reports_accordion">
-    {% for report in project.reports %}
-        {% include "report.html" %}
-      
-        <!--
-        <a class="report_link" href="/project/{{ project_name }}/reports/{{ report._id }}"
-          data-title="{{ report.subject }}"
-          data-timestamp="{{ report.timestamp(luser.profile.timezone) }}">
-          {{ report.describe_with_time(luser.profile.timezone) }}
-        </a>
-        -->
-    {% endfor %}
+    {% include "team_reports_loop.html" %}
   </div>
 </div>

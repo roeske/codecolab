@@ -1588,6 +1588,7 @@ def create_default_schedule(luser, project, day_collection):
 ## Reports
 ###############################################################################
 
+REPORTS_PER_PAGE = 10
 @app.route("/project/<project_name>/reports", methods=["GET", "POST"])
 @check_project_privileges
 def member_reports(luser=None, project=None, **kwargs):
@@ -1614,8 +1615,32 @@ def member_reports(luser=None, project=None, **kwargs):
         mailer.send(from_addr=MAIL_FROM, to_addr=recipients, subject=subject,
                     html=html, text=text)
     
+    total = models.MemberReport.query.count()
+
     return cc_render_template("reports.html", luser=luser, project=project,
-                              **kwargs)
+                              reports=project.reports[:REPORTS_PER_PAGE],
+                              has_next=total > REPORTS_PER_PAGE,
+                              next_page=1, **kwargs)
+
+
+@app.route("/project/<project_name>/team_reports")
+@check_project_privileges
+def team_reports(luser=None, project=None, **kwargs):
+    page = int(request.args.get('page', 0))
+    start = page * REPORTS_PER_PAGE 
+    end = start + REPORTS_PER_PAGE 
+
+    total = models.MemberReport.query.count()
+    reports = (models.MemberReport.query.filter_by(project_id=project._id)
+                      .order_by(models.MemberReport.created.desc())
+                      .offset(start).limit(end).all())
+
+    has_next = total > end
+    next_page = page + 1
+
+    return flask.render_template("team_reports_loop.html", reports=reports,
+                                 has_next=has_next, next_page=next_page,
+                                 project=project, luser=luser,**kwargs)
 
 
 @app.route("/project/<project_name>/reports/<int:report_id>")

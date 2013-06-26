@@ -75,7 +75,8 @@ a.username {
 }
 
 .reports_accordion {
-    overflow-y: scroll;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 @media screen and (min-width: 657px) {
