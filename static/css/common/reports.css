@@ -1,12 +1,5 @@
-.report {
-    padding-bottom: 7px;
-    box-shadow: 2px 2px 7px #aaa;
-    padding: 7px;
-    margin-bottom: 7px;
-}
-
 .user_info_section {
-    float: right;
+    float: left;
     width: 10%;
 }
 
@@ -23,8 +16,13 @@
 }
 
 .report_info_section {
+    width: 80%;
+    margin-right: 10%;
     float: left;
-    width: 90%;
+}
+
+.report_info_section > h4 {
+    margin-bottom: 7px;
 }
 
 .section_team_reports > ul {
@@ -38,11 +36,9 @@ a.username {
 
 .report_rule {
     margin: 7px 15px 7px 0px;
-    width: 90%;
 }
 
 .report_summary {
-    width: 90%;
 }
 
 .tabs_container {
@@ -54,23 +50,53 @@ a.username {
     margin-right: 7px;
 }
 
+
+.tab.active {
+    border-bottom: 1px solid #ccc;
+}
+
+
+.section_team_reports,
 .section_create_report {
-    overflow-x: hidden;
+    margin: 7px;
 }
 
 .section_create_report > form {
-    margin: auto;
+    width: 98%;
 }
 
 .section_create_report > form > input,
 .section_create_report > form > textarea {
-    width: 99%;
+    width: 98%;
 }
 
 .section_create_report > form > input.btn {
-    width: 99.7%;
+    width: 98%;
 }
 
-.tab.active {
-    border-bottom: 1px solid #ccc;
+.reports_accordion {
+    overflow-y: scroll;
+    margin-top: 20px;
+}
+
+@media screen and (min-width: 657px) {
+    .section_team_reports {
+        width: 48%;
+        float: left;
+    }
+
+    .section_create_report {
+        width: 48%;
+        float: left;
+    }
+}
+
+@media screen and (max-width: 657px) {
+    .section_team_reports {
+        width: 99%;
+    }
+
+    .section_create_report {
+        width: 99%;
+    }
 }
