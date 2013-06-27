@@ -357,7 +357,7 @@ def signup_via_google(userinfo):
         
     luser = models.Luser(email=userinfo["email"], google_id=userinfo["id"])
     models.db.session.add(luser)
-    models.db.session.flush()
+    models.db.session.commit()
 
     create_luser_data(luser, first_name=userinfo["given_name"],
                              last_name=userinfo["family_name"])
@@ -748,13 +748,6 @@ def render_card(template, **kwargs):
                                  comment_edit_url=comment_edit_url, **kwargs)
 
 
-def card_get_comments(**kwargs):
-    """
-    Called via .ajax to refresh comments after a comment is added.
-    """
-    return render_card("card_comments.html", **kwargs)
-
-
 @app.route("/project/<project_name>/cards/<int:card_id>/attachments", methods=["POST"])
 @check_project_privileges
 def card_get_attachments(card_id=None, luser=None, **kwargs):
@@ -768,7 +761,6 @@ def card_get_attachments(card_id=None, luser=None, **kwargs):
                     filename=filename, url=url)
     
     models.db.session.add(attachment)
-    models.db.session.flush()
     models.db.session.commit()
 
     stuff = render_card("card_attachments.html", card_id=card_id, luser=luser, **kwargs)
@@ -784,37 +776,87 @@ def cards_comment(project_name=None, luser=None, project=None, card_id=None,
     Update the database when a user posts a comment.
     """
 
-    text = flask.request.form["text"].encode("UTF-8").strip()
+    text = request.form["text"].encode("UTF-8").strip()
 
     comment = models.CardComment(card_id=card_id, luser_id=luser._id, 
                                  text=text)
     models.db.session.add(comment)
     models.db.session.commit()
-    models.db.session.flush()
+
+    comments = (models.CardComment.query.filter_by(card_id=card_id)
+                      .order_by(models.CardComment.created.desc())
+                      .all())
+
+    comment_delete_url = "/project/%s/comment/delete/" % project.name
+    comment_edit_url = "/project/%s/comments/edit/" % project.name
 
     activity_logger.log(luser._id, project._id, card_id, "card_comment")
     
-    return card_get_comments(project_name=project_name, project=project, 
-                             luser=luser, card_id=card_id, **kwargs)
+    return flask.render_template("comments.html", 
+                comments=comments, luser=luser,
+                comment_delete_url=comment_delete_url,
+                comment_edit_url=comment_edit_url)
+
+        
+@app.route("/project/<project_name>/reports/<int:report_id>/comment",
+    methods=["POST"])
+@check_project_privileges
+def reports_comment(project_name=None, luser=None, report_id=None,
+                  **kwargs):
+
+    text = request.form["text"].encode("UTF-8").strip()
+
+    comment = models.ReportComment(report_id=report_id, luser_id=luser._id,
+                                   text=text)
+    models.db.session.add(comment)
+    models.db.session.commit()
+
+    comment_delete_url = "/project/%s/report-comments/delete/" % project_name
+    comment_edit_url = "/project/%s/report-comments/edit/" % project_name
+
+    comments = (models.ReportComment.query.filter_by(report_id=report_id)
+                      .order_by(models.ReportComment.created.desc())
+                      .all())
+
+    return flask.render_template("comments.html", luser=luser,
+                                 comment_delete_url=comment_delete_url,
+                                 comment_edit_url=comment_edit_url,
+                                 comments=comments) 
+
+## TODO: refactor/modularize this
+
+def delete_comment(Comment, comment_id):
+    comment = Comment.query.filter_by(_id=comment_id).first()
+    models.db.session.delete(comment)
+    models.db.session.commit()
+    return comment
 
 
 @app.route("/project/<project_name>/comment/delete/<int:comment_id>",
            methods=["POST"])
 @check_project_privileges
-def delete_comment(project=None, luser=None, project_name=None,
+def delete_card_comment(project=None, luser=None, project_name=None,
                    comment_id=None, **kwargs):
     """
     Delete a comment.
     """
-
-    comment = models.CardComment.query.filter_by(_id=comment_id).first()
-    card_id = comment.card_id
-    models.db.session.delete(comment)
-    models.db.session.commit()
-
+    comment = delete_comment(models.CardComment, comment_id)
+    card_id = comment.card._id
     activity_logger.log(luser._id, project._id, card_id, "card_comment_delete")
-    
     return respond_with_json({ "status" : "success" })
+
+
+@app.route("/project/<project_name>/report-comments/delete/<int:comment_id>",
+           methods=["POST"])
+@check_project_privileges
+def delete_report_comment(project=None, luser=None, project_name=None,
+                   comment_id=None, **kwargs):
+    """
+    Delete a comment.
+    """
+    delete_comment(models.ReportComment, comment_id)
+    return respond_with_json({ "status" : "success" })
+
 
 
 @app.route("/project/<project_name>/card/<int:card_id>/archive")
@@ -825,7 +867,6 @@ def archive(luser=None, project=None, card_id=None, **kwargs):
     """
     card = models.Card.query.filter_by(_id=card_id).first()
     card.is_archived = True
-    models.db.session.flush()
     models.db.session.commit()
    
     activity_logger.log(luser._id, project._id, card_id, "card_archive")
@@ -847,7 +888,6 @@ def restore_card(project=None, card_id=None, **kwargs):
     card = models.Card.query.filter_by(_id=card_id).first()
     card.is_archived = False
     card.pile.is_deleted = False
-    models.db.session.flush()
     models.db.session.commit()
 
     return flask.redirect("/project/%s/archives" % project.urlencoded_name)
@@ -866,7 +906,6 @@ def card_set_attributes(project=None, card_id=None, **kwargs):
         setattr(card, k, json[k])
     
     models.db.session.commit()
-    models.db.session.flush()
     return respond_with_json({ "status" : "success" })
 
 
@@ -910,25 +949,35 @@ def card_edit(project=None, luser=None, project_name=None,card_id=None,
     return value
 
 
+def edit_comment(Comment, luser, comment_id):
+    value = request.form.get("text", "").strip()
+
+    comment = (Comment.query.filter(and_(Comment._id==comment_id,
+                                        Comment.luser_id==luser._id))
+                .first())
+    comment.text = value
+    models.db.session.commit()
+    return comment
+
+
 @app.route("/project/<project_name>/comments/edit/<int:comment_id>", methods=["POST"])
 @check_project_privileges
-def edit_comment(project=None, luser=None, project_name=None, comment_id=None,
-                 **kwargs):
+def edit_card_comment(project=None, luser=None, project_name=None, 
+                        comment_id=None, **kwargs):
 
-    if "text" in request.form:
-        value = request.form["text"].strip()
-        params = dict(text=value)
-    else:
-        flask.abort(400)
+    comment = edit_comment(models.CardComment, luser, comment_id)
+    activity_logger.log(luser._id, project._id, comment.card_id, 
+                        "edit_comment")
+    return comment.text
 
-    card_comment = models.CardComment.query.filter(and_(models.CardComment._id==comment_id,
-                        models.CardComment.luser_id==luser._id)).first()
-    card_comment.text = value
 
-    activity_logger.log(luser._id, project._id, card_comment.card_id, "edit_comment")
-    models.db.session.commit()
+@app.route("/project/<project_name>/report-comments/edit/<int:comment_id>", methods=["POST"])
+@check_project_privileges
+def edit_report_comment(project=None, luser=None, project_name=None, 
+                        comment_id=None, **kwargs):
 
-    return value
+    comment = edit_comment(models.ReportComment, luser, comment_id)
+    return comment.text
 
 
 def query_card(card_id, project_id):
@@ -1125,7 +1174,6 @@ def milestone_toggle_is_accepted(project=None, milestone_id=None, **kwargs):
     milestone.is_approved = not state
 
     models.db.session.commit()
-    models.db.session.flush()
 
     return respond_with_json(dict(state=milestone.is_approved))
 
@@ -1138,7 +1186,6 @@ def add_pile(project, name="Unnamed List"):
     pile = models.Pile(project_id=project._id, name=name)
     models.db.session.add(pile)
     models.db.session.commit()
-    models.db.session.flush()
     return pile
 
 
@@ -1484,7 +1531,6 @@ def member_schedule(luser=None, project=None, **kwargs):
             time_range = models.MemberScheduleTimeRanges(schedule_id=schedule._id)
             models.db.session.add(time_range)
             models.db.session.commit()
-            models.db.session.flush()
 
         # IF the user clicked the "Remove" button, remove that time 
         # range from their schedule.
@@ -1516,7 +1562,6 @@ def member_schedule(luser=None, project=None, **kwargs):
                 time_range.end_time = convert(end_time)
         
             models.db.session.commit()
-            models.db.session.flush() 
 
 
     # Sort members circularly by timezone offset, starting with the
@@ -1620,9 +1665,15 @@ def member_reports(luser=None, project=None, **kwargs):
     
     total = models.MemberReport.query.count()
 
+    # TODO: refactor using class based views to avoid duplication
+    comment_delete_url = "/project/%s/report-comments/delete/" % project.name
+    comment_edit_url = "/project/%s/report-comments/edit/" % project.name
+
     return cc_render_template("reports.html", luser=luser, project=project,
                               reports=project.reports[:REPORTS_PER_PAGE],
                               has_next=total > REPORTS_PER_PAGE,
+                              comment_delete_url=comment_delete_url,
+                              comment_edit_url=comment_edit_url,
                               next_page=1, **kwargs)
 
 
@@ -1699,7 +1750,6 @@ def get_profile(luser_id, luser=None, **kwargs):
         profile.theme = flask.request.form["theme"]
 
         models.db.session.commit()
-        models.db.session.flush()
 
         flask.flash("Profile updated.")
         return cc_render_template("profile.html", luser=luser, 
@@ -1789,7 +1839,6 @@ def forgot_password():
         request = models.ForgottenPasswordRequest(luser._id)
         models.db.session.add(request)
         models.db.session.commit()
-        models.db.session.flush()
  
         link = BASE_URL + "reset/%s" % request.uuid
 

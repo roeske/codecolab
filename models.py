@@ -312,6 +312,8 @@ class MemberReport(db.Model, DictSerializable, FluxCapacitor):
     luser               = db.relationship("Luser")
     project             = db.relationship("Project")
 
+    comments = db.relationship("ReportComment", 
+                                order_by="ReportComment.created.desc()")
 
     def timestamp(self, tz):
         return self.created_as_timezone(tz)
@@ -576,7 +578,6 @@ class ReportComment(db.Model, BaseComment):
 
     report_id   = db.Column(db.Integer, db.ForeignKey(MemberReport._id),
                             nullable=False)
-    report      = db.relationship("MemberReport", backref="comments")
 
 
 # TODO: refactor, use mixin for 'created'

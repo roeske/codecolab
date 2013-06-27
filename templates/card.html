@@ -114,20 +114,9 @@
   </div>
   <div class="clear"></div>
 
+  <!-- [comments] -->
   {% include 'card_comments.html' %}
-
-  <form class="comments" action="/project/{{ project_name }}/cards/{{ card._id }}/comment" method="POST">
-    <ul class="structural">
-      <li> 
-        <textarea placeholder="Comment..." name="text" id="text"/>
-      </li>
-
-      <li>
-        <input class="btn" style="float: right;" type="submit" name="submit" value="Add Comment"/>
-        <div style="clear: both;"></div>
-      </li>
-    </ul>
-  </form>
+  <!-- [/comments] -->
 
   <!-- [attachments] -->
   <h3 class="card_section">Attachments</h3>

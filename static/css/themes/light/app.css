@@ -392,11 +392,6 @@ div.pile_chrome_bottom {
 
 .handle { background-color: #ccc; height: 35px;}
 
-/** reports **/ 
-.report_summary ul {
-    margin-left: 1em;
-}
-
 
 /** reset jquery-ui fonts */
 .ui-widget, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
@@ -420,4 +415,11 @@ ul {
 
 .activity_list_item:first {
     padding-top: 7px;
+}
+
+.section {
+    font-size: 1em;
+    color: #333;
+    text-shadow: 1px 1px #aaa;
+    margin: 7px 0px 7px;
 }

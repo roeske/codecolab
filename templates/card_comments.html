@@ -1,5 +1,37 @@
-<div class="comments_container">
-  <h3 class="card_section">Comments</h3>
-  {% include "comments.html" %}
+<div class="comments_section">
+  
+  <h4 class="section">Comments</h4>
+
+  <form id="comment_form_{{ card._id }}" class="comment_form" 
+        action="/project/{{ project_name }}/cards/{{ card._id }}/comment" 
+        method="POST">
+    <ul class="structural comment_form_structure">
+      <li> 
+        <textarea class="comment" placeholder="Comment..." name="text" id="text"></textarea>
+      </li>
+
+      <li>
+        <input class="btn" style="float: right;" type="submit" name="submit" 
+               value="Add Comment"/>
+        <div style="clear: both;"></div>
+      </li>
+    </ul>
+  </form> 
+
+  <hr />
+
+  <div id="comments_container_{{ card._id }}" id="comments_container">
+    {% include "comments.html" %}
+  </div>
 </div>
 
+<script type="text/javascript">
+$(function() {
+  $("#comment_form_{{ card._id }}").ajaxForm({
+    success: function(response, status_code) {
+      $("#comments_container_{{ card._id }}").html(response);
+      $("#comment_form_{{ card._id }} textarea").val("");
+    },
+  });
+});
+</script>

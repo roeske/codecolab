@@ -486,17 +486,6 @@ function cc_setup_editable_fields(project_name) {
 }
 
 
-function cc_connect_comment_form(project_name, modal, card_id) {
-    modal.find("form.comments").ajaxForm({
-        success: function(response, status_code) {
-            var list = modal.find("div.comments_container").replaceWith(response);
-            modal.find("form textarea").val("");
-            cc_activity_reload();
-        }
-    });
-}
-
-
 function cc_connect_milestone_spinner(mommy, card_id) {
     return cc_connect_spinner("assign_to", mommy, card_id);
 }
@@ -631,7 +620,6 @@ function cc_on_modal_opened(project_name, card_id) {
 
 
     cc_connect_editables(project_name, modal, card_id);
-    cc_connect_comment_form(project_name, modal, card_id);
     cc_connect_milestone_spinner(modal, card_id);
     cc_connect_assign_to_spinner(modal, card_id);
     cc_connect_complete_button(project_name, modal, card_id);
@@ -677,8 +665,11 @@ function cc_connect_card_to_modal(title, project_name, elem, is_link) {
         },
 
         // We need true, but it's breaking focus on sub-dialogs, so...
-        //modal: true,
-        modal: false,
+        // EDIT: unsure when we ever used a sub-dialog but I'm 
+        // pretty sure we aren't doing that now and we're not going
+        // to.
+        modal: true,
+        //modal: false,
 
         title: title,
         autoOpen: false,

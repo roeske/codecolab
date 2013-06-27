@@ -1,53 +1,5 @@
 <ul class="comments structural">
- 
- <!-- this is not beautiful, but it is practical -->
- {% if not comments is defined %}
-   {% set comments = report.comments %}
- {% endif %}
-
- {% for comment in comments %}
- <li id="comment_{{ comment._id }}">
-   <div class="comment">
-    <div>
-      <div class="user_info">
-        <img src="{{ comment.luser.tiny_gravatar_url }}" />
-        <p class="username">
-           <a href="/profile/{{ comment.luser._id }}">@{{ comment.luser.profile.username }}</a>
-        </p>
-      </div>
-
-      <div class="comment_part">
-        <!-- comment -->
-        <p data-comment-id="{{ comment._id }}" id="editable_comment_{{ comment._id }}" class="quoted comment_text {% if comment.luser._id == luser._id %} editable_comment {% endif %}">{{ comment.text }}</p>
-
-        <!-- /comment -->
-      </div>
-    </div>
-
-    <div class="clear"></div>
-    <div class="timestamp_part">
-      <p class="timestamp">
-        {{ comment.created_as_timezone(luser.profile.timezone) }}
-      </p>
-    </div>
-
-    {% if comment.luser._id == luser._id %}
-      <!-- icons -->
-      <a class="mini_icon delete" data-comment-id="{{ comment._id }}" 
-         style="float: right;">
-        <img class="mini_icon" src="/assets/ic_trash.png"/>
-      </a>
-
-      <a class="mini_icon edit"  data-comment-id="{{ comment._id }}" 
-         style="float: right;">
-        <img class="mini_icon" src="/assets/ic_pencil.png"/>
-      </a>
-    {% endif %}
-
-      <div class="clear"></div>
-    </div>
- </li>
- {% endfor %}
+  {% include "comments_loop.html" %}
 </ul>
 
 <script type="text/javascript">
