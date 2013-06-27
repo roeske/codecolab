@@ -733,12 +733,19 @@ def activity(project=None, **kwargs):
 ## Cards
 ##############################################################################
 
-def render_card(template, project=None, project_name=None, card_id=None, **kwargs):
+def render_card(template, **kwargs):
+    card_id = kwargs["card_id"]
+    project = kwargs["project"]
+
     card = query_card(card_id, project._id)
-    print "returning from render card, for card %d" % card._id
-    return flask.render_template(template, card=card, 
-                                 project_name=project_name, card_id=card_id,
-                                **kwargs)
+
+    # parameterize comment handler urls for code reuse.
+    comment_delete_url = "/project/%s/comment/delete/" % project.name
+    comment_edit_url = "/project/%s/comments/edit/" % project.name
+    
+    return flask.render_template(template, card=card, comments=card.comments,
+                                 comment_delete_url=comment_delete_url,
+                                 comment_edit_url=comment_edit_url, **kwargs)
 
 
 def card_get_comments(**kwargs):
@@ -791,8 +798,8 @@ def cards_comment(project_name=None, luser=None, project=None, card_id=None,
                              luser=luser, card_id=card_id, **kwargs)
 
 
-@app.route("/project/<project_name>/comment/<int:comment_id>/delete",
-  methods=["POST"])
+@app.route("/project/<project_name>/comment/delete/<int:comment_id>",
+           methods=["POST"])
 @check_project_privileges
 def delete_comment(project=None, luser=None, project_name=None,
                    comment_id=None, **kwargs):
@@ -932,7 +939,7 @@ def query_card(card_id, project_id):
 
 @app.route("/project/<project_name>/cards/<int:card_id>", methods=["GET"])
 @check_project_privileges
-def cards_get(project_name=None, card_id=None, project=None, **kwargs):
+def cards_get(**kwargs):
     """
     Used to render a card in a modal dialog.
     """
@@ -940,14 +947,10 @@ def cards_get(project_name=None, card_id=None, project=None, **kwargs):
     is_archived = ("is_archived" in flask.request.args and
                    flask.request.args["is_archived"])
 
-    card = query_card(card_id, project._id)
-
     if is_archived:
-        return flask.render_template("archived_card.html", card=card, project=project, 
-                                     project_name=project_name, **kwargs)
+        return render_card("archived_card.html", **kwargs)
     else:
-        return flask.render_template("card.html", card=card, project=project, 
-                                     project_name=project_name, **kwargs)
+        return render_card("card.html", **kwargs)
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/description", methods=["POST"])

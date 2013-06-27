@@ -1,5 +1,6 @@
 from context import app
 from sqlalchemy import func
+from sqlalchemy.ext.declarative import declared_attr
 from flask.ext.sqlalchemy import SQLAlchemy
 
 from datetime import datetime, timedelta, time
@@ -537,28 +538,45 @@ class CardCompletions(db.Model):
     created     = db.Column(db.DateTime, default=datetime.utcnow)
 
 
-# TODO: refactor, use mixin for 'created'
-class CardComment(db.Model, DictSerializable, FluxCapacitor):
-
-    __tablename__ = "card_comment"
-
+class BaseComment(DictSerializable, FluxCapacitor):
     _id         = db.Column(db.Integer, primary_key=True)
     created     = db.Column(db.DateTime, default=func.now())
-    luser_id    = db.Column(db.Integer, db.ForeignKey(Luser._id), nullable=False)
-    card_id     = db.Column(db.Integer, db.ForeignKey(Card._id), nullable=False)
     text        = db.Column(db.String)
-   
-    luser       = db.relationship("Luser")
-    card        = db.relationship("Card")
+
+
+    @declared_attr
+    def luser_id(cls):
+        return db.Column(db.Integer, db.ForeignKey(Luser._id), nullable=False)
+
+
+    @declared_attr
+    def luser(cls):
+        return db.relationship("Luser")
+
+
+    @property
+    def created_human(self):
+        return self.created.strftime("%d, %Y at %I:%M %p")
+
 
     @property
     def email(self):
         return self.luser.email
 
 
-    @property
-    def created_human(self):
-        return self.created.strftime("%d, %Y at %I:%M %p")
+class CardComment(db.Model, BaseComment):
+    __tablename__ = "card_comment"
+
+    card_id     = db.Column(db.Integer, db.ForeignKey(Card._id), nullable=False)
+    card        = db.relationship("Card")
+
+
+class ReportComment(db.Model, BaseComment):
+    __tablename__ = "report_comment"
+
+    report_id   = db.Column(db.Integer, db.ForeignKey(MemberReport._id),
+                            nullable=False)
+    report      = db.relationship("MemberReport")
 
 
 # TODO: refactor, use mixin for 'created'

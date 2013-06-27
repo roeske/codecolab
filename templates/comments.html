@@ -1,0 +1,92 @@
+<ul class="comments structural">
+ {% for comment in comments %}
+ <li id="comment_{{ comment._id }}">
+   <div class="comment">
+    <div>
+      <div class="user_info">
+        <img src="{{ comment.luser.tiny_gravatar_url }}" />
+        <p class="username">
+           <a href="/profile/{{ comment.luser._id }}">@{{ comment.luser.profile.username }}</a>
+        </p>
+      </div>
+
+      <div class="comment_part">
+        <!-- comment -->
+        <p data-comment-id="{{ comment._id }}" id="editable_comment_{{ comment._id }}" class="quoted comment_text {% if comment.luser._id == luser._id %} editable_comment {% endif %}">{{ comment.text }}</p>
+
+        <!-- /comment -->
+      </div>
+    </div>
+
+    <div class="clear"></div>
+    <div class="timestamp_part">
+      <p class="timestamp">
+        {{ comment.created_as_timezone(luser.profile.timezone) }}
+      </p>
+    </div>
+
+    {% if comment.luser._id == luser._id %}
+      <!-- icons -->
+      <a class="mini_icon delete" data-comment-id="{{ comment._id }}" 
+         style="float: right;">
+        <img class="mini_icon" src="/assets/ic_trash.png"/>
+      </a>
+
+      <a class="mini_icon edit"  data-comment-id="{{ comment._id }}" 
+         style="float: right;">
+        <img class="mini_icon" src="/assets/ic_pencil.png"/>
+      </a>
+    {% endif %}
+
+      <div class="clear"></div>
+    </div>
+ </li>
+ {% endfor %}
+</ul>
+
+<script type="text/javascript">
+$(function() {
+  var project_name = "{{ project_name }}";
+
+  // hook up delete comment button
+  $(".mini_icon.delete").click(function() {
+    var comment_id = $(this).data("comment-id");
+    var url = "{{ comment_delete_url }}" + comment_id;
+    $.post(url, function(data) {
+     $("#comment_" + comment_id).remove();
+    })
+     
+    return false;
+  });
+
+  $(".editable_comment").each(function(i, value) {
+    var comment_id = $(value).data('comment-id');
+    var url = "{{ comment_edit_url }}" + comment_id;
+    console.log("url="+url);
+
+    $(value).editable(url, {
+      type: "textarea",
+      name: "text",
+      event: "clickEdit",
+      tooltip: "Click to edit...",
+      cssclass: "jeditable",
+      height: "4em",
+      submit: "save",
+      onblur: "cancel",
+
+      callback: function(value, settings) {
+       $(this).addClass("quoted");
+      }
+
+    });
+  });
+
+  $(".mini_icon.edit").click(function() {
+    var comment_id = $(this).data('comment-id'); 
+    var selector = "#editable_comment_" + comment_id;
+    var editable = $(selector);
+    editable.trigger("clickEdit");
+    editable.removeClass("quoted");
+  });
+})
+</script>
