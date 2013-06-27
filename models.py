@@ -576,7 +576,7 @@ class ReportComment(db.Model, BaseComment):
 
     report_id   = db.Column(db.Integer, db.ForeignKey(MemberReport._id),
                             nullable=False)
-    report      = db.relationship("MemberReport")
+    report      = db.relationship("MemberReport", backref="comments")
 
 
 # TODO: refactor, use mixin for 'created'

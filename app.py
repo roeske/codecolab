@@ -14,6 +14,7 @@ import re
 import string
 import uuid
 import simplejson as json 
+
 from StringIO import StringIO
 from flask import request
 from flaskext import uploads
@@ -31,7 +32,6 @@ from config import *
 from helpers import (make_gravatar_url, make_gravatar_profile_url,
                      redirect_to, redirect_to_index, respond_with_json,
                      jsonize, get_luser_for_email, render_email)
-
 
 
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')       

@@ -1,4 +1,10 @@
 <ul class="comments structural">
+ 
+ <!-- this is not beautiful, but it is practical -->
+ {% if not comments is defined %}
+   {% set comments = report.comments %}
+ {% endif %}
+
  {% for comment in comments %}
  <li id="comment_{{ comment._id }}">
    <div class="comment">

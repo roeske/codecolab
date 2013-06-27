@@ -1,6 +1,5 @@
 <div class="report_header">
 
-
   <div class="report_info_section">
     <h4>{{ report.subject }}</h4>
     <small>On {{ report.created_as_timezone(luser.profile.timezone) }}</small>
@@ -17,5 +16,9 @@
 </div>
 
 <div class="report_summary">
+  <div>
 {{ report.text | markdown}}
+  </div>
+
+  {% include "report_comments.html" %}
 </div>
