@@ -83,7 +83,6 @@
         }
 
         ReportsPage.prototype._setup_editable_reports = function() {
-            alert(this.report_edit_url);
             var that = this;
             jQuery(".editable_report").each(function(i, value) {
                 var report_id = $(value).data('id');
