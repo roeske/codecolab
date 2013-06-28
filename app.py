@@ -797,7 +797,26 @@ def cards_comment(project_name=None, luser=None, project=None, card_id=None,
                 comment_delete_url=comment_delete_url,
                 comment_edit_url=comment_edit_url)
 
-        
+
+@app.route("/project/<project_name>/report/edit/<int:report_id>",
+    methods=["GET", "POST"])
+@check_project_privileges
+def report_edit(report_id, luser=None, **kwargs):
+    report = (models.MemberReport.query
+                    .filter_by(_id=report_id,luser_id=luser._id)
+                    .first())
+    if request.method == "POST":
+        report.text = request.form.get("text", "").strip()
+        models.db.session.commit()
+
+        resp = flask.render_template_string("{{ text|markdown }}",
+                                            text=report.text)
+        print resp
+        return resp
+    else:
+        return report.text
+
+
 @app.route("/project/<project_name>/reports/<int:report_id>/comment",
     methods=["POST"])
 @check_project_privileges
@@ -1666,10 +1685,12 @@ def member_reports(luser=None, project=None, **kwargs):
     total = models.MemberReport.query.count()
 
     # TODO: refactor using class based views to avoid duplication
+    report_edit_url = "/project/%s/report/edit/" % project.name
     comment_delete_url = "/project/%s/report-comments/delete/" % project.name
     comment_edit_url = "/project/%s/report-comments/edit/" % project.name
 
     return cc_render_template("reports.html", luser=luser, project=project,
+                              report_edit_url=report_edit_url,
                               reports=project.reports[:REPORTS_PER_PAGE],
                               has_next=total > REPORTS_PER_PAGE,
                               comment_delete_url=comment_delete_url,

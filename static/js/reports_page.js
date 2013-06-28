@@ -14,10 +14,10 @@
         ReportsPage.prototype.tab_create_report = null;
         ReportsPage.prototype.tab_team_reports = null;
         ReportsPage.prototype.reports_accordion = null;
+        ReportsPage.prototype.report_edit_url = null;
 
         function ReportsPage(options) { 
-            // copy parameters
-            _.extend(this, options);
+            this.report_edit_url = options.report_edit_url;
 
             // Reference sections.
             this.section_create_report = require(".section_create_report"); 
@@ -46,7 +46,6 @@
                     }
                 });
             };
-
             setup(this.reports_accordion, true);
 
             // If the team reports tab is clicked, but the section is not
@@ -79,7 +78,31 @@
                 that.fit_to_window(that.reports_accordion);
             });
             that.fit_to_window(that.reports_accordion);
+
+            this._setup_editable_reports();
         }
+
+        ReportsPage.prototype._setup_editable_reports = function() {
+            alert(this.report_edit_url);
+            var that = this;
+            jQuery(".editable_report").each(function(i, value) {
+                var report_id = $(value).data('id');
+                var url = that.report_edit_url + report_id;
+
+
+                jQuery(value).editable(url, {
+                    type: "textarea",
+                    name: "text",
+                    event: "click",
+                    tooltip: "Click to edit...",
+                    cssclass: "jeditable",
+                    height: "7em",
+                    submit: "save",
+                    onblur: "cancel",
+                    loadurl: url
+                });
+            });
+        };
 
         ReportsPage.prototype.fit_to_window = function(view) {
             var window_height = jQuery(window).height();
@@ -107,5 +130,4 @@
 
         return ReportsPage;
     })();
-
 }).call(this);

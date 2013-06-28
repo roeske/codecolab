@@ -19,7 +19,8 @@
 <script src="/js/reports_page.js"></script>
 <script>
 $(function() {
-    var reports_page = new ReportsPage();
+    var report_edit_url = "{{ report_edit_url }}";
+    var reports_page = new ReportsPage({ report_edit_url: report_edit_url });
 });
 </script>
 {% include "foot.html" %}

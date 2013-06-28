@@ -15,9 +15,9 @@
   <div class="clear"></div>
 </div>
 
-<div class="report_summary">
-  <div>
-{{ report.text | markdown}}
+<div class="report_summary">   
+  <div data-text="{{ report.text }}" data-id="{{ report._id }}" class="{% if luser._id == report.luser._id %}editable_report{% endif %}">
+{{ report.text | markdown }}
   </div>
 
   {% include "report_comments.html" %}
