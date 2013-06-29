@@ -1,0 +1,1 @@
+{{ username }} commented "{{ comment }}" on card {{ title }}.

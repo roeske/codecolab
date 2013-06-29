@@ -226,6 +226,16 @@ class Project(db.Model, DictSerializable):
     reports     = db.relationship("MemberReport", order_by=lambda:
                                   MemberReport.created.desc())
 
+    @property
+    def recipients(self):
+        recipients = []
+        for pluser in self.plusers:
+            if pluser.is_interested:
+                recipients.append(pluser.luser.email)
+       
+        return recipients
+
+
     def is_owner(self, luser_id):
         for member in self.members:
             if member.luser_id == luser_id and member.is_owner:
@@ -578,6 +588,7 @@ class ReportComment(db.Model, BaseComment):
 
     report_id   = db.Column(db.Integer, db.ForeignKey(MemberReport._id),
                             nullable=False)
+    report      = db.relationship("MemberReport")
 
 
 # TODO: refactor, use mixin for 'created'

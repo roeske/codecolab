@@ -31,8 +31,8 @@ from oauth2client.client import flow_from_clientsecrets
 from config import *
 from helpers import (make_gravatar_url, make_gravatar_profile_url,
                      redirect_to, redirect_to_index, respond_with_json,
-                     jsonize, get_luser_for_email, render_email)
-import email
+                     jsonize, get_luser_for_email)
+import email_notify
 
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')       
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
@@ -790,7 +790,10 @@ def cards_comment(project_name=None, luser=None, project=None, card_id=None,
     comment_edit_url = "/project/%s/comments/edit/" % project.name
 
     activity_logger.log(luser._id, project._id, card_id, "card_comment")
-    
+  
+    email_notify.send_card_comment_email(project.recipients, 
+        luser.profile.username, comment.text, comment.card.text)
+
     return flask.render_template("comments.html", 
                 comments=comments, luser=luser,
                 comment_delete_url=comment_delete_url,
@@ -836,6 +839,9 @@ def reports_comment(project_name=None, luser=None, report_id=None,
                       .order_by(models.ReportComment.created.desc())
                       .all())
 
+    emails.send_report_comment_email(project.recipients,
+        luser.project.username, comment.text, comment.report.subject)
+                                    
     return flask.render_template("comments.html", luser=luser,
                                  comment_delete_url=comment_delete_url,
                                  comment_edit_url=comment_edit_url,
@@ -1415,7 +1421,7 @@ def project_add_member(project=None, luser=None, **kwargs):
                         " email." % email)
         
         try:
-            email.project_invite(project, email)
+            email_notify.project_invite(project, email)
         except:
             flask.flash("Failed to send email. Is %s added to amazon SES?" % email)
 
@@ -1663,13 +1669,7 @@ def member_reports(luser=None, project=None, **kwargs):
         models.db.session.add(report)
         models.db.session.commit()
 
-        # also, send a copy of the report via email to any interested parties
-        recipients = []
-        for pluser in project.plusers:
-            if pluser.is_interested:
-                recipients.append(pluser.luser.email)
-
-        email.member_report(recipients, reports, subject)
+        email_notify.member_report(project.recipients, reports, subject)
 
     
     total = models.MemberReport.query.count()
@@ -1853,7 +1853,7 @@ def forgot_password():
  
         link = BASE_URL + "reset/%s" % request.uuid
 
-        email.forgot_password(email, link)
+        email_notify.forgot_password(email, link)
 
         flask.flash("A password recovery email has been sent to: %s" % email)
         return redirect_to_index()
@@ -1996,7 +1996,7 @@ def perform_signup(email, password, confirm):
     create_luser_data(luser)
 
     # Welcome the user via email:
-    email.send_welcome_email(luser)
+    email_notify.send_welcome_email(luser)
 
     # If signup was successful, just log the user in.
     return perform_login(email, password)
