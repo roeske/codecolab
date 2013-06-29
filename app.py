@@ -32,7 +32,7 @@ from config import *
 from helpers import (make_gravatar_url, make_gravatar_profile_url,
                      redirect_to, redirect_to_index, respond_with_json,
                      jsonize, get_luser_for_email, render_email)
-
+import email
 
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')       
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
@@ -66,7 +66,6 @@ app.jinja_env.filters["debug"] = debug
 app.jinja_env.add_extension("jinja2.ext.loopcontrols")
 app.jinja_env.add_extension("jinja2.ext.do")
 
-meta = dict(app_name="CodeColab")
 
 Markdown(app)
 
@@ -1416,12 +1415,7 @@ def project_add_member(project=None, luser=None, **kwargs):
                         " email." % email)
         
         try:
-            html = render_email("project_invite.html", base_url=BASE_URL, project=project, meta=meta)
-            text = render_email("project_invite.txt", base_url=BASE_URL, project=project, meta=meta)
-            subject = render_email("project_invite.sub.txt", project=project, meta=meta)
-            mailer = Mailer(**MAILER_PARAMS)
-            mailer.send(from_addr=MAIL_FROM, to_addr=email, subject=subject,
-                        text=text, html=html)
+            email.project_invite(project, email)
         except:
             flask.flash("Failed to send email. Is %s added to amazon SES?" % email)
 
@@ -1674,13 +1668,9 @@ def member_reports(luser=None, project=None, **kwargs):
         for pluser in project.plusers:
             if pluser.is_interested:
                 recipients.append(pluser.luser.email)
-       
 
-        html = render_email("report.html", report=report, meta=meta)
-        text = render_email("report.txt", report=report, meta=meta)
-        mailer = Mailer(**MAILER_PARAMS)
-        mailer.send(from_addr=MAIL_FROM, to_addr=recipients, subject=subject,
-                    html=html, text=text)
+        email.member_report(recipients, reports, subject)
+
     
     total = models.MemberReport.query.count()
 
@@ -1863,11 +1853,7 @@ def forgot_password():
  
         link = BASE_URL + "reset/%s" % request.uuid
 
-        text = render_email("forgot_password.txt", link=link, meta=meta)
-        html = render_email("forgot_password.html", link=link, meta=meta)
-        mailer = Mailer(**MAILER_PARAMS)
-        mailer.send(from_addr=MAIL_FROM, to_addr=email,
-                    subject="CodeColab password recovery.", text=text)
+        email.forgot_password(email, link)
 
         flask.flash("A password recovery email has been sent to: %s" % email)
         return redirect_to_index()
@@ -1961,13 +1947,6 @@ def signup():
         return flask.render_template("sign-up.html") 
 
 
-def send_welcome_email(luser):
-    text = render_email("welcome.txt", luser=luser, meta=meta)
-    html = render_email("welcome.html", luser=luser, meta=meta)
-    subject = render_email("welcome.sub.txt", luser=luser, meta=meta)
-    mailer = Mailer(**MAILER_PARAMS)
-    mailer.send(from_addr=MAIL_FROM, to_addr=luser.email,
-                    subject=subject, text=text)
 
 
 def perform_signup(email, password, confirm):
@@ -2017,7 +1996,7 @@ def perform_signup(email, password, confirm):
     create_luser_data(luser)
 
     # Welcome the user via email:
-    send_welcome_email(luser)
+    email.send_welcome_email(luser)
 
     # If signup was successful, just log the user in.
     return perform_login(email, password)
