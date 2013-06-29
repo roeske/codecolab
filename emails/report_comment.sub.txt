@@ -1,1 +1,1 @@
-{{ username }} commented "{{ comment }}" on report {{ title }}.
+{{ username }} commented on report {{ title }}.
