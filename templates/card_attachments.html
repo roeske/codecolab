@@ -7,16 +7,56 @@
 <div id="{{ card._id }}_card_attachments" class="card_attachments">
   <ul class="attachments structural">
     {% for file in card.attachments %}
-      <li>
-        <a href="{{ file.url }}">
-          {% if file.is_image %}
-            <img style="max-width: 97%; max-height: 300px;" class="thumb" src="{{ file.url }}"/>
-            <p>{{ file.filename }}</p>
-          {% else %}
-            {{ file.filename }}
-          {% endif %}
-        </a>
+      <li id="attachment_{{ file._id }}">
+        <div>
+          <div class="attachment">
+            <a href="{{ file.url }}">
+              {% if file.is_image %}
+                <p class="filename">{{ file.filename }}</p>
+                <div style="text-align: center;">
+                  <img class="image" style="max-height: 300px;" class="thumb" src="{{ file.url }}"/>
+                </div>
+              {% else %}
+                <p style="float: left;" class="filename_notimage">{{ file.filename }}</p>
+              {% endif %}
+            </a>
+          </div>
+          <div {% if not file.is_image %} style="float: right;" {% endif %}
+            class="buttons">
+            <a class="btn mini_icon delete" data-attachment-id="{{ file._id }}" 
+               style="float: right;" data-filename="{{ file.filename }}">
+              <div>
+                <p style="float: left;">Delete</p>
+                <img style="float: left;" class="mini_icon" src="/assets/ic_trash.png" />
+                <div class="clear"></div>
+              </div>
+            </a>
+            <div class="clear"></div>
+          </div>
+          <div class="clear"></div>
+        </div>
      </li>
      {% endfor %}
   </ul>
 </div>
+
+<script>
+  // hook up delete comment button
+  $(".btn.delete").click(function() {
+      var filename = $(this).data("filename");
+      var project_name = "{{ project_name }}";
+      var base_url = "/project/{{ project_name }}/attachments/delete/";
+
+      if(confirm("Are you sure you want to delete " + filename + "?")) {
+          var attachment_id = $(this).data("attachment-id");
+          var url = base_url + attachment_id;
+          $.post(url, function(data) {
+              $("#attachment_" + attachment_id).fadeOut("fast", function() {
+                  $(this).remove();
+              });
+          });
+      } 
+           
+      return false;
+  });
+</script>

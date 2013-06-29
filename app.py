@@ -748,7 +748,7 @@ def render_card(template, **kwargs):
 
 @app.route("/project/<project_name>/cards/<int:card_id>/attachments", methods=["POST"])
 @check_project_privileges
-def card_get_attachments(card_id=None, luser=None, **kwargs):
+def card_get_attachments(project=None, card_id=None, luser=None, **kwargs):
     """
     Called via ajax to refresh attachments after an attachment is added.
     """
@@ -757,13 +757,26 @@ def card_get_attachments(card_id=None, luser=None, **kwargs):
 
     attachment = models.CardFile(card_id=card_id, luser_id=luser._id, 
                     filename=filename, url=url)
-    
+
     models.db.session.add(attachment)
     models.db.session.commit()
 
     stuff = render_card("card_attachments.html", card_id=card_id, luser=luser, **kwargs)
     print "stuff=%r" % stuff
     return stuff
+
+
+@app.route("/project/<project_name>/attachments/delete/<int:attachment_id>",
+    methods=["POST"])
+@check_project_privileges
+def delete_attachment(attachment_id, luser=None, **kwargs):
+
+    attachment = models.CardFile.query.filter_by(_id=attachment_id, 
+                    luser_id=luser._id).first()
+    models.db.session.delete(attachment)
+    models.db.session.commit()
+
+    return respond_with_json({ "status" : "success" })
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/comment", methods=["POST"])

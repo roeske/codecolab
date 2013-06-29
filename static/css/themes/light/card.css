@@ -124,3 +124,22 @@ a.mini_icon :active {
     vertical-align: middle;
 }
 
+ul.attachments li {
+    border-radius: 5px;
+    box-shadow: 1px 1px 7px #aaa;
+    padding: 10px;
+    margin-bottom: 10px;
+    width: 96.9%;
+}
+
+
+div.attachment .filename,
+div.attachment .image {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+div.attachment .filename_notimage {
+    font-weight: bold;
+    margin-top: 5px;
+}
