@@ -7,7 +7,7 @@ Author:     Thomas Dignan <tom@tomdignan.com>
 Date:       Fri Mar 15 02:03:55 EDT 2013
 License:    Apache2 License
 """
-
+import os
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -15,7 +15,7 @@ from email.mime.multipart import MIMEMultipart
 class Mailer(object):
 
     def __init__(self, host="127.0.0.1", port=25, username=None, password=None,
-                 starttls=True):
+                 starttls=True, debug_env="PIDGEY_DEBUG"):
         """
         Construct a new mailer instance.
 
@@ -33,7 +33,7 @@ class Mailer(object):
         self.username = username
         self.password = password
         self.starttls = starttls
-
+        self.debug_env = debug_env
 
     def send(self, to_addr, from_addr, subject, text, html=None):
         """
@@ -47,8 +47,14 @@ class Mailer(object):
             text <string>       -- plain text version
             html <string>       -- html version
         """ 
-        msg = self._make_message(to_addr, from_addr, subject, text, html)
-        self._send_msg(from_addr, to_addr, msg)
+        # Note, not "" evaluates to the same as not False,
+        # so we must use False == False or "" == False.
+        if os.getenv(self.debug_env, False) == False:
+            print "sending email..."
+            msg = self._make_message(to_addr, from_addr, subject, text, html)
+            self._send_msg(from_addr, to_addr, msg)
+        else:
+            print "skipped, since we're in debug mode..."
 
 
     def _make_message(self, to_addr, from_addr, subject, text, html):

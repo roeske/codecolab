@@ -27,7 +27,6 @@ from datetime import datetime, timedelta
 from pytz import timezone
 from oauth2client.client import flow_from_clientsecrets
 
-
 from config import *
 from helpers import (make_gravatar_url, make_gravatar_profile_url,
                      redirect_to, redirect_to_index, respond_with_json,
@@ -69,7 +68,7 @@ app.jinja_env.add_extension("jinja2.ext.do")
 
 Markdown(app)
 
-app.debug = True
+app.debug = False if os.getenv("CODECOLAB_DEBUG", False) == False else True
 
 PORT = 8080
 files = uploads.UploadSet("files", uploads.ALL, default_dest=lambda app:"./uploads")
@@ -839,8 +838,8 @@ def reports_comment(project_name=None, project=None, luser=None,
                       .order_by(models.ReportComment.created.desc())
                       .all())
 
-    email_notify.send_report_comment_email(project.recipients,
-        luser.project.username, comment.text, comment.report.subject)
+#    email_notify.send_report_comment_email(project.recipients,
+#        luser.profile.username, comment.text, comment.report.subject)
                                     
     return flask.render_template("comments.html", luser=luser,
                                  comment_delete_url=comment_delete_url,
