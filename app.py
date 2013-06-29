@@ -839,7 +839,7 @@ def reports_comment(project_name=None, luser=None, report_id=None,
                       .order_by(models.ReportComment.created.desc())
                       .all())
 
-    emails.send_report_comment_email(project.recipients,
+    email_notify.send_report_comment_email(project.recipients,
         luser.project.username, comment.text, comment.report.subject)
                                     
     return flask.render_template("comments.html", luser=luser,
