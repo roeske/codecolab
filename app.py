@@ -822,8 +822,8 @@ def report_edit(report_id, luser=None, **kwargs):
 @app.route("/project/<project_name>/reports/<int:report_id>/comment",
     methods=["POST"])
 @check_project_privileges
-def reports_comment(project_name=None, luser=None, report_id=None,
-                  **kwargs):
+def reports_comment(project_name=None, project=None, luser=None, 
+    report_id=None, **kwargs):
 
     text = request.form["text"].encode("UTF-8").strip()
 
