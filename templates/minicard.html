@@ -5,7 +5,8 @@
    
   <div>
   <p style="float: left;" class="date"><b>#{{ card._id }}</b> | {{ card.created_as_timezone(luser.profile.timezone) }}</p> 
-  <a class="icon archive" style="float: right;"></a>
+  <a href="/project/{{ project.name }}/card/{{ card._id }}/archive"
+     class="icon archive" style="float: right;"></a>
   </div>
   <div class="clear"></div>
 
