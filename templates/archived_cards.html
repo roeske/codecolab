@@ -18,12 +18,20 @@
               </td>
 
               <td>
-                <a href="/project/{{ project.urlencoded_name }}/cards/{{ card._id }}/restore" class="btn restore"><div>Restore&nbsp;</div><div class="icon">&#8627;</div></a>
+                <a href="/project/{{ project.urlencoded_name }}/cards/{{ card._id }}/restore" class="btn restore">
+                <div class="label">Restore</div>
+                <div class="icon restore"></div>
+                <div class="clear"></div>
+              </a>
               </td>
 
               <td>
                 <a href="/delete?card_id={{ card._id }}&project_name={{ project.urlencoded_name }}&redirect_to=archives"
-                   class="btn delete"><div>Delete&nbsp;</div> <div class="icon">&#10060;</div></a>
+                   class="btn delete">
+                   <div class="label">Delete</div>
+                   <div class="icon delete"></div>
+                   <div class="clear"></div>
+                 </a>
               </td>
             </tr>
           {% endif %}

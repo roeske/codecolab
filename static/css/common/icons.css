@@ -51,4 +51,10 @@
     background-image: url('../../assets/ic_users.png');
 }
 
+.icon.restore {
+    background-image: url('../../assets/ic_forward.png');
+}
 
+.icon.delete {
+    background-image: url('../../assets/ic_delete.png');
+}
