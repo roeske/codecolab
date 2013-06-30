@@ -1,6 +1,4 @@
-.activity_username {
-    font-weight: bold;
-}
+.activity_username { font-weight: bold; }
 
 a.activity_card {
     font-weight: bold;
@@ -38,10 +36,21 @@ a.activity_card:after {
     padding-left: 1px;
     padding-right: 1px;
     font-weight: bold;
+    height: 24px;
+    width: 24px;
 }
 
-.activity_toggle_icon .show {
+.activity_toggle_icon.show {
     display: none;
+    height: 24px;
+    width: 11px;
+    background: #ccc url('../../assets/ic_chevron_left.png') no-repeat center center;
+}
+
+.activity_toggle_icon.hide {
+    height: 24px;
+    width: 12px;
+    background: #ccc url('../../assets/ic_chevron_right.png') no-repeat center center;
 }
 
 div#activity_container {

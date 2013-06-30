@@ -1,0 +1,54 @@
+.icon {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 50%;
+}
+
+.btn .label {
+    padding-top: 2px;
+}
+
+.label:after {
+    content: "\00a0";
+}
+
+.btn .label,
+.btn .icon {
+    float: left;
+}
+
+.icon.archive {
+    background-image: url('../../assets/ic_archive.png');
+    background-size: 70%;
+}
+
+.icon.project {
+    background-image: url('../../assets/ic_text_doc.png');
+    background-size: 60%;
+}
+
+.icon.check {
+    background-image: url('../../assets/ic_check.png');
+    background-size:40%;
+}
+
+.icon.project_progress {
+    background-image: url('../../assets/ic_area_graph.png');
+}
+
+.icon.calendar {
+    background-image: url('../../assets/ic_calendar.png');
+}
+ 
+.icon.reports {
+    background-image: url('../../assets/ic_docs.png');
+}
+
+.icon.members {
+    background-image: url('../../assets/ic_users.png');
+}
+
+

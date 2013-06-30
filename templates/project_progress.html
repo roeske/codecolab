@@ -36,18 +36,25 @@
       <!-- if this is the 'milestone' stat, inject an
       approve button into the table cell -->
       {% if loop.first and is_owner %}
-        <a style="float: right" href="/project/{{ project.name }}/milestone/{{ milestone._id }}/accept"
+      <a style="float: right" href="/project/{{ project.name }}/milestone/{{ milestone._id }}/accept"
         data-state="{{ milestone.is_approved }}"
         class="btn accept_milestone ">
         {% if milestone.is_approved %}
-          <span class="true">Accepted <span class="icon">&nbsp;&#10003;</span></span>
-          <span style="display: none;" class="false">Accept</span>
+          <div class="true">
+            <div class="label">Accepted</div>
+            <div class="icon check"></div>
+          </div>
+          <div style="display: none;" class="false">Accept</div>
         {% else %}
-          <span style="display: none;" class="true">Accepted &#10003;</span>
-          <span class="false">Accept</span>
+          <div class="true" style="display: none;">
+            <div class="label">Accepted</div>
+            <div class="icon check"></div>
+          </div>
+          <div class="false">Accept</div>
         {% endif %}
+      </a>
       {% endif %}
-      </a>&nbsp;
+
       {{ stat }}
       <div class="clear"></div> 
       </td>
@@ -126,13 +133,13 @@ $(function() {
             
             if (data.state) {
                 // Update the toggle button state
-                toggle.find("span.true").show()
-                toggle.find("span.false").hide()
+                toggle.find("div.true").show()
+                toggle.find("div.false").hide()
                 toggle.data("state", "True")
             } else {
                 // Update the toggle button state
-                toggle.find("span.true").hide()
-                toggle.find("span.false").show()
+                toggle.find("div.true").hide()
+                toggle.find("div.false").show()
                 toggle.data("state", "False")
             }
         }, 

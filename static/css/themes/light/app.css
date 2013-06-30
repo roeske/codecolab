@@ -121,17 +121,6 @@ table th, table tr td {
          url("/css/entypo/entypo.svg");
 }
 
-.icon {
-    font-family: entypo;
-    font-size: 200%;
-}
-
-div.icon { float: left; }
-
-a.btn div {
-    float: left;
-}
-
 /** custom scrollbars ********************************************************/
 
 ::-webkit-scrollbar {
@@ -189,7 +178,7 @@ div#subnav div.buttons { font-size: 18px; margin-top: 7px; margin-left: 7px; }
 /****************************/
 
 /** do this so the table doesn't get resized when accept is clicked. */
-.btn.accept_milestone { width: 104px; }
+.btn.accept_milestone { width: 95px; }
 
 .empty_card a, .card_item a.archive.archive {
     font-size: 225%;

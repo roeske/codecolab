@@ -21,7 +21,11 @@
     {% if not project.is_owner(luser._id) or member._id == luser._id %}
       <div style="padding-bottom: 3px;">
         {% if project.is_owner(member._id) %}
-        Administrator&nbsp;&nbsp;<span class="icon">&#10003;</span>
+        <div style="float: left;">
+          Administrator&nbsp;&nbsp;
+        </div>
+        <div style="float: left;" class="check icon"></div>
+        <div class="clear"></div>
         {% else %}
         Regular User
         {% endif %}

@@ -2,15 +2,18 @@
 <div class="content">
   <div id="subnav">
   <div id="project_name">
-    <h3><a href="#">
-    <div class="icon">&#128196;</div>
-    &nbsp;{{ project.name }}</a></h3>
+    <a href="#">
+        <div style="float: left; margin-top: 13px;" class="icon project"></div>
+        <h3 style="float: left; margin-top: 10px;">
+          &nbsp;{{ project.name }}
+        </h3>
+    </a>
   </div> 
   <div class="buttons">
     <a href="/project/{{ project.urlencoded_name }}/archives"
      class="btn">
-     <div style="float: left"> Archives&nbsp;</div>
-     <div class="icon">&#59392;</div>
+     <div class="label" style="float: left">Archives&nbsp;</div>
+     <div class="icon archive"></div>
     </a>
   </div> 
   <div style="padding-top: 7px;" id="toolbox">

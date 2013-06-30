@@ -33,29 +33,32 @@
                management area. -->
             {% if pl[1].is_owner == True %}
               <a class="btn" href="/project/{{ pl[0].urlencoded_name }}/progress">
-              <div style="float: left;">&nbsp;Progress</div>
-              <div class="icon">&#128318;</div>
-              <div class="clear"></div>
+                <div class="label">Progress</div>
+                <div class="icon project_progress"></div>
+                <div class="clear"></div>
               </a>
             {% endif %}
 
             <a href="/project/{{ pl[0].urlencoded_name }}/office_hours"
              class="btn">
-             <div style="float; left">My Office Hours&nbsp;</div>
-             <div class="icon">&#128197;</div>
+             <div class="label">My Office Hours</div>
+             <div class="icon calendar"></div>
+             <div class="clear"></div>
             </a>
 
             <a href="/project/{{ pl[0].urlencoded_name }}/reports"
              class="btn">
-             <div style="float; left">My Reports&nbsp;</div>
-             <div class="icon">&#59190;</div>
+             <div class="label">Team Reports</div>
+             <div class="icon reports"></div>
+             <div class="clear"></div>
             </a>
 
             {% if pl[1].is_owner == True %}
             <a href="/project/{{ pl[0].urlencoded_name }}/members"
              class="btn">
-             <div style="float; left">Members&nbsp;</div>
-             <div class="icon">&#59136;</div>
+             <div class="label">Members</div>
+             <div class="members icon"></div>
+             <div class="clear"></div>
             </a>
             {% endif %}
 

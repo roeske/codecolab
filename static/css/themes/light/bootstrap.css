@@ -4615,7 +4615,6 @@ a.thumbnail:focus {
   list-style: none;
 }
 
-.label,
 .badge {
   display: inline-block;
   padding: 2px 4px;
@@ -4629,10 +4628,6 @@ a.thumbnail:focus {
   background-color: #999999;
 }
 
-.label {
-  -webkit-border-radius: 3px;
-          border-radius: 3px;
-}
 
 .badge {
   padding-right: 9px;
@@ -4641,7 +4636,6 @@ a.thumbnail:focus {
           border-radius: 9px;
 }
 
-.label:empty,
 .badge:empty {
   display: none;
 }
@@ -4705,7 +4699,6 @@ a.badge:focus {
   background-color: #1a1a1a;
 }
 
-.btn .label,
 .btn .badge {
   position: relative;
   top: -1px;
@@ -4840,12 +4833,4 @@ a.badge:focus {
 
 .btn {
   font-family: "Open Sans", Helvetica, Arial, sans-serif;
-}
-
-.label {
-  padding: 4px 4px 3px;
-  margin-right: 1px;
-  margin-left: 1px;
-  font-weight: normal;
-  line-height: 26px;
 }

@@ -84,24 +84,6 @@ table th, table td {
     width: auto;
 }
 
-/** Font / Icons *************************************************************/
-
-@font-face {
-    font-family: entypo;
-    src: url("/css/entypo/entypo.ttf"),
-         url("/css/entypo/entypo.eot"),
-         url("/css/entypo/entypo.svg");
-}
-
-.icon {
-    font-family: entypo;
-    font-size: 200%;
-}
-
-a.btn div {
-    float: left;
-}
-
 /** custom scrollbars ********************************************************/
 
 ::-webkit-scrollbar {
