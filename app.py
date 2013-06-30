@@ -1681,7 +1681,7 @@ def member_reports(luser=None, project=None, **kwargs):
         models.db.session.add(report)
         models.db.session.commit()
 
-        email_notify.member_report(project.recipients, reports, subject)
+        email_notify.member_report(project.recipients, report, subject)
 
     
     total = models.MemberReport.query.count()
