@@ -4,100 +4,118 @@
 
   <div id="frame">
     <div id="menu">
-      <h4>Projects</h4>
+      <div style="text-align: center; background: #bbb; color: #fff; padding: 7px; margin-top: 7px;">
+
+        <h4>Projects</h4>
+      </div>
       <ul>
         {% for pl in projects_and_lusers %}
-          <li><a href="#" class="menu" data-id="{{ pl[0]._id }}">{{ pl[0].name }}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-
-    <div id="right">
-      <ul id="project" class="structural project_list">
-        {% for pl in projects_and_lusers %}
-          <li class="project_item" id="{{ pl[0]._id }}">
-
-            <h3>
-              <a href="/project/{{ pl[0].urlencoded_name }}">
-                {{ pl[0].name }}
-              </a> 
-            </h3>
-
-            {% set project = pl[0] %}
-
-            {% include "members.html" %}
-
-            <br />
-            <!-- This value is set dynamically to denote that the user has
-               privileges for this project, and therefore can enter the
-               management area. -->
-            {% if pl[1].is_owner == True %}
-              <a class="btn" href="/project/{{ pl[0].urlencoded_name }}/progress">
-                <div class="label">Progress</div>
-                <div class="icon project_progress"></div>
-                <div class="clear"></div>
-              </a>
-            {% endif %}
-
-            <a href="/project/{{ pl[0].urlencoded_name }}/office_hours"
-             class="btn">
-             <div class="label">My Office Hours</div>
-             <div class="icon calendar"></div>
-             <div class="clear"></div>
+          <li class="project_list_item" style="padding: 7px; border: 1px solid #ccc;">
+            <a href="#" class="menu" data-id="{{ pl[0]._id }}">
+              {{ pl[0].name }}
             </a>
-
-            <a href="/project/{{ pl[0].urlencoded_name }}/reports"
-             class="btn">
-             <div class="label">Team Reports</div>
-             <div class="icon reports"></div>
-             <div class="clear"></div>
-            </a>
-
-            {% if pl[1].is_owner == True %}
-            <a href="/project/{{ pl[0].urlencoded_name }}/members"
-             class="btn">
-             <div class="label">Members</div>
-             <div class="members icon"></div>
-             <div class="clear"></div>
-            </a>
-            {% endif %}
-
-            <div class="clear"></div>
           </li>
         {% endfor %}
       </ul>
+
+      <div style="margin-top: 7px;">
+        <form action="/project/add" method="POST">
+          <ul id="add_project_controls" class="structural">
+            <li>
+              <input type="text" placeholder="Project Name" name="project_name" id="project_name"/>
+            </li>
+            <li>
+              <input 
+              style="float: right;" 
+              type="submit" name="submit" value="Add Project" class="btn"/>
+              <div class="clear"></div>
+            </li>
+          </ul>
+          <div class="clear"></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="right">
+      <div id="inner">
+        <ul id="project" class="structural project_list">
+          {% for pl in projects_and_lusers %}
+            <li class="project_item" id="{{ pl[0]._id }}">
+
+              <h3>
+                <a href="/project/{{ pl[0].urlencoded_name }}">
+                  {{ pl[0].name }}
+                </a> 
+              </h3>
+
+              {% set project = pl[0] %}
+
+              {% include "members_display_only.html" %}
+
+              <br />
+              <!-- This value is set dynamically to denote that the user has
+                 privileges for this project, and therefore can enter the
+                 management area. -->
+              {% if pl[1].is_owner == True %}
+                <a class="btn" href="/project/{{ pl[0].urlencoded_name }}/progress">
+                  <div class="label">Progress</div>
+                  <div class="icon project_progress"></div>
+                  <div class="clear"></div>
+                </a>
+              {% endif %}
+
+              <a href="/project/{{ pl[0].urlencoded_name }}/office_hours"
+               class="btn">
+               <div class="label">Office Hours</div>
+               <div class="icon calendar"></div>
+               <div class="clear"></div>
+              </a>
+
+              <a href="/project/{{ pl[0].urlencoded_name }}/reports"
+               class="btn">
+               <div class="label">Reports</div>
+               <div class="icon reports"></div>
+               <div class="clear"></div>
+              </a>
+
+              {% if pl[1].is_owner == True %}
+              <a href="/project/{{ pl[0].urlencoded_name }}/members"
+               class="btn">
+               <div class="label">Members</div>
+               <div class="members icon"></div>
+               <div class="clear"></div>
+              </a>
+              {% endif %}
+
+              <div class="clear"></div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
   </div>
   <!-- end 'frame' -->
   <div class="clear"></div>
 
-  <div>
-    <form action="/project/add" method="POST">
-      <ul id="add_project_controls" class="structural horizontal_right">
-        <li>
-          <input type="submit" name="submit" value="Add Project" class="btn"/>
-        </li>
-        <li>
-          <input type="text" placeholder="Project Name" name="project_name" id="project_name"/>
-        </li>
-      </ul>
-      <div class="clear"></div>
-    </form>
-  </div>
 </div> <!-- /container -->
 <script type="text/javascript">
 $(document).ready(function() {
+
+  $(".project_list_item").click(function(ev) {
+      console.log($(this).find("a").attr("href"))
+      return false
+  })
+
   $("li.project_item").hide()
   var current = $("li.project_item:first").show()
   $("a.menu").click(function(ev) {
       var selector = "#" + $(this).data("id")      
       $(current).hide()
-      $(selector).slideDown()
+      $(selector).show()
       current = selector
       return false
   })
-
-  cc_initialize_members()
 })
+
 </script>
 {% include "foot.html" %}

@@ -1,17 +1,28 @@
 #menu {
-    width: 15%;
+    width: 20%;
     float: left;
-    margin-right: 1em;
+    margin-right: 7px;
 }
 
-#menu ul li {
+#menu ul:first li {
     padding: 7px 0px;
 }
 
 
 #right {
-    width: 80%;
+    width: 79%;
     float: left;
+}
+
+#right > div {
+   margin: auto;
+   width: 70%;
+   position: relative;
+   top: 15%;
+}
+
+#right {
+    height: 90%;
 }
 
 #frame {

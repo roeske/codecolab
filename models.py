@@ -16,6 +16,13 @@ import os
 
 db = SQLAlchemy(app)
 
+DEFAULT_AVATAR_24 = "http://i.imgur.com/jDchbzz.png"
+DEFAULT_AVATAR_48 = "http://i.imgur.com/duCtaxm.png"
+DEFAULT_AVATAR_32 = DEFAULT_AVATAR_48 #"http://i.imgur.com/8K03AE9.png" 
+DEFAULT_AVATAR_64 = "http://i.imgur.com/51Xl2xS.png" 
+DEFAULT_AVATAR_128 = "http://i.imgur.com/ZzT4PyW.png"
+
+
 # Easily serialize to dict for json conversion # See: http://piotr.banaszkiewicz.org/blog/2012/06/30/serialize-sqlalchemy-results-into-json/
 
 from collections import OrderedDict
@@ -133,25 +140,36 @@ class Luser(db.Model, DictSerializable):
     @property
     def gravatar_url(self):
         email_hash = md5(self.email.strip().lower()).hexdigest()
-        return "http://gravatar.com/avatar/%s?s=128" % email_hash
+        return "http://gravatar.com/avatar/%s?s=128&d=%s" % (email_hash,
+            DEFAULT_AVATAR_128)
 
     
     @property
     def small_gravatar_url(self):
         email_hash = md5(self.email.strip().lower()).hexdigest()
-        return "http://gravatar.com/avatar/%s?s=64" % email_hash
+        return "http://gravatar.com/avatar/%s?s=64&d=%s" % (email_hash,
+            DEFAULT_AVATAR_64)
 
 
     @property
     def gravatar_url_48(self):
         email_hash = md5(self.email.strip().lower()).hexdigest()
-        return "http://gravatar.com/avatar/%s?s=48" % email_hash
+        return "http://gravatar.com/avatar/%s?s=48&d=%s" % (email_hash,
+            DEFAULT_AVATAR_48)
 
 
     @property
     def tiny_gravatar_url(self):
         email_hash = md5(self.email.strip().lower()).hexdigest()
-        return "http://gravatar.com/avatar/%s?s=32" % email_hash
+        return "http://gravatar.com/avatar/%s?s=32&d=%s" % (email_hash,
+            DEFAULT_AVATAR_32)
+
+
+    @property
+    def gravatar_url_24(self):
+        email_hash = md5(self.email.strip().lower()).hexdigest()
+        return "http://gravatar.com/avatar/%s?s=24&d=%s" % (email_hash,
+            DEFAULT_AVATAR_24)
 
 
     @property

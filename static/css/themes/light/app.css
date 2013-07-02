@@ -83,7 +83,11 @@ form.basic { width: 30em; }
 
 /* Tables ********************************************************************/
 
-#add_project_controls input[type="text"],  #toolbox-list input[type="text"] {
+#add_project_controls input[type="text"] {
+    width: 94.5%;
+}
+
+#toolbox-list input[type="text"] {
     width: 10em;
     margin-right: 1em;
 }

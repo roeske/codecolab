@@ -4,8 +4,11 @@
             <a class="brand" href="/">CodeColab</a>
                 <ul style="float: right;" class="nav">
                     <li>
-                        <a href="/profile/{{ luser._id }}"> <img src="{{ gravatar_url }}?s=24" />
-                            &nbsp;&nbsp;&nbsp;{{ email }}
+                      <img style="margin-top: 5px;" src="{{ luser.gravatar_url_24 }}" />
+                    </li>
+
+                    <li>
+                        <a href="/profile/{{ luser._id }}">                             &nbsp;&nbsp;&nbsp;{{ email }}
                         </a>
                     </li>
                     <li>
