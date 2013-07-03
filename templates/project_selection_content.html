@@ -1,0 +1,98 @@
+<div class="project_selection" id="content_nopad">
+  <div id="frame">
+    <div id="menu">
+        <div id="menu_title">
+          <h4>Projects</h4>
+        </div>
+        <div id="menu_items">
+          <ul>
+            {% for pl in projects_and_lusers %}
+              <li class="project_list_item">
+                <a href="#" class="menu" data-id="{{ pl[0]._id }}">
+                  {{ pl[0].name }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div id="menu_form">
+            <form action="/project/add" method="POST">
+              <ul id="add_project_controls" class="structural">
+                <li>
+                  <input type="text" placeholder="Project Name" name="project_name" id="project_name"/>
+                  <div class="clear"></div>
+                </li>
+                <li>
+                  <input 
+                  style="float: right;" 
+                  type="submit" name="submit" value="Add Project" class="btn"/>
+                  <div class="clear"></div>
+                </li>
+              </ul>
+              <div class="clear"></div>
+            </form>
+          </div>
+        </div>
+
+      <div id="right">
+        <div id="inner">
+          <ul id="project" class="invisible structural project_list">
+            {% for pl in projects_and_lusers %}
+              <li class="project_item" id="{{ pl[0]._id }}">
+
+                <h3>{{ pl[0].name }}</h3>
+
+                {% set project = pl[0] %}
+
+                {% include "members_display_only.html" %}
+                <div class="clear"></div>
+
+                <br />
+                <div>
+                  <!-- This value is set dynamically to denote that the user has
+                     privileges for this project, and therefore can enter the
+                     management area. -->
+
+                  <a href="/project/{{ pl[0].urlencoded_name }}" class="custom_btn">
+                     <div class="icon_large boards"></div>
+                     <div class="label">Boards</div>
+                     <div class="clear"></div>
+                  </a>
+
+                  {% if pl[1].is_owner == True %}
+                    <a class="custom_btn" href="/project/{{ pl[0].urlencoded_name }}/progress">
+                      <div class="icon_large project_progress"></div>
+                      <div class="label">Progress</div>
+                      <div class="clear"></div>
+                    </a>
+                  {% endif %}
+
+                  <a href="/project/{{ pl[0].urlencoded_name }}/office_hours" class="custom_btn">
+                     <div class="icon_large calendar"></div>
+                     <div class="label">Office Hours</div>
+                     <div class="clear"></div>
+                  </a>
+
+                  <a href="/project/{{ pl[0].urlencoded_name }}/reports" class="custom_btn">
+                     <div class="icon_large reports"></div>
+                     <div class="label">Reports</div>
+                     <div class="clear"></div>
+                  </a>
+
+                  {% if pl[1].is_owner == True %}
+                  <a href="/project/{{ pl[0].urlencoded_name }}/members"class="custom_btn">
+                     <div class="members icon_large"></div>
+                     <div class="label">Members</div>
+                     <div class="clear"></div>
+                  </a>
+                  {% endif %}
+                </div>
+                <div class="clear"></div>
+              </li>
+            {% endfor %}
+          </ul>
+      </div>
+    </div>
+  </div>
+  <div class="clear"></div>
+</div>

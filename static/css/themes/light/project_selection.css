@@ -1,4 +1,188 @@
-ul.project_list li {
+h1,h2,h3,h4,h5,h6 {
+    text-shadow: 0px 1px 1px #ccc;
+    color: #555;
+    margin: 0;
+    padding: 0;  
+    font-weight: 100;
+    letter-spacing: 1px;
+}
+
+.navbar {    margin-bottom: 0; }
+
+.navbar, .navbar-inner {
+    background: #eee;
+}
+
+.project_selection {
+    font-family: "Open Sans";
+}
+
+.project_selection ul.project_list li {
   line-height: 2em;
 }
 
+.project_selection #menu {
+    width: 19%;
+    float: left;
+    margin-right: 7px;
+    height: 100%;
+}
+
+.project_selection #menu ul:first li {
+    padding: 7px 0px;
+}
+
+
+.project_selection #right {
+    width: 78%;
+    float: left; 
+}
+
+.project_selection #right > div {
+   margin: auto;
+   width: 70%;
+   position: relative;
+   top: 15%;
+}
+
+.project_selection #right {
+    height: 90%;
+}
+
+
+ul#project li {
+    list-style: none;
+}
+
+.project_selection .project_list_item {
+    padding: 7px;
+    border: 1px solid #ccc;
+    list-style: none;
+}
+
+.project_selection #project_name {
+    width: 95.1%;
+}
+
+.project_selection #project_members_container ul {
+    height: 250px;
+    white-space: nowrap;
+}
+
+.project_selection #project_members_container ul li {
+    float: left;
+    margin-right: 7px; 
+    margin-top: 7px;
+}
+
+.project_selection #menu_title {
+    margin-top: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.project_selection #menu {
+    padding: 10px;
+    color: #fff;
+    background: #eee;
+    border-right: 1px solid #ccc;
+}
+
+body {
+    /*
+    background-image: -moz-linear-gradient(270deg, #e2e2e2 0%, #e9e9e9 11%, #f0f0f0 27%, #ffffff 48%, #f3f3f3 80%, #e1e1e1 91%, #ececec 100%);
+    background-image: -webkit-linear-gradient(270deg, #e2e2e2 0%, #e9e9e9 11%, #f0f0f0 27%, #ffffff 48%, #f3f3f3 80%, #e1e1e1 91%, #ececec 100%);
+    background-image: -o-linear-gradient(270deg, #e2e2e2 0%, #e9e9e9 11%, #f0f0f0 27%, #ffffff 48%, #f3f3f3 80%, #e1e1e1 91%, #ececec 100%);
+    background-image: linear-gradient(180deg, #e2e2e2 0%, #e9e9e9 11%, #f0f0f0 27%, #ffffff 48%, #f3f3f3 80%, #e1e1e1 91%, #ececec 100%);
+    background-repeat: no-repeat;
+    */
+    background: #fff;
+} .project_selection .member_container { 
+    padding: 10px; 
+    border-radius: 5px;
+    text-align: center;
+}
+
+.member_username_container a {
+    font-size: 1.1em;
+    text-shadow: 0px 1px 1px #ccc;
+}
+
+.project_selection .member_container img {
+    background: #fff;
+}
+
+
+.project_list_item a:link,
+.project_list_item a:hover,
+.project_list_item a:visited,
+.project_list_item a:active {
+    font-size: 1.1em;
+    text-decoration: none;
+    color: #555;
+    text-decoration: none;
+    font-weight: 100;
+}
+
+.project_list_item {
+    cursor: pointer;
+    background-image: -moz-linear-gradient(270deg, #e8e8e8 0%, #dddddd 49%, #dbdbdb 97%);
+    background-image: -webkit-linear-gradient(270deg, #e8e8e8 0%, #dddddd 49%, #dbdbdb 97%);
+    background-image: -o-linear-gradient(270deg, #e8e8e8 0%, #dddddd 49%, #dbdbdb 97%);
+    background-image: linear-gradient(180deg, #e8e8e8 0%, #dddddd 49%, #dbdbdb 97%);
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    -o-box-shadow: none;
+    box-shadow: none;
+    border-radius: 4px;
+    border: 1px solid #bebdbd;
+    margin: 1px;
+}
+
+
+.project_list_item.active, .project_list_item:hover {
+    background-image: -moz-linear-gradient(270deg, #d4d4d4 0%, #cccccc 49%, #c7c7c7 97%);
+    background-image: -webkit-linear-gradient(270deg, #d4d4d4 0%, #cccccc 49%, #c7c7c7 97%);
+    background-image: -o-linear-gradient(270deg, #d4d4d4 0%, #cccccc 49%, #c7c7c7 97%);
+    background-image: linear-gradient(180deg, #d4d4d4 0%, #cccccc 49%, #c7c7c7 97%);
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    -o-box-shadow: none;
+    box-shadow: none;
+    border: 1px solid #bebdbd;
+}
+
+
+.project_selection li.project_list_item:visited {
+}
+
+.project_selection li.project_list_item:active {
+}
+
+
+body, #content_nopad {
+    height: 100%;
+    margin: 0; padding: 0;
+}
+
+.project_selection .invisible {
+    visibility: hidden;
+}
+
+.project_selection input {
+    border-radius: 5px;
+}
+
+.project_selection #menu_form {
+    width: 99.5%;
+}
+
+.project_selection .custom_btn { 
+    display: block;
+    height: 100px;
+    width: 100px;
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    float: left;
+}

@@ -1,121 +1,64 @@
-{% include "head.html" %}
-{% include "common_js.html" %}
-<div class="content">
+{% include "min_head.html" %}
 
-  <div id="frame">
-    <div id="menu">
-      <div style="text-align: center; background: #bbb; color: #fff; padding: 7px; margin-top: 7px;">
+  {% include "themes/" + luser.profile.theme + "/project_selection.html" %}
 
-        <h4>Projects</h4>
-      </div>
-      <ul>
-        {% for pl in projects_and_lusers %}
-          <li class="project_list_item" style="padding: 7px; border: 1px solid #ccc;">
-            <a href="#" class="menu" data-id="{{ pl[0]._id }}">
-              {{ pl[0].name }}
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
+  </head>
+<body>
 
-      <div style="margin-top: 7px;">
-        <form action="/project/add" method="POST">
-          <ul id="add_project_controls" class="structural">
-            <li>
-              <input type="text" placeholder="Project Name" name="project_name" id="project_name"/>
-            </li>
-            <li>
-              <input 
-              style="float: right;" 
-              type="submit" name="submit" value="Add Project" class="btn"/>
-              <div class="clear"></div>
-            </li>
-          </ul>
-          <div class="clear"></div>
-        </form>
-      </div>
-    </div>
+{% include "navbar.html" %}
 
-    <div id="right">
-      <div id="inner">
-        <ul id="project" class="structural project_list">
-          {% for pl in projects_and_lusers %}
-            <li class="project_item" id="{{ pl[0]._id }}">
+{% include "project_selection_content.html" %}
 
-              <h3>
-                <a href="/project/{{ pl[0].urlencoded_name }}">
-                  {{ pl[0].name }}
-                </a> 
-              </h3>
+{% include "common_js.html" %} 
 
-              {% set project = pl[0] %}
-
-              {% include "members_display_only.html" %}
-
-              <br />
-              <!-- This value is set dynamically to denote that the user has
-                 privileges for this project, and therefore can enter the
-                 management area. -->
-              {% if pl[1].is_owner == True %}
-                <a class="btn" href="/project/{{ pl[0].urlencoded_name }}/progress">
-                  <div class="label">Progress</div>
-                  <div class="icon project_progress"></div>
-                  <div class="clear"></div>
-                </a>
-              {% endif %}
-
-              <a href="/project/{{ pl[0].urlencoded_name }}/office_hours"
-               class="btn">
-               <div class="label">Office Hours</div>
-               <div class="icon calendar"></div>
-               <div class="clear"></div>
-              </a>
-
-              <a href="/project/{{ pl[0].urlencoded_name }}/reports"
-               class="btn">
-               <div class="label">Reports</div>
-               <div class="icon reports"></div>
-               <div class="clear"></div>
-              </a>
-
-              {% if pl[1].is_owner == True %}
-              <a href="/project/{{ pl[0].urlencoded_name }}/members"
-               class="btn">
-               <div class="label">Members</div>
-               <div class="members icon"></div>
-               <div class="clear"></div>
-              </a>
-              {% endif %}
-
-              <div class="clear"></div>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-  </div>
-  <!-- end 'frame' -->
-  <div class="clear"></div>
-
-</div> <!-- /container -->
 <script type="text/javascript">
-$(document).ready(function() {
 
-  $(".project_list_item").click(function(ev) {
-      console.log($(this).find("a").attr("href"))
-      return false
-  })
+function update_dimensions() {
+    $("#frame").height($(window).height() - $(".navbar").height() - 20);
 
-  $("li.project_item").hide()
-  var current = $("li.project_item:first").show()
-  $("a.menu").click(function(ev) {
-      var selector = "#" + $(this).data("id")      
-      $(current).hide()
-      $(selector).show()
-      current = selector
-      return false
-  })
-})
+    var width = 0;
+    $("#project_members_container ul li").each(function(i,elem) {
+        width += $(elem).width();
+        width += parseInt($(elem).css('margin-right').replace("px", ""), 10);
+    });
+    
+    $("#project_members_container ul").width(width);
+}
+
+$(function() {
+    // Now that everything is loaded, reveal the project list
+    // this prevents it from looking bad while loading
+    $(window).bind('resize', update_dimensions);
+
+    var last = null;
+    $(".project_list_item").click(function(ev) {
+        if (last != null) {
+          last.removeClass('active');
+        }
+        $(this).addClass('active'); 
+        last = $(this);
+
+        var selector = "#" + $(this).find("a").data("id");
+        $(current).hide();
+        $(selector).show();
+        current = selector;
+
+        update_dimensions();
+        return false;
+    })
+
+    $("li.project_item").hide();
+
+    var current = $("li.project_item:first").show();
+
+    $("a.menu").click(function(ev) {
+    });
+
+    $("#project").removeClass("invisible");
+
+    update_dimensions();
+});
 
 </script>
+
 {% include "foot.html" %}

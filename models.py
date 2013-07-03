@@ -20,6 +20,7 @@ DEFAULT_AVATAR_24 = "http://i.imgur.com/jDchbzz.png"
 DEFAULT_AVATAR_48 = "http://i.imgur.com/duCtaxm.png"
 DEFAULT_AVATAR_32 = DEFAULT_AVATAR_48 #"http://i.imgur.com/8K03AE9.png" 
 DEFAULT_AVATAR_64 = "http://i.imgur.com/51Xl2xS.png" 
+DEFAULT_AVATAR_96 = "http://i.imgur.com/rc2Uz0V.png"
 DEFAULT_AVATAR_128 = "http://i.imgur.com/ZzT4PyW.png"
 
 
@@ -156,6 +157,12 @@ class Luser(db.Model, DictSerializable):
         email_hash = md5(self.email.strip().lower()).hexdigest()
         return "http://gravatar.com/avatar/%s?s=48&d=%s" % (email_hash,
             DEFAULT_AVATAR_48)
+
+    @property
+    def gravatar_url_96(self):
+        email_hash = md5(self.email.strip().lower()).hexdigest()
+        return "http://gravatar.com/avatar/%s?s=96&d=%s" % (email_hash,
+            DEFAULT_AVATAR_96)
 
 
     @property

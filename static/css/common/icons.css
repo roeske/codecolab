@@ -58,3 +58,24 @@
 .icon.delete {
     background-image: url('../../assets/ic_cross.png');
 }
+
+.icon_large.project_progress {
+}
+
+.icon_large.calendar {
+}
+ 
+.icon_large.reports {
+}
+
+.icon_large.members {
+}
+
+
+.icon_large {   
+    background-color: #ddd;
+    font-size: 3em;
+    margin: 0 auto;
+    height: 72px;
+    width: 72px;
+}

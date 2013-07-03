@@ -288,7 +288,8 @@ div.pile_chrome_bottom {
 }
 
 /*@media(min-width: 900px) { */
-    div.content {
+    div.content,
+    div.content_nopad {
         height: 94%;
     }
 

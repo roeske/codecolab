@@ -1,24 +1,3 @@
-/* TODO: remove more css and rename. It's not really bootstrap now. */
-
-/* old */
-label,
-select,
-button,
-input[type="button"],
-input[type="reset"],
-input[type="submit"],
-input[type="radio"],
-input[type="checkbox"] {
-  cursor: pointer;
-}
-
-input[type="search"] {
-  -webkit-box-sizing: content-box;
-     -moz-box-sizing: content-box;
-          box-sizing: content-box;
-  -webkit-appearance: textfield;
-}
-
 textarea {
   overflow: auto;
   vertical-align: top;
@@ -931,9 +910,8 @@ input[type="tel"],
 input[type="color"],
 .uneditable-input {
   display: inline-block;
-  height: 20px;
-  padding: 4px 6px;
-  margin-bottom: 10px;
+  height: 21px;
+  padding: 3px 7px;
   font-size: 14px;
   line-height: 20px;
   color: #555555;

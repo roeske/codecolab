@@ -2,32 +2,26 @@
 <ul class="structural horizontal_left">
 <!-- iterate through project members -->
 {% for member in project.lusers %}
-  <li style="margin-right: 7px; margin-top: 7px;">
-
-    <div
-      style="padding: 7px; background: #fff; box-shadow: 1px 1px 7px #aaa;
-             border-radius: 7px"
-      >
-
-      <img 
-      style="box-shadow: 1px 1px 4px #aaa; padding: 7px;"
-      src="{{ member.gravatar_url }}" />
+  <li>
+    <div class="member_container">
 
       <!-- username -->
       <div class="member_username_container">
-        <a href="/profile/{{ member._id }}">{{ member.profile.username }}
+        <a href="/profile/{{ member._id }}">
+
+          <img  style="box-shadow: 1px 1px 4px #aaa; padding: 7px;" src="{{ member.gravatar_url_96 }}" />
+         
+          <p> 
+          {{ member.profile.username }}
           {% if member._id == luser._id %}
             <small>(you)</small>
           {% endif %}
+          </p>
         </a>
       </div>
     </div>
 
-
-
     <div class="clear"></div>
-
-
   </li>
 {% endfor %} <div class="clear"></div>
 </div>
