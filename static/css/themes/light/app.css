@@ -323,7 +323,7 @@ div#piles ul#pile_list li {
 }
 
 
-.handle { background-color: #ccc; height: 35px;}
+.handle { background-color: #ccc; height: 37px;}
 
 
 /* jquery ui fixes ************************************************************/
@@ -370,4 +370,23 @@ ul {
     color: #333;
     text-shadow: 1px 1px #aaa;
     margin: 7px 0px 7px;
+}
+
+h4.pile_title {
+    height: 28px;
+}
+
+h4.pile_title input {
+    background: #ccc;
+}
+form.jeditable input,
+h4.pile_title input {
+    border-top: 0px;
+    border-left: 0px;
+    border-right: 0px;
+    border-bottom: 2px solid #aaa;
+    margin-bottom: 5px;
+    margin-top: 0px;
+    padding-top: 0px;
+    outline: 0;
 }

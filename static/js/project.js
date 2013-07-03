@@ -480,6 +480,7 @@ function cc_setup_editable_fields(project_name) {
             event: "click",
             style: "inherit",
             onblur: "submit",
+            cssclass: 'editable_pile_title',
             width: $(elem).width() + 20 + "px"
         });
     });
