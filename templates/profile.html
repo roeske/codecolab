@@ -1,8 +1,4 @@
-{% include "head.html" %}
 <div class="content">
-    <h3>Edit Profile: {{ profile.luser.email }}</h3>
-    <hr />
-        
     {% with messages = get_flashed_messages() %}
         {% if messages %}
         <ul style="list-style-type: none;" class=flashes>
@@ -13,63 +9,81 @@
         {% endif %}
     {% endwith %}
 
-    <form class="basic" action="/profile/{{ luser._id }}" method="POST">
-        <ul class="structural basic">
-            <li>
-                <label for="first_name">First Name:</label>
-                <input type="text" name="first_name" value="{{ profile.first_name }}" id="first_name" />
-                <div class="clear"></div>
-            </li>
+    <form class="profile_form" action="/profile/{{ luser._id }}" method="POST">
+        <div>
+          <ul class="profile left">
+              <li class="profile_row">
+                  <label for="first_name">First Name:</label>
+                  <input type="text" name="first_name" value="{{ profile.first_name }}" id="first_name" />
+                  <div class="clear"></div>
+              </li>
 
-            <li>
-                <label for="last_name">Last Name:</label>
-                <input type="text" name="last_name" value="{{ profile.last_name }}" id="last_name" />
-                <div class="clear"></div>
-            </li>
+              <li>
+                  <label for="last_name">Last Name:</label>
+                  <input type="text" name="last_name" value="{{ profile.last_name }}" id="last_name" />
+                  <div class="clear"></div>
+              </li>
 
-            <li>
-                <label for="username">Username:</label>
-                <input type="text" name="username" value="{{ profile.username }}" id="username" />
-                <div class="clear"></div>
+              <li>
+                  <label for="username">Username:</label>
+                  <input type="text" name="username" value="{{ profile.username }}" id="username" />
+                  <div class="clear"></div>
 
-            </li>
-            <li>
-                <label for="timezone">Timezone:</label>
-                <select name="timezone" id="timezone">
-                    {% for tz in timezones %}
-                        {% if tz == profile.timezone %} 
-                            <option value="{{ tz }}" selected>{{ tz }}</option>
-                        {% else %}
-                            <option value="{{ tz }}">{{ tz }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
+              </li>
+          </ul>
+          <ul class="profile right">
+              <li>
+                  <label for="timezone">Timezone:</label>
+                  <select name="timezone" id="timezone">
+                      {% for tz in timezones %}
+                          {% if tz == profile.timezone %} 
+                              <option value="{{ tz }}" selected>{{ tz }}</option>
+                          {% else %}
+                              <option value="{{ tz }}">{{ tz }}</option>
+                          {% endif %}
+                      {% endfor %}
+                  </select>
 
-                <div class="clear"></div>
-            </li>
+                  <div class="clear"></div>
+              </li>
 
-            <li>
-                <label for="theme">Theme:</label>
-                <select name="theme" id="theme">
-                    {% for theme in themes %}
-                        {% if theme == profile.theme %} 
-                            <option value="{{ theme }}" selected>{{ theme }}</option>
-                        {% else %}
-                            <option value="{{ theme }}">{{ theme }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
+              <li>
+                  <label for="theme">Theme:</label>
+                  <select name="theme" id="theme">
+                      {% for theme in themes %}
+                          {% if theme == profile.theme %} 
+                              <option value="{{ theme }}" selected>{{ theme }}</option>
+                          {% else %}
+                              <option value="{{ theme }}">{{ theme }}</option>
+                          {% endif %}
+                      {% endfor %}
+                  </select>
 
-                <div class="clear"></div>
-            </li>
+                  <div class="clear"></div>
+              </li>
 
-            <li>
-                <label style="visibility: hidden;" for="submit">Submit</label>
-                <input id="submit" class="btn" type="submit" name="submit" value="Update Profile" />
-                <div class="clear"></div>
-            </li>
-        </ul> 
+              <li>
+                  <img src="{{ luser.gravatar_url_48 }}" />
+                  <p style="float: left; font-size: .9em;">Avatar determined by <a style="color: #4B8EFD;" href="{{ luser.gravatar_profile_url }}">your gravatar profile.</a></p>
+              </li>
+              <li>
+                  <label style="visibility: hidden;" for="submit">Submit</label>
+                  <div class="clear"></div>
+              </li>
+          </ul> 
+            <div class="clear"></div>
+            <input style="float: right;" id="submit" class="btn" type="submit" name="submit" value="Save Changes" />
+            <div class="clear"></div>
+            <p style="visibility: hidden;" class="saved_indicator">Your changes were saved.</p>
+        </div>
     </form>
+    <script>
+      $(function() {
+          $("form.profile_form").ajaxForm({
+              success: function() {
+                $("p.saved_indicator").css("visibility", "visible");
+              }
+          });
+      });
+    </script>
 </div>
-{% include "common_js.html" %}
-{% include "foot.html" %}

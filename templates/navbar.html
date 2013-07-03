@@ -6,10 +6,8 @@
                     <li>
                       <img style="margin-top: 5px;" src="{{ luser.gravatar_url_24 }}" />
                     </li>
-
                     <li>
-                        <a href="/profile/{{ luser._id }}">                             &nbsp;&nbsp;&nbsp;{{ email }}
-                        </a>
+                        <a class="profile_link" href="/profile/{{ luser._id }}">{{ email }}</a>
                     </li>
                     <li>
                         <a href="/logout">Log out</a>
@@ -19,3 +17,24 @@
         </div>
     </div>
 </div>
+<script>
+function show_profile_dialog(url) {
+    var options = {
+        modal: true,
+        title: "Edit Profile",
+
+        resizable: false,
+        width: screen.width * 0.4,
+        height: 390
+    };
+    var modal = $("<div></div>").load(url).dialog(options);
+}
+
+$(function() {
+    $(".profile_link").click(function(e) {
+        var url = $(this).attr("href");
+        show_profile_dialog(url);
+        return false;
+    });
+});
+</script>

@@ -17,23 +17,6 @@ div.clear { clear: both; }
   height: 93%;
 }
 
-/* jquery ui fixes ************************************************************/
-
-/* fix unaligned 'x' in close button of modal */
-.ui-button-icon-only .ui-icon { left: 45%; }
-
-/* jquery ui tweaks ***********************************************************/
-.ui-dialog { padding: 0; }
-.ui-dialog-title { font-family: "Open Sans"; }
-.ui-widget-header {
-  border-top-left-radius: 3px;
-  border-bottom-left-radius: 0px;
-  border-top-right-radius: 3px;
-  border-bottom-right-radius: 0px;
-  background: #ddd;
-  border: 1px solid #cfcbca;
-}
-
 
 /* Flash messages ************************************************************/
 
@@ -287,105 +270,78 @@ div.pile_chrome_bottom {
   height: 80px;
 }
 
-/*@media(min-width: 900px) { */
-    div.content,
-    div.content_nopad {
-        height: 94%;
-    }
-
-    div#piles {
-        border-radius: 3px;
-        height: 90%;
-        overflow-x: scroll;
-        width: 83.6%;
-        float: left;
-    }
-
-    div#piles ul#pile_list {
-        width: 9999px; /* hack to fix firefox horiz scroll */
-        list-style: none;
-        white-space: nowrap;
-        overflow: hidden;
-        float: left;
-        margin: 0;
-        padding: 0;
-        height: 99.5%;
-    }
-
-
-    div#activity_container h4 {
-        background-color: #ccc;
-        color: #555;
-    }  
-
-    div#piles ul#pile_list li {
-        max-height: 99%;
-    }
-
-    .pile_container {
-        margin-bottom: 1em;
-        margin: 5px 5px 5px 5px;
-        width: 278px;
-        float: left;
-        height: 100%;
-    }
-
-    .pile_container ul.card_list {
-        min-height: 80px;
-        max-height: 70.5%;
-        overflow-x: hidden;
-        /* might be something we want to remove. */
-        /* overflow-y: scroll; */
-        background-color: #bbb;
-        padding: .5em .5em 0em .5em;
-        margin: .5em .5em 0em .5em;
-        border-radius: 3px;
-    }
-/*} */
-
-/*
-@media (max-width: 900px) {
-    div#piles {
-        margin-top: 5px;
-        border-radius: 3px;
-    }
-
-    div#piles ul#pile_list {
-        list-style: none;
-        white-space: nowrap;
-        overflow: hidden;
-        margin: 0;
-        padding: 0;
-        width: 100%;
-    }
-
-    .pile_container {
-        margin-bottom: 5px;
-        margin: 5px 5px 5px 5px;
-        float: left;
-        width: 100%;
-    }
-
-    li.pile_container,
-    .pile_chrome_top, .pile_chrome_bottom {
-        width: 99%;
-    }
-
-    li.pile_container 
-    li.card_item, .empty_card {
-        width: 98%; 
-    }
-
-    .pile_container ul.card_list {
-        min-height: 100px;
-        background-color: #bbb;
-        border-radius: 3px;
-    }
+div.content,
+div.content_nopad {
+    height: 94%;
 }
-*/
+
+div#piles {
+    border-radius: 3px;
+    height: 90%;
+    overflow-x: scroll;
+    width: 83.6%;
+    float: left;
+}
+
+div#piles ul#pile_list {
+    width: 9999px; /* hack to fix firefox horiz scroll */
+    list-style: none;
+    white-space: nowrap;
+    overflow: hidden;
+    float: left;
+    margin: 0;
+    padding: 0;
+    height: 99.5%;
+}
+
+
+div#activity_container h4 {
+    background-color: #ccc;
+    color: #555;
+}  
+
+div#piles ul#pile_list li {
+    max-height: 99%;
+}
+
+.pile_container {
+    margin-bottom: 1em;
+    margin: 5px 5px 5px 5px;
+    width: 278px;
+    float: left;
+    height: 100%;
+}
+
+.pile_container ul.card_list {
+    min-height: 80px;
+    max-height: 70.5%;
+    overflow-x: hidden;
+    background-color: #bbb;
+    padding: .5em .5em 0em .5em;
+    margin: .5em .5em 0em .5em;
+    border-radius: 3px;
+}
+
 
 .handle { background-color: #ccc; height: 35px;}
 
+
+/* jquery ui fixes ************************************************************/
+
+/* fix unaligned 'x' in close button of modal */
+.ui-button-icon-only .ui-icon { left: 45%; }
+
+/* jquery ui tweaks ***********************************************************/
+.ui-dialog { padding: 0; }
+.ui-dialog-title { font-family: "Open Sans"; }
+.ui-widget-header {
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 0px;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 0px;
+  background: #ddd;
+  border: 1px solid #cfcbca;
+}
 
 /** reset jquery-ui fonts */
 .ui-widget, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {

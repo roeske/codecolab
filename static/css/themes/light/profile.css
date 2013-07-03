@@ -1,0 +1,39 @@
+/* jquery ui fixes ************************************************************/
+
+/* fix unaligned 'x' in close button of modal */
+.ui-button-icon-only .ui-icon { left: 45%; }
+
+/* jquery ui tweaks ***********************************************************/
+.ui-dialog { padding: 0; }
+.ui-dialog-title { font-family: "Open Sans"; }
+.ui-widget-header {
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 0px;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 0px;
+  background: #ddd;
+  border: 1px solid #cfcbca;
+}
+
+/** reset jquery-ui fonts */
+.ui-widget, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
+    font-family: "Open Sans", sans-serif;
+}
+
+ul.profile {
+    list-style-type: none;
+}
+
+ul.profile li {
+    padding: 10px;
+}
+
+.profile.left, .profile.right { 
+    float: left;
+    width: 50%;
+}
+
+.profile_form {
+    margin: 0;
+    padding: 0;
+}

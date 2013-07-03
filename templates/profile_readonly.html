@@ -1,27 +1,25 @@
-{% include "head.html" %} 
-  <div class="content">
-    <h3>Profile: {{ profile.luser.email }}</h3>
+<div class="content">
+  <h3>Profile: {{ profile.luser.email }}</h3>
 
-    <table>
-      <tr>
-        <td>Avatar</td>
-        <td><img src="{{ gravatar_url }}" /></td> 
-      </tr>
+  <table>
+    <tr>
+      <td>Avatar</td>
+      <td><img src="{{ gravatar_url }}" /></td> 
+    </tr>
 
-      <tr>
-        <td>First Name</td>
-        <td>{{ profile.first_name }}</td>
-      </tr>
+    <tr>
+      <td>First Name</td>
+      <td>{{ profile.first_name }}</td>
+    </tr>
 
-      <tr>
-        <td>Last Name</td>
-        <td>{{ profile.last_name }}</td>
-      </tr>
+    <tr>
+      <td>Last Name</td>
+      <td>{{ profile.last_name }}</td>
+    </tr>
 
-      <tr>
-        <td>Username</td>
-        <td>{{ profile.username }}</td>
-      </tr>
-    </table>
-  </div>
-{% include "foot.html" %}
+    <tr>
+      <td>Username</td>
+      <td>{{ profile.username }}</td>
+    </tr>
+  </table>
+</div>
