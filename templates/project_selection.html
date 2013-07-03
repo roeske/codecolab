@@ -30,7 +30,9 @@ $(function() {
     // this prevents it from looking bad while loading
     $(window).bind('resize', update_dimensions);
 
-    var last = null;
+    var last = $('.project_list_item').first();
+    last.addClass('active');
+    
     $(".project_list_item").click(function(ev) {
         if (last != null) {
           last.removeClass('active');
