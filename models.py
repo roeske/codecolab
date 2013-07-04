@@ -11,20 +11,17 @@ from urllib2 import quote
 from md5 import md5
 from uuid import uuid4
 
-from config import FORMATS
+from config import FORMATS, BASE_URL
 import os
 
 db = SQLAlchemy(app)
 
-DEFAULT_AVATAR_24 = "http://i.imgur.com/jDchbzz.png"
-DEFAULT_AVATAR_48 = "http://i.imgur.com/duCtaxm.png"
-DEFAULT_AVATAR_32 = DEFAULT_AVATAR_48 #"http://i.imgur.com/8K03AE9.png" 
-DEFAULT_AVATAR_64 = "http://i.imgur.com/51Xl2xS.png" 
-DEFAULT_AVATAR_96 = "http://i.imgur.com/rc2Uz0V.png"
-DEFAULT_AVATAR_128 = "http://i.imgur.com/ZzT4PyW.png"
-
-
-# Easily serialize to dict for json conversion # See: http://piotr.banaszkiewicz.org/blog/2012/06/30/serialize-sqlalchemy-results-into-json/
+DEFAULT_AVATAR_24 = "%sassets/avatar_24.png" % BASE_URL
+DEFAULT_AVATAR_32 = "%sassets/avatar_32.png" % BASE_URL
+DEFAULT_AVATAR_48 = "%sassets/avatar_48.png" % BASE_URL
+DEFAULT_AVATAR_64 = "%sassets/avatar_64.png" % BASE_URL
+DEFAULT_AVATAR_96 = "%sassets/avatar_96.png" % BASE_URL
+DEFAULT_AVATAR_128 = "%sassets/avatar_128.png" % BASE_URL
 
 from collections import OrderedDict
 

@@ -13,12 +13,13 @@
         ActivityFeed.prototype.piles                    = null;
         ActivityFeed.prototype.piles_width              = null;
         ActivityFeed.prototype.piles_expanded_width     = null;
-       
+        ActivityFeed.prototype.user_id                  = null;
+
         function ActivityFeed(options) { 
             // copy parameters
             _.extend(this, options);
+            this.list.data('_user_id', options.user_id);
 
-            // Reference external scope.
             var that = this;
 
             // setup toggling
@@ -61,6 +62,8 @@
             $(window).bind('resize', function() {
                 that.resize(); 
             });
+
+
         }
       
         ActivityFeed.prototype.resize = function() {
@@ -72,12 +75,30 @@
         };
 
         ActivityFeed.prototype._connect_activity_links = function() {
+            var user_id = $('#activity_list').data('_user_id');
+
             $("a.activity_card").each(function(i, elem) {
                 // TODO: Refactor
                 var obj = $(elem);
                 cc_connect_card_to_modal(obj.text(), this.project_name, 
                                          obj, true);
             });
+
+
+
+            $(".activity_username").click(function(e) {
+                e.preventDefault();
+                var url = $(this).attr("href");
+                var tokens = url.split("/");
+                
+                if (tokens[tokens.length - 1] == user_id) {
+                    show_profile_dialog(url);
+                } else {
+                    show_other_profile_dialog(url);
+                }
+                return false;
+            });
+
         };
 
         ActivityFeed.prototype.reload = function() {

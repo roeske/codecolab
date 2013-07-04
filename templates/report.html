@@ -8,7 +8,13 @@
   <div class="user_info_section">
     <img src="{{ report.luser.gravatar_url_48 }}"/>
     <div class="clear"></div>
-    <a href="/profiles/{{ report.luser._id }}" class="username">@{{ report.luser.profile.username }}</a>
+
+    {% if luser._id == report.luser._id %}
+      {% set mine = "" %}
+    {% else %}
+      {% set mine = "_notmine" %}
+    {% endif %}
+    <a class="profile_link{{mine}}" href="/profiles/{{ report.luser._id }}" class="username">@{{ report.luser.profile.username }}</a>
     <div class="clear"></div>
   </div>
 

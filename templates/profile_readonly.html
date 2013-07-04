@@ -1,25 +1,13 @@
-<div class="content">
-  <h3>Profile: {{ profile.luser.email }}</h3>
+<div>
+    <img style="float: left; margin-left: 7px; border: 1px solid #f0f0f0; box-shadow: 1px 1px 3px #aaa; padding: 7px;"
+    src="{{ profile.luser.gravatar_url }}" />
 
-  <table>
-    <tr>
-      <td>Avatar</td>
-      <td><img src="{{ gravatar_url }}" /></td> 
-    </tr>
-
-    <tr>
-      <td>First Name</td>
-      <td>{{ profile.first_name }}</td>
-    </tr>
-
-    <tr>
-      <td>Last Name</td>
-      <td>{{ profile.last_name }}</td>
-    </tr>
-
-    <tr>
-      <td>Username</td>
-      <td>{{ profile.username }}</td>
-    </tr>
-  </table>
+    <div style="float: left; margin-left: 7px;">
+      <ul style="font-size: 1.3em; list-style-type: none;  padding-left: 7px;">
+          <li style="line-height: 2em;">{{ profile.first_name }}</li>
+          <li style="line-height: 2em;">{{ profile.last_name }}</li>
+          <li style="line-height: 2em;">@{{ profile.username }}</li>
+      </ul>
+    </div>
+  <div class="clear"></div>
 </div>

@@ -10,7 +10,12 @@
     <div class="user_info">
       <img src="{{ comment.luser.tiny_gravatar_url }}" />
       <p class="username">
-         <a href="/profile/{{ comment.luser._id }}">@{{ comment.luser.profile.username }}</a>
+        {% if comment.luser._id == luser._id %}
+          {% set mine = "" %}
+        {% else %}
+          {% set mine = "_notmine" %}
+        {% endif %}
+        <a class="profile_link{{ mine }}" href="/profile/{{ comment.luser._id }}">@{{ comment.luser.profile.username }}</a>
       </p>
     </div>
 

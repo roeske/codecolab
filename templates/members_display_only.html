@@ -7,7 +7,7 @@
 
       <!-- username -->
       <div class="member_username_container">
-        <a href="/profile/{{ member._id }}">
+        <a class="profile_link{% if member._id != luser._id %}_notmine{%endif%}" href="/profile/{{ member._id }}">
 
           <img  style="box-shadow: 1px 1px 4px #aaa; padding: 7px;" src="{{ member.gravatar_url_96 }}" />
          

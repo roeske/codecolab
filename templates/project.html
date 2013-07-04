@@ -67,6 +67,7 @@
 <script src="/js/activity_feed.js"></script>
 <script>
 var activity_feed = new ActivityFeed({
+    user_id: "{{ luser._id }}",
     toggle_icon_show: require('.activity_toggle_icon.show'),
     toggle_icon_hide: require('.activity_toggle_icon.hide'),
     toggle: require('#activity_toggle'),
@@ -156,6 +157,10 @@ function delete_list(project_name, list_id, callback) {
 }
 
 
+$(function() {
+  var user_id = "{{ luser._id }}";
+  cc_connect_profile_links(".navbar ", user_id);
+});
 
 </script>
 <!-- END: JS -->

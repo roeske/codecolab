@@ -48,3 +48,12 @@ $(function() {
   });
 })
 </script>
+
+
+<script>
+$(function() {
+  var user_id = "{{ luser._id }}";
+  console.log("HIT!");
+  cc_connect_profile_links("", user_id);
+});
+</script>
