@@ -956,10 +956,21 @@ def card_select_milestone(project=None, card_id=None, **kwargs):
             methods=["POST"])
 @check_project_privileges
 def card_assign_to(project=None, card_id=None, **kwargs):
-    card = models.Card.query.filter_by(_id=card_id).first()
-    json = flask.request.json
+    # clear the existing assignments.
+    models.CardAssignments.query.filter_by(card_id=card_id).delete()
     
-    print "%r" % json
+    print '%r' % request.json
+
+    # update assignments.
+    assigned = request.json['assigned']
+    if assigned is not None:
+        for username in assigned:
+            luser = (models.Luser.query
+                .filter(models.LuserProfile.username==username)
+                .filter(models.Luser._id==models.LuserProfile._id).one())
+
+            assignment = models.CardAssignments(luser_id=luser._id, card_id=card_id)
+            models.db.session.add(assignment) 
     
     models.db.session.commit()
     return respond_with_json({ "status" : "success" })

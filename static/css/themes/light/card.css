@@ -23,23 +23,24 @@ div.card_top div {
 
 .ui-dialog > div form.milestone {
     float: left;
-    width: 31%;
+    width: 50%;
     height: 70px;
     padding: 0px 7px;
 }
 
 .ui-dialog > div div.difficulty_section {
     float: left;
-    width: 25%;
+    width: 40%;
     height: 70px;
     padding: 0px 7px;
 }
 
 .ui-dialog > div form.assign_to {
     float: left;
-    width: 31%;
+    width: 100%;
     height: 70px;
     padding: 0px 7px;
+    margin-bottom: 7px;
 }
 
 pre.description {

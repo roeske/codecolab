@@ -86,6 +86,9 @@
 
     </form>
 
+  </div>
+
+  <div class="clear"></div>
     <!-- Assign to user -->
     <form action="/project/{{ project_name }}/cards/{{ card._id }}/assign_to"
         method="POST" 
@@ -95,23 +98,12 @@
      
       <div class="styled-select">
         <select style="width: 90%;" id="select_assign_to" class="card_select" multiple>
-          <option data-card-id="{{ card._id }}" data-id="-1">None</option>
           {% for member in project.lusers %}
-            <option 
-              {% if member._id == card.assign_to_id %}
-                selected
-              {% endif %}
-              
-              data-card-id="{{ card.assign_to_id }}" 
-              data-id="{{ member._id }}">
-              
-              {{ member.profile.username }}
-            </option>
+            <option {% if member.is_assigned_to(card._id) %} selected {% endif %}>{{member.profile.username }}</option>
           {% endfor %}
         </select>
       </div>
     </form>
-  </div>
   <div class="clear"></div>
 
   <!-- [comments] -->

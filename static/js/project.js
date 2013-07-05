@@ -488,20 +488,36 @@ function cc_setup_editable_fields(project_name) {
 
 
 function cc_connect_milestone_spinner(mommy, card_id) {
-    return cc_connect_spinner("assign_to", mommy, card_id);
+    return cc_connect_spinner('milestone', mommy, card_id);
+}
+
+function cc_connect_assign_to_spinner(parent_elem, card_id) {
+    var form = parent_elem.find('form.assign_to');
+    form.find('select').select2().change(function() {
+        var assigned_users = $(this).val();
+
+        // Update the card with the newly chosen milestone id.
+        $.ajax({
+            type: 'POST',
+            url: form.attr('action'),
+            data: JSON.stringify({ assigned: assigned_users }),
+            success: console.log,
+
+            failure: function(data) {
+                alert("Failed to update assignment field.");
+            },
+                
+            contentType: "application/json;charset=UTF-8"
+        });
+    });
 }
 
 
-function cc_connect_assign_to_spinner(mommy, card_id) {
-    return cc_connect_spinner("milestone", mommy, card_id);
-}
-
-
-function cc_connect_spinner(clazz, mommy, card_id) {
-    var form = mommy.find("form." + clazz);
+function cc_connect_spinner(clazz, parent_elem, card_id) {
+    var form = parent_elem.find("form." + clazz);
 
     // Fire this function when the milestone spinner's value is changed.
-    mommy.find("form." + clazz + " select").change(function() {
+    parent_elem.find("form." + clazz + " select").change(function() {
 
         // Find the newly selected element
         var changed = $(this).find("option:selected");

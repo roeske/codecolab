@@ -120,6 +120,14 @@ class Luser(db.Model, DictSerializable):
                               order_by="MemberReport.created.desc()")
 
     schedules = db.relationship("MemberSchedule")
+    card_assignments = db.relationship("CardAssignments")
+
+
+    def is_assigned_to(self, card_id):
+        for assignment in self.card_assignments:
+            if card_id == assignment.card_id:
+                return True
+        return False
 
 
     @property
@@ -193,7 +201,7 @@ class LuserProfile(db.Model, DictSerializable):
     luser_id    = db.Column(db.Integer, db.ForeignKey(Luser._id), nullable=False) 
     first_name  = db.Column(db.String)
     last_name   = db.Column(db.String)
-    username    = db.Column(db.String, nullable=False)
+    username    = db.Column(db.String, nullable=False, unique=True)
     timezone    = db.Column(db.String, default="Zulu")
     theme       = db.Column(db.String, default="light")
     luser       = db.relationship("Luser")
@@ -521,12 +529,13 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     # to adjust the order of the list.
     number = db.Column(db.Integer, default=func.currval("card__id_seq"))
     created = db.Column(db.DateTime, default=func.now())
-
     comments = db.relationship("CardComment", order_by=lambda: CardComment.created)
     attachments = db.relationship("CardFile", order_by=lambda: CardFile.created.desc())
     milestone = db.relationship("Milestone")
     project = db.relationship("Project")
     pile = db.relationship("Pile")
+    assigned = db.relationship("CardAssignments")
+
 
     @property
     def title(self):
@@ -556,6 +565,17 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
         db.session.commit()
         
         return card
+
+
+class CardAssignments(db.Model):
+    __tablename__ = 'card_assignments'
+
+    _id = db.Column(db.Integer, primary_key=True, nullable=False)
+    luser_id = db.Column(db.Integer,db.ForeignKey(Luser._id), nullable=False)
+    card_id = db.Column(db.Integer, db.ForeignKey(Card._id), nullable=False)
+    
+    card = db.relationship("Card")
+    luser = db.relationship("Luser")
 
 
 class CardCompletions(db.Model):
