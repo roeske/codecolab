@@ -956,7 +956,13 @@ def card_select_milestone(project=None, card_id=None, **kwargs):
             methods=["POST"])
 @check_project_privileges
 def card_assign_to(project=None, card_id=None, **kwargs):
-    return card_set_attributes(project=project, card_id=card_id, **kwargs)   
+    card = models.Card.query.filter_by(_id=card_id).first()
+    json = flask.request.json
+    
+    print "%r" % json
+    
+    models.db.session.commit()
+    return respond_with_json({ "status" : "success" })
 
 
 @app.route("/project/<project_name>/cards/edit/<int:card_id>", methods=["POST"])

@@ -39,7 +39,6 @@ div.flashes h4 {
 .structural { list-style: none; }
 
 ul.structural.basic li input,
-ul.structural.basic li select,
 ul.structural.basic li label {
     width: 10em;
     margin: 1em;
