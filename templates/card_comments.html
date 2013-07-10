@@ -31,6 +31,9 @@ $(function() {
     success: function(response, status_code) {
       $("#comments_container_{{ card._id }}").html(response);
       $("#comment_form_{{ card._id }} textarea").val("");
+
+      $("#card_{{ card._id }}_comment_count").text(
+        Number($("#card_{{ card._id }}_comment_count").text()) + 1);
     },
   });
 });

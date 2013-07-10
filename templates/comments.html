@@ -11,7 +11,7 @@ $(function() {
     var comment_id = $(this).data("comment-id");
     var url = "{{ comment_delete_url }}" + comment_id;
 
-    var card_id = "{{ card._id }}";
+    var card_id = "{{ card_id }}";
     $.post(url, function(data) {
      $("#comment_" + comment_id).remove();
 

@@ -53,6 +53,10 @@
           $.post(url, function(data) {
               $("#attachment_" + attachment_id).fadeOut("fast", function() {
                   $(this).remove();
+
+                  $("#card_{{ card._id }}_attachment_count").text(
+                    Number($("#card_{{ card._id }}_attachment_count").text()) 
+                    - 1);
               });
           });
       } 
