@@ -748,7 +748,7 @@ def render_card(template, **kwargs):
 
 @app.route("/project/<project_name>/cards/<int:card_id>/attachments", methods=["POST"])
 @check_project_privileges
-def card_get_attachments(project=None, card_id=None, luser=None, **kwargs):
+def card_get_attachments(card_id=None, luser=None, **kwargs):
     """
     Called via ajax to refresh attachments after an attachment is added.
     """
