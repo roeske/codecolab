@@ -10,8 +10,14 @@ $(function() {
   $(".mini_icon.delete").click(function() {
     var comment_id = $(this).data("comment-id");
     var url = "{{ comment_delete_url }}" + comment_id;
+
+    var card_id = "{{ card._id }}";
     $.post(url, function(data) {
      $("#comment_" + comment_id).remove();
+
+     alert(card_id);
+     $("#card_"+card_id+"_comment_count").text(
+      Number($("#card_"+card_id+"_comment_count").text()) - 1);
     })
      
     return false;
@@ -20,6 +26,7 @@ $(function() {
   $(".editable_comment").each(function(i, value) {
     var comment_id = $(value).data('comment-id');
     var url = "{{ comment_edit_url }}" + comment_id;
+
     console.log("url="+url);
 
     $(value).editable(url, {
@@ -45,6 +52,7 @@ $(function() {
     var editable = $(selector);
     editable.trigger("clickEdit");
     editable.removeClass("quoted");
+
   });
 })
 </script>

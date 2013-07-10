@@ -1,7 +1,6 @@
 String.prototype.endsWith = function(suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
-};
-
+}; 
 function recalculate_container_width() {
   var total_width = 0;
   $(".pile_container").each(function(i, elem) {

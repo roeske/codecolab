@@ -31,8 +31,12 @@
   <div class="clear"></div>
   
   <div style="float: right;" class="counts">
-    <span class="icon attachment_count">A:</span><span class="attachment_count_no">{{ card.attachment_count}}&nbsp;</span>
-    <span class="icon comment_count">C:</span><span class="comment_count_no">{{ card.comment_count }}</span>
+    <span  class="icon attachment_count">A:</span><span 
+    id="card_{{ card._id }}_attachment_count"
+    class="attachment_count_no">{{ card.attachment_count}}&nbsp;</span>
+    <span class="icon comment_count">C:</span><span 
+    id="card_{{ card._id }}_comment_count" 
+    class="comment_count_no">{{ card.comment_count }}</span>
   </div>
   
   <div class="clear"></div>
