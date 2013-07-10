@@ -515,6 +515,8 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     __tablename__ = "card"
 
     _id             = db.Column(db.Integer, primary_key=True)
+    comment_count   = db.Column(db.Integer)
+    attachment_count = db.Column(db.Integer)
     project_id      = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False)
     pile_id         = db.Column(db.Integer, db.ForeignKey(Pile._id))
     milestone_id    = db.Column(db.Integer, db.ForeignKey(Milestone._id))

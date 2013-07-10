@@ -10,9 +10,6 @@
   </div>
   <div class="clear"></div>
 
-  <p>{{ card.attachment_count }}</p>
-  <p>{{ card.comment_count }}</p>
-
   <!-- card text -->
   <p>
   <span class="card text" data-id="{{ card._id }}">
@@ -31,6 +28,14 @@
     minicard difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}">
   </div>
 
+  <div class="clear"></div>
+  
+  <div style="float: right;" class="counts">
+    <span class="icon attachment_count">A:</span><span class="attachment_count_no">{{ card.attachment_count}}&nbsp;</span>
+    <span class="icon comment_count">C:</span><span class="comment_count_no">{{ card.comment_count }}</span>
+  </div>
+  
+  <div class="clear"></div>
 
   <div class="milestone" style="float: right; {% if card.milestone == None %} display: none; {% endif %}">
     {% if card.milestone.is_approved %}
