@@ -116,6 +116,9 @@
                         console.log(data);
                         jQuery(that.attachments_selector).replaceWith(data);
                     });
+
+                  var selector = "#card_" + that.card_id + "_attachment_count";
+                  $(selector).text(Number($(selector).text()) + 1);
                 },
                 failure: function(data) {
                     alert("Failed to refresh attachments. Please reload the page.");
