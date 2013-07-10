@@ -807,7 +807,7 @@ def cards_comment(project_name=None, luser=None, project=None, card_id=None,
         luser.profile.username, comment.text, comment.card.text)
 
     return flask.render_template("comments.html", 
-                comments=comments, luser=luser,
+                card_id=card_id, comments=comments, luser=luser,
                 comment_delete_url=comment_delete_url,
                 comment_edit_url=comment_edit_url)
 
