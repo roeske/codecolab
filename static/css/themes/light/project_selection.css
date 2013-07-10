@@ -89,10 +89,10 @@ ul#project li {
 
 html, body { height: 100%; overflow-y: hidden; }
 body {
-    background-image: -moz-linear-gradient(270deg, #e2e2e2 0%, #e9e9e9 11%, #f0f0f0 27%, #ffffff 48%, #f3f3f3 80%, #e1e1e1 91%, #ececec 100%);
-    background-image: -webkit-linear-gradient(270deg, #e2e2e2 0%, #e9e9e9 11%, #f0f0f0 27%, #ffffff 48%, #f3f3f3 80%, #e1e1e1 91%, #ececec 100%);
-    background-image: -o-linear-gradient(270deg, #e2e2e2 0%, #e9e9e9 11%, #f0f0f0 27%, #ffffff 48%, #f3f3f3 80%, #e1e1e1 91%, #ececec 100%);
-    background-image: linear-gradient(180deg, #e2e2e2 0%, #e9e9e9 11%, #f0f0f0 27%, #ffffff 48%, #f3f3f3 80%, #e1e1e1 91%, #ececec 100%);
+    background-image: -moz-linear-gradient(270deg, #e2e2e2 0%, #e1e1e1 91%, #ececec 100%);
+    background-image: -webkit-linear-gradient(270deg, #e2e2e2 0%, #e1e1e1 91%, #ececec 100%);
+    background-image: -o-linear-gradient(270deg, #e2e2e2 0%, #e1e1e1 91%, #ececec 100%);
+    background-image: linear-gradient(180deg, #e2e2e2 0%, #e1e1e1 91%, #ececec 100%);
     background-repeat: no-repeat;
 }
 
