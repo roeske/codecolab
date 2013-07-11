@@ -12,6 +12,7 @@ function recalculate_container_width() {
       total_width += inc;
       console.log(inc);
   });
+  total_width += 2;
   console.log("total_width="+total_width);
 
   // Now set the inner #pile_list width to the total width
