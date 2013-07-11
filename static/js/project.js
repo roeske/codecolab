@@ -5,8 +5,13 @@ function recalculate_container_width() {
   var total_width = 0;
   $(".pile_container").each(function(i, elem) {
       total_width += $(elem).width();
+      var inc = parseInt($(elem).css('margin-left'), 10);
+      total_width += inc;
+      console.log(inc);
+      inc = parseInt($(elem).css('margin-right'), 10);
+      total_width += inc;
+      console.log(inc);
   });
-  total_width += 100;
   console.log("total_width="+total_width);
 
   // Now set the inner #pile_list width to the total width

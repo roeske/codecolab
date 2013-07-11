@@ -12,7 +12,6 @@ ul.comments {
 
 ul.comments li {
     margin: 0;
-    border-radius: 2px;
 }
 
 ul.comments li p.text {
@@ -78,7 +77,6 @@ a.mini_icon :active {
 }
 
 .comment {
-    border-radius: 5px;
     padding-bottom: 7px;
     box-shadow: 1px 1px 7px #aaa;
     padding: 7px 7px 0px;
