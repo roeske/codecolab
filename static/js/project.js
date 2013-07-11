@@ -405,6 +405,11 @@ function cc_make_card_sorter(selector) {
     };
 
     var that = {
+        start: function(e, ui) {
+            var placeholder_height = ui.item.height() + 3;
+            ui.placeholder.height(placeholder_height);
+        },
+
         delay: 100,
         distance: 10,
         revert: "invalid",
