@@ -412,7 +412,7 @@ function cc_make_card_sorter(selector) {
 
     var that = {
         start: function(e, ui) {
-            var placeholder_height = ui.item.height() + 3;
+            var placeholder_height = ui.item.height() + 2;
             ui.placeholder.height(placeholder_height);
         },
 
