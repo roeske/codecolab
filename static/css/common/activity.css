@@ -4,13 +4,6 @@ a.activity_card {
     font-weight: bold;
 }
 
-a.activity_card:before {
-    content: "\"";
-}
-a.activity_card:after {
-    content: "\"";
-}
-
 #activity_toggle { 
     height: 100%; 
     float: left; 
@@ -25,8 +18,18 @@ a.activity_card:after {
 }
 
 #activity_list { 
-    padding-left: .5em;
-    padding-right: .5em; 
+}
+
+.activity_list_item {
+    padding: 7px;
+    border-bottom: 1px solid #ccc;
+}
+
+.activity_loading {
+    background: #aaa;
+    color: #f0f0f0;
+    font-size: 1.3em;
+    padding: 7px;
 }
 
 .activity_toggle_icon {

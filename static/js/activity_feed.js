@@ -54,10 +54,11 @@
             this.list.jscroll({ 
                 nextSelector: '.activity_paginator',
                 callback: this._connect_activity_links,
+                loadingHtml: '<p class="activity_loading">Loading...</p>'
             });
 
             // keep activity section height up to date based on window
-            // size.
+            // size
             // 
             $(window).bind('resize', function() {
                 that.resize(); 
@@ -68,7 +69,7 @@
       
         ActivityFeed.prototype.resize = function() {
             var title_height = this.list_container.closest("h4").height();
-            this.height = this.piles.height() - title_height - 37;
+            this.height = this.piles.height() - title_height - 33;
             this.width = this.list.width();
             this.list.height(this.height);
             this.list.css('overflow-y', 'scroll');

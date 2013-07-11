@@ -115,12 +115,10 @@ table th, table tr td {
 }
  
 ::-webkit-scrollbar-track {
-    border-radius: 3px;
     background-color: #ccc;
 }
  
 ::-webkit-scrollbar-thumb {
-    border-radius: 3px;
     background-color: #999;
 }
 
