@@ -16,15 +16,14 @@ import os
 
 db = SQLAlchemy(app)
 
-DEFAULT_AVATAR_24 = "%sassets/avatar_24.png" % BASE_URL
-DEFAULT_AVATAR_32 = "%sassets/avatar_32.png" % BASE_URL
-DEFAULT_AVATAR_48 = "%sassets/avatar_48.png" % BASE_URL
-DEFAULT_AVATAR_64 = "%sassets/avatar_64.png" % BASE_URL
-DEFAULT_AVATAR_96 = "%sassets/avatar_96.png" % BASE_URL
-DEFAULT_AVATAR_128 = "%sassets/avatar_128.png" % BASE_URL
+DEFAULT_AVATAR_24 = "%sassets/lolvatar_24.png" % BASE_URL
+DEFAULT_AVATAR_32 = "%sassets/lolvatar_32.png" % BASE_URL
+DEFAULT_AVATAR_48 = "%sassets/lolvatar_48.png" % BASE_URL
+DEFAULT_AVATAR_64 = "%sassets/lolvatar_64.png" % BASE_URL
+DEFAULT_AVATAR_96 = "%sassets/lolvatar_96.png" % BASE_URL
+DEFAULT_AVATAR_128 = "%sassets/lolvatar_128.png" % BASE_URL
 
-from collections import OrderedDict
-
+from collections import OrderedDict 
 class DictSerializable(object):
     """
     Packs the model into a dict so it can easily be serialized to 
