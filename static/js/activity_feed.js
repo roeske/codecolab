@@ -54,7 +54,7 @@
             this.list.jscroll({ 
                 nextSelector: '.activity_paginator',
                 callback: this._connect_activity_links,
-                loadingHtml: '<p class="activity_loading">Loading...</p>'
+                loadingHtml: '<p class="activity_loading">Loading...<img src="/assets/loading.gif" height="24px" width="24px" style="float: right;"></img></p>'
             });
 
             // keep activity section height up to date based on window

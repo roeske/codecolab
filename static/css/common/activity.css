@@ -20,16 +20,10 @@ a.activity_card {
 #activity_list { 
 }
 
-.activity_list_item {
+.activity_list_item, .activity_loading {
+    margin: 7px;
     padding: 7px;
-    border-bottom: 1px solid #ccc;
-}
-
-.activity_loading {
-    background: #aaa;
-    color: #f0f0f0;
-    font-size: 1.3em;
-    padding: 7px;
+    box-shadow: 1px 1px 5px #aaa;
 }
 
 .activity_toggle_icon {
