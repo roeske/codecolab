@@ -674,17 +674,17 @@ function cc_connect_card_to_modal(title, project_name, elem, is_link) {
 
     var options = {
         dialogClass: "card_modal",
-
+/*
         show: {
             effect: "blind",
-            duration: 500
+            duration: 100,
         },
 
         hide: {
             effect: "blind",
-            duration: 500
+            duration: 100
         },
-
+*/
         close: function() {
             // When the modal dialog is closed, completely remove it from the
             // DOM so that it is reloaded next time with fresh state. 
