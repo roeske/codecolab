@@ -10,7 +10,9 @@
           <th> Restore </th>
           <th> Delete </th>
         </tr>
-        {% for card in project.cards %}
+        {% for card in project.archived_cards %}
+          <!-- this is still required, the archived_cards relationship just
+               changes the sort order -->
           {% if card.is_archived %}
             <tr data-id="{{ card._id }}">
               <td class="wrap">

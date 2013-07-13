@@ -666,6 +666,7 @@ def list_delete(list_id=None, luser=None, **kwargs):
     cards = models.Card.query.filter_by(pile_id=list_id).all()
     for card in cards:
         card.is_archived = True
+        card.archived_at = datetime.utcnow()
 
 
     pile = models.Pile.query.filter_by(_id=list_id).first()

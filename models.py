@@ -248,6 +248,9 @@ class Project(db.Model, DictSerializable):
     plusers     = db.relationship("ProjectLuser")
 
     cards       = db.relationship("Card", order_by=lambda: Card.number.desc())
+
+    archived_cards = db.relationship("Card", order_by=lambda: Card.archived_at.desc())
+
     piles       = db.relationship("Pile", order_by=lambda: Pile.number)    
     members     = db.relationship("ProjectLuser")
     activity    = db.relationship("Activity", order_by=lambda: Activity.created.desc())
@@ -521,6 +524,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     milestone_id    = db.Column(db.Integer, db.ForeignKey(Milestone._id))
     assign_to_id    = db.Column(db.Integer, db.ForeignKey(Luser._id))
     is_archived     = db.Column(db.Boolean, default=False)
+    archived_at     = db.Column(db.DateTime)
     text            = db.Column(db.String)
     score           = db.Column(db.Integer, default=DIFFICULTY_SCORE_NONE)
     description     = db.Column(db.String, default="Please enter a description...")
