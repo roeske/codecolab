@@ -1,5 +1,10 @@
 {% if reports|length == 0 %} 
   <h4 style="width: 100%; text-align: center;">No Results</h4>
+  <script type="text/javascript">
+    $(".reports_accordion").css('display', 'table-cell')
+                           .css('vertical-align', 'middle')
+                           .css('text-align', 'center');
+  </script>
 {% else %}
 
   {% for report in reports %}
