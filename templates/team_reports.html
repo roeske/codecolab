@@ -2,6 +2,14 @@
   <h4>Team Reports</h4>
   <br />
 
+  <div style="background-color: #ccc; padding: 7px; margin-bottom: 7px;">
+    <form id="report_search" action="/project/{{ project.name }}/team_reports">
+      <input style="margin-top: 1px; margin-left: 7px;; float: right;" type="submit" name="submit" value="search"  class="btn" />
+      <input style="float: right;" type="text" name="text" id="report_search_text" placeholder="enter query" />
+      <div class="clear"></div>
+    </form>
+  </div>
+
   <div class="reports_accordion">
     {% include "team_reports_loop.html" %}
   </div>

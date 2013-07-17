@@ -43,6 +43,7 @@ function show_other_profile_dialog(url) {
 }
 
 function cc_connect_profile_links(prefix, user_id) {
+    $('.profile_link').unbind('click');
     $(".profile_link").click(function(e) {
         var url = $(this).attr("href");
         show_profile_dialog(url);
@@ -50,6 +51,7 @@ function cc_connect_profile_links(prefix, user_id) {
     });
 
 
+    $('.profile_link_notmine').unbind('click');
     $(".profile_link_notmine").click(function(e) {
         var url = $(this).attr("href");
         show_other_profile_dialog(url);

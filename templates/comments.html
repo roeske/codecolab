@@ -15,7 +15,6 @@ $(function() {
     $.post(url, function(data) {
      $("#comment_" + comment_id).remove();
 
-     alert(card_id);
      $("#card_"+card_id+"_comment_count").text(
       Number($("#card_"+card_id+"_comment_count").text()) - 1);
     })

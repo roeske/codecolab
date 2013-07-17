@@ -15,9 +15,21 @@
         ReportsPage.prototype.tab_team_reports = null;
         ReportsPage.prototype.reports_accordion = null;
         ReportsPage.prototype.report_edit_url = null;
+        ReportsPage.prototype.search_form = null;
 
         function ReportsPage(options) { 
+            // Reference outer scope.
+            var that = this;
+
             this.report_edit_url = options.report_edit_url;
+
+            // Reference search:
+            this.search_form = require("form#report_search");
+            this.search_form.ajaxForm({
+                success: function(data) {
+                    $('div.reports_accordion').html(data);
+                }
+            });
 
             // Reference sections.
             this.section_create_report = require(".section_create_report"); 
@@ -28,9 +40,9 @@
             this.tab_team_reports = require("#tab_team_reports");
             this.reports_accordion = require(".reports_accordion");
 
-            // Reference outer scope.
-            var that = this;
 
+            /* disable jscroll for now
+             *
             var setup = function(elem, is_first) {
                 // Setup accordion
                 if (!is_first) {
@@ -47,6 +59,7 @@
                 });
             };
             setup(this.reports_accordion, true);
+            */
 
             // If the team reports tab is clicked, but the section is not
             // already shown, show it.

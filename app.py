@@ -1750,7 +1750,12 @@ def team_reports(luser=None, project=None, **kwargs):
     has_next = total > end
     next_page = page + 1
 
+    comment_delete_url = "/project/%s/report-comments/delete/" % project.name
+    comment_edit_url = "/project/%s/report-comments/edit/" % project.name
+
     return flask.render_template("team_reports_loop.html", reports=reports,
+                                 comment_delete_url=comment_delete_url,
+                                 comment_edit_url=comment_edit_url,
                                  has_next=has_next, next_page=next_page,
                                  project=project, luser=luser,**kwargs)
 
