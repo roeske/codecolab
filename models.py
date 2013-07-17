@@ -344,7 +344,7 @@ class MemberReport(db.Model, DictSerializable, FluxCapacitor):
     
     luser_id            = db.Column(db.Integer, db.ForeignKey(Luser._id))
     project_id          = db.Column(db.Integer, db.ForeignKey(Project._id))
-
+    username            = db.Column(db.String)
     subject             = db.Column(db.String, default="No Subject")
     text                = db.Column(db.String)
     report_date         = db.Column(db.DateTime, default=func.now(), nullable=False)

@@ -20,7 +20,7 @@ from flask import request
 from flaskext import uploads
 from flaskext.markdown import Markdown
 from functools import wraps
-from sqlalchemy import and_
+from sqlalchemy import and_, func, or_
 from md5 import md5 
 from pidgey import Mailer 
 from datetime import datetime, timedelta
@@ -1695,7 +1695,9 @@ def member_reports(luser=None, project=None, **kwargs):
         subject = request.form["subject"]
 
         report = models.MemberReport(text=text, subject=subject,
-                                     luser_id=luser._id, project_id=project._id)
+                                     username=luser.profile.username,
+                                     luser_id=luser._id, 
+                                     project_id=project._id)
         models.db.session.add(report)
         models.db.session.commit()
 
@@ -1718,17 +1720,32 @@ def member_reports(luser=None, project=None, **kwargs):
                               next_page=1, **kwargs)
 
 
+
 @app.route("/project/<project_name>/team_reports")
 @check_project_privileges
 def team_reports(luser=None, project=None, **kwargs):
     page = int(request.args.get('page', 0))
     start = page * REPORTS_PER_PAGE 
     end = start + REPORTS_PER_PAGE 
-
+    text = request.args.get('text', None)
     total = models.MemberReport.query.count()
-    reports = (models.MemberReport.query.filter_by(project_id=project._id)
-                      .order_by(models.MemberReport.created.desc())
-                      .offset(start).limit(end).all())
+
+    q = models.MemberReport.query.filter_by(project_id=project._id)
+    if text is not None:
+        tokens = text.lower().split(' ')
+        
+        # For the full text search, check that each token is present
+        # in any of the 3 fields.
+        for token in tokens:
+            q = q.filter(or_(
+                    func.lower(models.MemberReport.text).contains(token),
+                    func.lower(models.MemberReport.subject).contains(token),
+                    func.lower(models.MemberReport.username).contains(token)))
+
+    q = q.order_by(models.MemberReport.created.desc())
+    q = q.offset(start).limit(end)
+
+    reports = q.all()
 
     has_next = total > end
     next_page = page + 1
