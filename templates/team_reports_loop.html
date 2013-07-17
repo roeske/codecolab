@@ -1,7 +1,13 @@
-{% for report in reports %}
-    {% include "report.html" %}
-{% endfor %}
+{% if reports|length == 0 %} 
+  <h4 style="width: 100%; text-align: center;">No Results</h4>
+{% else %}
 
-{% if has_next %}
-  <a class="reports_paginator" href="/project/{{ project.name }}/team_reports?page={{ next_page }}"></a>
+  {% for report in reports %}
+      {% include "report.html" %}
+  {% endfor %}
+
+  {% if has_next %}
+    <a class="reports_paginator" href="/project/{{ project.name }}/team_reports?page={{ next_page }}"></a>
+  {% endif %}
+
 {% endif %}
