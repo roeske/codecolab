@@ -1719,6 +1719,23 @@ def member_reports(luser=None, project=None, **kwargs):
                               comment_edit_url=comment_edit_url,
                               next_page=1, **kwargs)
 
+def dump_query(query):
+    from sqlalchemy.sql import compiler
+
+    from psycopg2.extensions import adapt as sqlescape
+    # or use the appropiate escape function from your db driver
+
+    dialect = query.session.bind.dialect
+    statement = query.statement
+    comp = compiler.SQLCompiler(dialect, statement)
+    comp.compile()
+    enc = dialect.encoding
+    params = {}
+    for k,v in comp.params.iteritems():
+        if isinstance(v, unicode):
+            v = v.encode(enc)
+        params[k] = sqlescape(v)
+    return (comp.string.encode(enc) % params).decode(enc)
 
 
 @app.route("/project/<project_name>/team_reports")
@@ -1727,21 +1744,16 @@ def team_reports(luser=None, project=None, **kwargs):
     page = int(request.args.get('page', 0))
     start = page * REPORTS_PER_PAGE 
     end = start + REPORTS_PER_PAGE 
-    text = request.args.get('text', None)
+    terms = request.args.get('text', None)
     total = models.MemberReport.query.count()
 
     q = models.MemberReport.query.filter_by(project_id=project._id)
-    if text is not None:
-        tokens = text.lower().split(' ')
-        
-        # For the full text search, check that each token is present
-        # in any of the 3 fields.
-        for token in tokens:
-            q = q.filter(or_(
-                    func.lower(models.MemberReport.text).contains(token),
-                    func.lower(models.MemberReport.subject).contains(token),
-                    func.lower(models.MemberReport.username).contains(token)))
 
+    # optionally filter by search terms using full-text index.
+    if terms is not None and terms.strip() != '':
+        q = q.filter('member_report.textsearchable_index_col @@ '
+                     'to_tsquery(:terms)').params(terms=terms)
+    
     q = q.order_by(models.MemberReport.created.desc())
     q = q.offset(start).limit(end)
 
