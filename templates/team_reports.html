@@ -4,8 +4,30 @@
 
   <div style="background-color: #ccc; padding: 7px; margin-bottom: 7px;">
     <form id="report_search" action="/project/{{ project.name }}/team_reports">
-      <input style="margin-top: 1px; margin-left: 7px;; float: right;" type="submit" name="submit" value="search"  class="btn" />
-      <input style="float: right;" type="text" name="text" id="report_search_text" placeholder="enter query" />
+      <div style="float: right;">
+        <div class="clear"></div>
+        <div style="float: left; margin-right: 7px;">
+          <select style="min-width: 100px; margin-top: 4px;" name="type" id="select_criteria">
+            <option value="full_text">Search</option>
+            <option value="tag">Tag</option>
+            <option value="reporter">Reporter</option>
+            <option value="date_range">Date Range</option>
+          </select>
+        </div>
+        <input style="float: left;" type="text" name="q" id="q" placeholder="Enter Search..." />
+
+        <div style="float: left;" id="datepickers">
+          <div style="float: left;">
+            <input disabled placeholder="Start Date" style=" margin-bottom: 3px;width: 100px; " type="text" name="start_date" id="start_date"/>
+          </div>
+
+          <div style="float: left;">
+            <input disabled placeholder="End Date" style="width: 100px; float: left;" type="text" name="end_date" id="end_date"/>
+          </div>
+        </div>
+
+        <input style="margin-top: 1px; margin-left: 7px; float: left;" type="submit" name="submit" value="search" class="btn" />
+      </div>
       <div class="clear"></div>
     </form>
   </div>
@@ -13,4 +35,39 @@
   <div class="reports_accordion">
     {% include "team_reports_loop.html" %}
   </div>
+
+  <script>
+$(function() {
+    $('#datepickers').hide();
+
+    var options = {
+      showOn: 'both',
+      buttonImage: '/assets/calendar.gif',
+    };
+
+    $('#start_date').datepicker(options);
+    $('#end_date').datepicker(options);
+      
+    $("#select_criteria").select2().change(function(ev) {
+        var selection = $(this).val();
+
+        if (selection == 'date_range') {
+            $('#datepickers').show();
+            $('#start_date').prop('disabled', false);
+            $('#end_date').prop('disabled', false);
+            $('#q').hide().prop('disabled', true);
+        } else {
+            $('#datepickers').hide();
+            $('#start_date').prop('disabled', true);
+            $('#end_date').prop('disabled', true);
+            var hint = 'Enter ' + $(this).find(':selected').text() + '...';
+            $('#q').show().prop('disabled', false).attr('placeholder', hint);
+        }
+
+
+    });
+
+    $('button').first().css('margin-right', '7px');
+});
+  </script>
 </div>

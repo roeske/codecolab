@@ -26,6 +26,7 @@ from pidgey import Mailer
 from datetime import datetime, timedelta
 from pytz import timezone
 from oauth2client.client import flow_from_clientsecrets
+from dateutil import parser as date_parser
 
 from config import *
 from helpers import (make_gravatar_url, make_gravatar_profile_url,
@@ -826,7 +827,6 @@ def report_edit(report_id, luser=None, **kwargs):
 
         resp = flask.render_template_string("{{ text|markdown }}",
                                             text=report.text)
-        print resp
         return resp
     else:
         return report.text
@@ -1744,19 +1744,45 @@ def team_reports(luser=None, project=None, **kwargs):
     page = int(request.args.get('page', 0))
     start = page * REPORTS_PER_PAGE 
     end = start + REPORTS_PER_PAGE 
-    terms = request.args.get('text', None)
+
+    terms = request.args.get('q', None)
+    search_type = request.args.get('type', None)
+
     total = models.MemberReport.query.count()
 
     q = models.MemberReport.query.filter_by(project_id=project._id)
 
     # optionally filter by search terms using full-text index.
     if terms is not None and terms.strip() != '':
-        q = q.filter('member_report.textsearchable_index_col @@ '
-                     'to_tsquery(:terms)').params(terms=terms)
-    
+
+        if search_type == 'full_text':
+            q = q.filter('member_report.textsearchable_index_col @@ '
+                         'to_tsquery(:terms)').params(terms=terms)
+
+        elif search_type == 'tag':
+            terms = terms.strip().lower()
+            q = (q.filter(func.lower(models.Tag.name)==terms)
+                  .filter(models.ReportTag.tag_id==models.Tag._id)
+                  .filter(models.MemberReport._id==models.ReportTag.report_id))
+
+        elif search_type == 'reporter':
+            terms = terms.strip().lower()
+            q = q.filter(func.lower(models.MemberReport.username)==terms)
+
+    elif search_type == 'date_range':
+        start_date = request.args.get('start_date', None)
+        end_date = request.args.get('end_date', None)
+
+        if start_date is not None and start_date.strip() != '':
+            start_date = date_parser.parse(start_date)
+            q = q.filter(models.MemberReport.created >= start_date)
+
+        if end_date is not None and end_date.strip() != '':
+            end_date = date_parser.parse(end_date)
+            q = q.filter(models.MemberReport.created <= end_date)
+         
     q = q.order_by(models.MemberReport.created.desc())
     q = q.offset(start).limit(end)
-
     reports = q.all()
 
     has_next = total > end

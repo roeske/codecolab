@@ -26,5 +26,13 @@
 {{ report.text | markdown }}
   </div>
 
+  <br />
+  <div class="tags">
+    TAGS (test impl):
+    {% for report_tag in report.tags %}
+      {{ report_tag.tag.name }} 
+    {% endfor %}
+  </div>
+
   {% include "report_comments.html" %}
 </div>

@@ -29,7 +29,6 @@ class Mailer(object):
 
         self.host = host
         self.port = port
-        self.smtp = smtplib.SMTP(host, port)
         self.username = username
         self.password = password
         self.starttls = starttls
@@ -50,6 +49,7 @@ class Mailer(object):
         # Note, not "" evaluates to the same as not False,
         # so we must use False == False or "" == False.
         if os.getenv(self.debug_env, False) == False:
+            self.smtp = smtplib.SMTP(self.host, self.port)
             print "sending email..."
             msg = self._make_message(to_addr, from_addr, subject, text, html)
             self._send_msg(from_addr, to_addr, msg)

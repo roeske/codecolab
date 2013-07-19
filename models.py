@@ -1,6 +1,7 @@
 from context import app
 from sqlalchemy import func
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.schema import UniqueConstraint
 from flask.ext.sqlalchemy import SQLAlchemy
 
 from datetime import datetime, timedelta, time
@@ -354,6 +355,8 @@ class MemberReport(db.Model, DictSerializable, FluxCapacitor):
     luser               = db.relationship("Luser")
     project             = db.relationship("Project")
 
+    tags                = db.relationship('ReportTag')
+
     comments = db.relationship("ReportComment", 
                                 order_by="ReportComment.created.desc()")
 
@@ -364,6 +367,29 @@ class MemberReport(db.Model, DictSerializable, FluxCapacitor):
     def describe_with_time(self, tz):
         timestamp = self.timestamp(tz)
         return '"%s" on %s' % (self.subject, timestamp)
+
+
+class Tag(db.Model):
+    
+    __tablename__ = "tag"
+
+    _id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, unique=True, nullable=False)
+
+
+class ReportTag(db.Model):
+
+    __tablename__ = "report_tag"
+    
+    _id = db.Column(db.Integer, primary_key=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey(Tag._id), nullable=False)
+    report_id = db.Column(db.Integer, db.ForeignKey(MemberReport._id),
+                          nullable=False)
+    
+    tag = db.relationship('Tag')
+
+    __table_args__ = (UniqueConstraint('tag_id', 'report_id', 
+                        name='_report_tag_uc'), )
 
 
 class Milestone(db.Model, DictSerializable):

@@ -15,28 +15,48 @@ CREATE INDEX textsearch_idx ON member_report USING gin(textsearchable_index_col)
 DROP TRIGGER update_report_textsearch_after_comment_change ON report_comment;
 DROP TRIGGER update_report_textsearch_after_report_change ON member_report;
 
--- performs the update.
+-- fill the new columns with indexing data, to include:
+--
+--    username of reporter
+--    subject of report
+--    text of report
+--    text of report comments
 CREATE OR REPLACE FUNCTION update_report_textsearch(report_id int) 
 RETURNS SETOF RECORD AS $$
 BEGIN
-    UPDATE 
-        member_report mr 
+    UPDATE member_report mr 
     SET 
         textsearchable_index_col = to_tsvector('english', 
-            coalesce(username, ' ') || 
-            coalesce(text, ' ') || 
-            coalesce (subject, ' ') || 
-            coalesce((SELECT 
-                        textcat_all(coalesce(text, ' ')) 
-                      FROM 
-                        report_comment rc 
-                      WHERE
-                        rc.report_id = mr._id), ' '))
+
+        -- add basic fields to full-text index
+        coalesce(username, ' ') || ' ' ||
+        coalesce(text, ' ') || ' ' ||
+        coalesce(subject, ' ') ||  ' ' ||
+
+        -- add comments to full-text index
+        coalesce((SELECT 
+                    textcat_all(text || ' ') 
+                  FROM 
+                    report_comment rc 
+                  WHERE
+                    rc.report_id = mr._id), ' ') || '' ||
+
+        -- add tags to full text index
+        coalesce((SELECT
+                    textcat_all(t.name || ' ')
+                  FROM
+                    report_tag rt, tag t
+                  WHERE
+                    rt.report_id = mr._id 
+                  AND
+                    rt.tag_id = t._id), ' ') || ' ')
+
     WHERE
         mr._id = report_id;
     RETURN;
 END
 $$ LANGUAGE plpgsql;
+
 
 -- create trigger to keep index updated.
 CREATE OR REPLACE FUNCTION tg_update_report_textsearch() RETURNS TRIGGER AS $$
@@ -73,32 +93,12 @@ CREATE OR REPLACE FUNCTION tg_update_report_textsearch() RETURNS TRIGGER AS $$
 $$ LANGUAGE plpgsql;
 
 
--- fill the new columns with indexing data, to include:
---
---    username of reporter
---    subject of report
---    text of report
---    text of report comments
-UPDATE 
-    member_report mr 
-SET 
-    textsearchable_index_col = to_tsvector('english', 
-        coalesce(username, ' ') || 
-        coalesce(text, ' ') || 
-        coalesce (subject, ' ') || 
-        coalesce((SELECT 
-                    textcat_all(coalesce(text, ' ')) 
-                  FROM 
-                    report_comment rc 
-                  WHERE
-                    rc.report_id = mr._id), ' ')); 
-
-
 CREATE TRIGGER update_report_textsearch_after_comment_change
     AFTER DELETE OR INSERT OR UPDATE ON report_comment
     FOR EACH ROW EXECUTE PROCEDURE tg_update_report_textsearch('report_comment');
 
-
 CREATE TRIGGER update_report_textsearch_after_report_change
     AFTER UPDATE ON member_report
     FOR EACH ROW EXECUTE PROCEDURE tg_update_report_textsearch('member_report');
+
+SELECT update_report_textsearch(_id) from member_report;
