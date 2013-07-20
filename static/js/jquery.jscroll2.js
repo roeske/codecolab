@@ -29,7 +29,6 @@
 
     // Constructor
     var jScroll = function($e, options) {
-
         // Private vars
         var _data = $e.data('jscroll'),
             _userOptions = (typeof options === 'function') ? { callback: options } : options,
@@ -98,6 +97,8 @@
 
         // Observe the scroll event for when to trigger the next load
         function _observe() {
+            console.log("OBSERVING");
+
             _wrapInnerContent();
             var $inner = $e.find('div.jscroll-inner').first(),
                 data = $e.data('jscroll'),
@@ -108,7 +109,7 @@
                 innerTop = $inner.length ? $inner.offset().top : 0,
                 iTotalHeight = Math.ceil(iTopHeight - innerTop + _$scroll.height() + iContainerTop);
 
-            if (_checkNextHref(data) && !data.waiting && iTotalHeight + _options.padding >= $inner.outerHeight()) {
+            if (_checkNextHref(data) && !data.waiting && iTotalHeight + _options.padding >= $inner.outerHeight() - 10) {
 				data.nextHref = $.trim(data.nextHref + ' ' + _options.contentSelector);
                 _debug('info', 'jScroll:', $inner.outerHeight() - iTotalHeight, 'from bottom. Loading next request...');
                 return _load();
@@ -179,7 +180,8 @@
 
         // Expose API methods via the jQuery.jscroll namespace, e.g. $('sel').jscroll.method()
         $.extend($e.jscroll, {
-            destroy: _destroy
+            destroy: _destroy,
+            observe: _observe
         });
 
         return $e;

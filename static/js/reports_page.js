@@ -25,9 +25,12 @@
 
             // Reference search:
             this.search_form = require("form#report_search");
+
             this.search_form.ajaxForm({
                 success: function(data) {
                     $('div.reports_accordion').html(data);
+                    that.reports_accordion.accordion('destroy');
+                    that.setup_accordion(that.reports_accordion, true);
                 }
             });
 
@@ -41,26 +44,37 @@
             this.reports_accordion = require(".reports_accordion");
 
 
-            /* disable jscroll for now
-             *
-            var setup = function(elem, is_first) {
-                // Setup accordion
-                if (!is_first) {
-                    elem.accordion('destroy');
-                }
-                elem.accordion({
-                    header: '.report_header',
-                    heightStyle: 'content'
-                }).jscroll({ 
-                    nextSelector: '.reports_paginator',
-                    callback: function() {
-                        setup(elem, false);
-                    }
-                });
-            };
-            setup(this.reports_accordion, true);
-            */
+            this.setup_accordion(this.reports_accordion, true);
 
+
+            $('#datepickers').hide();
+
+            var datepicker_options = {
+              showOn: 'both',
+              buttonImage: '/assets/calendar.gif'
+            };
+            
+            $('#start_date').datepicker(datepicker_options);
+            $('#end_date').datepicker(datepicker_options);
+              
+            $("#select_criteria").select2().change(function(ev) {
+                var selection = $(this).val();
+
+                if (selection == 'date_range') {
+                    $('#datepickers').show();
+                    $('#start_date').prop('disabled', false);
+                    $('#end_date').prop('disabled', false);
+                    $('#q').hide().prop('disabled', true);
+                } else {
+                    $('#datepickers').hide();
+                    $('#start_date').prop('disabled', true);
+                    $('#end_date').prop('disabled', true);
+                    var hint = 'Enter ' + $(this).find(':selected').text() + '...';
+                    $('#q').show().prop('disabled', false).attr('placeholder', hint);
+                }
+            });
+
+            $('button').first().css('margin-right', '7px');
             // If the team reports tab is clicked, but the section is not
             // already shown, show it.
             this.tab_team_reports.click(function() {
@@ -119,7 +133,7 @@
         ReportsPage.prototype.fit_to_window = function(view) {
             var window_height = jQuery(window).height();
             console.log(window_height);
-            view.height(window_height * 0.87);
+            view.height(window_height * 0.80);
         };
 
         ReportsPage.prototype.show_team_reports = function() {
@@ -138,6 +152,30 @@
             this.is_team_reports_shown = false;
             this.section_create_report.show();
             this.section_team_reports.hide();
+        };
+
+        ReportsPage.prototype.setup_accordion = function(elem, is_first) {
+            var that = this;
+
+            if (!is_first) {
+                elem.accordion('destroy');
+            }
+
+            $('.report_header').unbind('click');
+
+            elem.accordion({
+                header: '.report_header',
+                heightStyle: 'content'
+            }).jscroll({ 
+                nextSelector: '.reports_paginator',
+                callback: function() {
+                    that.setup_accordion(elem, false);
+                }
+            });
+
+            $('.report_header').click(function() {
+                elem.jscroll.observe();
+            });
         };
 
         return ReportsPage;
