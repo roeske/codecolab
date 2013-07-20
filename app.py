@@ -1751,8 +1751,13 @@ def team_reports(luser=None, project=None, **kwargs):
 
     q = models.MemberReport.query.filter_by(project_id=project._id)
 
+    # build for pagination links
+    query_string = ""
+    
     # optionally filter by search terms using full-text index.
-    if terms is not None and terms.strip() != '':
+    if terms is not None and type is not None and terms.strip() != '':
+        query_string += "&q=" + urllib.quote(terms)
+        query_string += "&type=" + search_type
 
         if search_type == 'full_text':
             q = q.filter('member_report.textsearchable_index_col @@ '
@@ -1773,18 +1778,21 @@ def team_reports(luser=None, project=None, **kwargs):
         end_date = request.args.get('end_date', None)
 
         if start_date is not None and start_date.strip() != '':
+            query_string += "&start_date=" + urllib.quote(start_date)
             start_date = date_parser.parse(start_date)
             q = q.filter(models.MemberReport.created >= start_date)
 
         if end_date is not None and end_date.strip() != '':
+            query_string += "&end_date=" + urllib.quote(end_date)
             end_date = date_parser.parse(end_date)
             q = q.filter(models.MemberReport.created <= end_date)
          
     q = q.order_by(models.MemberReport.created.desc())
     q = q.offset(start).limit(end)
     reports = q.all()
+    total = q.count()
 
-    total = models.MemberReport.query.count()
+    print "total=%d end=%d" % (total, end)
     has_next = total > end
     next_page = page + 1
 
@@ -1795,6 +1803,7 @@ def team_reports(luser=None, project=None, **kwargs):
                                  comment_delete_url=comment_delete_url,
                                  comment_edit_url=comment_edit_url,
                                  has_next=has_next, next_page=next_page,
+                                 query_string=query_string,
                                  project=project, luser=luser,**kwargs)
 
 

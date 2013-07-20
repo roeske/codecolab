@@ -6,8 +6,10 @@
       {% include "report.html" %}
   {% endfor %}
 
+  
   {% if has_next %}
-    <a class="reports_paginator" href="/project/{{ project.name }}/team_reports?page={{ next_page }}"></a>
-  {% endif %}
+    <h1 style="color: red;">/project/{{ project.name }}/team_reports?page={{ next_page }}{{ query_string }}</h1>
 
+    <a class="reports_paginator" href="/project/{{ project.name }}/team_reports?page={{ next_page }}{{ query_string }}"></a>
+  {% endif %}
 {% endif %}

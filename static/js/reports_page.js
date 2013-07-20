@@ -28,6 +28,9 @@
 
             this.search_form.ajaxForm({
                 success: function(data) {
+                    // remove all previous pagination links, they are not needed
+                    // anymore
+                    $('.reports_paginator').remove();
                     $('div.reports_accordion').html(data);
                     that.reports_accordion.accordion('destroy');
                     that.setup_accordion(that.reports_accordion, true);
@@ -156,6 +159,7 @@
 
         ReportsPage.prototype.setup_accordion = function(elem, is_first) {
             var that = this;
+
 
             if (!is_first) {
                 elem.accordion('destroy');
