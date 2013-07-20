@@ -1748,7 +1748,6 @@ def team_reports(luser=None, project=None, **kwargs):
     terms = request.args.get('q', None)
     search_type = request.args.get('type', None)
 
-    total = models.MemberReport.query.count()
 
     q = models.MemberReport.query.filter_by(project_id=project._id)
 
@@ -1785,6 +1784,7 @@ def team_reports(luser=None, project=None, **kwargs):
     q = q.offset(start).limit(end)
     reports = q.all()
 
+    total = models.MemberReport.query.count()
     has_next = total > end
     next_page = page + 1
 
