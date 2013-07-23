@@ -13,7 +13,7 @@ CREATE aggregate textcat_all(
 CREATE INDEX textsearch_idx ON member_report USING gin(textsearchable_index_col);
 
 DROP TRIGGER update_report_textsearch_after_comment_change ON report_comment;
-DROP TRIGGER update_report_textsearch_after_report_change ON member_report;
+DROP TRIGGER update_report_textsearch_after_report_change ON card;
 
 -- fill the new columns with indexing data, to include:
 --

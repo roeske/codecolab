@@ -1343,6 +1343,46 @@ def render_project(project_name, email):
                               json_pile_ids=json_pile_ids, luser=luser) 
 
 
+CARDS_PER_PAGE = 1
+@app.route("/p/<project_name>/cards")
+@check_project_privileges
+def search_cards(luser=None, project=None, **kwargs):
+    page = int(request.args.get('page', 0))
+    start = page * CARDS_PER_PAGE 
+    end = start + CARDS_PER_PAGE
+
+    print "end=%d, start=%d" % (end,start)
+
+    terms = request.args.get('q', '')
+    search_type = request.args.get('type', '')
+
+    q = models.Card.query.filter_by(project_id=project._id)
+
+    # build for pagination links
+    query_string = ""
+    
+    query_string += "&q=" + urllib.quote(terms)
+    query_string += "&type=" + search_type
+
+    if terms != '':
+        q = q.filter('card.textsearchable_index_col @@ '
+                     'to_tsquery(:terms)').params(terms=terms)
+         
+    q = q.order_by(models.Card.created.desc())
+    q = q.offset(start).limit(end)
+
+    cards = q.all()
+    total = q.count()
+
+    has_next = total > end
+    next_page = page + 1
+
+    return flask.render_template("cards_loop.html", cards=cards,
+                                 has_next=has_next, next_page=next_page,
+                                 query_string=query_string,
+                                 project=project, luser=luser, **kwargs)
+
+
 @app.route("/project/<name>")
 def project(name):
     if is_logged_in():        

@@ -377,6 +377,8 @@ class Tag(db.Model):
     name = db.Column(db.String, unique=True, nullable=False)
 
 
+
+
 class ReportTag(db.Model):
 
     __tablename__ = "report_tag"
@@ -547,6 +549,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     attachment_count = db.Column(db.Integer, default=0)
     project_id      = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False)
     pile_id         = db.Column(db.Integer, db.ForeignKey(Pile._id))
+    luser_id        = db.Column(db.Integer, db.ForeignKey(Luser._id))
     milestone_id    = db.Column(db.Integer, db.ForeignKey(Milestone._id))
     assign_to_id    = db.Column(db.Integer, db.ForeignKey(Luser._id))
     is_archived     = db.Column(db.Boolean, default=False)
@@ -596,6 +599,20 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
         db.session.commit()
         
         return card
+
+
+class CardTag(db.Model):
+    
+    __tablename__ = "card_tag"
+
+    _id = db.Column(db.Integer, primary_key=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey(Tag._id), nullable=False)
+    card_id = db.Column(db.Integer, db.ForeignKey(Card._id), nullable=False)
+
+    tag = db.relationship("Tag")
+
+    __table_args__ = (UniqueConstraint('tag_id', 'card_id',
+                      name='_card_tag_uc'),)
 
 
 class CardAssignments(db.Model):
