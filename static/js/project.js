@@ -346,6 +346,60 @@ function cc_cards_reorder_update_dom(children) {
 }
 
 
+function cc_setup_card_search_form(pile_ids) {
+    $('#card_search').ajaxForm({
+        success: function(data) {
+            // New search, reset all pile containers to be shown.
+            $('.pile_container').show();
+
+            // hide cards that are not found in the search results.
+            // show cards that are.
+            $(".card_item").each(function(i, elem) {
+                if (!data[$(elem).data('id')]) {
+                    $(elem).hide(); 
+                } else {
+                    $(elem).show();
+                }
+            });
+
+            var key;
+            if (data['is_locked']) {
+                // hide piles which are empty.
+                $(".pile_container").each(function(i, elem) {
+                    var len = $(elem).find('.card_item:visible').length;
+                    console.log("len="+len);
+                    if(len === 0) {
+                        $(elem).hide();
+                    } 
+                });
+                $(".locked_indicator").show();
+                $('input[value="clear"]').show();
+
+                for (key in pile_ids) {
+                    $("#" + pile_ids[key]).sortable('disable');
+                }
+                $('ul#pile_list').sortable('disable');
+            } else {
+                $(".locked_indicator").hide();
+                $('input[value="clear"]').hide();
+                for (key in pile_ids) {
+                    $("#" + pile_ids[key]).sortable('enable');
+                }
+                $('ul#pile_list').sortable('enable');
+            }
+
+            if (data['is_cleared']) {
+                $('input[name="q"]').val("").show().prop('disabled', false).attr('placeholder', 'Enter Search...');
+                $('#select_criteria').select2("val", "full_text");
+                $('input[name="end_date"]').val("").prop('disabled', true);
+                $('input[name="start_date"]').val("").prop('disabled', true);
+                $('#datepickers').hide();
+            }
+        }
+    });
+}
+
+
 function cc_piles_reorder_update_dom(elems) {
     var sorted_numbers = cc_sort_into_numbers_array(elems);
     var updates = [];
@@ -749,6 +803,7 @@ function cc_project_init(project_name, pile_ids) {
     
     cc_initialize_cards("");
     cc_initialize_lists();
+    cc_setup_card_search_form(pile_ids);
 }
 
 function cc_initialize_cards(selector_prefix) {

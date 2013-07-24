@@ -1343,44 +1343,61 @@ def render_project(project_name, email):
                               json_pile_ids=json_pile_ids, luser=luser) 
 
 
-CARDS_PER_PAGE = 1
-@app.route("/p/<project_name>/cards")
+@app.route("/p/<project_name>/search_cards")
 @check_project_privileges
 def search_cards(luser=None, project=None, **kwargs):
-    page = int(request.args.get('page', 0))
-    start = page * CARDS_PER_PAGE 
-    end = start + CARDS_PER_PAGE
-
-    print "end=%d, start=%d" % (end,start)
-
     terms = request.args.get('q', '')
     search_type = request.args.get('type', '')
 
     q = models.Card.query.filter_by(project_id=project._id)
-
-    # build for pagination links
-    query_string = ""
-    
-    query_string += "&q=" + urllib.quote(terms)
-    query_string += "&type=" + search_type
-
-    if terms != '':
-        q = q.filter('card.textsearchable_index_col @@ '
-                     'to_tsquery(:terms)').params(terms=terms)
-         
-    q = q.order_by(models.Card.created.desc())
-    q = q.offset(start).limit(end)
-
-    cards = q.all()
     total = q.count()
+    submit = request.args.get('submit', 'clear')
 
-    has_next = total > end
-    next_page = page + 1
+    if submit != 'clear' and terms != '' and search_type is not \
+        'date_range':
 
-    return flask.render_template("cards_loop.html", cards=cards,
-                                 has_next=has_next, next_page=next_page,
-                                 query_string=query_string,
-                                 project=project, luser=luser, **kwargs)
+        if search_type == 'full_text':
+            q = q.filter('card.textsearchable_index_col @@ '
+                     'plainto_tsquery(:terms)').params(terms=terms)
+
+        elif search_type == 'tag':
+            terms = terms.strip().lower()
+            q = (q.filter(func.lower(models.Tag.name)==terms)
+                  .filter(models.CardTag.tag_id==models.Tag._id)
+                  .filter(models.Card._id==models.CardTag.card_id))
+
+        elif search_type == 'creator':
+            terms = terms.strip().lower()
+            q = (q.filter(func.lower(models.LuserProfile.username)==terms)
+                  .filter(models.Card.luser_id==models.LuserProfile.luser_id))
+
+
+    elif search_type == 'date_range' and submit != 'clear':
+        start_date = request.args.get('start_date', None)
+        end_date = request.args.get('end_date', None)
+
+        if start_date is not None and start_date.strip() != '':
+            start_date = date_parser.parse(start_date)
+            q = q.filter(models.Card.created >= start_date)
+
+        if end_date is not None and end_date.strip() != '':
+            end_date = date_parser.parse(end_date)
+            q = q.filter(models.Card.created <= end_date)
+
+
+    q = q.order_by(models.Card.created.desc())
+    cards = q.all()
+
+    obj = {}
+    for c in cards:
+        obj[c._id] = True
+    
+    obj['is_locked'] = total != q.count()
+    obj['is_cleared'] = request.args.get('submit', 'clear') == 'clear'
+
+    print 'is_locked=%r' % obj['is_locked']
+
+    return respond_with_json(obj)
 
 
 @app.route("/project/<name>")
@@ -1795,7 +1812,7 @@ def team_reports(luser=None, project=None, **kwargs):
     query_string = ""
     
     # optionally filter by search terms using full-text index.
-    if terms is not None and type is not None and terms.strip() != '':
+    if terms is not None and search_type is not None and terms.strip() != '':
         query_string += "&q=" + urllib.quote(terms)
         query_string += "&type=" + search_type
 

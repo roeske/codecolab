@@ -1,38 +1,75 @@
 {% include "head.html" %}
 <div class="content">
   <div id="subnav">
-  <div id="project_name">
-    <a href="#">
-        <div style="float: left; margin-top: 13px;" class="icon project"></div>
-        <h3 style="float: left; margin-top: 10px;">
-          &nbsp;{{ project.name }}
-        </h3>
-    </a>
-  </div> 
-  <div class="buttons">
-    <a href="/project/{{ project.urlencoded_name }}/archives"
-     class="btn">
-     <div class="label" style="float: left">Archives&nbsp;</div>
-     <div class="icon archive"></div>
-    </a>
-  </div> 
-  <div style="padding-top: 7px;" id="toolbox">
+    <div id="project_name">
+      <a href="#">
+          <div style="float: left; margin-top: 13px;" class="icon project"></div>
+          <h3 style="float: left; margin-top: 10px;">
+            &nbsp;{{ project.name }}
+          </h3>
+      </a>
+    </div> 
 
-    <form id="add_list_form" action="/{{ project.urlencoded_name }}/piles/add" method="POST">
+    <div style="background-color: #ccc; padding: 7px; margin-bottom: 7px;
+                 float: left;">
+      <form id="card_search" action="/p/{{ project.name }}/search_cards">
+        <div style="float: right;">
+          <div class="clear"></div>
+          <div style="float: left; margin-right: 7px;">
+            <select style="min-width: 100px; margin-top: 4px;" name="type" id="select_criteria">
+              <option value="full_text">Search</option>
+              <option value="tag">Tag</option>
+              <option value="creator">Creator</option>
+              <option value="date_range">Date Range</option>
+            </select>
+          </div>
+          <input style="float: left;" type="text" name="q" id="q" placeholder="Enter Search..." />
 
-    <input type="hidden" name="project_name" value="{{ project.name }}" />
+          <div style="float: left;" id="datepickers">
+            <div style="float: left;">
+              <input disabled placeholder="Start Date" style=" margin-bottom: 3px;width: 100px; " type="text" name="start_date" id="start_date"/>
+            </div>
 
-    <ul id="toolbox-list" class="controls structural horizontal_right">
-      <li>
-        <input type="submit" name="submit" value="Add Pile" class="btn"/>
-      </li>
-      <li>
-        <input type="text" placeholder="pile name..." name="text" id="text"/>
-      </li>
-    </ul>
+            <div style="float: left;">
+              <input disabled placeholder="End Date" style="width: 100px; float: left;" type="text" name="end_date" id="end_date"/>
+            </div>
+          </div>
 
-    </form>
-  </div>
+
+          <input style="margin-top: 1px; margin-left: 7px; float: left;" type="submit" name="submit" value="search" class="btn" />
+
+          <input style="margin-top: 1px; display:none; margin-left: 7px; float: left;" type="submit" name="submit" value="clear" class="btn" />
+
+      <p style="line-height: 1em; display: none; float: right; margin: 7px;" class="locked_indicator">Sorting is disabled during searches.</p>
+        </div>
+        <div class="clear"></div>
+      </form>
+    </div>
+
+    <div class="buttons">
+      <a href="/project/{{ project.urlencoded_name }}/archives"
+       class="btn">
+       <div class="label" style="float: left">Archives&nbsp;</div>
+       <div class="icon archive"></div>
+      </a>
+    </div> 
+    <div style="padding-top: 7px;" id="toolbox">
+
+      <form id="add_list_form" action="/{{ project.urlencoded_name }}/piles/add" method="POST">
+
+      <input type="hidden" name="project_name" value="{{ project.name }}" />
+
+      <ul id="toolbox-list" class="controls structural horizontal_right">
+        <li>
+          <input type="submit" name="submit" value="Add Pile" class="btn"/>
+        </li>
+        <li>
+          <input type="text" placeholder="pile name..." name="text" id="text"/>
+        </li>
+      </ul>
+
+      </form>
+    </div>
   </div>
 
   <div class="clear"></div>
@@ -66,6 +103,8 @@
 <script src="/js/jquery.jscroll.js"></script>
 <script src="/js/activity_feed.js"></script>
 <script>
+
+
 var activity_feed = new ActivityFeed({
     user_id: "{{ luser._id }}",
     toggle_icon_show: require('.activity_toggle_icon.show'),
@@ -156,12 +195,43 @@ function delete_list(project_name, list_id, callback) {
     })
 }
 
-
 $(function() {
   var user_id = "{{ luser._id }}";
   cc_connect_profile_links(".navbar ", user_id);
 });
 
+$(function() {
+    $('#datepickers').hide();
+
+    var options = {
+      showOn: 'both',
+      buttonImage: '/assets/calendar.gif',
+    };
+
+    $('#start_date').datepicker(options);
+    $('#end_date').datepicker(options);
+      
+    $("#select_criteria").select2({
+        minimumResultsForSearch: 10
+    }).change(function(ev) {
+        var selection = $(this).val();
+
+        if (selection == 'date_range') {
+            $('#datepickers').show();
+            $('#start_date').prop('disabled', false);
+            $('#end_date').prop('disabled', false);
+            $('#q').hide().prop('disabled', true);
+        } else {
+            $('#datepickers').hide();
+            $('#start_date').prop('disabled', true);
+            $('#end_date').prop('disabled', true);
+            var hint = 'Enter ' + $(this).find(':selected').text() + '...';
+            $('#q').show().prop('disabled', false).attr('placeholder', hint);
+        }
+    });
+
+    $('button').first().css('margin-right', '7px');
+});
 </script>
 <!-- END: JS -->
 
