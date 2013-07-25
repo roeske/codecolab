@@ -389,7 +389,7 @@ function cc_setup_card_search_form(pile_ids) {
             }
 
             if (data['is_cleared']) {
-                $('input[name="q"]').val("").show().prop('disabled', false).attr('placeholder', 'Enter Search...');
+                $('input[name="q"]').val("").show().prop('disabled', false).attr('placeholder', 'Enter Search Text...');
                 $('#select_criteria').select2("val", "full_text");
                 $('input[name="end_date"]').val("").prop('disabled', true);
                 $('input[name="start_date"]').val("").prop('disabled', true);

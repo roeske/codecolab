@@ -42,8 +42,8 @@ S3_BUCKET = os.environ.get('S3_BUCKET')
 def debug(text):
     print "DEBUG: %r" % text
 
-activity_logger = models.ActivityLogger()
 
+activity_logger = models.ActivityLogger()
 app = models.app
 
 
@@ -65,7 +65,6 @@ app.jinja_env.filters["round_time_up"] = round_time_up
 app.jinja_env.filters["debug"] = debug
 app.jinja_env.add_extension("jinja2.ext.loopcontrols")
 app.jinja_env.add_extension("jinja2.ext.do")
-
 
 Markdown(app)
 

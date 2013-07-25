@@ -11,19 +11,19 @@
     </div> 
 
     <div style="background-color: #ccc; padding: 7px; margin-bottom: 7px;
-                 float: left;">
+                 float: right;">
       <form id="card_search" action="/p/{{ project.name }}/search_cards">
         <div style="float: right;">
           <div class="clear"></div>
           <div style="float: left; margin-right: 7px;">
-            <select style="min-width: 100px; margin-top: 4px;" name="type" id="select_criteria">
-              <option value="full_text">Search</option>
+            <select style="min-width: 110px; margin-top: 4px;" name="type" id="select_criteria">
+              <option value="full_text">Search Text</option>
               <option value="tag">Tag</option>
               <option value="creator">Creator</option>
               <option value="date_range">Date Range</option>
             </select>
           </div>
-          <input style="float: left;" type="text" name="q" id="q" placeholder="Enter Search..." />
+          <input style="float: left;" type="text" name="q" id="q" placeholder="Enter Search Text..." />
 
           <div style="float: left;" id="datepickers">
             <div style="float: left;">
