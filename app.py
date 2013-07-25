@@ -649,6 +649,9 @@ def check_owner_privileges(func):
     @wraps(func)
     def wrap(**kwargs):
         kwargs = do_check_project_privileges(**kwargs)
+        if kwargs is None:
+            flask.session["redirect_after_login"] = request.url
+            return flask.redirect("/login")
         is_owner_or_403(kwargs["luser"], kwargs["project"])
         return func(**kwargs)
     return wrap
