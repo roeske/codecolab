@@ -232,8 +232,15 @@ $(function() {
 
     $('button').first().css('margin-right', '7px');
 });
-</script>
-<!-- END: JS -->
 
+{% if is_target_card_invocation %}
+$(function() {
+  // This is called when there is a specific card referenced in the URL,
+  // used to link to cards externally.
+  $("li.card_item[data-id={{ target_card_id }}]").dblclick();
+});
+{% endif %}
+
+</script>
 </body>
 </html>

@@ -1338,8 +1338,13 @@ def render_project(project_name, email):
 
     json_pile_ids = json.dumps([p.pile_uuid for p in project.piles])
 
+    target_card_id = int(request.args.get('card', -1))
+    print "target_card_id=%r" % target_card_id
+    is_target_card_invocation = target_card_id != -1 
     return cc_render_template("project.html", email=email, project=project,
-                              json_pile_ids=json_pile_ids, luser=luser) 
+                          json_pile_ids=json_pile_ids, luser=luser,
+                          is_target_card_invocation=is_target_card_invocation,
+                          target_card_id=target_card_id)
 
 
 @app.route("/p/<project_name>/search_cards")
