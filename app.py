@@ -314,7 +314,13 @@ def perform_login(email, password):
     # Ensure that this luser's password is correct.
     elif bcrypt.hashpw(password, luser.pw_hash) == luser.pw_hash:
         flask.session["email"] = email
-        return flask.redirect(flask.url_for("index"))
+
+        if 'redirect_after_login' in flask.session:
+            redirect_url = flask.session['redirect_after_login']
+            del flask.session['redirect_after_login']
+            return flask.redirect(redirect_url)
+        else:
+            return flask.redirect(flask.url_for("index"))
 
     # Handle wrong passwords.
     else:
@@ -500,16 +506,6 @@ def get_luser_or_404(email):
     return luser
 
 
-def get_email_or_403():
-    if "email" in flask.session:
-        email = flask.session["email"]
-    else:
-        print "[EE] Forbidden"
-        flask.abort(403)
-
-    return email
-
-
 def get_project_or_404(project_name, luser_id):
     project = get_project(project_name, luser_id)
 
@@ -577,8 +573,10 @@ def add_to_project(callback):
 
 
 def do_check_project_privileges(**kwargs):
-    # Obtain email from session, otherwise, error 403
-    email = get_email_or_403()
+    if "email" in flask.session:
+        email = flask.session["email"]
+    else:
+        return None
 
     # Obtain the luser, or return not found.
     luser = get_luser_or_404(email)
@@ -602,6 +600,9 @@ def check_project_privileges(func):
     @wraps(func)
     def wrap(**kwargs):
         kwargs = do_check_project_privileges(**kwargs)
+        if kwargs is None:
+            flask.session["redirect_after_login"] = request.url
+            return flask.redirect("/login")
         return func(**kwargs)
     return wrap
 
@@ -613,7 +614,11 @@ def check_luser_privileges(func):
     """
     @wraps(func)
     def wrap(**kwargs):
-        email = get_email_or_403()
+        if "email" in flask.session:
+            email = flask.session["email"]
+        else:
+            return flask.redirect("/login")
+
         luser = get_luser_or_404(email)
 
         kwargs["email"] = email
@@ -1259,7 +1264,7 @@ def pile_edit(name,pile_id):
         flask.abort(404)
 
     # Obtain email from session, otherwise, error 403
-    email = get_email_or_403()
+    email = get_email_or_redirect_to_login()
 
     # Obtain the luser, or return not found.
     luser = get_luser_or_404(email)
@@ -1404,14 +1409,11 @@ def search_cards(luser=None, project=None, **kwargs):
     return respond_with_json(obj)
 
 
-@app.route("/project/<name>")
-def project(name):
-    if is_logged_in():        
-        email = flask.session["email"]
-        return render_project(name, email)
-    else:
-        print "[EE] Must be logged in."
-        flask.abort(403)
+@app.route("/project/<project_name>")
+@check_project_privileges
+def project(project_name, project=None, luser=None, **kwargs):
+    email = flask.session["email"]
+    return render_project(project_name, email)
 
 
 @app.route("/project/<project_name>/progress")
@@ -2027,12 +2029,10 @@ def forgot_password():
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
-
     if flask.request.method == "POST":
         # obtain form parameters
         email = flask.request.form["email"]
         password = flask.request.form["password"]
-        
         return perform_login(email, password)
     else:
         return flask.render_template("login.html")
