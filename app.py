@@ -1122,7 +1122,7 @@ def minicards_get(card_id=None, **kwargs):
 @app.route("/project/<project_name>/cards/add", methods=["POST"])
 @check_project_privileges
 def cards_add(project=None, luser=None, **kwargs):
-    card = models.Card.create(project, request.form["pile_id"], request.form["text"])
+    card = models.Card.create(luser._id, project, request.form["pile_id"], request.form["text"])
     activity_logger.log(luser._id, project._id, card._id, "card_created")
     return flask.render_template("minicard.html", card=card, luser=luser,
                                  project=project, **kwargs)
@@ -2183,13 +2183,13 @@ def create_sample_project_for_luser(luser):
     models.db.session.flush()
 
     card1 = models.Card(project_id=sample._id, text="Check out the app!",
-                        pile_id=todo._id, score=1)
+                        luser_id=luser._id, pile_id=todo._id, score=1)
 
     card2 = models.Card(project_id=sample._id, text="Make some cards...",
-                        pile_id=todo._id, score=1)
+                        pile_id=todo._id, score=1, luser_id=luser._id)
 
     card3 = models.Card(project_id=sample._id, text="Have fun!", 
-                        pile_id=todo._id, score=0)
+                        pile_id=todo._id, score=0, luser_id=luser._id)
 
     models.db.session.add(card1)
     models.db.session.add(card2)

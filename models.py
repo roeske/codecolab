@@ -587,12 +587,13 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
 
 
     @staticmethod
-    def create(project, pile_id, text):
+    def create(luser_id, project, pile_id, text):
         """
         Adds a card to a specific pile of a project, with the specified
         text.
         """
-        card = Card(project_id=project._id, pile_id=pile_id, text=text)
+        card = Card(luser_id=luser_id, project_id=project._id, 
+                    pile_id=pile_id, text=text)
 
         db.session.add(card)
         db.session.flush()
