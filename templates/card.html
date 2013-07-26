@@ -89,6 +89,14 @@
   </div>
 
   <div class="clear"></div>
+
+  <h3 class="card_section">Tag</h3>
+
+  <div data-tags="{% for tag in card.tags %}{{tag.tag.name}},{% endfor %}"
+       data-action="/project/{{ project_name }}/cards/{{ card._id }}/tag" 
+       style="height: 24px; width: 100%;" class="select_tag"/>
+
+  <div class="clear"></div>
     <!-- Assign to user -->
     <form action="/project/{{ project_name }}/cards/{{ card._id }}/assign_to"
         method="POST" 

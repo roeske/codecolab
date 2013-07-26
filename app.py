@@ -1355,6 +1355,52 @@ def render_project(project_name, email):
                           target_card_id=target_card_id)
 
 
+def inflate_tags(tag_names):
+    Tag = models.Tag
+    # obtain references to all required tags, and create tag if it
+    # does not exist
+    tags = []
+    for name in tag_names:
+        if name == '':
+            continue
+
+        name = name.lower()
+        tag = Tag.query.filter(func.lower(Tag.name)==name).first()
+        if tag is None:
+            tag = Tag(name=name)
+            models.db.session.add(tag)
+        tags.append(tag)
+    models.db.session.flush()
+    return tags
+
+
+@app.route("/project/<project_name>/cards/<int:card_id>/tag", methods=["POST"])
+@check_project_privileges
+def tag_card(project_name, card_id, luser=None, project=None, **kwargs):
+    tags = inflate_tags(request.json["tags"])
+    CardTag = models.CardTag
+
+    print "tags = %r" % tags
+
+    # obtain reference to target card.
+    card = query_card(card_id, project._id)
+
+    # delete existing tags
+    for card_tag in card.tags:
+        models.db.session.delete(card_tag)
+    models.db.session.flush()
+    
+    # retag with new selections.
+    for tag in tags:
+        card_tag = CardTag(card_id=card_id, tag_id=tag._id)
+        print "Tagging w %r"  % card_tag
+        models.db.session.add(card_tag)
+
+    models.db.session.commit()        
+    
+    return respond_with_json({'tags': request.json["tags"], 
+                                'status': 'success' });
+
 @app.route("/p/<project_name>/search_cards")
 @check_project_privileges
 def search_cards(luser=None, project=None, **kwargs):

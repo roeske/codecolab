@@ -377,8 +377,6 @@ class Tag(db.Model):
     name = db.Column(db.String, unique=True, nullable=False)
 
 
-
-
 class ReportTag(db.Model):
 
     __tablename__ = "report_tag"
@@ -569,6 +567,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     project = db.relationship("Project")
     pile = db.relationship("Pile")
     assigned = db.relationship("CardAssignments")
+    tags = db.relationship("CardTag")
 
 
     @property
