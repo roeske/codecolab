@@ -1374,6 +1374,31 @@ def inflate_tags(tag_names):
     return tags
 
 
+
+@app.route("/project/<project_name>/reports/<int:report_id>/tag", methods=["POST"])
+@check_project_privileges
+def tag_report(project_name, report_id, luser=None, project=None, **kwargs):
+    tags = inflate_tags(request.json["tags"])
+    ReportTag = models.ReportTag
+
+    # obtain reference to target report.
+    report = models.MemberReport.query.filter_by(_id=report_id).first()
+
+    # delete existing tags
+    for report_tag in report.tags:
+        models.db.session.delete(report_tag)
+    models.db.session.flush()
+    
+    # retag with new selections.
+    for tag in tags:
+        report_tag = ReportTag(report_id=report_id, tag_id=tag._id)
+        models.db.session.add(report_tag)
+
+    models.db.session.commit()        
+    
+    return respond_with_json({'tags': request.json["tags"], 
+                                'status': 'success' });
+
 @app.route("/project/<project_name>/cards/<int:card_id>/tag", methods=["POST"])
 @check_project_privileges
 def tag_card(project_name, card_id, luser=None, project=None, **kwargs):

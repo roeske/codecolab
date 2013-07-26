@@ -578,29 +578,6 @@ function cc_connect_assign_to_spinner(parent_elem, card_id) {
 }
 
 
-function cc_connect_tag_to_spinner(select) {
-    var tags = select.data('tags');
-    select.val(tags.substring(0, tags.length -1));
-
-    select.select2({tags: [], tokenSeparators: [',']}).change(function() {
-        tags = $(this).val().split(",");
-        $.ajax({
-            type: 'POST',
-            url: $(this).data('action'),
-            data: JSON.stringify({ tags: tags }),
-            success: console.log,
-
-            failure: function(data) {
-                console.log(data);
-                alert("Failed to tag card. See logs.");
-            },
-
-            contentType: "application/json;charset=UTF-8"
-        });
-    });
-}
-
-
 function cc_connect_spinner(clazz, parent_elem, card_id) {
     var form = parent_elem.find("form." + clazz);
 
@@ -729,7 +706,7 @@ function cc_on_modal_opened(project_name, card_id) {
     cc_connect_assign_to_spinner(modal, card_id);
 
     var select = modal.find('.select_tag');
-    cc_connect_tag_to_spinner(select);
+    setup_tags(select);
 
     cc_connect_complete_button(project_name, modal, card_id);
     cc_setup_card(project_name, card_id);

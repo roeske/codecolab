@@ -27,11 +27,13 @@
   </div>
 
   <br />
-  <div class="tags">
-    TAGS (test impl):
-    {% for report_tag in report.tags %}
-      {{ report_tag.tag.name }} 
-    {% endfor %}
+
+  <h4>Tags</h4>
+
+  <div class="report_tags" 
+       style="width: 100%; margin-top: 7px; margin-bottom: 7px; height: 24px;"
+       data-action="/project/{{ project_name }}/reports/{{ report._id}}/tag"
+       data-tags="{% for rt in report.tags %}{{ rt.tag.name }},{% endfor %}">
   </div>
 
   {% include "report_comments.html" %}

@@ -110,6 +110,10 @@
             that.fit_to_window(that.reports_accordion);
 
             this._setup_editable_reports();
+
+            $(".report_tags").each(function(i,elem) {
+                setup_tags($(elem)); 
+            });
         }
 
         ReportsPage.prototype._setup_editable_reports = function() {
