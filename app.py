@@ -60,7 +60,6 @@ def round_time_up(t):
         # The 'time' object already satisfies the rounding criteria.
         return t.hour
 
-
 app.jinja_env.filters["round_time_up"] = round_time_up 
 app.jinja_env.filters["debug"] = debug
 app.jinja_env.add_extension("jinja2.ext.loopcontrols")
@@ -223,26 +222,40 @@ def error_500():
 # Index
 ###############################################################################
 
+def require_login(func):
+    """
+    Ensure user is logged in, in order to see this page. Otherwise, redirect
+    the user.
+    """
+    @wraps(func)
+    def wrap(**kwargs):
+        logged_in = is_logged_in()
+
+        if flask.request.method == "GET" and logged_in: 
+            return func(**kwargs)
+        if flask.request.method == "GET" and not logged_in:
+            return redirect_to("beta_signup") 
+        else:
+            return redirect_to("login")
+    return wrap
+
+
 @app.route("/", methods=["POST", "GET"])
+@require_login
 def index():
     """
     Serves the index. Responsible for delegating to several 
     screens based on the state and type of request.
     """
-   
-    logged_in = is_logged_in()
+    email = flask.session["email"]
+    return render_index(email)
 
-    if flask.request.method == "GET" and logged_in: 
-        email = flask.session["email"]
 
-        return render_index(email, gravatar_url=make_gravatar_url(email),
-                                   profile_url=make_gravatar_profile_url(email))
-
-    if flask.request.method == "GET" and not logged_in:
-        return redirect_to("beta_signup") 
-    
-    else:
-        return redirect_to("login")
+@app.route("/<project_name>", methods=["POST", "GET"])
+@require_login
+def project_selection(project_name):
+    email = flask.session["email"]
+    return render_index(email, selected_project=project_name)
 
 
 ###############################################################################
@@ -264,7 +277,6 @@ def render_project_selection(email, **kwargs):
     """
     luser = get_luser_for_email(email)
     projects_and_lusers = get_projects_and_lusers(luser._id)
-
     return flask.render_template("project_selection.html", email=email,
                                  projects_and_lusers=projects_and_lusers,
                                  luser=luser, **kwargs)
@@ -439,7 +451,7 @@ def perform_delete_card(email, card_id, project_name, args):
     models.db.session.commit()
 
     if "redirect_to" in args:
-        return flask.redirect("/project/%s/archives" % project.urlencoded_name)
+        return flask.redirect("/%s/archives" % project.urlencoded_name)
     else:
         return redirect_to(page, name=project_name)
 
@@ -688,7 +700,7 @@ def list_delete(list_id=None, luser=None, **kwargs):
 ## Invites
 ###############################################################################
 
-@app.route("/project/<project_name>/members")
+@app.route("/<project_name>/members")
 @check_owner_privileges
 def members(project=None, **kwargs):
     # We also need to display project invites
@@ -934,7 +946,7 @@ def restore_card(project=None, card_id=None, **kwargs):
     card.pile.is_deleted = False
     models.db.session.commit()
 
-    return flask.redirect("/project/%s/archives" % project.urlencoded_name)
+    return flask.redirect("/%s/archives" % project.urlencoded_name)
 
 
 def card_set_attributes(project=None, card_id=None, **kwargs):
@@ -1114,7 +1126,7 @@ def cards_reorder():
     return respond_with_json({"status" : "success" })
 
 
-@app.route("/project/<project_name>/archives", methods=["GET", "POST"])
+@app.route("/<project_name>/archives", methods=["GET", "POST"])
 @check_project_privileges
 def archives(**kwargs):
     return cc_render_template("archived_cards.html", **kwargs)
@@ -1483,14 +1495,14 @@ def search_cards(luser=None, project=None, **kwargs):
     return respond_with_json(obj)
 
 
-@app.route("/project/<project_name>")
+@app.route("/<project_name>/boards")
 @check_project_privileges
 def project(project_name, project=None, luser=None, **kwargs):
     email = flask.session["email"]
     return render_project(project_name, email)
 
 
-@app.route("/project/<project_name>/progress")
+@app.route("/<project_name>/progress")
 @check_owner_privileges
 def project_progress(project_name=None, luser=None,  project=None, **kwargs):
     """
@@ -1613,7 +1625,7 @@ def project_add_member(project=None, luser=None, **kwargs):
         else:
             flask.flash("%s is already a member of this project." % email)
         
-    return flask.redirect("/project/%s/members" % project.name)
+    return flask.redirect("/%s/members" % project.name)
 
 
 ###############################################################################
@@ -1690,7 +1702,7 @@ def update_office_hours(project=None, luser=None, **kwargs):
     return respond_with_json({ "status" : "success" })
 
 
-@app.route("/project/<project_name>/office_hours", methods=["GET","POST"])
+@app.route("/<project_name>/office_hours", methods=["GET","POST"])
 @check_project_privileges
 def member_schedule(luser=None, project=None, **kwargs):
     """
@@ -1823,7 +1835,7 @@ def create_default_schedule(luser, project, day_collection):
 ###############################################################################
 
 REPORTS_PER_PAGE = 10
-@app.route("/project/<project_name>/reports", methods=["GET", "POST"])
+@app.route("/<project_name>/reports", methods=["GET", "POST"])
 @check_project_privileges
 def member_reports(luser=None, project=None, **kwargs):
     

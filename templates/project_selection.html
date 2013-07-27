@@ -1,5 +1,4 @@
 {% include "min_head.html" %}
-
   {% include "themes/" + luser.profile.theme + "/project_selection.html" %}
 
   </head>
@@ -7,9 +6,7 @@
 
 {% include "common_js.html" %} 
 {% include "navbar.html" %}
-
 {% include "project_selection_content.html" %}
-
 
 <script type="text/javascript">
 
@@ -25,27 +22,63 @@ function update_dimensions() {
     $("#project_members_container ul").width(width);
 }
 
+function navigate_to_project(name) {
+  $('.project_list_item[data-name="' + name +'"]').trigger('click');
+}
+
+
 $(function() {
     // Now that everything is loaded, reveal the project list
     // this prevents it from looking bad while loading
     $(window).bind('resize', update_dimensions);
-
-    var last = $('.project_list_item').first();
+var last = $('.project_list_item').first();
     last.addClass('active');
-    
+
+    var is_history_navigation = false;
+
+    window.onpopstate = function(ev) {
+        if (ev.state) {
+            is_history_navigation = true;
+            navigate_to_project(ev.state.name);
+        }
+    };
+
     $(".project_list_item").click(function(ev) {
         if (last != null) {
           last.removeClass('active');
         }
+
         $(this).addClass('active'); 
         last = $(this);
 
         var selector = "#" + $(this).find("a").data("id");
+
         $(current).hide();
         $(selector).show();
         current = selector;
-
         update_dimensions();
+  
+        var path_name = $(this).data("name");
+      
+        // don't push state if we are just using the browser's history buttons
+        if (!is_history_navigation) {
+            window.history.pushState({name: path_name}, "", path_name);
+        }
+        is_history_navigation = false;
+
+        breadcrumb_update(path_name);
+
+        // since this is transitional code, i.e. we're working towards
+        // a one-page app eventually, handle clicks on the breadcrumb here
+        // for this page only to direct to the appropriate page.
+        $(".breadcrumb_link").unbind("click");
+        $(".breadcrumb_link").click(function(ev) {
+            // It needs not do anything here, but doing it this way 
+            // allows us to reuse the breadcrumb.html more easily
+            // across other pages.
+            return false;
+        });
+
         return false;
     })
 
@@ -61,10 +94,18 @@ $(function() {
     update_dimensions();
 });
 
+// allow remote linking to projects inside this page.
+{% if selected_project is defined %}
+$(function() {
+    navigate_to_project("{{ selected_project }}");
+});
+{% endif %}
+
 // show proper profiles
 $(function() {
     var user_id = "{{ luser._id }}";
     cc_connect_profile_links("", user_id);
+    $(".project_list_item").first().trigger("click");
 });
 
 </script>

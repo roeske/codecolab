@@ -3428,7 +3428,7 @@ input[type="submit"].btn.btn-mini {
 .navbar .brand {
   display: block;
   float: left;
-  padding: 10px 20px 10px;
+  padding: 10px 15px 10px;
   margin-left: -20px;
   font-size: 20px;
   font-weight: 200;
@@ -4694,7 +4694,7 @@ a.badge:focus {
 }
 
 .navbar .brand {
-  padding: 7px 20px 8px;
+  padding: 7px 15px 8px;
   font-family: "Open Sans", Helvetica, Arial, sans-serif;
 }
 

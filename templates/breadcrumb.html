@@ -1,0 +1,26 @@
+<span id="breadcrumb">
+</span>
+<script>
+// Breadcrumb is just pure javascript. this seemed easiest.  
+function breadcrumb_update(path) {
+    var tokens = path.split("/");
+    var html = "";
+    var accumulated_path = "";
+    for (var i = 0; i < tokens.length; i++) {
+        if (tokens[i].trim() === "") continue;
+
+        accumulated_path += "/" + tokens[i];
+        var path_segment = decodeURIComponent(tokens[i]);
+        html += '<a data-path-segment="' + path_segment + '" class="breadcrumb_link" href="' + accumulated_path + '">' + path_segment + "</a>"; 
+        if (i != 0 && i != tokens.length - 1) {
+            html += "&nbsp;&gt;&nbsp;"
+        }
+    }
+    $("#breadcrumb").html(html);
+}
+
+$(function() {
+  // extract URL Path
+  breadcrumb_update(window.location.pathname);
+});
+</script>

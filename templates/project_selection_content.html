@@ -7,7 +7,7 @@
         <div id="menu_items">
           <ul>
             {% for pl in projects_and_lusers %}
-              <li class="project_list_item">
+              <li data-name="{{ pl[0].urlencoded_name }}" class="project_list_item">
                 <a href="#" class="menu" data-id="{{ pl[0]._id }}">
                   {{ pl[0].name }}
                 </a>
@@ -53,13 +53,13 @@
                      privileges for this project, and therefore can enter the
                      management area. -->
 
-                  <a href="/project/{{ pl[0].urlencoded_name }}" class="custom_btn">
+                  <a href="/{{ pl[0].urlencoded_name }}/boards" class="custom_btn">
                      <div class="icon_large boards"></div>
                      <div class="label">Boards</div>
                      <div class="clear"></div>
                   </a>
 
-                  <a href="/project/{{ pl[0].urlencoded_name }}/archives" 
+                  <a href="/{{ pl[0].urlencoded_name }}/archives" 
                      class="custom_btn">
                      <div class="icon_large archives"></div>
                      <div class="label">Archives</div>
@@ -67,27 +67,27 @@
                   </a>
                   
                   {% if pl[1].is_owner == True %}
-                    <a class="custom_btn" href="/project/{{ pl[0].urlencoded_name }}/progress">
+                    <a class="custom_btn" href="/{{ pl[0].urlencoded_name }}/progress">
                       <div class="icon_large project_progress"></div>
                       <div class="label">Progress</div>
                       <div class="clear"></div>
                     </a>
                   {% endif %}
 
-                  <a href="/project/{{ pl[0].urlencoded_name }}/office_hours" class="custom_btn">
+                  <a href="/{{ pl[0].urlencoded_name }}/office_hours" class="custom_btn">
                      <div class="icon_large calendar"></div>
                      <div class="label">Office Hours</div>
                      <div class="clear"></div>
                   </a>
 
-                  <a href="/project/{{ pl[0].urlencoded_name }}/reports" class="custom_btn">
+                  <a href="/{{ pl[0].urlencoded_name }}/reports" class="custom_btn">
                      <div class="icon_large reports"></div>
                      <div class="label">Reports</div>
                      <div class="clear"></div>
                   </a>
 
                   {% if pl[1].is_owner == True %}
-                  <a href="/project/{{ pl[0].urlencoded_name }}/members"class="custom_btn">
+                  <a href="/{{ pl[0].urlencoded_name }}/members"class="custom_btn">
                      <div class="members icon_large"></div>
                      <div class="label">Members</div>
                      <div class="clear"></div>
