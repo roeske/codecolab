@@ -104,10 +104,11 @@
 
         ActivityFeed.prototype.reload = function() {
             var url = "/project/" + this.project_name + "/activity";
+            var that = this;
             $.get(url, function(data) {
-                this.list.replaceWith(data);
-                this.list = require('#list');
-                this._connect_activity_links();
+                that.list.html(data);
+                that.list.animate({scrollTop: 0}, "fast");
+                that._connect_activity_links();
             });
         };
 

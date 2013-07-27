@@ -186,35 +186,15 @@ function cc_connect_editables(project_name, modal, card_id) {
         height: "24px",
 
         callback: function(value, settings) {
-            console.log("settings=" + settings);
-            console.log("value=" + value);
-
-            cc_activity_reload();
+            modal.dialog('option', 'title', value);
 
             // Must update the card in the list (not modal) when the modal
             // is changed so they do not come out of sync with each other.
             $("li[data-id=" + card_id + "].card_item").find("p span.text").text(value);
 
-            modal.dialog('option', 'title', value);
+            cc_activity_reload();
         }
     });
-
-    /*
-    url = "/project/" + project_name + "/cards/edit/" + id;
-    $(elem).find(".editable.description").editable(url, {
-        onblur: "submit",
-        name: "description",
-        event: "click",
-        style: "inherit",
-        tooltip: "Click to edit...",
-        cancel: "Cancel",
-        submit: "Save",
-        type: "textarea",
-        width: "400px",
-        height: "100px",
-        callback: cc_activity_reload
-    });
-    */
 
     cc_connect_raty_score($(modal).find(".editable.difficulty"), project_name,
                                         card_id, true);
