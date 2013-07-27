@@ -10,8 +10,32 @@
       </a>
     </div> 
 
-    <div style="padding: 7px; margin-bottom: 7px;
-                 float: left;">
+    <div class="buttons">
+      <a href="/project/{{ project.urlencoded_name }}/archives"
+       style="padding-top: 3px; padding-bottom: 3px;"
+       class="btn">
+       <div class="label" style="float: left;">Archives&nbsp;</div>
+       <div class="icon archive"></div>
+      </a>
+    </div> 
+    <div style="padding-top: 7px; margin-bottom: 7px;" style="float: right;">
+
+
+      <form id="add_list_form" action="/{{ project.urlencoded_name }}/piles/add" method="POST">
+
+      <input type="hidden" name="project_name" value="{{ project.name }}" />
+
+      <ul  class="controls structural horizontal_right">
+        <li>
+          <input style="position: relative; top: -1px; margin-left: 7px;" type="submit" name="submit" value="Add Pile" class="btn"/>
+        </li>
+        <li>
+          <input type="text" placeholder="pile name..." name="text" id="text"/>
+        </li>
+      </ul>
+
+      </form>
+    <div style="float: right; margin-right: 6px;">
       <form id="card_search" action="/p/{{ project.name }}/search_cards">
         <div style="float: right;">
           <div class="clear"></div>
@@ -36,39 +60,16 @@
           </div>
 
 
-          <input style="margin-top: 1px; margin-left: 7px; float: left;" type="submit" name="submit" value="search" class="btn" />
+          <input style="position: relative; top: -1px; margin-left: 7px; float: left;" type="submit" name="submit" value="search" class="btn" />
 
           <input style="margin-top: 1px; display:none; margin-left: 7px; float: left;" type="submit" name="submit" value="clear" class="btn" />
 
-      <p style="line-height: 1em; display: none; float: right; margin: 7px;" class="locked_indicator">Sorting is disabled during searches.</p>
+      <p style="width: 100%; text-align: center; position: absolute; top: 90%; left: 0;  z-index: 9999; font-size: 2em; font-weight: bold; color: #f00; line-height: 1em; display: none; float: right; margin: 7px;" class="locked_indicator">Sorting is disabled during searches.</p>
         </div>
         <div class="clear"></div>
       </form>
     </div>
 
-    <div class="buttons">
-      <a href="/project/{{ project.urlencoded_name }}/archives"
-       class="btn">
-       <div class="label" style="float: left">Archives&nbsp;</div>
-       <div class="icon archive"></div>
-      </a>
-    </div> 
-    <div style="padding-top: 7px;" id="toolbox">
-
-      <form id="add_list_form" action="/{{ project.urlencoded_name }}/piles/add" method="POST">
-
-      <input type="hidden" name="project_name" value="{{ project.name }}" />
-
-      <ul id="toolbox-list" class="controls structural horizontal_right">
-        <li>
-          <input type="submit" name="submit" value="Add Pile" class="btn"/>
-        </li>
-        <li>
-          <input type="text" placeholder="pile name..." name="text" id="text"/>
-        </li>
-      </ul>
-
-      </form>
     </div>
   </div>
 
