@@ -100,8 +100,19 @@
                                     <ul style="list-style-type: none">
 
                                         <li>
-                                            <input id="email" name="email" type="email" placeholder="Email">
+
+                                            {% if predetermined_email != None %}
+                                            
+                                            <input id="email" name="email" 
+                                             value="{{ predetermined_email }}"
+                                             type="email" placeholder="email"
+                                             disabled>
+
+                                            {% else %}
+
+                                            <input id="email" name="email" type="email" placeholder="email">
                                             <p style="color: red">{{ email_error }}</p>
+                                            {% endif %}
                                         </li>
 
     

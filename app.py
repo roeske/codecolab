@@ -2207,6 +2207,8 @@ def signup():
     """
     template = "sign-up.html"    
 
+    predetermined_email = request.args.get("email", None)
+
     if flask.request.method == "POST":
         # Obtain references to form parameters 
         email = flask.request.form["email"].strip()
@@ -2215,7 +2217,8 @@ def signup():
        
         return perform_signup(email, password, confirm)
     else:
-        return flask.render_template("sign-up.html") 
+        return flask.render_template("sign-up.html",
+            predetermined_email=predetermined_email) 
 
 
 
