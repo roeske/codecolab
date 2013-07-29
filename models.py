@@ -604,6 +604,10 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
 
         db.session.add(card)
         db.session.flush()
+
+        # creator must be subscribed by default
+        sub = CardSubscription(luser_id=luser_id, card_id=card._id)
+        db.session.add(sub)
         db.session.commit()
         
         return card

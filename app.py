@@ -234,7 +234,7 @@ def require_login(func):
         if flask.request.method == "GET" and logged_in: 
             return func(**kwargs)
         if flask.request.method == "GET" and not logged_in:
-            return redirect_to("beta_signup") 
+            return redirect_to("signup") 
         else:
             return redirect_to("login")
     return wrap
@@ -2232,14 +2232,14 @@ def perform_signup(email, password, confirm):
         return flask.render_template(template,
                     email_error="Email already registered.") 
  
-    # Ensure that the user is on our beta list and is activated.
-    is_activated = (models.BetaSignup.query
-                    .filter_by(email=email, is_activated=True).first())
-
-    if is_activated is None:   
-        flask.flash("Please sign up for the beta and we'll ping you when it's"
-                    " ready.")
-        return redirect_to_index()
+# Uncomment to ensure that the user is on our beta list and is activated.
+#    is_activated = (models.BetaSignup.query
+#                    .filter_by(email=email, is_activated=True).first())
+#
+#    if is_activated is None:   
+#        flask.flash("Please sign up for the beta and we'll ping you when it's"
+#                    " ready.")
+#        return redirect_to_index()
 
 
     # Ensure that password is not absolutely stupid
