@@ -568,6 +568,14 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     pile = db.relationship("Pile")
     assigned = db.relationship("CardAssignments")
     tags = db.relationship("CardTag")
+    subscriptions = db.relationship("CardSubscription")
+
+
+    def is_luser_subscribed(self, luser_id):
+        for sub in self.subscriptions:
+            if luser_id == sub.luser_id:
+                return True
+        return False
 
 
     @property
@@ -599,6 +607,21 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
         db.session.commit()
         
         return card
+
+
+class CardSubscription(db.Model):
+    
+    __tablename__ = 'card_subscription'
+
+    _id = db.Column(db.Integer, primary_key=True)
+    card_id = db.Column(db.Integer, db.ForeignKey(Card._id), nullable=False)
+    luser_id = db.Column(db.Integer, db.ForeignKey(Luser._id), nullable=False)
+
+    luser = db.relationship('Luser')
+    card = db.relationship('Card')
+
+    __table_args__ = (UniqueConstraint('card_id', 'luser_id', 
+                        name='_card_sub_uc'),)
 
 
 class CardTag(db.Model):

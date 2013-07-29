@@ -23,14 +23,21 @@ div.card_top div {
 
 .ui-dialog > div form.milestone {
     float: left;
-    width: 50%;
+    width: 40%;
+    height: 70px;
+    padding: 0px 7px;
+}
+
+.ui-dialog > div.subscription {
+    float: left;
+    width: 28%;
     height: 70px;
     padding: 0px 7px;
 }
 
 .ui-dialog > div div.difficulty_section {
     float: left;
-    width: 40%;
+    width: 28%;
     height: 70px;
     padding: 0px 7px;
 }

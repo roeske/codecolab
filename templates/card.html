@@ -86,9 +86,23 @@
 
     </form>
 
+    <div style="subcription">
+      <h3 class="card_section">Subscription</h3>
+      <form action="/{{ project_name }}/{{ card_id }}/subscribe"
+            method="POST" id="form_subscribe">
+            {% if is_subscribed %}
+              <input type="submit" name="submit" value="Subscribed"
+                     id="btn_subscribe"/>
+            {% else %}
+              <input type="submit" name="submit" value="Subscribe"
+                     id="btn_subscribe"/>
+            {% endif %}
+      </form>
+    </div>
   </div>
 
   <div class="clear"></div>
+
 
   <h3 class="card_section">Tag</h3>
 
@@ -147,6 +161,12 @@ var card_attachments = new CardAttachments({
     attachments_selector: require_selector("#" + card_id + "_card_attachments"),
     project_name: project_name,
     card_id: card_id
+});
+
+$("#form_subscribe").ajaxForm({ 
+    success: function(data) {
+        $("#btn_subscribe").val(data["state"]);
+    }
 });
   </script>
   <!-- [/attachments] --> 

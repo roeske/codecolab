@@ -752,11 +752,31 @@ def activity(project=None, **kwargs):
 ## Cards
 ##############################################################################
 
+@app.route("/<project_name>/<int:card_id>/subscribe", methods=["POST"])
+@check_project_privileges
+def card_subscribe(card_id=None, luser=None, project=None, **kwargs):
+    card = query_card(card_id, project._id)
+    sub = models.CardSubscription.query.filter_by(luser_id=luser._id, 
+                                            card_id=card_id).first()
+    if sub is None:
+        sub = models.CardSubscription(luser_id=luser._id,
+                                      card_id=card_id)
+        models.db.session.add(sub)
+        models.db.session.commit()
+        return respond_with_json({"state" : "Subscribed"})
+    else:
+        models.db.session.delete(sub)
+        models.db.session.commit()
+        return respond_with_json({"state" : "Subscribe"})
+
+
 def render_card(template, **kwargs):
     card_id = kwargs["card_id"]
     project = kwargs["project"]
+    luser_id = kwargs["luser"]._id
 
     card = query_card(card_id, project._id)
+    is_subscribed = card.is_luser_subscribed(luser_id)
 
     # parameterize comment handler urls for code reuse.
     comment_delete_url = "/project/%s/comment/delete/" % project.name
@@ -764,7 +784,8 @@ def render_card(template, **kwargs):
     
     return flask.render_template(template, card=card, comments=card.comments,
                                  comment_delete_url=comment_delete_url,
-                                 comment_edit_url=comment_edit_url, **kwargs)
+                                 comment_edit_url=comment_edit_url, 
+                                 is_subscribed=is_subscribed, **kwargs)
 
 
 @app.route("/project/<project_name>/cards/<int:card_id>/attachments", methods=["POST"])
