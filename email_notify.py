@@ -43,10 +43,15 @@ def _send_comment_email(template_prefix, recipients, username, comment,
 # Public
 ##############################################################################
 
-def project_invite(project, email):
-    html = _render_email("project_invite.html", base_url=BASE_URL, project=project, meta=meta)
-    text = _render_email("project_invite.txt", base_url=BASE_URL, project=project, meta=meta)
+def project_invite(project, email, is_registered=True):
+    html = _render_email("project_invite.html", base_url=BASE_URL,
+        project=project, meta=meta, email=email, is_registered=is_registered)
+
+    text = _render_email("project_invite.txt", base_url=BASE_URL,
+        project=project, meta=meta, email=email, is_registered=is_registered)
+
     subject = _render_email("project_invite.sub.txt", project=project, meta=meta)
+
     mailer = Mailer(**MAILER_PARAMS)
     mailer.send(from_addr=MAIL_FROM, to_addr=email, subject=subject,
                 text=text, html=html)

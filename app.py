@@ -1622,7 +1622,10 @@ def project_add_member(project=None, luser=None, **kwargs):
                         " email." % email)
         
         try:
-            email_notify.project_invite(project, email)
+            invitee = models.Luser.query.filter_by(email=email).first()
+            is_registered = invitee is not None 
+            email_notify.project_invite(project, email,
+                                        is_registered=is_registered)
         except:
             flask.flash("Failed to send email. Is %s added to amazon SES?" % email)
 
