@@ -844,8 +844,9 @@ def cards_comment(project_name=None, luser=None, project=None, card_id=None,
     comment_edit_url = "/project/%s/comments/edit/" % project.name
 
     activity_logger.log(luser._id, project._id, card_id, "card_comment")
-  
-    email_notify.send_card_comment_email(project.recipients, 
+ 
+    card = comment.card 
+    email_notify.send_card_comment_email(card.subscribers, 
         luser.profile.username, comment.text, comment.card.text)
 
     return flask.render_template("comments.html", 

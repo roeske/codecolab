@@ -609,6 +609,14 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
         return card
 
 
+    @property
+    def subscribers(self):
+        subscribers = []
+        for sub in self.subscriptions:
+            subscribers.append(sub.luser.email)
+        return subscribers
+
+
 class CardSubscription(db.Model):
     
     __tablename__ = 'card_subscription'
