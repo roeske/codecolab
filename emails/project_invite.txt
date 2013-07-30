@@ -3,10 +3,10 @@ Hey!
 You've been invited to join {{ project.name }} on {{ meta.app_name }}!
 
 {% if is_registered %}
-Login now! http://codecolab.com/login
+Login now! http://www.codecolab.com/login
 {% else %}
 Looks like you're new! welcome to codecolab. Please signup here:
-http://codecolab.com/signup?email={{ email }}
+http://www.codecolab.com/signup?email={{ email }}
 
 IMPORTANT: You are using text only email. For this reason, we have provided a
 text based link. This must not be modified, because it contains the email with
