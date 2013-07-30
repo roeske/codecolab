@@ -45,13 +45,13 @@ def _send_comment_email(template_prefix, recipients, username, comment,
 ##############################################################################
 
 def project_invite(project, email, is_registered=True):
-    email = quote_plus(email)
+    quoted_email = quote_plus(email)
 
     html = _render_email("project_invite.html", base_url=BASE_URL,
-        project=project, meta=meta, email=email, is_registered=is_registered)
+        project=project, meta=meta, email=quoted_email, is_registered=is_registered)
 
     text = _render_email("project_invite.txt", base_url=BASE_URL,
-        project=project, meta=meta, email=email, is_registered=is_registered)
+        project=project, meta=meta, email=quoted_email, is_registered=is_registered)
 
     subject = _render_email("project_invite.sub.txt", project=project, meta=meta)
 
