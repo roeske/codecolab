@@ -103,10 +103,11 @@
 
                                             {% if predetermined_email != None %}
                                             
-                                            <input id="email" name="email" 
+                                            <input id="email" name="email_disabled" 
                                              value="{{ predetermined_email }}"
                                              type="email" placeholder="email"
                                              disabled>
+                                             <input type="hidden" name="email" value="{{ predetermined_email }}">
 
                                             {% else %}
 
