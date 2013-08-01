@@ -5,7 +5,7 @@
 
   <div class="days">
     {% for i in range(days|count) %}
-      <div class="day {% if i == weekday %}on{% endif %}"><a href="/project/{{ project.name }}/office_hours?weekday={{ i }}">{{ days[i].name }}</a></div>
+      <div class="day {% if i == weekday %}on{% endif %}"><a href="/{{ project.name }}/office_hours?weekday={{ i }}">{{ days[i].name }}</a></div>
     {% endfor %}
   </div>
   <div class="clear"></div>
