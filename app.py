@@ -789,7 +789,7 @@ def render_card(template, **kwargs):
                                  is_subscribed=is_subscribed, **kwargs)
 
 
-@app.route("/project/<project_name>/cards/<int:card_id>/attachments", methods=["POST"])
+@app.route("/<project_name>/cards/<int:card_id>/attachments", methods=["POST"])
 @check_project_privileges
 def card_get_attachments(card_id=None, luser=None, **kwargs):
     """

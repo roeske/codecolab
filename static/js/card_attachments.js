@@ -69,7 +69,8 @@
                     that.progress_bar.width(0);
                 },
 
-                onError: function(status) {
+                onError: function(message) {
+                    alert(message);
                     alert("Error uploading file. Please try again.");
                     that.file_input.val("");
                     that.progress_bar.width(0);
@@ -100,7 +101,9 @@
 
 
         CardAttachments.prototype.save_and_reload = function(url, filename) {
-            var api_url = this.project_name + "/cards/" + this.card_id + "/attachments";
+            alert(this.project_name);
+
+            var api_url = "cards/" + this.card_id + "/attachments";
 
             var data = JSON.stringify({url: url, filename: filename});
 
