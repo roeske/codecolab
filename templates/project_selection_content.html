@@ -66,13 +66,11 @@
                      <div class="clear"></div>
                   </a>
                   
-                  {% if pl[1].is_owner == True %}
-                    <a class="custom_btn" href="/{{ pl[0].urlencoded_name }}/progress">
-                      <div class="icon_large project_progress"></div>
-                      <div class="label">Progress</div>
-                      <div class="clear"></div>
-                    </a>
-                  {% endif %}
+                  <a class="custom_btn" href="/{{ pl[0].urlencoded_name }}/progress">
+                    <div class="icon_large project_progress"></div>
+                    <div class="label">Progress</div>
+                    <div class="clear"></div>
+                  </a>
 
                   <a href="/{{ pl[0].urlencoded_name }}/office_hours" class="custom_btn">
                      <div class="icon_large calendar"></div>
