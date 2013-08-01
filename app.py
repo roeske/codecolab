@@ -1293,34 +1293,15 @@ def pile_add(project=None, luser=None, **kwargs):
                               luser=luser, pile=pile, **kwargs)
 
 
-@app.route("/project/<name>/piles/edit/<int:pile_id>", methods=["POST"])
-def pile_edit(name,pile_id):
-    # Resolve the project
-    project = models.Project.query.filter_by(name=name).first()
-    if project is None:
-        print "[EE] No such project for name=%r" % project_name
-        flask.abort(404)
-
-    # Obtain email from session, otherwise, error 403
-    email = get_email_or_redirect_to_login()
-
-    # Obtain the luser, or return not found.
-    luser = get_luser_or_404(email)
- 
-    # Do this to make sure the luser is a member of the project. 
-    project = get_project_or_404(name, luser._id)
- 
+@app.route("/project/<project_name>/piles/edit/<int:pile_id>", methods=["POST"])
+@check_project_privileges
+def pile_edit(project_name, pile_id, luser=None, project=None, **kwargs):
     name = flask.request.form["value"].strip()
-
     params = dict(name=name)
-    print "pile_id = %d" % pile_id
-
     (models.Pile.query.filter(and_(models.Pile._id==pile_id,
                  models.Pile.project_id==project._id))
                 .update(params))
-
     models.db.session.commit()
-
     return name
 
        
