@@ -1,15 +1,9 @@
-<!-- Open Sans -->
-<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"
-type="text/css">
-
 {% if luser.profile.theme == "dark" %}
     {% include "themes/dark.html" %}
 {% else %}
     {% include "themes/light.html" %}
 {% endif %}
 
-<link href="/css/common/project_selection.css" type="text/css" rel="stylesheet" />
-<link href="/css/common/office_hours.css" type="text/css" rel="stylesheet" />
-<link href="/css/common/activity.css" type="text/css" rel="stylesheet" />
-<link href="/css/common/members.css" type="text/css" rel="stylesheet" />
-<link href="/css/common/editor.css" type="text/css" rel="stylesheet" />
+{% assets "common_css" %}
+  <link href="{{ ASSET_URL }}" type="text/css" rel="stylesheet"/>
+{% endassets %}

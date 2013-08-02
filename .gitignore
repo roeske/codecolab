@@ -1,4 +1,5 @@
 *.pyc
 venv/
 uploads/
-
+static/gen
+static/.webassets-cache
