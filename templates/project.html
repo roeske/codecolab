@@ -92,21 +92,10 @@
 
 </div>
 
-<!--<script src="/js/underscore.js"></script> -->
-<script src="/js/lodash.min.js"></script> 
-<script src="/js/s3upload.js"></script>
+{% assets "project_js" %}
+  <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 
-<script src="/pagedown/Markdown.Converter.js"></script>
-<script src="/pagedown/Markdown.Sanitizer.js"></script>
-<script src="/pagedown/Markdown.Editor.js"></script>
-
-<script src="/js/tags.js"></script>
-<script src="/js/project.js"></script>
-<script src="/js/jquery.jscroll.js"></script>
-<script src="/js/activity_feed.js"></script>
-
-<!-- include it once here to decrease card load times -->
-<script src="/js/card_attachments.js"></script>
 <script>
 
 var activity_feed = new ActivityFeed({

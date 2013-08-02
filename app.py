@@ -34,6 +34,8 @@ from helpers import (make_gravatar_url, make_gravatar_profile_url,
                      jsonize, get_luser_for_email)
 import email_notify
 
+import bundles
+
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')       
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 S3_BUCKET = os.environ.get('S3_BUCKET')
@@ -46,6 +48,7 @@ def debug(text):
 activity_logger = models.ActivityLogger()
 app = models.app
 
+bundles.register(app)
 
 def round_time_up(t):
     """ 
