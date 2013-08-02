@@ -3,7 +3,6 @@
 
   </head>
 <body>
-
 {% include "common_js.html" %} 
 {% include "navbar.html" %}
 {% include "project_selection_content.html" %}
@@ -23,15 +22,19 @@ function update_dimensions() {
 }
 
 function navigate_to_project(name) {
-  $('.project_list_item[data-name="' + name +'"]').trigger('click');
+    $('.project_list_item[data-name="' + name +'"]').trigger('click');
+    save_as_last_project(ev.state.name);
 }
 
+function save_as_last_project(name) {
+  $.get("/" + name + "/remember_last")
+}
 
 $(function() {
     // Now that everything is loaded, reveal the project list
     // this prevents it from looking bad while loading
     $(window).bind('resize', update_dimensions);
-var last = $('.project_list_item').first();
+  var last = $('.project_list_item').first();
     last.addClass('active');
 
     var is_history_navigation = false;
@@ -59,6 +62,7 @@ var last = $('.project_list_item').first();
         update_dimensions();
   
         var path_name = $(this).data("name");
+        save_as_last_project(path_name);
       
         // don't push state if we are just using the browser's history buttons
         if (!is_history_navigation) {
@@ -92,20 +96,15 @@ var last = $('.project_list_item').first();
     $("#project").removeClass("invisible");
 
     update_dimensions();
-});
-
-// allow remote linking to projects inside this page.
-{% if selected_project is defined %}
-$(function() {
-    navigate_to_project("{{ selected_project }}");
-});
-{% endif %}
-
-// show proper profiles
-$(function() {
+    
     var user_id = "{{ luser._id }}";
     cc_connect_profile_links("", user_id);
     $(".project_list_item").first().trigger("click");
+
+// allow remote linking to projects inside this page.
+{% if selected_project is defined %}
+    navigate_to_project("{{ selected_project }}");
+{% endif %}
 });
 
 </script>

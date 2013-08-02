@@ -3,7 +3,7 @@ import flask
 import models
 import bcrypt 
 import pytz
-import httplib2
+import httplib2 
 import time
 import base64
 import hmac
@@ -243,6 +243,12 @@ def require_login(func):
     return wrap
 
 
+
+###############################################################################
+## Project Selection 
+###############################################################################
+
+
 @app.route("/", methods=["POST", "GET"])
 @require_login
 def index():
@@ -251,7 +257,15 @@ def index():
     screens based on the state and type of request.
     """
     email = flask.session["email"]
-    return render_index(email)
+
+    luser = get_luser_for_email(email)
+    if luser.last_project_id is not None:
+        project = models.Project.query.filter_by(_id=
+                            luser.last_project_id).first()
+        print "%r" % project.name
+        return render_index(email, selected_project=project.name)
+    else:
+        return render_index(email)
 
 
 @app.route("/<project_name>", methods=["POST", "GET"])
@@ -261,9 +275,16 @@ def project_selection(project_name):
     return render_index(email, selected_project=project_name)
 
 
-###############################################################################
-## Project Selection 
-###############################################################################
+@app.route("/<project_name>/remember_last", methods=["GET"])
+@require_login
+def remember_last_project(project_name, **kwargs):
+    # Remember the last project the user was accessing, so that
+    # can be the one to load first when he returns.
+    luser = get_luser_for_email(flask.session['email'])
+    luser.last_project_id = get_project_or_404(project_name, luser._id)._id
+    models.db.session.commit()
+    return respond_with_json({"status" : "success"})
+
 
 def get_projects_and_lusers(luser_id):
     return (models.db.session.query(models.Project, models.ProjectLuser)
