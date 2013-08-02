@@ -4,11 +4,7 @@ from jinja2 import Template
 from urllib import quote_plus
 
 meta = dict(app_name="CodeColab")
-
-TEMPLATE_DIR = "emails/"
-
-##############################################################################
-# Private
+TEMPLATE_DIR = "emails/" ############################################################################## # Private
 ##############################################################################
 
 def _render_email(name, header_name="header.html", with_header=False,
@@ -86,8 +82,12 @@ def send_welcome_email(luser):
 
 
 def send_report_comment_email(recipients, username, comment, title):
+    if MAIL_FROM not in recipients:
+        recipients.append(MAIL_FROM)
     _send_comment_email("report_comment", recipients, username, comment, title)
 
 
 def send_card_comment_email(recipients, username, comment, title):
+    if MAIL_FROM not in recipients:
+        recipients.append(MAIL_FROM)
     _send_comment_email("card_comment", recipients, username, comment, title)
