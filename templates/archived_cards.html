@@ -1,11 +1,12 @@
 {% include "head.html" %} 
-    <div class="content">
+    <div style="overflow-y: scroll;" class="content">
       <div class="minimalist_container minimalist_top">
         <h3>Archived Cards: <a href="/project/{{ project.urlencoded_name }}">{{ project.name }}</a></h3>
       </div>
 
       <table class="wrap" id="archived_cards">
         <tr>
+          <th> Card Number</th>
           <th> Card Text </th>
           <th> Restore </th>
           <th> Delete </th>
@@ -15,6 +16,9 @@
                changes the sort order -->
           {% if card.is_archived %}
             <tr data-id="{{ card._id }}">
+              <td>
+                {{ card._id }}
+              </td>
               <td class="wrap">
 <a data-id="{{ card._id }}" class="archived_card" href="/project/{{ project.name }}/cards/{{ card._id }}?is_archived=True">{{ card.text }}</a>
               </td>
