@@ -202,7 +202,7 @@ class LuserProfile(db.Model, DictSerializable):
     luser_id    = db.Column(db.Integer, db.ForeignKey(Luser._id), nullable=False) 
     first_name  = db.Column(db.String)
     last_name   = db.Column(db.String)
-    username    = db.Column(db.String, nullable=False, unique=True)
+    username    = db.Column(db.String, nullable=False)
     timezone    = db.Column(db.String, default="Zulu")
     theme       = db.Column(db.String, default="light")
     luser       = db.relationship("Luser")
