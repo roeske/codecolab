@@ -783,7 +783,7 @@ function cc_make_list_sortable(socket, project_id, selector) {
     matches.sortable(sorter);
 }
 
-var SOCKETIO_SERVER = "http://localhost:8082";
+var SOCKETIO_SERVER = "http://codecolab-socketio.herokuapp.com:8082";
 
 
 function cc_insert_card_into_pile(card, number, pile_id) {
