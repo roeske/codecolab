@@ -20,15 +20,14 @@ function recalculate_container_width() {
   return total_width;
 }
 
-function cc_init_list_controls(selector_prefix) {
+function cc_init_list_controls(socket, project_id, selector_prefix) {
   // Async list delete
   $(selector_prefix + " .list_delete").click(function() {
       var list_id = $(this).data('list-id');
     
       // If the list has no cards, it is safe to delete.
       var card_count = $("ul[data-id=" + list_id + "] li").size();
-      var confirm_delete_msg = "This will archive all the cards in the list. \
-Continue?";
+      var confirm_delete_msg = "This will archive all the cards in the list. Continue?";
 
       if (card_count === 0 || confirm(confirm_delete_msg)) {
         delete_list(project_name, list_id, function() {
@@ -66,7 +65,7 @@ Continue?";
               var updates = cc_cards_reorder_update_dom(selector_func);
 
               // Update the above on the server.
-              cc_reorder_post("cards", updates);
+              cc_reorder_post(socket, project_id, "cards", updates);
 
               // Select newly added card to hook up controls
               selector = pile_selector + " li.card_item:last";
@@ -304,7 +303,7 @@ function cc_sort_into_numbers_array(elems) {
  */
 function cc_cards_reorder_update_dom(children) {
     // Now, update the pile id of the card in the database, too.
-    var updates = [];
+    var updates = {};
 
     var sorted_numbers = cc_sort_into_numbers_array(children());
 
@@ -315,11 +314,10 @@ function cc_cards_reorder_update_dom(children) {
         elem = $(elem);
         elem.data("number", number);
         
-        updates.push({
-            _id: elem.data("id"),
+        updates[elem.data("id")] = {
             number: number,
             pile_id: elem.data("pile-id")
-        });
+        };
     });
   
     return updates;
@@ -382,16 +380,15 @@ function cc_setup_card_search_form(pile_ids) {
 
 function cc_piles_reorder_update_dom(elems) {
     var sorted_numbers = cc_sort_into_numbers_array(elems);
-    var updates = [];
+    var updates = {};
 
     elems.each(function(i, elem) {
         // Update the 'sort number' in the DOM
         elem = $(elem);
         elem.data("number", sorted_numbers[i]);
-        updates.push({
-            _id: elem.data("id"),
+        updates[parseInt(elem.data('id'),10)] = {
             number: sorted_numbers[i]
-        });
+        };
     });
 
     return updates;
@@ -401,13 +398,19 @@ function cc_piles_reorder_update_dom(elems) {
 /** 
  * Post the updates to the "/<name>/reorder" API 
  */
-function cc_reorder_post(name, updates) {
+function cc_reorder_post(socket, project_id, name, updates) {
     $.ajax({
         type: "POST",
         url: "/" + name + "/reorder", 
-        data: JSON.stringify({updates: updates}),
+        data: JSON.stringify({updates: updates, project_id: project_id}),
         
         success: function(data) {
+            // If the cards are successfully reordered on the server,
+            // push them via socket.io to all other clients connected
+            // to this project's hub.
+            var ev_name = "reorder_" + name;
+            console.log("emitting: " + ev_name);
+            socket.emit(ev_name, data); 
             console.log(JSON.stringify(data));
         },
 
@@ -421,8 +424,8 @@ function cc_reorder_post(name, updates) {
  *
  * Expected format: [{ _id : <int>, pile_id: <int>, number: <int>}, ...]
  */
-function cc_cards_reorder_post(updates) {
-    return cc_reorder_post("cards", updates);
+function cc_cards_reorder_post(socket, project_id, updates) {
+    return cc_reorder_post(socket, project_id, "cards", updates);
 }
 
 
@@ -431,15 +434,15 @@ function cc_cards_reorder_post(updates) {
  *
  * Expected format: [{ _id : <int>,  number: <int>}, ...]
  */
-function cc_piles_reorder_post(updates) {
-    return cc_reorder_post("piles", updates);
+function cc_piles_reorder_post(socket, project_id, updates) {
+    return cc_reorder_post(socket, project_id, "piles", updates);
 }
 
 
 /** 
  * Factory for "sortable" objects. Used to make a card sortable in jQueryUI.
  */
-function cc_make_card_sorter(selector) {
+function cc_make_card_sorter(socket, project_id, selector) {
     var children = function() { 
         return $(selector + " li.card_item").not("li.ui-sortable-placeholder");
     };
@@ -469,7 +472,9 @@ function cc_make_card_sorter(selector) {
             var updates = cc_cards_reorder_update_dom(children);
             
             // Post those updates back to the server.
-            cc_cards_reorder_post(updates);
+            console.log("REORDER_POST");
+            console.log("socket=");console.log(socket);
+            cc_cards_reorder_post(socket, project_id, updates);
         },
 
 
@@ -481,7 +486,7 @@ function cc_make_card_sorter(selector) {
             var updates = cc_cards_reorder_update_dom(children);
             
             // Post those updates back to the server.
-            cc_cards_reorder_post(updates);
+            cc_cards_reorder_post(socket, project_id, updates);
         }
     };
 
@@ -489,7 +494,7 @@ function cc_make_card_sorter(selector) {
 }
 
 
-function cc_make_pile_sorter(selector) {
+function cc_make_pile_sorter(socket, project_id, selector) {
     var that = {
         delay: 100,
         distance: 10,
@@ -503,7 +508,7 @@ function cc_make_pile_sorter(selector) {
             var updates = cc_piles_reorder_update_dom($(selector).children());
             console.log(updates);            
             // Post those updates back to the server.
-            cc_piles_reorder_post(updates);
+            cc_piles_reorder_post(socket, project_id, updates);
         }
     };
 
@@ -772,22 +777,110 @@ function cc_connect_card(elem) {
 }
 
 
-function cc_make_list_sortable(selector) {
-    var sorter = cc_make_card_sorter(selector);
+function cc_make_list_sortable(socket, project_id, selector) {
+    var sorter = cc_make_card_sorter(socket, project_id, selector);
     var matches = $(selector);
-    matches.sortable(sorter);//.disableSelection();
+    matches.sortable(sorter);
+}
+
+var SOCKETIO_SERVER = "http://localhost:8082";
+
+
+function cc_insert_card_into_pile(card, number, pile_id) {
+    // It's in the wrong pile. Insert it before the
+    // first card with a greater ordinal.
+    var card_list = $("ul.card_list[data-id=" + pile_id + "] li");
+    if (card_list.length > 0) {
+        var is_inserted = false;
+        card_list.each(function(i, neighbor_elem) {
+            var neighbor = $(neighbor_elem);
+            var neighbor_number = parseInt(neighbor.data('number'), 10);
+            if (neighbor_number > number) {
+                neighbor.before(card);
+                is_inserted = true;
+                return false;
+            }
+        });
+
+        // this is the case where it's inserted at the end of the list
+        if (!is_inserted) {
+            $("ul.card_list[data-id=" + pile_id + "]").append(card);
+        }
+    } else {
+        $("ul.card_list[data-id=" + pile_id + "]").append(card);
+    }
+}
+
+function cc_initialize_socketio(project_id) {
+    var socket = io.connect(SOCKETIO_SERVER);
+
+    socket.on("ready", function(data) {
+        socket.emit("observe_project", {project_id: project_id});
+    });
+
+    socket.on("reorder_cards", function(data) {
+        console.log("socket.io reorder_cards: ");
+       
+
+        $("ul.card_list li").each(function(i, elem) {
+            var card = $(elem);
+            var updates = data['updates'];
+
+            var card_id = card.data('id');
+
+            if (updates.hasOwnProperty(card_id)) {
+                var pile_id = updates[card_id]['pile_id'];
+                var number = updates[card_id]['number'];
+                
+                // First, check if the card is in the correct pile.
+                // If it is not, we will need to insert it at the
+                // correct location in the correct pile.
+                var my_parent = card.parent();
+                var parent_id = parseInt(my_parent.data('id'), 10);
+
+                if (parent_id !== pile_id) {
+                    cc_insert_card_into_pile(card, number, pile_id);
+                } else {
+                    // We could optimize here, but do the same for now.
+                    cc_insert_card_into_pile(card, number, parent_id);
+                }
+
+                card.data('number', number);
+                card.data('pile-id', pile_id);
+            }
+        });
+
+
+    });
+
+    socket.on("reorder_piles", function(data) {
+        console.log(data);
+        $("li.pile_container").each(function(i, elem) {
+            var old_number = $(elem).data('number');
+            $(elem).data('number', data['updates'][parseInt($(elem).data('id'),10)]['number']);
+            console.log(old_number +"->"+$(elem).data('number'));
+        });
+
+        $("li.pile_container").sort(function(a,b) {
+            var nA = parseInt($(a).data('number'), 10);
+            var nB = parseInt($(b).data('number'), 10);
+            return (nA < nB ) ? - 1 : (nA > nB) ? 1 : 0;
+        }).appendTo("#pile_list");
+    });
+
+    return socket;
 }
 
 
 /** Sets up all state of the project page. */
-function cc_project_init(project_name, pile_ids) {
+function cc_project_init(socket, project_id, pile_ids) {
     // Iterate pile ids and make sortable + droppable.
     for (var key in pile_ids) {
-        cc_make_list_sortable("#" + pile_ids[key]);
+        cc_make_list_sortable(socket, project_id, "#" + pile_ids[key]);
     }
-    
+   
     cc_initialize_cards("");
-    cc_initialize_lists();
+    cc_initialize_lists(socket, project_id);
     cc_setup_card_search_form(pile_ids);
 }
 
@@ -797,9 +890,10 @@ function cc_initialize_cards(selector_prefix) {
     });
 }
 
-function cc_initialize_lists() {
+function cc_initialize_lists(socket, project_id) {
     var pile_selector = "ul#pile_list";
-    $(pile_selector).sortable(cc_make_pile_sorter("ul#pile_list"));
+    $(pile_selector).sortable(cc_make_pile_sorter(socket, project_id,
+        "ul#pile_list"));
     $("ul.card_item, li.card_item").disableSelection();
     cc_setup_editable_fields(project_name);
 }

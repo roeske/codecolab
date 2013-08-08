@@ -144,8 +144,11 @@ $(function() {
   // Obtain reference to the project's name 
   project_name = "{{ project.name }}"
 
+  // initialize socket.io
+  var socket = cc_initialize_socketio({{ project._id }});
+  
   // Initialize project page
-  cc_project_init(project_name, pile_ids) 
+  cc_project_init(socket, {{ project._id }}, pile_ids) 
 
   $(".editable.difficulty").each(function(i, elem) {
     elem = $(elem)
@@ -161,7 +164,7 @@ $(function() {
       
       var width = recalculate_container_width();
 
-      cc_init_list_controls("#pile_" + new_pile.data("id") + " ");
+      cc_init_list_controls(socket,  {{ project._id }}, "#pile_" + new_pile.data("id") + " ");
       cc_initialize_lists();
 
       console.log("new_pile...");
@@ -177,7 +180,7 @@ $(function() {
     }
   });
 
-  cc_init_list_controls("")
+  cc_init_list_controls(socket, {{ project._id }}, "")
 })
 
 function delete_list(project_name, list_id, callback) {

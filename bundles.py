@@ -6,6 +6,7 @@ def register(app):
     assets = Environment(app)
 
     project_js = Bundle("js/lodash.min.js", 
+                        "js/socket.io.js",
                         "js/s3upload.js",
                         "pagedown/Markdown.Converter.js",
                         "pagedown/Markdown.Sanitizer.js",

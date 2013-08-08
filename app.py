@@ -1161,16 +1161,15 @@ def cards_reorder():
     """
 
     print "%r" % flask.request.json
-    for update in flask.request.json["updates"]:
-        _id = int(update["_id"])
-        number = int(update["number"])
-        pile_id = int(update["pile_id"])
-        print "[DD] update=%r" % update
+    updates = flask.request.json["updates"]
+    for _id in updates.keys():
+        number = int(updates[_id]["number"])
+        pile_id = int(updates[_id]["pile_id"])
         models.Card.query.filter_by(_id=_id).update(dict(number=number, 
                                                          pile_id=pile_id))
     
     models.db.session.commit()
-    return respond_with_json({"status" : "success" })
+    return respond_with_json(flask.request.json)
 
 
 @app.route("/<project_name>/archives", methods=["GET", "POST"])
@@ -1248,13 +1247,13 @@ def piles_reorder():
     """
     Must be called after piles are moved to update order.
     """
-    for update in flask.request.json["updates"]:
-        _id = int(update["_id"])
-        number = int(update["number"])
+    updates = flask.request.json["updates"]
+    for _id in updates.keys():
+        number = int(updates[_id]["number"])
         models.Pile.query.filter_by(_id=_id).update(dict(number=number))
     
     models.db.session.commit()
-    return respond_with_json({"status" : "success" })
+    return respond_with_json(flask.request.json)
 
 
 ############################################################################
