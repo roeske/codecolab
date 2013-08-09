@@ -20,6 +20,70 @@ function recalculate_container_width() {
   return total_width;
 }
 
+function cc_add_card(html, pile_id) {
+  var pile_selector = "#" + pile_id;
+  
+  // Add the card.
+  $(pile_selector).append(html);
+
+  // Scroll to the bottom so the card is visible.
+  $(pile_selector).scrollTop($(pile_selector)[0].scrollHeight);
+
+  // Select the newly added card.
+  var selector = $(pile_selector + " li.card_item");
+  var selector_func = function() { return selector; };
+
+  // Update the order of the cards (there is an ordinal that
+  // needs to be set on each card to correctly designate its
+  // order, independent of how it is currently rendered)
+  var updates = cc_cards_reorder_update_dom(selector_func);
+
+  // Update the above on the server.
+  cc_reorder_post(socket, project_id, "cards", updates);
+
+  // Select newly added card to hook up controls
+  selector = pile_selector + " li.card_item:last";
+  cc_connect_card(selector);
+  
+  // Connect the raty widget when adding a new card via ajax.
+  var elem = $($(selector).find(".difficulty"));
+  cc_connect_raty_score(elem, project_name, elem.data("card-id"));
+
+  // Handle archive clicks on the new card.
+  $($(selector).find("a.archive")).click(handle_archive_click);
+
+  // Make the new card border glow a bit when it is first shown.
+  var color = "#4DCDFF"; // blue
+  var width = "2px";
+
+  var temporary = { 
+      borderTopColor: color, 
+      borderTopWidth: width, 
+      borderLeftColor: color,
+      borderLeftWidth: width,
+      borderRightColor: color,
+      borderRightWidth: width,
+      borderBottomColor: color,
+      borderBottomWidth: width
+  };
+
+  var transparent = "rgba(0,0,0,0);";
+
+  var invisible = { 
+      borderTopColor: transparent, 
+      borderLeftColor: transparent,
+      borderRightColor: transparent,
+      borderBottomColor: transparent 
+  };
+
+  $(selector).animate(temporary, 'slow', function() {
+      $(selector).animate(invisible, 'slow');
+  });
+
+  // Reset the add card textbox after the card is added.
+  $("input.add_card").val("");
+}
+
 function cc_init_list_controls(socket, project_id, selector_prefix) {
   // Async list delete
   $(selector_prefix + " .list_delete").click(function() {
@@ -45,69 +109,12 @@ function cc_init_list_controls(socket, project_id, selector_prefix) {
   // Append new cards to the bottom of the pile via AJAX.
   $(selector_prefix + "form.add_card").each(function(i, elem) { 
 
-      var pile_selector = "#" + $(elem).data("pile-id");
-
       $(elem).ajaxForm({
           success: function(text) {
-              // Add the card.
-              $(pile_selector).append(text);
-
-              // Scroll to the bottom so the card is visible.
-              $(pile_selector).scrollTop($(pile_selector)[0].scrollHeight);
-
-              // Select the newly added card.
-              var selector = $(pile_selector + " li.card_item");
-              var selector_func = function() { return selector; };
-
-              // Update the order of the cards (there is an ordinal that
-              // needs to be set on each card to correctly designate its
-              // order, independent of how it is currently rendered)
-              var updates = cc_cards_reorder_update_dom(selector_func);
-
-              // Update the above on the server.
-              cc_reorder_post(socket, project_id, "cards", updates);
-
-              // Select newly added card to hook up controls
-              selector = pile_selector + " li.card_item:last";
-              cc_connect_card(selector);
-              
-              // Connect the raty widget when adding a new card via ajax.
-              var elem = $($(selector).find(".difficulty"));
-              cc_connect_raty_score(elem, project_name, elem.data("card-id"));
-
-              // Handle archive clicks on the new card.
-              $($(selector).find("a.archive")).click(handle_archive_click);
-
-              // Make the new card border glow a bit when it is first shown.
-              var color = "#4DCDFF"; // blue
-              var width = "2px";
-
-              var temporary = { 
-                  borderTopColor: color, 
-                  borderTopWidth: width, 
-                  borderLeftColor: color,
-                  borderLeftWidth: width,
-                  borderRightColor: color,
-                  borderRightWidth: width,
-                  borderBottomColor: color,
-                  borderBottomWidth: width
-              };
-
-              var transparent = "rgba(0,0,0,0);";
-
-              var invisible = { 
-                  borderTopColor: transparent, 
-                  borderLeftColor: transparent,
-                  borderRightColor: transparent,
-                  borderBottomColor: transparent 
-              };
-
-              $(selector).animate(temporary, 'slow', function() {
-                  $(selector).animate(invisible, 'slow');
-              });
-
-              // Reset the add card textbox after the card is added.
-              $("input.add_card").val("");
+              var pile_id = $(elem).data("pile-id");
+              socket.emit('add_card', { project_id: project_id, 
+                                        pile_id: pile_id, html: text });
+              cc_add_card(text, pile_id);
           } 
       });
   });
@@ -818,10 +825,13 @@ function cc_initialize_socketio(project_id) {
         socket.emit("observe_project", {project_id: project_id});
     });
 
+    socket.on("add_card", function(data) {
+        cc_add_card(data["html"], data["pile_id"]);
+    });
+
     socket.on("reorder_cards", function(data) {
         console.log("socket.io reorder_cards: ");
        
-
         $("ul.card_list li").each(function(i, elem) {
             var card = $(elem);
             var updates = data['updates'];
