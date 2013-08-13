@@ -20,7 +20,7 @@ function recalculate_container_width() {
   return total_width;
 }
 
-function cc_add_card(html, pile_id) {
+function cc_add_card(socket, project_id, html, pile_id, is_reaction) {
   var pile_selector = "#" + pile_id;
   
   // Add the card.
@@ -114,7 +114,7 @@ function cc_init_list_controls(socket, project_id, selector_prefix) {
               var pile_id = $(elem).data("pile-id");
               socket.emit('add_card', { project_id: project_id, 
                                         pile_id: pile_id, html: text });
-              cc_add_card(text, pile_id);
+              cc_add_card(socket, project_id, text, pile_id, false);
           } 
       });
   });
@@ -826,7 +826,8 @@ function cc_initialize_socketio(project_id) {
     });
 
     socket.on("add_card", function(data) {
-        cc_add_card(data["html"], data["pile_id"]);
+        cc_add_card(socket, project_id, data["html"], data["pile_id"], true);
+        cc_activity_reload();
     });
 
     socket.on("reorder_cards", function(data) {
