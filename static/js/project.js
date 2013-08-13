@@ -122,6 +122,8 @@ function cc_init_list_controls(socket, project_id, selector_prefix) {
         delete_list(project_name, list_id, function() {
           $("li[data-id=" +  list_id + "]").remove();
           recalculate_container_width();
+          socket.emit("delete_pile", { project_id: project_id,
+                                      pile_id: list_id });
         });
       }
   });
@@ -908,6 +910,10 @@ function cc_initialize_socketio(project_id) {
             var nB = parseInt($(b).data('number'), 10);
             return (nA < nB ) ? - 1 : (nA > nB) ? 1 : 0;
         }).appendTo("#pile_list");
+    });
+
+    socket.on("delete_pile", function(data) {
+        $('li.pile_container[data-id="'+data['pile_id']+'"]').remove();
     });
 
     return socket;
