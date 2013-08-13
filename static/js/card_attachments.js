@@ -101,7 +101,6 @@
 
 
         CardAttachments.prototype.save_and_reload = function(url, filename) {
-            alert(this.project_name);
 
             var api_url = "cards/" + this.card_id + "/attachments";
 
