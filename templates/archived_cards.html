@@ -52,6 +52,8 @@ $(document).ready(function() {
   $("a.archived_card").each(function(i, elem) {
       cc_connect_card_to_modal($(elem).text(), project_name, $(elem), true)
   })
+
+  cc_connect_profile_links();
 })
     </script>
 {% include "foot.html" %}
