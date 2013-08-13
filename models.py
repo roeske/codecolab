@@ -562,14 +562,18 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     # to adjust the order of the list.
     number = db.Column(db.Integer, default=func.currval("card__id_seq"))
     created = db.Column(db.DateTime, default=func.now())
-    comments = db.relationship("CardComment", order_by=lambda: CardComment.created)
-    attachments = db.relationship("CardFile", order_by=lambda: CardFile.created.desc())
+
+    comments = db.relationship("CardComment", cascade="all,delete",
+                                order_by=lambda: CardComment.created)
+    attachments = db.relationship("CardFile", cascade="all,delete",
+                                  order_by=lambda: CardFile.created.desc())
+    subscriptions = db.relationship("CardSubscription", cascade="all,delete")
+    tags = db.relationship("CardTag", cascade="all,delete")
+    assigned = db.relationship("CardAssignments", cascade="all,delete")
+
     milestone = db.relationship("Milestone")
     project = db.relationship("Project")
     pile = db.relationship("Pile")
-    assigned = db.relationship("CardAssignments")
-    tags = db.relationship("CardTag")
-    subscriptions = db.relationship("CardSubscription")
 
 
     def is_luser_subscribed(self, luser_id):

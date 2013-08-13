@@ -470,6 +470,7 @@ def perform_delete_card(email, card_id, project_name, args):
         print "[EE] Card does not belong to the specified project."
         flask.abort(403)
 
+    print ">>>HERE"
     # Looks OK, lets delete it
     card = models.Card.query.filter_by(_id=card_id).first()
     models.db.session.delete(card)
