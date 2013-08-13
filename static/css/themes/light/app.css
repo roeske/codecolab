@@ -390,3 +390,10 @@ h4.pile_title input {
     border-bottom: 2px solid #aaa;
     outline: 0;
 }
+
+/* fix chart month label sizing. */
+.graphLabelteam_cadence {
+    width: 3.2em;
+    text-align: center;
+    white-space: nowrap;
+}
