@@ -5,7 +5,7 @@ You've been invited to join {{ project.name }} on {{ meta.app_name }}!
 {% if is_registered %}
 Login now! http://www.codecolab.com/login
 {% else %}
-Looks like you're new! welcome to codecolab. Please signup here:
+Looks like you're new! Welcome to codecolab. Please signup here:
 http://www.codecolab.com/signup?email={{ email }}
 
 IMPORTANT: You are using text only email. For this reason, we have provided a

@@ -1035,7 +1035,7 @@ def card_assign_to(project=None, card_id=None, **kwargs):
         for username in assigned:
             luser = (models.Luser.query
                 .filter(models.LuserProfile.username==username)
-                .filter(models.Luser._id==models.LuserProfile._id).one())
+                .filter(models.Luser._id==models.LuserProfile._id)).one()
 
             assignment = models.CardAssignments(luser_id=luser._id, card_id=card_id)
             models.db.session.add(assignment) 
