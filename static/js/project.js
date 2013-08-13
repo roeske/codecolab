@@ -916,6 +916,10 @@ function cc_initialize_socketio(project_id) {
         $('li.pile_container[data-id="'+data['pile_id']+'"]').remove();
     });
 
+    socket.on("add_pile", function(data) {
+        cc_append_pile(data["project_id"], data["html"], socket);
+    });
+
     return socket;
 }
 
@@ -944,4 +948,21 @@ function cc_initialize_lists(socket, project_id) {
         "ul#pile_list"));
     $("ul.card_item, li.card_item").disableSelection();
     cc_setup_editable_fields(project_name);
+}
+
+
+function cc_append_pile(project_id, data, socket) {
+      $("ul#pile_list").append(data); 
+      var new_pile = $("ul#pile_list > li > ul").last(); 
+      var width = recalculate_container_width();
+      cc_init_list_controls(socket,  project_id, "#pile_" + new_pile.data("id") + " ");
+      cc_initialize_lists();
+      console.log("new_pile...");
+      console.log(new_pile);
+      cc_initialize_cards("#" + new_pile.attr("id") + " > ");
+      cc_make_list_sortable($("ul#pile_list > li > ul.card_list").last());
+      // finally, scroll the piles div all the way to the right so it 
+      // can be seen
+      $("div#piles").animate({ scrollLeft: width });
+      $('#add_list_form input[type="text"]').val("");
 }

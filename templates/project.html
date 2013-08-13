@@ -142,25 +142,10 @@ $(function() {
   // Async list add
   $("#add_list_form").ajaxForm({
     success: function(data) {
-      $("ul#pile_list").append(data); 
+      socket.emit('add_pile', { project_id: {{ project._id }},
+                                html: data });
 
-      var new_pile = $("ul#pile_list > li > ul").last(); 
-      
-      var width = recalculate_container_width();
-
-      cc_init_list_controls(socket,  {{ project._id }}, "#pile_" + new_pile.data("id") + " ");
-      cc_initialize_lists();
-
-      console.log("new_pile...");
-      console.log(new_pile);
-
-      cc_initialize_cards("#" + new_pile.attr("id") + " > ");
-
-      cc_make_list_sortable($("ul#pile_list > li > ul.card_list").last());
-      // finally, scroll the piles div all the way to the right so it 
-      // can be seen
-      $("div#piles").animate({ scrollLeft: width });
-      $('#add_list_form input[type="text"]').val("");
+      cc_append_pile({{ project._id }}, data, socket);
     }
   });
 
