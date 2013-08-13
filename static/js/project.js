@@ -1,6 +1,30 @@
 String.prototype.endsWith = function(suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
 }; 
+
+function make_archive_click_handler(project_id, socket) {
+    return function (event) {
+        event.preventDefault();
+
+        var that = this;
+        $.ajax({
+            type: "GET",
+            url: $(this).attr("href"),
+            
+            success: function(data) {
+                var card = $(that).parent().parent();
+                var card_id = parseInt(card.data("id"), 10);
+                card.remove();
+                cc_activity_reload();
+                socket.emit('archive_card', { project_id: project_id, 
+                                              card_id: card_id });
+            },
+
+            contentType: "application/json;charset=UTF-8"
+        });
+    };
+}
+
 function recalculate_container_width() {
   var total_width = 0;
   $(".pile_container").each(function(i, elem) {
@@ -50,7 +74,8 @@ function cc_add_card(socket, project_id, html, pile_id, is_reaction) {
   cc_connect_raty_score(elem, project_name, elem.data("card-id"));
 
   // Handle archive clicks on the new card.
-  $($(selector).find("a.archive")).click(handle_archive_click);
+  $($(selector).find("a.archive")).click(
+    make_archive_click_handler(project_id, socket));
 
   // Make the new card border glow a bit when it is first shown.
   var color = "#4DCDFF"; // blue
@@ -104,7 +129,8 @@ function cc_init_list_controls(socket, project_id, selector_prefix) {
   // Handle clicks on 'archive' buttons 
   // -- update server
   // -- remove element from dom on success.
-  $(selector_prefix + "a.archive").click(handle_archive_click);
+  $(selector_prefix + "a.archive").click(
+      make_archive_click_handler(project_id, socket));
 
   // Append new cards to the bottom of the pile via AJAX.
   $(selector_prefix + "form.add_card").each(function(i, elem) { 
@@ -828,6 +854,11 @@ function cc_initialize_socketio(project_id) {
     socket.on("add_card", function(data) {
         cc_add_card(socket, project_id, data["html"], data["pile_id"], true);
         cc_activity_reload();
+    });
+
+    socket.on("archive_card", function(data) {
+        var card_id = data['card_id'];
+        $('li[data-id="'+card_id+'"]').remove();
     });
 
     socket.on("reorder_cards", function(data) {

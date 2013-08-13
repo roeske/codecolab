@@ -115,22 +115,6 @@ function cc_activity_reload() {
   activity_feed.reload();
 }
 
-function handle_archive_click(event) {
-    event.preventDefault()
-
-    var that = this;
-    $.ajax({
-        type: "GET",
-        url: $(this).attr("href"),
-        
-        success: function(data) {
-            $(that).parent().parent().remove()
-            cc_activity_reload()
-        },
-
-        contentType: "application/json;charset=UTF-8"
-    })
-}
 
 // Run this code when the DOM is ready.
 $(function() {
