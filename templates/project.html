@@ -118,6 +118,10 @@ function cc_activity_reload() {
 
 // Run this code when the DOM is ready.
 $(function() {
+  $(window).bind('resize', function() {
+      activity_feed.resize();
+  });
+
   // Keep the container at the correct width
   recalculate_container_width()
 

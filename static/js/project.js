@@ -715,7 +715,6 @@ function cc_connect_complete_button(project_name, modal, card_id) {
     });
 }
 
-
 function cc_on_modal_opened(project_name, card_id) {
     var modal_selector = "#modal_" + + card_id;
     var modal = $(modal_selector);

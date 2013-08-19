@@ -34,7 +34,8 @@ $(function() {
     // Now that everything is loaded, reveal the project list
     // this prevents it from looking bad while loading
     $(window).bind('resize', update_dimensions);
-  var last = $('.project_list_item').first();
+  
+    var last = $('.project_list_item').first();
     last.addClass('active');
 
     var is_history_navigation = false;

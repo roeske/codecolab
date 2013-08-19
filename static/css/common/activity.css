@@ -7,17 +7,19 @@ a.activity_card {
 #activity_toggle { 
     height: 100%; 
     float: left; 
-    width: 6%; 
+    width: 7%; 
     background: #ccc; 
 }
 
 #activity_list_container { 
     height: 100%;  
     float: right; 
-    width: 94%;
+    width: 93%;
+    background: #fbfbfb;
 }
 
 #activity_list { 
+    overflow-y: scroll;
 }
 
 .activity_list_item, .activity_loading {
@@ -27,11 +29,11 @@ a.activity_card {
 }
 
 .activity_toggle_icon {
-    position: absolute;
+    border-top-left-radius: 3px;
+    position: relative;
+    left: 10%;
     top: 50%;
     color: #555; 
-    padding-left: 1px;
-    padding-right: 1px;
     font-weight: bold;
     height: 24px;
     width: 24px;
@@ -55,6 +57,7 @@ div#activity_container {
     width: 16%;
     height: 90%;
     overflow-y: hidden;
+    background-color: #ccc;
 }
 
 ul#activity_list {
