@@ -2,7 +2,11 @@
   <div id="frame">
     <div id="menu">
         <div id="menu_title">
-          <h4>Projects</h4>
+          <h4 style="float: left;">Projects</h4>
+          <div style="float: left;">
+            <a id="archives_trigger" href="/project_archives">&nbsp;&nbsp;(Archives)</a>
+          </div>
+          <div class="clear"></div>
         </div>
         <div id="menu_items">
           <ul>
@@ -111,3 +115,24 @@
   </div>
   <div class="clear"></div>
 </div>
+<div class="clear"></div>
+<div style="display:none;" id="archives">
+  <ul class="archived_projects">
+    {% for pl in projects_and_lusers %}
+      {% if pl[0].is_archived %}
+        <li style="padding: 1.2em;" data-name="{{ pl[0].urlencoded_name }}">
+          <div style="float: left; padding-right: 7px;">{{ pl[0].name }}</div>
+          
+          <a style="float:right;" href="/{{ pl[0].urlencoded_name }}/unarchive" class="btn" data-id="{{ pl[0]._id }}">Unarchive</a>
+          <div class="clear"></div>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</div>
+<script type="text/javascript">
+  $("#archives_trigger").click(function() {
+      $("#archives").dialog({title: "Archived Projects"}); 
+      return false;
+  });
+</script>

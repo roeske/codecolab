@@ -186,3 +186,7 @@ body, #content_nopad {
     float: left;
 }
 
+.archived_projects {
+    list-style: none;
+}
+

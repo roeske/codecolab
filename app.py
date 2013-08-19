@@ -706,6 +706,13 @@ def archive_project(project=None, **kwargs):
     models.db.session.commit()
     return redirect_to("index")
 
+@app.route("/<project_name>/unarchive", methods=["GET"])
+@check_project_privileges
+def unarchive_project(project=None, **kwargs):
+    project.is_archived = False
+    models.db.session.commit()
+    return redirect_to("index")
+
 
 ##########################################################################
 ## Lists 
