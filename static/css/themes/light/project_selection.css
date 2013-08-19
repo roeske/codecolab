@@ -65,8 +65,7 @@ ul#project li {
 }
 
 .project_selection .project_members_container ul {
-    height: 250px;
-    white-space: nowrap;
+    height: 200px;
 }
 
 .project_selection .project_members_container ul li {

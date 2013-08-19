@@ -7,11 +7,13 @@
         <div id="menu_items">
           <ul>
             {% for pl in projects_and_lusers %}
-              <li data-name="{{ pl[0].urlencoded_name }}" class="project_list_item">
-                <a href="#" class="menu" data-id="{{ pl[0]._id }}">
-                  {{ pl[0].name }}
-                </a>
-              </li>
+              {% if not pl[0].is_archived %}
+                <li data-name="{{ pl[0].urlencoded_name }}" class="project_list_item">
+                  <a href="#" class="menu" data-id="{{ pl[0]._id }}">
+                    {{ pl[0].name }}
+                  </a>
+                </li>
+              {% endif %}
             {% endfor %}
           </ul>
         </div>
@@ -38,61 +40,70 @@
         <div id="inner">
           <ul id="project" class="invisible structural project_list">
             {% for pl in projects_and_lusers %}
-              <li class="project_item" id="{{ pl[0]._id }}">
+              {% if not pl[0].is_archived %}
+                <li class="project_item" id="{{ pl[0]._id }}">
 
-                <h3>{{ pl[0].name }}</h3>
+                  <h3>{{ pl[0].name }}</h3>
 
-                {% set project = pl[0] %}
+                  {% set project = pl[0] %}
 
-                {% include "members_display_only.html" %}
-                <div class="clear"></div>
+                  {% include "members_display_only.html" %}
+                  <div class="clear"></div>
 
-                <br />
-                <div>
-                  <!-- This value is set dynamically to denote that the user has
-                     privileges for this project, and therefore can enter the
-                     management area. -->
+                  <div style="height: 200px;">
+                    <!-- This value is set dynamically to denote that the user has
+                       privileges for this project, and therefore can enter the
+                       management area. -->
 
-                  <a href="/{{ pl[0].urlencoded_name }}/boards" class="custom_btn">
-                     <div class="icon_large boards"></div>
-                     <div class="label">Boards</div>
-                     <div class="clear"></div>
-                  </a>
+                    <a href="/{{ pl[0].urlencoded_name }}/boards" class="custom_btn">
+                       <div class="icon_large boards"></div>
+                       <div class="label">Boards</div>
+                       <div class="clear"></div>
+                    </a>
 
-                  <a href="/{{ pl[0].urlencoded_name }}/archives" class="custom_btn">
-                     <div class="icon_large archives"></div>
-                     <div class="label">Archives</div>
-                     <div class="clear"></div>
-                  </a>
-                  
-                  <a class="custom_btn" href="/{{ pl[0].urlencoded_name }}/progress">
-                    <div class="icon_large project_progress"></div>
-                    <div class="label">Progress</div>
-                    <div class="clear"></div>
-                  </a>
+                    <a href="/{{ pl[0].urlencoded_name }}/archives" class="custom_btn">
+                       <div class="icon_large archives"></div>
+                       <div class="label">Archives</div>
+                       <div class="clear"></div>
+                    </a>
+                    
+                    <a class="custom_btn" href="/{{ pl[0].urlencoded_name }}/progress">
+                      <div class="icon_large project_progress"></div>
+                      <div class="label">Progress</div>
+                      <div class="clear"></div>
+                    </a>
 
-                  <a href="/{{ pl[0].urlencoded_name }}/office_hours" class="custom_btn">
-                     <div class="icon_large calendar"></div>
-                     <div class="label">Office Hours</div>
-                     <div class="clear"></div>
-                  </a>
+                    <a href="/{{ pl[0].urlencoded_name }}/office_hours" class="custom_btn">
+                       <div class="icon_large calendar"></div>
+                       <div class="label">Office Hours</div>
+                       <div class="clear"></div>
+                    </a>
 
-                  <a href="/{{ pl[0].urlencoded_name }}/reports" class="custom_btn">
-                     <div class="icon_large reports"></div>
-                     <div class="label">Reports</div>
-                     <div class="clear"></div>
-                  </a>
+                    <a href="/{{ pl[0].urlencoded_name }}/reports" class="custom_btn">
+                       <div class="icon_large reports"></div>
+                       <div class="label">Reports</div>
+                       <div class="clear"></div>
+                    </a>
 
+                    {% if pl[1].is_owner == True %}
+                    <a href="/{{ pl[0].urlencoded_name }}/members" class="custom_btn">
+                       <div class="members icon_large"></div>
+                       <div class="label">Members</div>
+                       <div class="clear"></div>
+                    </a>
+                    {% endif %}
+                  </div>
+                  <div class="clear"></div>
                   {% if pl[1].is_owner == True %}
-                  <a href="/{{ pl[0].urlencoded_name }}/members" class="custom_btn">
-                     <div class="members icon_large"></div>
-                     <div class="label">Members</div>
-                     <div class="clear"></div>
-                  </a>
+                  <div style="float: right;">
+                    <a href="/{{ pl[0].urlencoded_name }}/archive">
+                      Archive This Project
+                    </a>
+                  </div>
                   {% endif %}
-                </div>
-                <div class="clear"></div>
-              </li>
+
+                </li>
+              {% endif %}
             {% endfor %}
           </ul>
       </div>

@@ -242,7 +242,8 @@ class Project(db.Model, DictSerializable):
     _id         = db.Column(db.Integer, primary_key=True)
     name        = db.Column(db.String, nullable=False)
     created     = db.Column(db.DateTime, default=func.now())
-    
+    is_archived = db.Column(db.Boolean, default=False)
+
     milestones  = db.relationship("Milestone", order_by=lambda: Milestone.created)
     lusers      = db.relationship("Luser", secondary=ProjectLuser.__table__,
                                            order_by=lambda: Luser.created)

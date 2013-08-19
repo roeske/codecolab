@@ -696,6 +696,18 @@ def check_owner_privileges(func):
 
 
 ##########################################################################
+# Archive Projects
+##########################################################################
+
+@app.route("/<project_name>/archive", methods=["GET"])
+@check_project_privileges
+def archive_project(project=None, **kwargs):
+    project.is_archived = True
+    models.db.session.commit()
+    return redirect_to("index")
+
+
+##########################################################################
 ## Lists 
 ##########################################################################
 
