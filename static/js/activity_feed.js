@@ -73,12 +73,14 @@
         };
 
         ActivityFeed.prototype.reload = function() {
+            console.log("BEGIN RELOAD");
             var url = "/project/" + this.project_name + "/activity";
             var that = this;
             $.get(url, function(data) {
                 that.list.html(data);
                 that.list.animate({scrollTop: 0}, "fast");
                 that._connect_activity_links();
+                console.log("END RELOAD");
             });
         };
 

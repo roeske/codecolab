@@ -143,6 +143,7 @@ function cc_init_list_controls(socket, project_id, selector_prefix) {
               socket.emit('add_card', { project_id: project_id, 
                                         pile_id: pile_id, html: text });
               cc_add_card(socket, project_id, text, pile_id, false);
+              cc_activity_reload();
           } 
       });
   });
@@ -860,6 +861,7 @@ function cc_initialize_socketio(project_id) {
     socket.on("archive_card", function(data) {
         var card_id = data['card_id'];
         $('li[data-id="'+card_id+'"]').remove();
+        cc_activity_reload();
     });
 
     socket.on("reorder_cards", function(data) {
@@ -897,7 +899,6 @@ function cc_initialize_socketio(project_id) {
     });
 
     socket.on("reorder_piles", function(data) {
-        console.log(data);
         $("li.pile_container").each(function(i, elem) {
             var old_number = $(elem).data('number');
             $(elem).data('number', data['updates'][parseInt($(elem).data('id'),10)]['number']);
