@@ -64,12 +64,13 @@ ul#project li {
     margin-right: 1px;
 }
 
-.project_selection #project_members_container ul {
+.project_selection .project_members_container ul {
     height: 250px;
     white-space: nowrap;
 }
 
-.project_selection #project_members_container ul li {
+.project_selection .project_members_container ul li {
+    list-style:none;
     float: left;
     margin-right: 7px; 
     margin-top: 7px;

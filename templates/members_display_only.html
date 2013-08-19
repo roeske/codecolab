@@ -1,30 +1,29 @@
-<div id="project_members_container">
-<ul class="structural horizontal_left">
-<!-- iterate through project members -->
-{% for member in project.lusers %}
-  <li>
-    <div class="member_container">
+<div class="project_members_container">
+  <ul id="project_members_list">
+  <!-- iterate through project members -->
+  {% for member in project.lusers %}
+    <li>
+      <div class="member_container">
 
-      <!-- username -->
-      <div class="member_username_container">
-        <a class="profile_link{% if member._id != luser._id %}_notmine{%endif%}" href="/profile/{{ member._id }}">
+        <!-- username -->
+        <div class="member_username_container">
+          <a class="profile_link{% if member._id != luser._id %}_notmine{%endif%}" href="/profile/{{ member._id }}">
 
-          <img  style="box-shadow: 1px 1px 4px #aaa; padding: 7px;" src="{{ member.gravatar_url_96 }}" />
-         
-          <p> 
-          {{ member.profile.username }}
-          {% if member._id == luser._id %}
-            <small>(you)</small>
-          {% endif %}
-          </p>
-        </a>
+            <img  style="box-shadow: 1px 1px 4px #aaa; padding: 7px;" src="{{ member.gravatar_url_96 }}" />
+           
+            <p> 
+            {{ member.profile.username }}
+            {% if member._id == luser._id %}
+              <small>(you)</small>
+            {% endif %}
+            </p>
+          </a>
+        </div>
       </div>
-    </div>
 
-    <div class="clear"></div>
-  </li>
-{% endfor %} <div class="clear"></div>
+      <div class="clear"></div>
+    </li>
+  {% endfor %}
+  </ul>
 </div>
-<script type="text/javascript">
-</script>
 <!-- end project_members_container -->
