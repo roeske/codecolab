@@ -1,0 +1,310 @@
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Open Sans'), local('OpenSans'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/cJZKeOuBrn4kERxqtaUH3aCWcynf_cDxXwCLxiixG1c.ttf) format('truetype');
+}
+
+
+
+div.luser_time {
+    width: 14%;
+    float: left;
+    border-bottom: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    margin: 0;
+    height: 100px;
+}
+
+div.hours {
+    width: 85.5%;
+    float: left;
+    margin: 0;
+}
+
+.luser_time .avatar { 
+    float: left;
+}
+
+.luser_time div.left {
+    float: left;
+    width: 96px;
+    margin: 8px auto;
+}
+
+.luser_time div.right {
+    float: right;
+    width: 96px;
+    margin: 8px auto;
+}
+
+.luser_time div.left img {
+    margin-left: 16px;
+    margin-right: 16px;
+    margin-bottom: 8px;
+    margin-top: 8px;
+}
+
+.luser_time div.left div.username {
+    width: 96px;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    font-weight: bold;
+}
+
+
+div.hour div.inner {
+    height: 50px;
+    margin: 25px auto;
+}
+
+div.days {    
+    margin-bottom: 8px;
+    
+}
+
+
+div.day {
+    float: left;
+    width: 14%;
+    border-top: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+}
+
+div.day:first-child {
+    border-left: 1px solid #ccc;
+}
+
+div.hour {
+    float: left;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    width: 4.039%;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc; 
+}
+
+div.you {
+    background-color: #f0f0f0;
+}
+
+div.on {
+    background-color: #ddd;
+}
+
+
+.activity_username { font-weight: bold; }
+
+a.activity_card {
+    font-weight: bold;
+}
+
+#activity_toggle { 
+    height: 100%; 
+    float: left; 
+    width: 7%; 
+    background: #ccc; 
+}
+
+#activity_list_container { 
+    height: 100%;  
+    float: right; 
+    width: 93%;
+    background: #fbfbfb;
+}
+
+#activity_list { 
+    overflow-y: scroll;
+}
+
+.activity_list_item, .activity_loading {
+    margin: 7px;
+    padding: 7px;
+    box-shadow: 1px 1px 5px #aaa;
+}
+
+.activity_toggle_icon {
+    border-top-left-radius: 3px;
+    position: relative;
+    left: 10%;
+    top: 50%;
+    color: #555; 
+    font-weight: bold;
+    height: 24px;
+    width: 24px;
+}
+
+.activity_toggle_icon.show {
+    display: none;
+    height: 24px;
+    width: 11px;
+    background: #ccc url('../../assets/ic_chevron_left.png') no-repeat center center;
+}
+
+.activity_toggle_icon.hide {
+    height: 24px;
+    width: 12px;
+    background: #ccc url('../../assets/ic_chevron_right.png') no-repeat center center;
+}
+
+div#activity_container {
+    float: right;
+    width: 16%;
+    height: 90%;
+    overflow-y: hidden;
+    background-color: #ccc;
+}
+
+ul#activity_list {
+    height: 95%;
+    overflow-y: scroll;
+}
+
+div#activity_container h4 {
+    padding: 7px 0;
+    margin: 0;
+    font-weight: 400;
+}
+  
+ul#activity_list li {
+    padding: .5em 0;
+    font-size: 110%;
+}
+
+.inner_member li {
+    float: none;
+}
+
+.member_username_container {
+    text-align: center;
+    padding: 8px;
+}
+
+li.member_item {
+    border: 1px solid #ccc;
+    margin: 4px;
+    padding: 8px;
+}
+
+blockquote {
+    border-left: 2px dotted #888;
+    padding-left: 5px;
+    background: #d0f0ff;
+}
+
+
+.wmd-panel {
+}
+
+.wmd-button-bar {
+}
+
+.wmd-input { 
+    width: 97%;
+    height: 300px;
+    background-color: #f5f2f1;
+    border: 1px solid #ccc;
+}
+
+.wmd-preview { 
+    width: 97%;
+    padding: 7px;
+}
+
+.wmd-preview > ol,
+.wmd-preview > ul {
+    margin-left: 2em;
+}
+
+.wmd-preview > pre {
+    margin: 8px;
+}
+
+.wmd-button-row {
+    position: relative; 
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    margin-top: 10px;
+    padding: 0px;  
+    height: 20px;
+}
+
+.wmd-spacer {
+    width: 1px; 
+    height: 20px; 
+    margin-left: 14px;
+    
+    position: absolute;
+    background-color: Silver;
+    display: inline-block; 
+    list-style: none;
+}
+
+.wmd-button {
+    width: 20px;
+    height: 20px;
+    padding-left: 2px;
+    padding-right: 3px;
+    position: absolute;
+    display: inline-block;
+    list-style: none;
+    cursor: pointer;
+}
+
+.wmd-button > span {
+    background-image: url(../../pagedown/wmd-buttons.png);
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+}
+
+.wmd-spacer1 {
+    left: 50px;
+}
+
+.wmd-spacer2 {
+    left: 175px;
+}
+
+.wmd-spacer3 {
+    left: 300px;
+}
+
+.wmd-prompt-background {
+    background-color: Black;
+}
+
+.wmd-prompt-dialog {
+    border: 1px solid #999999;
+    background-color: #F5F5F5;
+}
+
+.wmd-prompt-dialog > div {
+    font-size: 0.8em;
+    font-family: "Open Sans", sans-serif;
+}
+
+
+.wmd-prompt-dialog > form > input[type="text"] {
+    border: 1px solid #999999;
+    color: black;
+}
+
+.wmd-prompt-dialog > form > input[type="button"]{
+    border: 1px solid #888888;
+    font-family: "Open Sans", sans-serif;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+
+.wmd-preview h1 { font-weight: bold; font-size: 1.6em; }
+.wmd-preview h2 { font-weight: bold; font-size: 1.3em; }
+.wmd-preview h3 { font-weight: bold; font-size: 1.1em; }
