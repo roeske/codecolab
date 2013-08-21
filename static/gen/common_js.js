@@ -26893,6 +26893,12 @@ String.prototype.endsWith = function(suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
 }; 
 
+String.prototype.htmlDecode = function() {
+    var e = document.createElement('div');
+    e.innerHTML = this;
+    return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+};
+
 function make_archive_click_handler(project_id, socket) {
     return function (event) {
         event.preventDefault();
@@ -27112,11 +27118,11 @@ function cc_connect_editables(project_name, modal, card_id) {
         height: "24px",
 
         callback: function(value, settings) {
-            modal.dialog('option', 'title', value);
+            modal.dialog('option', 'title', value.htmlDecode());
 
             // Must update the card in the list (not modal) when the modal
             // is changed so they do not come out of sync with each other.
-            $("li[data-id=" + card_id + "].card_item").find("p span.text").text(value);
+            $("li[data-id=" + card_id + "].card_item").find("p span.text").text(value.htmlDecode());
 
             cc_activity_reload();
         }
