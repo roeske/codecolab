@@ -27072,7 +27072,7 @@ function cc_setup_card_description_editor(project_name, card_id) {
       } else {
           // Post the new content
           var description = $("#wmd-input").val();
-          var url = "/project/" + project_name + 
+          var url = "/p/" + project_name + 
                     "/cards/" + card_id + "/description";
     
 
@@ -27108,7 +27108,7 @@ function cc_connect_editables(project_name, modal, card_id) {
     var id = card_id;
 
     // Edit card title
-    var url = "/project/" + project_name + "/cards/edit/" + id;
+    var url = "/p/" + project_name + "/cards/edit/" + id;
     $(modal).find(".editable.text").editable(url, {
         name: "text",
         event: "click",
@@ -27173,7 +27173,7 @@ function cc_connect_raty_score(elem, project_name, card_id, is_cancellable) {
             $.ajax({
                 type: "POST",
 
-                url: "/project/" + project_name + "/cards/" + card_id + "/score",
+                url: "/p/" + project_name + "/cards/" + card_id + "/score",
 
                 data: JSON.stringify({score: score}),
                 
@@ -27334,7 +27334,7 @@ function cc_piles_reorder_update_dom(elems) {
 function cc_reorder_post(socket, project_id, name, updates) {
     $.ajax({
         type: "POST",
-        url: "/" + name + "/reorder", 
+        url: "/p/" + name + "/reorder", 
         data: JSON.stringify({updates: updates, project_id: project_id}),
         
         success: function(data) {
@@ -27458,7 +27458,7 @@ function cc_setup_editable_fields(project_name) {
     // Make pile names editable
     $(selector).each(function(i, elem) {
         var id = $(elem).attr("data-id");
-        $(elem).editable("/project/" + project_name + "/piles/edit/" + id, {
+        $(elem).editable("/p/" + project_name + "/piles/edit/" + id, {
             event: "click",
             style: "inherit",
             onblur: "submit",
@@ -27646,7 +27646,7 @@ function cc_connect_card_to_modal(title, project_name, elem, is_link) {
     var modal_id = "modal_" + $(elem).attr("data-id");
     var card_id = $(elem).attr('data-id');
 
-    var url = "/project/" + project_name + "/cards/" + card_id;
+    var url = "/p/" + project_name + "/cards/" + card_id;
 
     var options = {
         dialogClass: "card_modal",

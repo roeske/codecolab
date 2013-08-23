@@ -2,7 +2,7 @@
   <!-- Static created timestamp -->
   <div class="card_top">
     <div>
-      <a data-state="{{ card.is_completed }}" class="btn card_complete" href="/project/{{ project_name }}/cards/{{ card._id }}/complete">
+      <a data-state="{{ card.is_completed }}" class="btn card_complete" href="/p/{{ project_name }}/cards/{{ card._id }}/complete">
         <!-- Show the appropriate toggle state, but also make it easy
            to change from javascript by manipulating the DOM -->
         {% if card.is_completed == True %}
@@ -58,7 +58,7 @@
     </div>
     
     <!-- Select milestone -->
-    <form action="/project/{{ project_name }}/cards/{{ card._id }}/select_milestone"
+    <form action="/p/{{ project_name }}/cards/{{ card._id }}/select_milestone"
         method="POST" 
         class="milestone">
        
@@ -88,7 +88,7 @@
 
     <div style="subcription">
       <h3 class="card_section">Subscription</h3>
-      <form action="/{{ project_name }}/{{ card_id }}/subscribe"
+      <form action="/p/{{ project_name }}/{{ card_id }}/subscribe"
             method="POST" id="form_subscribe">
             {% if is_subscribed %}
               <input type="submit" name="submit" value="Subscribed"
@@ -107,12 +107,12 @@
   <h3 class="card_section">Tag</h3>
 
   <div data-tags="{% for tag in card.tags %}{{tag.tag.name}},{% endfor %}"
-       data-action="/project/{{ project_name }}/cards/{{ card._id }}/tag" 
+       data-action="/p/{{ project_name }}/cards/{{ card._id }}/tag" 
        style="height: 24px; width: 100%;" class="select_tag"/>
 
   <div class="clear"></div>
     <!-- Assign to user -->
-    <form action="/project/{{ project_name }}/cards/{{ card._id }}/assign_to"
+    <form action="/p/{{ project_name }}/cards/{{ card._id }}/assign_to"
         method="POST" 
         class="assign_to">
        

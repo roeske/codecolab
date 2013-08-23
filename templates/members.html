@@ -34,7 +34,7 @@
 
       <!-- display admin toggle otherwise -->
       <form style="padding: 0; margin: 0;" class="is_owner" method="POST"
-        action="/project/{{ project.name }}/luser/{{ member._id }}/is_owner"> 
+        action="/p/{{ project.name }}/luser/{{ member._id }}/is_owner"> 
         
         <label style="float: left;" for="is_{{ member._id }}_owner" name="is_owner">
           Administrator&nbsp;&nbsp;&nbsp;
@@ -56,7 +56,7 @@
       {% if project.is_owner(luser._id) and member._id != luser._id %}
         <a data-username="{{ member.profile.username }}" class="member_remove" 
         style="text-align: center; color: #f00; font-size: 80%; display: block; text-decoration: underline;" 
-          href="/project/{{ project.name }}/members/{{ member._id }}/remove">
+          href="/p/{{ project.name }}/members/{{ member._id }}/remove">
           remove member
         </a>
       {% else %}

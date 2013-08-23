@@ -11,7 +11,7 @@
     </div> 
 
     <div class="buttons">
-      <a href="/{{ project.urlencoded_name }}/archives"
+      <a href="/p/{{ project.urlencoded_name }}/archives"
        style="padding-top: 3px; padding-bottom: 3px;"
        class="btn">
        <div class="label" style="float: left;">Archives&nbsp;</div>
@@ -21,7 +21,7 @@
     <div style="padding-top: 7px; margin-bottom: 7px;" style="float: right;">
 
 
-      <form id="add_list_form" action="/{{ project.urlencoded_name }}/piles/add" method="POST">
+      <form id="add_list_form" action="/p/{{ project.urlencoded_name }}/piles/add" method="POST">
 
       <input type="hidden" name="project_name" value="{{ project.name }}" />
 
@@ -161,7 +161,7 @@ $(function() {
 function delete_list(project_name, list_id, callback) {
     $.ajax({
         type: "GET",
-        url: "/" + project_name + "/list/" + list_id + "/delete",
+        url: "/p/" + {{ project.urlencoded_name }} + "/list/" + list_id + "/delete",
         
         success: function(data) {
             callback(data)

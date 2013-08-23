@@ -5,7 +5,7 @@
 
   <div class="days">
     {% for i in range(days|count) %}
-      <div class="day {% if i == weekday %}on{% endif %}"><a href="/{{ project.name }}/office_hours?weekday={{ i }}">{{ days[i].name }}</a></div>
+      <div class="day {% if i == weekday %}on{% endif %}"><a href="/p/{{ project.name }}/office_hours?weekday={{ i }}">{{ days[i].name }}</a></div>
     {% endfor %}
   </div>
   <div class="clear"></div>
@@ -199,7 +199,7 @@ $(function() {
         $(this).data("is-on", new_state)
         console.log(get_selected_hours(luser_id))
 
-        var url = "/project/" + project_name + "/office_hours/update"
+        var url = "/p/" + {{ project.urlencoded_name }} + "/office_hours/update"
         $.ajax({ 
              url: url, 
              type: "POST",

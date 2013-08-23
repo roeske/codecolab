@@ -44,8 +44,7 @@
   // hook up delete comment button
   $(".btn.delete").click(function() {
       var filename = $(this).data("filename");
-      var project_name = "{{ project_name }}";
-      var base_url = "/project/{{ project_name }}/attachments/delete/";
+      var base_url = "/p/{{ project_name }}/attachments/delete/";
 
       if(confirm("Are you sure you want to delete " + filename + "?")) {
           var attachment_id = $(this).data("attachment-id");

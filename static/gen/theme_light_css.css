@@ -6301,7 +6301,7 @@ div#piles ul#pile_list li {
 
 .pile_container ul.card_list {
     min-height: 80px;
-    max-height: 70.5%;
+    max-height: 78%;
     overflow-x: hidden;
     background-color: #bbb;
     padding: .5em .5em 0em .5em;

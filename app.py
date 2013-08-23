@@ -81,8 +81,6 @@ uploads.configure_uploads(app, (files,))
 def is_logged_in():
     return "email" in flask.session
 
-
-
 ###############################################################################
 # Sign S3 Uploads
 ###############################################################################
@@ -232,7 +230,10 @@ def require_login(func):
     """
     @wraps(func)
     def wrap(**kwargs):
-        logged_in = is_logged_in()
+        logged_in = "email" in flask.session
+        if logged_in:
+            email = flask.session["email"]
+            kwargs['luser'] = models.Luser.query.filter_by(email=email).first() 
 
         if flask.request.method == "GET" and logged_in: 
             return func(**kwargs)
@@ -249,9 +250,14 @@ def require_login(func):
 ###############################################################################
 
 
+@app.route("/p")
+def redirect(**kwargs):
+    return redirect_to("index")
+
+
 @app.route("/", methods=["POST", "GET"])
 @require_login
-def index():
+def index(**kwargs):
     """
     Serves the index. Responsible for delegating to several 
     screens based on the state and type of request.
@@ -268,14 +274,14 @@ def index():
         return render_index(email)
 
 
-@app.route("/<project_name>", methods=["POST", "GET"])
+@app.route("/p/<project_name>", methods=["POST", "GET"])
 @require_login
-def project_selection(project_name):
+def project_selection(project_name, **kwargs):
     email = flask.session["email"]
     return render_index(email, selected_project=project_name)
 
 
-@app.route("/<project_name>/remember_last", methods=["GET"])
+@app.route("/p/<project_name>/remember_last", methods=["GET"])
 @require_login
 def remember_last_project(project_name, **kwargs):
     # Remember the last project the user was accessing, so that
@@ -694,19 +700,52 @@ def check_owner_privileges(func):
         return func(**kwargs)
     return wrap
 
+###############################################################################
+## Github Integration
+###############################################################################
+
+import github
+github = github.setup(app)
+
+@app.route("/github/configure")
+@require_login
+def github_configure(**kwargs):
+    return flask.render_template("github_configure.html", **kwargs)
+
+
+@app.route("/github/authorize")
+@require_login
+def github_authorize(luser=None, project=None, **kwargs):
+    redirect_uri_params = "?user_id=%d" % luser._id
+    return github.authorize(redirect_uri_params=redirect_uri_params)
+
+
+@app.route("/github/callback")
+@github.authorized_handler
+def github_callback(oauth_token, **kwargs):
+    luser_id = int(request.args.get('user_id'))
+
+    luser = models.Luser.query.filter_by(_id=luser_id).first()
+    luser.github_token = oauth_token
+    luser.has_github_token = True
+
+    models.db.session.commit()
+
+    return flask.redirect_to("/github-configure")
+
 
 ##########################################################################
 # Archive Projects
 ##########################################################################
 
-@app.route("/<project_name>/archive", methods=["GET"])
+@app.route("/p/<project_name>/archive", methods=["GET"])
 @check_project_privileges
 def archive_project(project=None, **kwargs):
     project.is_archived = True
     models.db.session.commit()
     return redirect_to("index")
 
-@app.route("/<project_name>/unarchive", methods=["GET"])
+@app.route("/p/<project_name>/unarchive", methods=["GET"])
 @check_project_privileges
 def unarchive_project(project=None, **kwargs):
     project.is_archived = False
@@ -718,7 +757,7 @@ def unarchive_project(project=None, **kwargs):
 ## Lists 
 ##########################################################################
 
-@app.route("/<project_name>/list/<int:list_id>/delete")
+@app.route("/p/<project_name>/list/<int:list_id>/delete")
 @check_project_privileges
 def list_delete(list_id=None, luser=None, **kwargs):
     """
@@ -745,7 +784,7 @@ def list_delete(list_id=None, luser=None, **kwargs):
 ## Invites
 ###############################################################################
 
-@app.route("/<project_name>/members")
+@app.route("/p/<project_name>/members")
 @check_owner_privileges
 def members(project=None, **kwargs):
     # We also need to display project invites
@@ -756,7 +795,7 @@ def members(project=None, **kwargs):
                               invites=invites, project=project, **kwargs)
 
 
-@app.route("/project/<project_name>/members/<int:member_id>/remove")
+@app.route("/p/<project_name>/members/<int:member_id>/remove")
 @check_owner_privileges
 def remove_member(project=None, member_id=None, **kwargs):
     
@@ -774,7 +813,7 @@ def remove_member(project=None, member_id=None, **kwargs):
 ###############################################################################
 ACTIVITY_ITEMS_PER_PAGE = 50
 
-@app.route("/project/<project_name>/activity", methods=["GET"])
+@app.route("/p/<project_name>/activity", methods=["GET"])
 @check_project_privileges
 def activity(project=None, **kwargs):
     page = int(request.args.get('page', 0))
@@ -797,7 +836,7 @@ def activity(project=None, **kwargs):
 ## Cards
 ##############################################################################
 
-@app.route("/<project_name>/<int:card_id>/subscribe", methods=["POST"])
+@app.route("/p/<project_name>/<int:card_id>/subscribe", methods=["POST"])
 @check_project_privileges
 def card_subscribe(card_id=None, luser=None, project=None, **kwargs):
     card = query_card(card_id, project._id)
@@ -833,7 +872,7 @@ def render_card(template, **kwargs):
                                  is_subscribed=is_subscribed, **kwargs)
 
 
-@app.route("/<project_name>/cards/<int:card_id>/attachments", methods=["POST"])
+@app.route("/p/<project_name>/cards/<int:card_id>/attachments", methods=["POST"])
 @check_project_privileges
 def card_get_attachments(card_id=None, luser=None, **kwargs):
     """
@@ -853,7 +892,7 @@ def card_get_attachments(card_id=None, luser=None, **kwargs):
     return stuff
 
 
-@app.route("/project/<project_name>/attachments/delete/<int:attachment_id>",
+@app.route("/p/<project_name>/attachments/delete/<int:attachment_id>",
     methods=["POST"])
 @check_project_privileges
 def delete_attachment(attachment_id, luser=None, **kwargs):
@@ -866,7 +905,7 @@ def delete_attachment(attachment_id, luser=None, **kwargs):
     return respond_with_json({ "status" : "success" })
 
 
-@app.route("/project/<project_name>/cards/<int:card_id>/comment", methods=["POST"])
+@app.route("/p/<project_name>/cards/<int:card_id>/comment", methods=["POST"])
 @check_project_privileges
 def cards_comment(project_name=None, luser=None, project=None, card_id=None,
                   **kwargs):
@@ -900,7 +939,7 @@ def cards_comment(project_name=None, luser=None, project=None, card_id=None,
                 comment_edit_url=comment_edit_url)
 
 
-@app.route("/project/<project_name>/report/edit/<int:report_id>",
+@app.route("/p/<project_name>/report/edit/<int:report_id>",
     methods=["GET", "POST"])
 @check_project_privileges
 def report_edit(report_id, luser=None, **kwargs):
@@ -918,7 +957,7 @@ def report_edit(report_id, luser=None, **kwargs):
         return report.text
 
 
-@app.route("/project/<project_name>/reports/<int:report_id>/comment",
+@app.route("/p/<project_name>/reports/<int:report_id>/comment",
     methods=["POST"])
 @check_project_privileges
 def reports_comment(project_name=None, project=None, luser=None, 
@@ -955,7 +994,7 @@ def delete_comment(Comment, comment_id):
     return comment
 
 
-@app.route("/project/<project_name>/comment/delete/<int:comment_id>",
+@app.route("/p/<project_name>/comment/delete/<int:comment_id>",
            methods=["POST"])
 @check_project_privileges
 def delete_card_comment(project=None, luser=None, project_name=None,
@@ -969,7 +1008,7 @@ def delete_card_comment(project=None, luser=None, project_name=None,
     return respond_with_json({ "status" : "success" })
 
 
-@app.route("/project/<project_name>/report-comments/delete/<int:comment_id>",
+@app.route("/p/<project_name>/report-comments/delete/<int:comment_id>",
            methods=["POST"])
 @check_project_privileges
 def delete_report_comment(project=None, luser=None, project_name=None,
@@ -982,7 +1021,7 @@ def delete_report_comment(project=None, luser=None, project_name=None,
 
 
 
-@app.route("/project/<project_name>/card/<int:card_id>/archive")
+@app.route("/p/<project_name>/card/<int:card_id>/archive")
 @check_project_privileges
 def archive(luser=None, project=None, card_id=None, **kwargs):
     """
@@ -999,7 +1038,7 @@ def archive(luser=None, project=None, card_id=None, **kwargs):
                                "message" : "Archived card %d" % card._id })
 
 
-@app.route("/project/<project_name>/cards/<int:card_id>/restore",
+@app.route("/p/<project_name>/cards/<int:card_id>/restore",
             methods=["GET"])
 @check_project_privileges
 def restore_card(project=None, card_id=None, **kwargs):
@@ -1032,14 +1071,14 @@ def card_set_attributes(project=None, card_id=None, **kwargs):
     return respond_with_json({ "status" : "success" })
 
 
-@app.route("/project/<project_name>/cards/<int:card_id>/select_milestone",
+@app.route("/p/<project_name>/cards/<int:card_id>/select_milestone",
             methods=["POST"])
 @check_project_privileges
 def card_select_milestone(project=None, card_id=None, **kwargs):
     return card_set_attributes(project=project, card_id=card_id, **kwargs)   
 
 
-@app.route("/project/<project_name>/cards/<int:card_id>/assign_to",
+@app.route("/p/<project_name>/cards/<int:card_id>/assign_to",
             methods=["POST"])
 @check_project_privileges
 def card_assign_to(project=None, card_id=None, **kwargs):
@@ -1063,7 +1102,7 @@ def card_assign_to(project=None, card_id=None, **kwargs):
     return respond_with_json({ "status" : "success" })
 
 
-@app.route("/project/<project_name>/cards/edit/<int:card_id>", methods=["POST"])
+@app.route("/p/<project_name>/cards/edit/<int:card_id>", methods=["POST"])
 @check_project_privileges
 def card_edit(project=None, luser=None, project_name=None,card_id=None,
               **kwargs):
@@ -1100,7 +1139,7 @@ def edit_comment(Comment, luser, comment_id):
     return comment
 
 
-@app.route("/project/<project_name>/comments/edit/<int:comment_id>", methods=["POST"])
+@app.route("/p/<project_name>/comments/edit/<int:comment_id>", methods=["POST"])
 @check_project_privileges
 def edit_card_comment(project=None, luser=None, project_name=None, 
                         comment_id=None, **kwargs):
@@ -1111,7 +1150,7 @@ def edit_card_comment(project=None, luser=None, project_name=None,
     return comment.text
 
 
-@app.route("/project/<project_name>/report-comments/edit/<int:comment_id>", methods=["POST"])
+@app.route("/p/<project_name>/report-comments/edit/<int:comment_id>", methods=["POST"])
 @check_project_privileges
 def edit_report_comment(project=None, luser=None, project_name=None, 
                         comment_id=None, **kwargs):
@@ -1126,7 +1165,7 @@ def query_card(card_id, project_id):
                    .first())
 
 
-@app.route("/project/<project_name>/cards/<int:card_id>", methods=["GET"])
+@app.route("/p/<project_name>/cards/<int:card_id>", methods=["GET"])
 @check_project_privileges
 def cards_get(**kwargs):
     """
@@ -1142,7 +1181,7 @@ def cards_get(**kwargs):
         return render_card("card.html", **kwargs)
 
 
-@app.route("/project/<project_name>/cards/<int:card_id>/description", methods=["POST"])
+@app.route("/p/<project_name>/cards/<int:card_id>/description", methods=["POST"])
 @check_project_privileges
 def cards_description(project=None, card_id=None, **kwargs):
     description = request.json["description"]
@@ -1153,7 +1192,7 @@ def cards_description(project=None, card_id=None, **kwargs):
                                "description" : description })
 
 
-@app.route("/project/<project_name>/cards/<int:card_id>/score", methods=["POST"])
+@app.route("/p/<project_name>/cards/<int:card_id>/score", methods=["POST"])
 @check_project_privileges
 def card_score(project_name=None, card_id=None, project=None, **kwargs):
     
@@ -1192,20 +1231,20 @@ def cards_reorder():
     return respond_with_json(flask.request.json)
 
 
-@app.route("/<project_name>/archives", methods=["GET", "POST"])
+@app.route("/p/<project_name>/archives", methods=["GET", "POST"])
 @check_project_privileges
 def archives(**kwargs):
     return cc_render_template("archived_cards.html", **kwargs)
 
 
-@app.route("/project/<project_name>/minicards/<int:card_id>")
+@app.route("/p/<project_name>/minicards/<int:card_id>")
 @check_project_privileges
 def minicards_get(card_id=None, **kwargs):
     card = models.Card.query.filter_by(_id=card_id).first() 
     return flask.render_template("minicard.html", card=card, **kwargs)
 
 
-@app.route("/project/<project_name>/cards/add", methods=["POST"])
+@app.route("/p/<project_name>/cards/add", methods=["POST"])
 @check_project_privileges
 def cards_add(project=None, luser=None, **kwargs):
     card = models.Card.create(luser._id, project, request.form["pile_id"], request.form["text"])
@@ -1214,7 +1253,7 @@ def cards_add(project=None, luser=None, **kwargs):
                                  project=project, **kwargs)
 
 
-@app.route("/project/<project_name>/cards/<int:card_id>/complete",
+@app.route("/p/<project_name>/cards/<int:card_id>/complete",
             methods=["POST"])
 @check_project_privileges
 def card_toggle_is_completed(project=None, card_id=None, luser=None,
@@ -1280,7 +1319,7 @@ def piles_reorder():
 ## Milestones
 ############################################################################
 
-@app.route("/project/<project_name>/milestones/add", methods=["POST"])
+@app.route("/p/<project_name>/milestones/add", methods=["POST"])
 @check_project_privileges
 def milestones_add(project=None, **kwargs):
     """
@@ -1298,7 +1337,7 @@ def milestones_add(project=None, **kwargs):
     return redirect_to("project_progress", **kwargs)
 
 
-@app.route("/project/<project_name>/milestone/<int:milestone_id>/accept",
+@app.route("/p/<project_name>/milestone/<int:milestone_id>/accept",
             methods=["POST"])
 @check_project_privileges
 def milestone_toggle_is_accepted(project=None, milestone_id=None, **kwargs):
@@ -1328,7 +1367,7 @@ def add_pile(project, name="Unnamed List"):
     return pile
 
 
-@app.route("/<project_name>/piles/add", methods=["POST"])
+@app.route("/p/<project_name>/piles/add", methods=["POST"])
 @check_project_privileges
 def pile_add(project=None, luser=None, **kwargs):
     pile = add_pile(project, request.form["text"])
@@ -1336,7 +1375,7 @@ def pile_add(project=None, luser=None, **kwargs):
                               luser=luser, pile=pile, **kwargs)
 
 
-@app.route("/project/<project_name>/piles/edit/<int:pile_id>", methods=["POST"])
+@app.route("/p/<project_name>/piles/edit/<int:pile_id>", methods=["POST"])
 @check_project_privileges
 def pile_edit(project_name, pile_id, luser=None, project=None, **kwargs):
     name = flask.request.form["value"].strip()
@@ -1434,7 +1473,7 @@ def inflate_tags(tag_names):
 
 
 
-@app.route("/project/<project_name>/reports/<int:report_id>/tag", methods=["POST"])
+@app.route("/p/<project_name>/reports/<int:report_id>/tag", methods=["POST"])
 @check_project_privileges
 def tag_report(project_name, report_id, luser=None, project=None, **kwargs):
     tags = inflate_tags(request.json["tags"])
@@ -1458,7 +1497,7 @@ def tag_report(project_name, report_id, luser=None, project=None, **kwargs):
     return respond_with_json({'tags': request.json["tags"], 
                                 'status': 'success' });
 
-@app.route("/project/<project_name>/cards/<int:card_id>/tag", methods=["POST"])
+@app.route("/p/<project_name>/cards/<int:card_id>/tag", methods=["POST"])
 @check_project_privileges
 def tag_card(project_name, card_id, luser=None, project=None, **kwargs):
     tags = inflate_tags(request.json["tags"])
@@ -1542,14 +1581,14 @@ def search_cards(luser=None, project=None, **kwargs):
     return respond_with_json(obj)
 
 
-@app.route("/<project_name>/boards")
+@app.route("/p/<project_name>/boards")
 @check_project_privileges
 def project(project_name, project=None, luser=None, **kwargs):
     email = flask.session["email"]
     return render_project(project_name, email)
 
 
-@app.route("/<project_name>/progress")
+@app.route("/p/<project_name>/progress")
 @check_owner_privileges
 def project_progress(project_name=None, luser=None,  project=None, **kwargs):
     """
@@ -1592,7 +1631,7 @@ def project_progress(project_name=None, luser=None,  project=None, **kwargs):
 
 
 
-@app.route("/project/<project_name>/luser/<int:luser_id>/is_owner",
+@app.route("/p/<project_name>/luser/<int:luser_id>/is_owner",
             methods=["POST"])
 @check_owner_privileges
 def toggle_owner_permission(project_name=None, luser_id=None, project=None,
@@ -1610,7 +1649,7 @@ def toggle_owner_permission(project_name=None, luser_id=None, project=None,
                               "luser_id" : luser_id })
 
 
-@app.route("/project/<project_name>/add_member", methods=["POST"])
+@app.route("/p/<project_name>/add_member", methods=["POST"])
 @check_owner_privileges
 def project_add_member(project=None, luser=None, **kwargs):
     """
@@ -1752,7 +1791,7 @@ def update_office_hours(project=None, luser=None, **kwargs):
     return respond_with_json({ "status" : "success" })
 
 
-@app.route("/<project_name>/office_hours", methods=["GET","POST"])
+@app.route("/p/<project_name>/office_hours", methods=["GET","POST"])
 @check_project_privileges
 def member_schedule(luser=None, project=None, **kwargs):
     """
@@ -1885,7 +1924,7 @@ def create_default_schedule(luser, project, day_collection):
 ###############################################################################
 
 REPORTS_PER_PAGE = 10
-@app.route("/<project_name>/reports", methods=["GET", "POST"])
+@app.route("/p/<project_name>/reports", methods=["GET", "POST"])
 @check_project_privileges
 def member_reports(luser=None, project=None, **kwargs):
     
@@ -1937,7 +1976,7 @@ def dump_query(query):
     return (comp.string.encode(enc) % params).decode(enc)
 
 
-@app.route("/project/<project_name>/team_reports")
+@app.route("/p/<project_name>/team_reports")
 @check_project_privileges
 def team_reports(luser=None, project=None, **kwargs):
     page = int(request.args.get('page', 0))
@@ -2006,7 +2045,7 @@ def team_reports(luser=None, project=None, **kwargs):
                                  project=project, luser=luser,**kwargs)
 
 
-@app.route("/project/<project_name>/reports/<int:report_id>")
+@app.route("/p/<project_name>/reports/<int:report_id>")
 @check_project_privileges
 def get_report(luser=None, project=None, report_id=None, **kwargs):
 

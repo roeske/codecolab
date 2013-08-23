@@ -19,7 +19,7 @@
 </ul>
 
 <div class="chrome pile_chrome_bottom bottom_corners">
-  <form data-pile-id="{{ pile.pile_uuid }}" class="add_card" action="/project/{{ project.name }}/cards/add" method="POST">
+  <form data-pile-id="{{ pile.pile_uuid }}" class="add_card" action="/p/{{ project.name }}/cards/add" method="POST">
   <input type="hidden" name="project_name" value="{{ project.name }}" />
   <input type="hidden" name="pile_id" value="{{ pile._id }}" />
 

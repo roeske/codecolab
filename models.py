@@ -22,7 +22,7 @@ DEFAULT_AVATAR_32 = "%sassets/lolvatar_32.png" % BASE_URL
 DEFAULT_AVATAR_48 = "%sassets/lolvatar_48.png" % BASE_URL
 DEFAULT_AVATAR_64 = "%sassets/lolvatar_64.png" % BASE_URL
 DEFAULT_AVATAR_96 = "%sassets/lolvatar_96.png" % BASE_URL
-DEFAULT_AVATAR_128 = "%sassets/lolvatar_128.png" % BASE_URL
+DEFAULT_AVATAR_128 = "%sassets/lolvatar_128.png" % BASE_URL 
 
 from collections import OrderedDict 
 class DictSerializable(object):
@@ -113,6 +113,9 @@ class Luser(db.Model, DictSerializable):
     google_id = db.Column(db.String, default=None)
     created = db.Column(db.DateTime, default=func.now())
     last_project_id = db.Column(db.Integer, default=None)
+
+    has_github_token = db.Column(db.Boolean, default=False)
+    github_token = db.Column(db.String, default=None)
 
     projects = db.relationship("Project", secondary=ProjectLuser.__table__)
     profile = db.relationship("LuserProfile", uselist=False)

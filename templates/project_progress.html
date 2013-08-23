@@ -1,7 +1,7 @@
 {% include "head.html" %}
 <div style="overflow-y: auto;" class="content project_manage">
   <div>
-    <h3 class="title">Progress <a href="/project/{{ project.name }}">{{ project.name }}</a></h3>
+    <h3 class="title">Progress <a href="/p/{{ project.name }}">{{ project.name }}</a></h3>
   </div>
   <hr />
 
@@ -36,7 +36,7 @@
       <!-- if this is the 'milestone' stat, inject an
       approve button into the table cell -->
       {% if loop.first and is_owner %}
-      <a style="float: right" href="/project/{{ project.name }}/milestone/{{ milestone._id }}/accept"
+      <a style="float: right" href="/p/{{ project.name }}/milestone/{{ milestone._id }}/accept"
         data-state="{{ milestone.is_approved }}"
         class="btn accept_milestone ">
         {% if milestone.is_approved %}
@@ -65,7 +65,7 @@
   </table>
 
   <br />
-  <form style="float: right;" action="/project/{{ project.name }}/milestones/add" id="form_add_milestone" method="POST">
+  <form style="float: right;" action="/p/{{ project.name }}/milestones/add" id="form_add_milestone" method="POST">
      
     <ul class="project_manage structural horizontal_left">
     <li>

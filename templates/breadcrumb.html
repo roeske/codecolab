@@ -11,7 +11,11 @@ function breadcrumb_update(path) {
 
         accumulated_path += "/" + tokens[i];
         var path_segment = decodeURIComponent(tokens[i]);
-        html += '<a data-path-segment="' + path_segment + '" class="breadcrumb_link" href="' + accumulated_path + '">' + path_segment + "</a>"; 
+        var name = path_segment;
+        if (name == "p") {
+            name = "projects";
+        }
+        html += '<a data-path-segment="' + path_segment + '" class="breadcrumb_link" href="' + accumulated_path + '">' + name + "</a>"; 
         if (i != 0 && i != tokens.length - 1) {
             html += "&nbsp;&gt;&nbsp;"
         }
