@@ -28,6 +28,8 @@ from pytz import timezone
 from oauth2client.client import flow_from_clientsecrets
 from dateutil import parser as date_parser
 
+from flask import g
+
 from config import *
 from helpers import (make_gravatar_url, make_gravatar_profile_url,
                      redirect_to, redirect_to_index, respond_with_json,
@@ -704,8 +706,21 @@ def check_owner_privileges(func):
 ## Github Integration
 ###############################################################################
 
-import github
-github = github.setup(app)
+import github as github_integration
+github = github_integration.setup(app)
+
+@app.before_request
+def before_request():
+    if 'email' in flask.session:
+        email = flask.session['email']
+        g.user = models.Luser.query.filter_by(email=email).first()
+
+
+@github.access_token_getter
+def token_getter():
+    print "TOKEN GETTER!: " + g.user.github_token
+    return g.user.github_token
+
 
 @app.route("/github/configure")
 @require_login
@@ -717,7 +732,8 @@ def github_configure(**kwargs):
 @require_login
 def github_authorize(luser=None, project=None, **kwargs):
     redirect_uri_params = "?user_id=%d" % luser._id
-    return github.authorize(redirect_uri_params=redirect_uri_params)
+    return github.authorize(redirect_uri_params=redirect_uri_params,
+                            scope="repo")
 
 
 @app.route("/github/callback")
@@ -731,7 +747,27 @@ def github_callback(oauth_token, **kwargs):
 
     models.db.session.commit()
 
-    return flask.redirect_to("/github-configure")
+    return redirect_to("github_configure")
+
+
+# service hook for pushes
+@app.route("/github/push/<project_name>")
+def github_receive_push(project_name):
+    print "hooray"
+    return respond_with_json({"status":"success"})
+
+
+@app.route("/p/<project_name>/register-github", methods=["GET", "POST"])
+@check_owner_privileges
+def github_register_project(luser=None, project=None, **kwargs):
+    if request.method == "POST":
+        result = github.create_repo_push_hook(request.form.get("repo", ""),
+                     github_integration.BASE_URL + "/github/push/%s" % 
+                     project.urlencoded_name)
+        return respond_with_json({"status" : "success"})
+    else:
+        return flask.render_template("github_register_project.html",
+                                    luser=luser, project=project, **kwargs)
 
 
 ##########################################################################

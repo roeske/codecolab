@@ -146,6 +146,8 @@ class GitHub(object):
             params['access_token'] = self.get_access_token()
 
         url = self.BASE_URL + resource
+
+        print "url=%r" % url 
         return self.session.request(
             method, url, params=params, allow_redirects=True, **kwargs)
 
@@ -168,7 +170,7 @@ class GitHub(object):
         assert status_code.startswith('2')
 
         if response.headers['Content-Type'].startswith('application/json'):
-            return response.json()
+            return response.json
         else:
             return response
 
@@ -196,3 +198,9 @@ class GitHub(object):
 
     def delete(self, resource, **kwargs):
         return self.request('DELETE', resource, **kwargs)
+
+    def create_repo_push_hook(self, repo, hook_url):
+        headers = dict(content_type="application/json")
+        data = dict(name="web", active="true", events=["push"],
+                    config=dict(url=hook_url, content_type="json"))
+        return self.post("repos/" + repo + "/hooks", data)

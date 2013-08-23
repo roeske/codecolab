@@ -96,6 +96,14 @@
                        <div class="label">Members</div>
                        <div class="clear"></div>
                     </a>
+
+                      {% if luser.has_github_token %}
+                        <a href="/p/{{ pl[0].urlencoded_name }}/register-github" class="custom_btn">
+                           <div class="github icon_large"></div>
+                           <div class="label">Github</div>
+                           <div class="clear"></div>
+                        </a>
+                      {% endif %}
                     {% endif %}
                   </div>
                   <div class="clear"></div>
