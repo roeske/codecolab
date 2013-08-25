@@ -61,7 +61,7 @@ $(function() {
         current = selector;
         update_dimensions();
   
-        var path_name = $(this).data("name");
+        var path_name = "/p/" + $(this).data("name");
         save_as_last_project(path_name);
       
         // don't push state if we are just using the browser's history buttons
