@@ -761,7 +761,9 @@ def github_receive_push(project_name):
             timestamp=commit["timestamp"],
             removed=",".join(commit["removed"]),
             added=",".join(commit["added"]),
-            url=commit["url"])
+            url=commit["url"],
+            id=commit["id"])
+
         models.db.session.add(commit)
         count += 1
     models.db.session.commit()
@@ -1672,10 +1674,12 @@ def project_progress(project_name=None, luser=None,  project=None, **kwargs):
     for c in completions:
         date = c.created.date()
         team_cadence_data[team_cadence_map[date]][0] += 1
-   
+  
+    commits = models.Commit.query.order_by(models.Commit.timestamp.desc()).all()
+
     return cc_render_template("project_progress.html", luser=luser,
-                               is_owner=member.is_owner, project=project,
-                               team_cadence_data=team_cadence_data,
+                               commits=commits, is_owner=member.is_owner, 
+                               project=project, team_cadence_data=team_cadence_data,
                                **kwargs)
 
 

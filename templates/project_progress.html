@@ -5,6 +5,29 @@
   </div>
   <hr />
 
+  <div id="commits_container">
+    <h4 style="margin: 7px 0em 7px;">Commits</h4>
+    <table>
+      <tr>
+        <th>Committer</th>
+        <th>Message</th>
+        <th>Timestamp</th>
+        <th>Files Added</th>
+        <th>Files Removed</th>
+        <th>Reference</th>
+      </tr>
+      {% for commit in commits %}
+      <tr>
+        <td><a href="mailto:{{ commit.committer_email }}">{{ commit.committer }}</a></td>
+        <td>{{ commit.message }}</td>
+        <td>{{ commit.timestamp }}</td>
+        <td>{{ commit.added }}</td>
+        <td>{{ commit.removed }}</td>
+        <td><a href="{{ commit.url }}">{{ commit.commit_id }}</a></td>
+      </tr>
+      {% endfor %}
+  </div>
+
   <div id="stats_container">
     <h4 style="margin: 7px 0em 7px;">Statistics</h4>
 

@@ -687,6 +687,7 @@ class Commit(db.Model, FluxCapacitor):
     __tablename__ = "commit"
 
     _id = db.Column(db.Integer, primary_key=True)
+    commit_id = db.Column(db.String)
     committer = db.Column(db.String)
     committer_email = db.Column(db.String)
     message = db.Column(db.String)
