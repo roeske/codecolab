@@ -25,6 +25,8 @@ DEFAULT_AVATAR_96 = "%sassets/lolvatar_96.png" % BASE_URL
 DEFAULT_AVATAR_128 = "%sassets/lolvatar_128.png" % BASE_URL 
 
 from collections import OrderedDict 
+
+
 class DictSerializable(object):
     """
     Packs the model into a dict so it can easily be serialized to 
@@ -674,14 +676,25 @@ class CardCompletions(db.Model):
     __tablename__ = "card_completions"
 
     _id         = db.Column(db.Integer, primary_key=True)
-
     card_id     = db.Column(db.Integer, db.ForeignKey(Card._id), 
                             nullable=False)
-
     luser_id    = db.Column(db.Integer, db.ForeignKey(Luser._id), 
                             nullable=False)
-
     created     = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class Commit(db.Model, FluxCapacitor):
+    __tablename__ = "commit"
+
+    _id = db.Column(db.Integer, primary_key=True)
+    committer = db.Column(db.String)
+    committer_email = db.Column(db.String)
+    message = db.Column(db.String)
+    url = db.Column(db.String)
+    diff = db.Column(db.String)
+    timestamp = db.Column(db.DateTime)
+    removed = db.Column(db.String)
+    added = db.Column(db.String)
 
 
 class BaseComment(DictSerializable, FluxCapacitor):

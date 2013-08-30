@@ -751,10 +751,23 @@ def github_callback(oauth_token, **kwargs):
 
 
 # service hook for pushes
-@app.route("/github/push/<project_name>")
+@app.route("/github/push/<project_name>", methods=["POST"])
 def github_receive_push(project_name):
-    print "hooray"
-    return respond_with_json({"status":"success"})
+    count = 0
+    for commit in flask.request.json["commits"]:
+        commit = models.Commit(committer=commit["author"]["name"],
+            committer_email=commit["author"]["email"],
+            message=commit["message"],
+            timestamp=commit["timestamp"],
+            removed=",".join(commit["removed"]),
+            added=",".join(commit["added"]),
+            url=commit["url"])
+        models.db.session.add(commit)
+        count += 1
+    models.db.session.commit()
+
+    return respond_with_json({"status":"success",
+                              "message" : "Added %d commits" % count })
 
 
 @app.route("/p/<project_name>/register-github", methods=["GET", "POST"])
