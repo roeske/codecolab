@@ -761,8 +761,9 @@ def github_receive_push(project_name):
             timestamp=commit["timestamp"],
             removed=",".join(commit["removed"]),
             added=",".join(commit["added"]),
-            url=commit["url"])
-        commit_obj["id"] = commit["id"]
+            url=commit["url"],
+            commit_id=commit["id"])
+        # test 
         models.db.session.add(commit_obj)
 
         count += 1
