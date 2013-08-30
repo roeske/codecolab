@@ -755,16 +755,16 @@ def github_callback(oauth_token, **kwargs):
 def github_receive_push(project_name):
     count = 0
     for commit in flask.request.json["commits"]:
-        commit = models.Commit(committer=commit["author"]["name"],
+        commit_obj = models.Commit(committer=commit["author"]["name"],
             committer_email=commit["author"]["email"],
             message=commit["message"],
             timestamp=commit["timestamp"],
             removed=",".join(commit["removed"]),
             added=",".join(commit["added"]),
-            url=commit["url"],
-            id=commit["id"])
+            url=commit["url"])
+        commit_obj["id"] = commit["id"]
+        models.db.session.add(commit_obj)
 
-        models.db.session.add(commit)
         count += 1
     models.db.session.commit()
 
