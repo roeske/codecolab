@@ -1,0 +1,35 @@
+{% include "head.html" %}
+<div class="content">
+      <div style="position: absolute; top: 40%; left: 30%; width: 500px; background: #fff; border: 1px solid #ccc; box-shadow: 1px 1px 1px #aaa;  padding: 7px;  " >
+
+    <form id="github_repo_form" action="/p/{{ project.urlencoded_name }}/register-github"
+          method="POST">
+          <h4 style="background: #555; color: #fff; padding: 7px; text-shadow: none;">Associate Github Repo</h4>
+          <div style="height: 7px;" class="clear"></div>
+          
+          <div style=" float: left;">
+              <label for="github_repo">Repository Name</label>
+          </div>
+          <div style="float: right;">
+              <input placeholder="user/repo" type="text" name="repo" id="github_repo" />
+          </div>
+          <div style="height: 7px;" class="clear"></div>
+
+          <div style="float: right;">
+            <input type="submit" name="submit" value="Submit" class="btn"/>
+          </div>
+          <div class="clear"></div>
+    </form>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+$(function() {
+  $("#github_repo_form").ajaxForm({
+      success: function(data) {
+          alert(JSON.stringify(data));
+      }
+  });
+});
+</script>
+{% include "foot.html" %}
