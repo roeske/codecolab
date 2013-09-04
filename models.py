@@ -700,6 +700,7 @@ class Commit(db.Model, FluxCapacitor):
     timestamp = db.Column(db.DateTime)
     removed = db.Column(db.String)
     added = db.Column(db.String)
+    project_id = db.Column(db.Integer)
 
     @property
     def gravatar_url(self):

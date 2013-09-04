@@ -1676,7 +1676,7 @@ def project_progress(project_name=None, luser=None,  project=None, **kwargs):
         date = c.created.date()
         team_cadence_data[team_cadence_map[date]][0] += 1
   
-    commits = models.Commit.query.order_by(models.Commit.timestamp.desc()).all()
+    commits = models.Commit.query.filter_by(project_id=project._id).order_by(models.Commit.timestamp.desc()).all()
 
     return cc_render_template("project_progress.html", luser=luser,
                                commits=commits, is_owner=member.is_owner, 
