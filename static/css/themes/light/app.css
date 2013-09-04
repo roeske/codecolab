@@ -383,3 +383,48 @@ h4.pile_title input {
     text-align: center;
     white-space: nowrap;
 }
+
+/* project progress commits */
+
+.commit {
+    margin: 7px auto;
+    width: 50%;
+    box-shadow: 2px 2px 7px #aaa;
+    padding: 7px;
+    background: #fff;
+}
+
+pre.commit_message {
+    margin-bottom: 7px;
+    margin-top: 7px;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding: 7px;
+}
+
+.commit_title_container h4,
+.commit_title_container p {
+    line-height: 36px;
+}
+
+.commit_title_container {
+    float: left;
+    vertical-align: middle;
+}
+
+.commit_avatar_container {
+    float: right;
+    width: 100px;
+    height: 72px;
+}
+
+.commit_avatar_container img {
+    display: block;
+    margin: 0px auto 7px;
+}
+
+.commit_avatar_container a {
+    text-align: center;
+    display: block;
+}
+

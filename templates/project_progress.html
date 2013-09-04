@@ -7,26 +7,33 @@
 
   <div id="commits_container">
     <h4 style="margin: 7px 0em 7px;">Commits</h4>
-    <table>
-      <tr>
-        <th>Committer</th>
-        <th>Message</th>
-        <th>Timestamp</th>
-        <th>Files Added</th>
-        <th>Files Removed</th>
-        <th>Reference</th>
-      </tr>
       {% for commit in commits %}
-      <tr>
-        <td><a href="mailto:{{ commit.committer_email }}">{{ commit.committer }}</a></td>
-        <td>{{ commit.message }}</td>
-        <td>{{ commit.timestamp }}</td>
-        <td>{{ commit.added }}</td>
-        <td>{{ commit.removed }}</td>
-        <td><a href="{{ commit.url }}">{{ commit.commit_id }}</a></td>
-      </tr>
+      <div class="commit">
+        <div class="commit_header">
+          <div class="commit_title_container">
+            <h4>Commit: <a class="commit_hash_link" href="{{ commit.url }}">{{ commit.commit_id }}</a></h4>
+            <p>On {{ commit.timestamp_as_timezone(luser.profile.timezone) }}</p>
+          </div>
+          <div class="commit_avatar_container">
+            <img src="{{ commit.gravatar_url }}"/> 
+            <a href="mailto:{{ commit.committer_email }}">{{ commit.committer }}</a>
+          </div>
+          <div class="clear"></div>
+        </div>
+        <pre class="commit_message">{{ commit.message }}</pre>
+        <p>
+          {% if commit.added != "" %}
+            <span class="commit_added_files">Added Files: {{ commit.added }}</span>
+          {% endif %}
+
+          {% if commit.removed != "" %}
+            <span class="commit_removed_files">Removed Files: {{ commit.removed }}</span>
+          {% endif %}
+        </p>
+        <div>
+        </div>
+      </div>
       {% endfor %}
-    </table>
   </div>
 
   <div id="stats_container">

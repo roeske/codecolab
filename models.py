@@ -49,6 +49,10 @@ class FluxCapacitor(object):
         d.shift(timezone_desc)
         return d.datetime.strftime("%b. %d, %Y at %I:%M %p")
 
+    def timestamp_as_timezone(self, timezone_desc):
+        d = Delorean(datetime=self.timestamp, timezone="UTC")
+        d.shift(timezone_desc)
+        return d.datetime.strftime("%b. %d, %Y at %I:%M %p")
 
 class ProjectLuser(db.Model, DictSerializable):
     """    
@@ -696,6 +700,12 @@ class Commit(db.Model, FluxCapacitor):
     timestamp = db.Column(db.DateTime)
     removed = db.Column(db.String)
     added = db.Column(db.String)
+
+    @property
+    def gravatar_url(self):
+        email_hash = md5(self.committer_email.strip().lower()).hexdigest()
+        return "http://gravatar.com/avatar/%s?s=48&d=%s" % (email_hash,
+            DEFAULT_AVATAR_48)
 
 
 class BaseComment(DictSerializable, FluxCapacitor):
