@@ -27334,7 +27334,7 @@ function cc_piles_reorder_update_dom(elems) {
 function cc_reorder_post(socket, project_id, name, updates) {
     $.ajax({
         type: "POST",
-        url: "/p/" + name + "/reorder", 
+        url: "/cards/reorder", 
         data: JSON.stringify({updates: updates, project_id: project_id}),
         
         success: function(data) {
