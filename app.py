@@ -1104,7 +1104,7 @@ def restore_card(project=None, card_id=None, **kwargs):
     card.pile.is_deleted = False
     models.db.session.commit()
 
-    return flask.redirect("/%s/archives" % project.urlencoded_name)
+    return flask.redirect("/p/%s/archives" % project.urlencoded_name)
 
 
 def card_set_attributes(project=None, card_id=None, **kwargs):
