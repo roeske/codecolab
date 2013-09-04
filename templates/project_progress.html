@@ -1,116 +1,120 @@
 {% include "head.html" %}
-<div style="overflow-y: auto;" class="content project_manage">
-  <div>
-    <h3 class="title">Progress <a href="/p/{{ project.name }}">{{ project.name }}</a></h3>
+<div class="content progress_container">
+  <div style="height: 20px;"></div>
+
+  <div id="progress_left">
+    <div id="commits_container">
+<!--      <h5 style="margin: 7px 0em 7px;">Commits</h5> -->
+        {% for commit in commits %}
+        <div class="commit">
+          <div class="commit_header">
+            <div class="commit_title_container">
+              <h5>Commit: <a class="commit_hash_link" href="{{ commit.url }}">{{ commit.commit_id }}</a></h5>
+              <p>On {{ commit.timestamp_as_timezone(luser.profile.timezone) }}</p> </div>
+            <div class="commit_avatar_container">
+              <img src="{{ commit.gravatar_url }}"/> 
+              <a href="mailto:{{ commit.committer_email }}">{{ commit.committer }}</a>
+            </div>
+            <div class="clear"></div>
+          </div>
+          <pre class="commit_message">{{ commit.message }}</pre>
+          <p>
+            {% if commit.added != "" %}
+              <span class="commit_added_files">Added Files: {{ commit.added }}</span>
+            {% endif %}
+
+            {% if commit.removed != "" %}
+              <span class="commit_removed_files">Removed Files: {{ commit.removed }}</span>
+            {% endif %}
+          </p>
+          <div>
+          </div>
+        </div>
+        {% endfor %}
+    </div>
   </div>
-  <hr />
-
-  <div id="commits_container">
-    <h4 style="margin: 7px 0em 7px;">Commits</h4>
-      {% for commit in commits %}
-      <div class="commit">
-        <div class="commit_header">
-          <div class="commit_title_container">
-            <h4>Commit: <a class="commit_hash_link" href="{{ commit.url }}">{{ commit.commit_id }}</a></h4>
-            <p>On {{ commit.timestamp_as_timezone(luser.profile.timezone) }}</p>
-          </div>
-          <div class="commit_avatar_container">
-            <img src="{{ commit.gravatar_url }}"/> 
-            <a href="mailto:{{ commit.committer_email }}">{{ commit.committer }}</a>
-          </div>
-          <div class="clear"></div>
-        </div>
-        <pre class="commit_message">{{ commit.message }}</pre>
-        <p>
-          {% if commit.added != "" %}
-            <span class="commit_added_files">Added Files: {{ commit.added }}</span>
-          {% endif %}
-
-          {% if commit.removed != "" %}
-            <span class="commit_removed_files">Removed Files: {{ commit.removed }}</span>
-          {% endif %}
-        </p>
-        <div>
-        </div>
+  <div id="progress_right">
+    <div id="stats_container">
+      <h5>Team Cadence</h5>
+      <br />
+      <div class="clear"></div>
+      <div id="stats_left">
+        <a href="#" id="stats_left_arrow"><p>&lsaquo;</p></a>
       </div>
-      {% endfor %}
+      <div id="stats_middle">
+        <div id="team_cadence"></div> 
+      </div>
+      <div id="stats_right">
+        <a href="#" id="stats_right_arrow"><p>&rsaquo;</p></a>
+      </div>
+      <div class="clear"></div>
+    </div>
+
+      <div class="clear"></div>
+    
+    <div id="milestones_container">
+
+      <div id="milestones_inner">
+        <table>
+          <tr>
+            <th>Milestone</th>
+            <th>Card Completion</th>
+            <th>Point Completion</th>
+          </tr>
+
+        <!-- loop through each milestone -->
+        {% for milestone in project.milestones %}
+
+          <!-- fix later -->
+          {% if false and loop.first and is_owner %}
+          <a style="float: right" href="/p/{{ project.name }}/milestone/{{ milestone._id }}/accept"
+            data-state="{{ milestone.is_approved }}"
+            class="btn accept_milestone ">
+            {% if milestone.is_approved %}
+              <div class="true">
+                <div class="label">Accepted</div>
+                <div class="icon check"></div>
+              </div>
+              <div style="display: none;" class="false">Accept</div>
+            {% else %}
+              <div class="true" style="display: none;">
+                <div class="label">Accepted</div>
+                <div class="icon check"></div>
+              </div>
+              <div class="false">Accept</div>
+            {% endif %}
+          </a>
+          {% endif %}
+
+          <tr>
+            <td>{{ milestone.stats.name }}</td>
+            <td class="card_completion">{{ milestone.stats.card_completion }}</td>
+            <td class="point_completion">{{ milestone.stats.point_completion }}</td>
+          </tr>
+
+          <div class="clear"></div> 
+          
+        {% endfor %}
+
+        </table>
+
+        <form style="float: right; margin-top: 20px;" action="/p/{{ project.name }}/milestones/add" id="form_add_milestone" method="POST">
+           
+          <ul class="project_manage structural horizontal_left">
+          <li>
+            <input id="milestone" type="text" name="name" placeholder="Milestone..." />
+          </li>
+      <li>
+            &nbsp;&nbsp;<input id="add_milestone" type="submit" name="submit" value="Add Milestone " class="btn" />
+          </li>
+          </ul>
+        </form>
+
+      </div>
+      <div class="clear"></div>
+      </div>
+      <!-- end milestones_container -->
   </div>
-
-  <div id="stats_container">
-    <h4 style="margin: 7px 0em 7px;">Statistics</h4>
-
-    <h5>Team Cadence</h5>
-    <div id="team_cadence"></div> 
-  </div>
-
-  <div id="milestones_container">
-  <h4 style="margin: 7px 0em 7px;">Milestones</h4>
-  
-  <table id="milestones">
-  <!-- loop through each milestone -->
-  {% for milestone in project.milestones %}
-
-    <!-- print the table header -->
-    {% if loop.first %}
-    {% set i = 0 %}
-    {% for name in milestone.stat_names %}
-      <th title="{{ milestone.stat_tooltips[i] }}">
-      {{ name }}
-      </th>
-      {% set i = i + 1 %}  
-    {% endfor %}       
-    {% endif %}
-
-    <tr>
-    {% for stat in milestone.stats %}
-      <td>
-      <!-- if this is the 'milestone' stat, inject an
-      approve button into the table cell -->
-      {% if loop.first and is_owner %}
-      <a style="float: right" href="/p/{{ project.name }}/milestone/{{ milestone._id }}/accept"
-        data-state="{{ milestone.is_approved }}"
-        class="btn accept_milestone ">
-        {% if milestone.is_approved %}
-          <div class="true">
-            <div class="label">Accepted</div>
-            <div class="icon check"></div>
-          </div>
-          <div style="display: none;" class="false">Accept</div>
-        {% else %}
-          <div class="true" style="display: none;">
-            <div class="label">Accepted</div>
-            <div class="icon check"></div>
-          </div>
-          <div class="false">Accept</div>
-        {% endif %}
-      </a>
-      {% endif %}
-
-      {{ stat }}
-      <div class="clear"></div> 
-      </td>
-    {% endfor %}
-    </tr>
-  {% endfor %}
-
-  </table>
-
-  <br />
-  <form style="float: right;" action="/p/{{ project.name }}/milestones/add" id="form_add_milestone" method="POST">
-     
-    <ul class="project_manage structural horizontal_left">
-    <li>
-      <input id="milestone" type="text" name="name" placeholder="Milestone..." />
-    </li>
-
-    <li>
-      &nbsp;&nbsp;<input id="add_milestone" type="submit" name="submit" value="Add Milestone " class="btn" />
-    </li>
-    </ul>
-  </form>
-  <div class="clear"></div>
-  </div>
-  <!-- end milestones_container -->
 </div>
 
 {% include "common_js.html" %}
@@ -179,5 +183,43 @@ $(function() {
   })
 
   cc_connect_profile_links();
-})
+});
+
+function make_progress_bar(fraction) {
+      var percent = fraction * 100 + "%";
+      var fmt_percent = Math.round(fraction * 10000)/100 + "%";
+
+      var inner_percent_text = $("<p/>").text(fmt_percent)
+                                        .css("text-align", "center")
+                                        .css("line-height", "40px")
+                                        .css("color", "#fff")
+                                        .css("width", "100%");
+      if (fraction == 0) {
+        inner_percent_text = $(inner_percent_text).css("color", "#555")
+                                                  .css("margin-left", "10px");
+      }
+
+      var outer_percent_html = $("<div/>").css("width", "100%")
+                                          .css("height", "40px")
+                                          .css("background", "#ccc")
+                                          .css("border", "1px solid #555"); 
+
+      var inner_percent_html = $("<div/>").css("width", percent)
+                                          .css("background", "#555")
+                                          .css("height", "40px");
+
+      return $(outer_percent_html).html($(inner_percent_html).html(inner_percent_text));
+}
+
+function render_percentages(i, val) {
+    var percent = Number($(val).text());
+    console.log(percent);
+    $(val).html(make_progress_bar(percent));
+}
+
+$(function() {
+  $(".card_completion").each(render_percentages);
+  $(".point_completion").each(render_percentages);
+});
+
 </script>

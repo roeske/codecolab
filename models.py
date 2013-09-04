@@ -465,8 +465,6 @@ class Milestone(db.Model, DictSerializable):
         complete_score = 0
         total_cards = len(self.cards)
         total_score = 0
-        rated_cards = 0
-        unrated_cards = 0
 
         for card in self.cards:
             if card.is_completed:
@@ -475,11 +473,6 @@ class Milestone(db.Model, DictSerializable):
             else:
                 incomplete_cards += 1
                 incomplete_score += card.score
-            
-            if card.score == 0:
-                unrated_cards += 1
-            else:
-                rated_cards += 1
             
             total_score += card.score
 
@@ -491,13 +484,18 @@ class Milestone(db.Model, DictSerializable):
         progress = "%d%%" % (round(progress, 2) * 100)
 
 
+        if total_cards == 0:
+            card_completion = 0
+        else:
+            card_completion = complete_cards / float(total_cards)
 
-        card_completion = "%d / %d" % (complete_cards, total_cards)
-        point_completion = "%d / %d" % (complete_score, total_score)
-        rating_coverage = "%d / %d" % (rated_cards, total_cards)
+        if total_score == 0:
+            point_completion = 0
+        else:
+            point_completion = complete_score / float(total_score)
 
-        return [self.name, progress, card_completion, point_completion,
-                rating_coverage]
+        return dict(name=self.name, card_completion=card_completion, 
+                    point_completion=point_completion)
 
     @property
     def stat_names(self):
@@ -564,7 +562,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     is_archived     = db.Column(db.Boolean, default=False)
     archived_at     = db.Column(db.DateTime)
     text            = db.Column(db.String)
-    score           = db.Column(db.Integer, default=DIFFICULTY_SCORE_NONE)
+    score           = db.Column(db.Integer, default=0)
     description     = db.Column(db.String, default="Please enter a description...")
     is_completed    = db.Column(db.Boolean, default=False)
 
