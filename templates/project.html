@@ -161,7 +161,7 @@ $(function() {
 function delete_list(project_name, list_id, callback) {
     $.ajax({
         type: "GET",
-        url: "/p/" + {{ project.urlencoded_name }} + "/list/" + list_id + "/delete",
+        url: "/p/{{ project.urlencoded_name }}/list/" + list_id + "/delete",
         
         success: function(data) {
             callback(data)
