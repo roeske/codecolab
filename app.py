@@ -1654,8 +1654,9 @@ def generate_team_cadence_data(project, timeframe=1):
     """
     # Calculate the team cadence.
     now = datetime.utcnow().date()
-    end_date =  now - timedelta(days=14 * (timeframe - 1))
-    start_date = now - timedelta(days=14 * timeframe)
+    one_day =  timedelta(days=1)
+    end_date =  now - timedelta(days=14 * (timeframe - 1)) + one_day
+    start_date = now - timedelta(days=14 * timeframe) 
 
     completions = (models.CardCompletions.query
                    .filter(models.CardCompletions.card_id==models.Card._id)
