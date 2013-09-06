@@ -123,14 +123,42 @@
 <script type="text/javascript" src="/js/jqBarGraph.1.1.min.js"></script>
 <script type="text/javascript">
 
-  
+function update_team_cadence(team_cadence, timeframe, color, width) {
+    $.ajax({
+        method: "GET",
+        url: "/p/{{ project.name }}/team_cadence",
+        data: { timeframe: timeframe },
+        success: function(data) {
+            team_cadence.jqBarGraph({data: data, color: color, width: width});
+        }
+    });
+}
 
 // Run this code when the DOM is ready.
 $(function() {
   // Draw bar chart for team cadence. (array is from template)
   var data = {{ team_cadence_data|safe }}
 
-  $("#team_cadence").jqBarGraph({data: data, color: "#555", width: 800 })
+  // Initialize jqBarGraph
+  var team_cadence = $("#team_cadence");
+  var timeframe = -1;
+  var width = 800;
+  var color = "#555";
+
+  team_cadence.jqBarGraph({data: data, color: color, width: width})
+
+  // Paginate jqBarGraph via AJAX
+  $("#stats_left_arrow").click(function() {
+      team_cadence.html("");
+      timeframe -= 1;
+      update_team_cadence(team_cadence, timeframe, color, width);
+  });
+
+  $("#stats_right_arrow").click(function() {
+      team_cadence.html("");
+      timeframe += 1;
+      update_team_cadence(team_cadence, timeframe, color, width);
+  });
 
   // Show tooltips on the table headings on mouseover.
   $(document).tooltip({

@@ -1640,8 +1640,53 @@ def project(project_name, project=None, luser=None, **kwargs):
     return render_project(project_name, email)
 
 
+def generate_team_cadence_data(project, timeframe=1):
+    """
+    This data is structured the way it is because that is how jqBarGraph
+    expects it to be.
+
+    Timeframe is in fortnights.
+    """
+    # Calculate the team cadence.
+    now = datetime.utcnow().date()
+    end_date =  now - timedelta(days=14 * (timeframe - 1))
+    start_date = now - timedelta(days=14 * timeframe)
+
+    completions = (models.CardCompletions.query
+                   .filter(models.CardCompletions.card_id==models.Card._id)
+                   .filter(models.Card.project_id==project._id)
+                   .filter(models.CardCompletions.created > start_date)
+                   .filter(models.CardCompletions.created < end_date).all())
+
+    team_cadence_data = []
+    team_cadence_map = {}
+
+    for i in range(15):
+        date = start_date + timedelta(days=i)
+        formatted_date = date.strftime("%b %d")
+        team_cadence_data.append([0, formatted_date])
+        team_cadence_map[date] = i
+
+    for c in completions:
+        date = c.created.date()
+        team_cadence_data[team_cadence_map[date]][0] += 1
+
+    return team_cadence_data
+
+
+@app.route("/p/<project_name>/team_cadence")
+@check_project_privileges
+def get_team_cadence(project=None, **kwargs):
+    # flip the sign because it's more intuitive to think of negative
+    # when going back in time than forwards.
+    timeframe = int(request.args.get("timeframe", -1)) * -1
+    
+    return respond_with_json(generate_team_cadence_data(project,
+                             timeframe=timeframe)) 
+
+
 @app.route("/p/<project_name>/progress")
-@check_owner_privileges
+@check_project_privileges
 def project_progress(project_name=None, luser=None,  project=None, **kwargs):
     """
     Renders the project management view. 
@@ -1651,30 +1696,7 @@ def project_progress(project_name=None, luser=None,  project=None, **kwargs):
     """
     member = models.ProjectLuser.query.filter_by(luser_id=luser._id).first()
 
-    # Calculate the team cadence.
-    now = datetime.utcnow().date()
-    week_ago = now - timedelta(days=14)
-    print "%r" % now
-    completions = (models.CardCompletions.query
-                   .filter(models.CardCompletions.card_id==models.Card._id)
-                   .filter(models.Card.project_id==project._id)
-                   .filter(models.CardCompletions.created > week_ago)
-                   .filter(models.CardCompletions.created < now).all())
-
-    team_cadence_data = []
-    team_cadence_map = {}
-
-    for i in range(15):
-        date = week_ago + timedelta(days=i)
-
-        formatted_date = date.strftime("%b %d")
-
-        team_cadence_data.append([0, formatted_date])
-        team_cadence_map[date] = i
-
-    for c in completions:
-        date = c.created.date()
-        team_cadence_data[team_cadence_map[date]][0] += 1
+    team_cadence_data = generate_team_cadence_data(project)
   
     commits = models.Commit.query.filter_by(project_id=project._id).order_by(models.Commit.timestamp.desc()).all()
 
