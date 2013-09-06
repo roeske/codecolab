@@ -758,11 +758,15 @@ def github_receive_push(project_name):
         flask.abort(404)
 
     count = 0
+
     for commit in flask.request.json["commits"]:
+
+        timestamp = date_parser.parse(commit["timestamp"])
+
         commit_obj = models.Commit(committer=commit["author"]["name"],
             committer_email=commit["author"]["email"],
             message=commit["message"],
-            timestamp=datetime.utcnow(),# date_parser.parse(commit["timestamp"]),
+            timestamp=timestamp,
             removed=",".join(commit["removed"]),
             added=",".join(commit["added"]),
             url=commit["url"],
