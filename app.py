@@ -762,7 +762,7 @@ def github_receive_push(project_name):
         commit_obj = models.Commit(committer=commit["author"]["name"],
             committer_email=commit["author"]["email"],
             message=commit["message"],
-            timestamp=date_parser.parse(commit["timestamp"]),
+            timestamp=datetime.utcnow(),# date_parser.parse(commit["timestamp"]),
             removed=",".join(commit["removed"]),
             added=",".join(commit["added"]),
             url=commit["url"],
