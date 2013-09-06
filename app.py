@@ -753,6 +753,10 @@ def github_callback(oauth_token, **kwargs):
 # service hook for pushes
 @app.route("/github/push/<project_name>", methods=["POST"])
 def github_receive_push(project_name):
+    project = models.Project.query.filter_by(name=project_name).first()
+    if project is None:
+        flask.abort(404)
+
     count = 0
     for commit in flask.request.json["commits"]:
         commit_obj = models.Commit(committer=commit["author"]["name"],
@@ -762,11 +766,12 @@ def github_receive_push(project_name):
             removed=",".join(commit["removed"]),
             added=",".join(commit["added"]),
             url=commit["url"],
-            commit_id=commit["id"])
-        # test 
-        models.db.session.add(commit_obj)
+            commit_id=commit["id"],
+            project_id=project._id)
 
+        models.db.session.add(commit_obj)
         count += 1
+
     models.db.session.commit()
 
     return respond_with_json({"status":"success",
