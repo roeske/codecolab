@@ -1,6 +1,6 @@
 from github_flask import GitHub
 
-TESTING = True
+TESTING = False
 
 if TESTING:
     BASE_URL = "http://localhost:8080"
