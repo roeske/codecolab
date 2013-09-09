@@ -924,8 +924,8 @@ def render_card(template, **kwargs):
     is_subscribed = card.is_luser_subscribed(luser_id)
 
     # parameterize comment handler urls for code reuse.
-    comment_delete_url = "/project/%s/comment/delete/" % project.name
-    comment_edit_url = "/project/%s/comments/edit/" % project.name
+    comment_delete_url = "/p/%s/comment/delete/" % project.name
+    comment_edit_url = "/p/%s/comments/edit/" % project.name
     
     return flask.render_template(template, card=card, comments=card.comments,
                                  comment_delete_url=comment_delete_url,
@@ -985,8 +985,8 @@ def cards_comment(project_name=None, luser=None, project=None, card_id=None,
                       .order_by(models.CardComment.created.desc())
                       .all())
 
-    comment_delete_url = "/project/%s/comment/delete/" % project.name
-    comment_edit_url = "/project/%s/comments/edit/" % project.name
+    comment_delete_url = "/p/%s/comment/delete/" % project.name
+    comment_edit_url = "/p/%s/comments/edit/" % project.name
 
     activity_logger.log(luser._id, project._id, card_id, "card_comment")
  
