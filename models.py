@@ -684,6 +684,7 @@ class CardCompletions(db.Model):
                             nullable=False)
     created     = db.Column(db.DateTime, default=datetime.utcnow)
 
+    card = db.relationship("Card")
 
 class Commit(db.Model, FluxCapacitor):
     __tablename__ = "commit"

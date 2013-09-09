@@ -1649,25 +1649,17 @@ def project(project_name, project=None, luser=None, **kwargs):
     return render_project(project_name, email)
 
 
-def generate_team_cadence_data(project, timeframe=1):
-    """
-    This data is structured the way it is because that is how jqBarGraph
-    expects it to be.
-
-    Timeframe is in fortnights.
-    """
-    # Calculate the team cadence.
+def calculate_timeframe(timeframe):
+    # calculate the team cadence.
     now = datetime.utcnow().date()
     one_day =  timedelta(days=1)
     end_date =  now - timedelta(days=14 * (timeframe - 1)) + one_day
     start_date = now - timedelta(days=14 * timeframe) 
 
-    completions = (models.CardCompletions.query
-                   .filter(models.CardCompletions.card_id==models.Card._id)
-                   .filter(models.Card.project_id==project._id)
-                   .filter(models.CardCompletions.created > start_date)
-                   .filter(models.CardCompletions.created < end_date).all())
+    return now, one_day, end_date, start_date
 
+
+def init_team_cadence(start_date):
     team_cadence_data = []
     team_cadence_map = {}
 
@@ -1677,9 +1669,55 @@ def generate_team_cadence_data(project, timeframe=1):
         team_cadence_data.append([0, formatted_date])
         team_cadence_map[date] = i
 
+    return team_cadence_data, team_cadence_map
+
+
+def generate_team_cadence_commit_data(project, timeframe=1):
+    """
+    this data is structured the way it is because that is how jqbargraph
+    expects it to be.
+
+    timeframe is in fortnights.
+    """
+    now, one_day, end_date, start_date = calculate_timeframe(timeframe)
+
+    commits = (models.Commit.query
+                .filter(models.Commit.project_id==project._id)
+                .filter(models.Commit.timestamp > start_date)
+                .filter(models.Commit.timestamp < end_date).all())
+
+    team_cadence_data, team_cadence_map = init_team_cadence(start_date)
+    
+    for c in commits:
+        date = c.timestamp.date()
+        team_cadence_data[team_cadence_map[date]][0] += 1
+
+    return team_cadence_data
+
+
+def generate_team_cadence_data(project, timeframe=1, category="cards"):
+    """
+    this data is structured the way it is because that is how jqbargraph
+    expects it to be.
+
+    timeframe is in fortnights.
+    """
+    now, one_day, end_date, start_date = calculate_timeframe(timeframe)
+
+    completions = (models.CardCompletions.query
+                   .filter(models.CardCompletions.card_id==models.Card._id)
+                   .filter(models.Card.project_id==project._id)
+                   .filter(models.CardCompletions.created > start_date)
+                   .filter(models.CardCompletions.created < end_date).all())
+
+    team_cadence_data, team_cadence_map = init_team_cadence(start_date)
+
     for c in completions:
         date = c.created.date()
-        team_cadence_data[team_cadence_map[date]][0] += 1
+        if category == "cards":
+            team_cadence_data[team_cadence_map[date]][0] += 1
+        else:
+            team_cadence_data[team_cadence_map[date]][0] += c.card.score
 
     return team_cadence_data
 
@@ -1690,9 +1728,16 @@ def get_team_cadence(project=None, **kwargs):
     # flip the sign because it's more intuitive to think of negative
     # when going back in time than forwards.
     timeframe = int(request.args.get("timeframe", -1)) * -1
-    
-    return respond_with_json(generate_team_cadence_data(project,
-                             timeframe=timeframe)) 
+    category = str(request.args.get("category", "points"))
+
+    if category == "points" or category == "cards":
+        return respond_with_json(generate_team_cadence_data(project,
+                             timeframe=timeframe, category=category)) 
+    elif category == "commits":
+        return respond_with_json(generate_team_cadence_commit_data(project,
+                             timeframe=timeframe))
+    else:
+        return flask.abort(500)
 
 
 @app.route("/p/<project_name>/progress")

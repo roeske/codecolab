@@ -36,6 +36,9 @@
   <div id="progress_right">
     <div id="stats_container">
       <h5>Team Cadence</h5>
+      <a href="#" id="team_cadence_category_cards">Cards</a>&nbsp;
+      <a href="#" id="team_cadence_category_points">Points</a>&nbsp;
+      <a href="#" id="team_cadence_category_commits">Commits</a>&nbsp;
       <br />
       <div class="clear"></div>
       <div id="stats_left">
@@ -123,15 +126,20 @@
 <script type="text/javascript" src="/js/jqBarGraph.1.1.min.js"></script>
 <script type="text/javascript">
 
-function update_team_cadence(team_cadence, timeframe, color, width) {
+function update_team_cadence(team_cadence, timeframe, color, width, category) {
     $.ajax({
         method: "GET",
         url: "/p/{{ project.name }}/team_cadence",
-        data: { timeframe: timeframe },
+        data: { timeframe: timeframe, category: category },
         success: function(data) {
-            team_cadence.jqBarGraph({data: data, color: color, width: width});
+            team_cadence.jqBarGraph({data: data, color: color, width: width });
         }
     });
+}
+
+function underline_category(category) {
+  $("[id^=team_cadence_category]").css("border-bottom", "none");
+  $("#team_cadence_category_"+category).css("border-bottom", "2px solid #ccc");
 }
 
 // Run this code when the DOM is ready.
@@ -142,22 +150,50 @@ $(function() {
   // Initialize jqBarGraph
   var team_cadence = $("#team_cadence");
   var timeframe = -1;
+  var category = "cards";
   var width = 800;
-  var color = "#555";
+
+  var color = "blue";
 
   team_cadence.jqBarGraph({data: data, color: color, width: width})
+
+  underline_category(category);
 
   // Paginate jqBarGraph via AJAX
   $("#stats_left_arrow").click(function() {
       team_cadence.html("");
       timeframe -= 1;
-      update_team_cadence(team_cadence, timeframe, color, width);
+      update_team_cadence(team_cadence, timeframe, color, width, category);
   });
 
   $("#stats_right_arrow").click(function() {
       team_cadence.html("");
       timeframe += 1;
-      update_team_cadence(team_cadence, timeframe, color, width);
+      update_team_cadence(team_cadence, timeframe, color, width, category);
+  });
+
+  $("#team_cadence_category_commits").click(function() {
+      team_cadence.html("");
+      color = "red";
+      category = "commits";
+      update_team_cadence(team_cadence, timeframe, color, width, category);
+      underline_category(category);
+  });
+
+  $("#team_cadence_category_points").click(function() {
+      team_cadence.html("");
+      color = "green";
+      category = "points";
+      update_team_cadence(team_cadence, timeframe, color, width, category);
+      underline_category(category);
+  });
+
+  $("#team_cadence_category_cards").click(function() {
+      team_cadence.html("");
+      color = "blue";
+      category = "cards";
+      update_team_cadence(team_cadence, timeframe, color, width, category);
+      underline_category(category);
   });
 
   // Show tooltips on the table headings on mouseover.
