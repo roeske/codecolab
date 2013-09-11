@@ -1,3 +1,19 @@
+/** custom scrollbars ********************************************************/
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 8px;
+}
+ 
+::-webkit-scrollbar-track {
+    background-color: #ccc;
+}
+ 
+::-webkit-scrollbar-thumb {
+    background-color: #999;
+}
+
+
 h1,h2,h3,h4,h5,h6 {
     text-shadow: 0px 1px 1px #ccc;
     color: #555;
@@ -66,13 +82,18 @@ ul#project li {
 
 .project_selection .project_members_container ul {
     height: 200px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    margin-bottom: 20px;
 }
 
 .project_selection .project_members_container ul li {
     list-style:none;
-    float: left;
     margin-right: 7px; 
     margin-top: 7px;
+    display: inline-block;
+    overflow: hidden;
 }
 
 .project_selection #menu_title {
