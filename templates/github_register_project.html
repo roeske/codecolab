@@ -11,10 +11,16 @@
               <label for="github_repo">Repository Name</label>
           </div>
           <div style="float: right;">
-              <input placeholder="user/repo" type="text" name="repo" id="github_repo" />
+              <input style="float: left;" placeholder="user/repo" type="text" name="repo" id="github_repo"
+                {% if project.has_github_repo %} 
+                  value="{{ project.github_repo }}"
+                {% endif %}
+              />
+            <p style="float: left; color: green; display: none;" id="github_repo_success_indicator">
+            &nbsp; &#10003; Success</p>
+            <div class="clear"></div>
           </div>
           <div style="height: 7px;" class="clear"></div>
-
           <div style="float: right;">
             <input type="submit" name="submit" value="Submit" class="btn"/>
           </div>
@@ -27,7 +33,7 @@
 $(function() {
   $("#github_repo_form").ajaxForm({
       success: function(data) {
-          alert(JSON.stringify(data));
+        $("#github_repo_success_indicator").show();
       }
   });
 });

@@ -722,10 +722,9 @@ def token_getter():
     return g.user.github_token
 
 
-@app.route("/github/configure")
-@require_login
-def github_configure(**kwargs):
-    return flask.render_template("github_configure.html", **kwargs)
+@app.route("/github/confirm")
+def github_confirm(**kwargs):
+    return flask.render_template("github_confirm.html", **kwargs)
 
 
 @app.route("/github/authorize")
@@ -747,7 +746,7 @@ def github_callback(oauth_token, **kwargs):
 
     models.db.session.commit()
 
-    return redirect_to("github_configure")
+    return redirect_to("github_confirm")
 
 
 # service hook for pushes
@@ -786,9 +785,22 @@ def github_receive_push(project_name):
 @check_owner_privileges
 def github_register_project(luser=None, project=None, **kwargs):
     if request.method == "POST":
-        result = github.create_repo_push_hook(request.form.get("repo", ""),
+        repo = request.form.get("repo", "")
+
+        # clear any existing service hook
+        if project.has_github_repo:
+            github.delete_repo_push_hook(project.github_repo, 
+                project.github_repo_hook_id)
+
+        result = github.create_repo_push_hook(repo,
                      github_integration.BASE_URL + "/github/push/%s" % 
                      project.urlencoded_name)
+
+        project.github_repo_hook_id = int(result["id"])
+        project.github_repo = repo
+        project.has_github_repo = True
+
+        models.db.session.commit()
         return respond_with_json({"status" : "success"})
     else:
         return flask.render_template("github_register_project.html",
@@ -2211,6 +2223,7 @@ def get_profile(luser_id, luser=None, **kwargs):
                                       profile=profile, **kwargs)
         else:
             # Otherwise, let them edit their profile:
+
             return cc_render_template("profile.html", luser=luser, 
                                       profile=profile,
                                       timezones=pytz.all_timezones,

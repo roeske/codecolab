@@ -65,20 +65,32 @@
               {% endif %}
 
               <li>
+                  <label>Connect Github&nbsp;&nbsp;&nbsp;&nbsp;
+                  {% if not luser.has_github_token %}
+                    <a class="btn" href="/github/authorize">Connect Github</a>
+                  {% else %}
+                    <p class="btn">Github Connected</p>
+                  {% endif %}
+                  </label>
+              </li>
+              <li>
                   <img src="{{ luser.gravatar_url_48 }}" />
                   <p style="float: left; font-size: .9em;">Avatar determined by <a style="color: #4B8EFD;" href="{{ luser.gravatar_profile_url }}">your gravatar profile.</a></p>
               </li>
               <li>
                   <label style="visibility: hidden;" for="submit">Submit</label>
                   <div class="clear"></div>
+                  <input style="float: right;" id="submit" class="btn" type="submit" name="submit" value="Save Changes" />
+                  <div class="clear"></div>
+                  <p style="visibility: hidden;" class="saved_indicator">Your changes were saved.</p>
               </li>
+
+
           </ul> 
-            <div class="clear"></div>
-            <input style="float: right;" id="submit" class="btn" type="submit" name="submit" value="Save Changes" />
-            <div class="clear"></div>
-            <p style="visibility: hidden;" class="saved_indicator">Your changes were saved.</p>
         </div>
     </form>
+
+
     <script>
       $(function() {
           $("form.profile_form").ajaxForm({

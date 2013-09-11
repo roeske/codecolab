@@ -169,10 +169,14 @@ class GitHub(object):
 
         assert status_code.startswith('2')
 
-        if response.headers['Content-Type'].startswith('application/json'):
+        content_type = response.headers['Content-Type']
+
+        if content_type is not None and \
+           content_type.startswith('application/json'):
             return response.json
         else:
             return response
+
 
     def get(self, resource, **kwargs):
         """Shortcut for ``request('GET', resource)``."""
@@ -198,6 +202,12 @@ class GitHub(object):
 
     def delete(self, resource, **kwargs):
         return self.request('DELETE', resource, **kwargs)
+
+    def delete_repo_push_hook(self, repo, hook_id):
+        headers = dict(content_type="application/json")
+        resource = "repos/%s/hooks/%d" % (repo, hook_id)
+        print resource
+        return self.delete(resource)
 
     def create_repo_push_hook(self, repo, hook_url):
         headers = dict(content_type="application/json")

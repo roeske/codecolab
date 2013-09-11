@@ -1,8 +1,3 @@
-{% include "min_head.html" %}
-{% include "themes/" + luser.profile.theme + "/github_configure.html" %}
-  </head>
-<body> 
-<!--{% include "common_js.html" %} -->
 <div style="text-align: center; padding-top: 25%;">
     <h4>Configure Github</h4>
     {% if not luser.has_github_token %}
@@ -12,4 +7,3 @@
     {% endif %}
   </div>
 </div>
-{% include "foot.html" %}

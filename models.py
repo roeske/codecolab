@@ -253,6 +253,10 @@ class Project(db.Model, DictSerializable):
     created     = db.Column(db.DateTime, default=func.now())
     is_archived = db.Column(db.Boolean, default=False)
 
+    has_github_repo = db.Column(db.Boolean, default=False)
+    github_repo = db.Column(db.String, default=None)
+    github_repo_hook_id = db.Column(db.Integer, default=None)
+
     milestones  = db.relationship("Milestone", order_by=lambda: Milestone.created)
     lusers      = db.relationship("Luser", secondary=ProjectLuser.__table__,
                                            order_by=lambda: Luser.created)
