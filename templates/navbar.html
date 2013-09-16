@@ -6,7 +6,9 @@
                 <a class="brand" href="/">CodeColab</a>
               </div>
               <div class="brand" style="float: left;">
+                {% if not hide_breadcrumb is defined %}
                 &gt;&nbsp;{% include "breadcrumb.html" %}
+                {% endif %}
               </div>
               <div class="clear"></div>
             </div>
@@ -15,7 +17,7 @@
                       <img style="margin-top: 5px;" src="{{ luser.gravatar_url_24 }}" />
                     </li>
                     <li>
-                        <a class="profile_link" href="/profile/{{ luser._id }}">{{ email }}</a>
+                        <a class="profile_link_nopopup" href="/profile/{{ luser._id }}">{{ email }}</a>
                     </li>
                     <li>
                         <a href="/logout">Log out</a>
@@ -50,13 +52,15 @@ function show_other_profile_dialog(url) {
 }
 
 function cc_connect_profile_links(prefix, user_id) {
+/* popup profile is being phased out */
+/*
     $('.profile_link').unbind('click');
     $(".profile_link").click(function(e) {
         var url = $(this).attr("href");
         show_profile_dialog(url);
         return false;
     });
-
+*/
     $('.profile_link_notmine').unbind('click');
     $(".profile_link_notmine").click(function(e) {
         var url = $(this).attr("href");

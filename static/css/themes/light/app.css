@@ -508,3 +508,45 @@ pre.commit_message {
 #stats_middle {
     width: 800px;
 }
+
+/** settings page ************************************************************/
+#settings_page_navigation {
+    float: left;
+    width: 20%;
+    margin: 20px;
+}
+
+#settings_page_content {
+    float: right;
+    width: 60%;
+    margin: 20px;
+}
+
+.settings input {
+    width: 50%;
+    margin-bottom: 10px;
+}
+
+.settings li {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.settings_page_content_item h4 {
+    background: #555;
+    color: #fff;
+    padding: 10px;
+    text-shadow: none;
+}
+
+.settings_page_content_item .body { 
+    padding: 10px;
+}
+
+.settings_page_content_item {
+    box-shadow: 2px 2px 7px #aaa;
+    background: #fff;
+    border: 1px solid #ccc;
+}
+
+
