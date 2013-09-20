@@ -1,112 +1,310 @@
 {% set hide_breadcrumb = True %}
 {% include "head.html" %}
-<div class="content">
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul style="list-style-type: none;" class=flashes>
-        {% for message in messages %}
-          <li style="font-size: 110%;">{{ message }}</li>
-        {% endfor %}
-        </ul>
-        {% endif %}
-    {% endwith %}
+<div class="content" style="overflow-y: auto;" >
+  <div style="width: 1000px; margin: 0 auto;">
+      {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          <ul style="list-style-type: none;" class=flashes>
+          {% for message in messages %}
+            <li style="font-size: 110%;">{{ message }}</li>
+          {% endfor %}
+          </ul>
+          {% endif %}
+      {% endwith %}
 
-    <div id="settings_page_navigation">
+      <div id="settings_page_navigation">
+        <h4>Settings</h4>
+          <ul class="structural">
+            <li class="active_nav"><a data-target="settings_page_profile_item" id="settings_nav_profile" href="#">Profile</a></li>
+            <li><a data-target="settings_page_github_item" id="settings_nav_github" href="#">GitHub</a></li>
+            <li><a data-target="settings_page_password_item" id="settings_nav_reset_password" href="#">Reset Password</a></li>
+          </ul>
+      </div>
 
-    </div>
+      <div id="settings_page_content">
 
-    <div id="settings_page_content">
+      <div class="settings_page_content_item" id="settings_page_profile_item">
+        <h4>Profile</h4>
+        <div class="body">
+          <form id="settings_profile_form" action="/profile/{{ luser._id }}" method="POST" data-saved="settings_item_profile_saved">
+            <ul class="settings structural">
+              <li> <label for="first_name">First Name</label>
+                <input type="text" name="first_name" value="{{ profile.first_name }}" id="first_name" />
+                <div class="clear"></div>
+              </li>
 
-    <div class="settings_page_content_item">
-      <h4>Profile</h4>
-      <div class="body">
-        <form class="profile_form" action="/profile/{{ luser._id }}" method="POST">
-          <ul class="settings structural">
+              <li>
+                <label for="last_name">Last Name</label>
+                <input type="text" name="last_name" value="{{ profile.last_name }}" id="last_name" />
+                      <div class="clear"></div>
+              </li>
+
+              <li>
+                <label for="username">Username</label>
+                <input type="text" name="username" value="{{ profile.username }}" id="username" />
+                <div class="clear"></div>
+              </li>
+
+              <li>
+                <label for="timezone">Timezone</label>
+                  <select name="timezone" id="timezone">
+                    {% for tz in timezones %}
+                      {% if tz == profile.timezone %} 
+                        <option value="{{ tz }}" selected>{{ tz }}</option>
+                          {% else %}
+                            <option value="{{ tz }}">{{ tz }}</option>
+                          {% endif %}
+                      {% endfor %}
+                  </select>
+                  <div class="clear"></div>
+              </li>
+
+            <!-- themes are disabled -->
+            {% if false %}
             <li>
-              <label for="first_name">First Name</label>
-              <input type="text" name="first_name" value="{{ profile.first_name }}" id="first_name" />
-              <div class="clear"></div>
-            </li>
-
-            <li>
-              <label for="last_name">Last Name</label>
-              <input type="text" name="last_name" value="{{ profile.last_name }}" id="last_name" />
-                    <div class="clear"></div>
-            </li>
-
-            <li>
-              <label for="username">Username</label>
-              <input type="text" name="username" value="{{ profile.username }}" id="username" />
-              <div class="clear"></div>
-            </li>
-
-            <li>
-              <label for="timezone">Timezone</label>
-                <select name="timezone" id="timezone">
-                  {% for tz in timezones %}
-                    {% if tz == profile.timezone %} 
-                      <option value="{{ tz }}" selected>{{ tz }}</option>
+                <label for="theme">Theme</label>
+                <select name="theme" id="theme">
+                    {% for theme in themes %}
+                        {% if theme == profile.theme %} 
+                            <option value="{{ theme }}" selected>{{ theme }}</option>
                         {% else %}
-                          <option value="{{ tz }}">{{ tz }}</option>
+                            <option value="{{ theme }}">{{ theme }}</option>
                         {% endif %}
                     {% endfor %}
                 </select>
+
                 <div class="clear"></div>
             </li>
-
-          <!-- themes are disabled -->
-          {% if false %}
-          <li>
-              <label for="theme">Theme</label>
-              <select name="theme" id="theme">
-                  {% for theme in themes %}
-                      {% if theme == profile.theme %} 
-                          <option value="{{ theme }}" selected>{{ theme }}</option>
-                      {% else %}
-                          <option value="{{ theme }}">{{ theme }}</option>
-                      {% endif %}
-                  {% endfor %}
-              </select>
-
-              <div class="clear"></div>
-          </li>
-          {% endif %}
-
-                <li>
-                    <img src="{{ luser.gravatar_url_48 }}" />
-                    <p style="float: left; font-size: .9em;">Avatar determined by <a style="color: #4B8EFD;" href="{{ luser.gravatar_profile_url }}">your gravatar profile.</a></p>
-                </li>
-                <li>
-                    <input id="submit" class="btn" type="submit" name="submit" value="Save" />
-                    <p style="visibility: hidden;" class="saved_indicator">Your changes were saved.</p>
-                </li>
-            </ul> 
-            </div>
-          </div>
-      </form>
-
-    <div class="settings_page_content_item">
-      <ul class="settings structural">
-        <li>
-            <label>Connect Github&nbsp;&nbsp;&nbsp;&nbsp;
-            {% if not luser.has_github_token %}
-              <a class="btn" href="/github/authorize">Connect Github</a>
-            {% else %}
-              <p class="btn">Github Connected</p>
             {% endif %}
-            </label>
-        </li>
-      </ul>
+
+                  <li>
+                      <img src="{{ luser.gravatar_url_48 }}" />
+                      <p style="float: left; font-size: .9em;">Avatar determined by <a style="color: #4B8EFD;" href="{{ luser.gravatar_profile_url }}">your gravatar profile.</a></p>
+                  </li>
+                  <li>
+                      <input id="submit" class="btn save" type="submit" name="submit" value="Save" />
+                      <p id="settings_item_profile_saved" style="visibility: hidden;" class="saved_indicator">Your changes were saved.</p>
+
+                      <p id="settings_item_profile_error" style="visibility: hidden;" class="error_indicator">Failed to
+                      change password. Please check current password and try again.</p>
+                  </li>
+              </ul> 
+              </div>
+            </div>
+        </form>
+
+      <div class="settings_page_content_item" id="settings_page_github_item">
+        <h4>GitHub</h4>
+        <div class="body">
+          <ul class="settings structural">
+            <li>
+                <label>Connect Github</label>
+                {% if not luser.has_github_token %}
+                  <a style="margin-left: 0px;"  class="btn" href="/github/authorize">Connect Github</a>
+                {% else %}
+                  <p style="margin-left: 0px;" class="btn">Github Connected</p>
+                {% endif %}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="settings_page_content_item" id="settings_page_password_item">
+        <h4>Reset Password</h4>
+        <div class="body">
+          <form action="/reset-from-password" method="POST" id="settings_password_reset_form"
+                data-error="settings_password_reset_form_error"
+                data-saved="settings_password_reset_form_saved">
+            <ul class="settings structural">
+              <li>
+                  <label for="current_password">Current Password</label>
+                  <input type="password" id="current_password" name="current_password" />
+                  <div style="display: none;" class="ok"></div>
+                  <div style="display: none;" class="no"></div>
+                  <div class="clear"></div>
+                  <div class="error_message" id="current_password_error"></div>
+              </li>
+              <li>
+                  <label for="new_password">New Password</label>
+                  <input type="password" id="new_password" name="new_password" />
+
+                  <div style="display: none;" class="ok"></div>
+                  <div style="display: none;" class="no"></div>
+                  <div class="clear"></div>
+                  <div class="error_message" id="new_password_error"></div>
+              </li>
+
+              <li>
+                  <label for="confirm_password">Confirm Password</label>
+                  <input type="password" id="confirm_password" name="confirm_password" />
+
+                  <div style="display: none;" class="ok"></div>
+                  <div style="display: none;" class="no"></div>
+                  <div class="clear"></div>
+                  <div class="error_message" id="confirm_password_error"></div>
+              </li>
+              <li>
+                  <label></label>
+                  <input id="submit" class="btn save" type="submit" name="submit" value="Save" />
+                  <p>&nbsp;
+                    <p id="settings_password_reset_form_saved" style="display: none;" class="saved_indicator">Your changes were saved.</p>
+
+                    <p id="settings_password_reset_form_error" style="display: none;" class="error_indicator">Failed to change password. 
+                      <br />
+
+                      <a href="/forgot">Forgot your password?</a>
+                    
+                    </p>
+                    
+                    </p>
+                    <div class="clear"></div>
+                  </p>
+              </li>
+            </ul>
+          </ul>
+        </div>
+
+        <div class="settings_page_content_item" id="settings_page_deactivate_account">
+          <h4>Deactivate Account</h4>
+          <div class="body">
+            <ul class="settings structural">
+                <a href="#" class="btn">Deactivate Account</a>
+            </ul>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 </div>
 
+<div class="loading" style="display: none; position: absolute; top:0; left:0; width: 100%; height: 100%;
+background-image:url('/assets/loading.gif'); background-position: center center; background-repeat: no-repeat; background-color: rgba(0, 0, 0, 0.5); z-index: 99999;">
+</div>
+
+<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.js" type="text/javascript"></script>
+
 <script>
+
 $(function() {
-  $("form.profile_form").ajaxForm({
-      success: function() {
-        $("p.saved_indicator").css("visibility", "visible");
+  $(".settings_page_content_item").hide();
+
+  $("#settings_password_reset_form").validate({
+      showErrors: function(errorMap, errorList) {
+          console.log("showErrors");
+          $.each(errorMap, function(key, value) {
+              var elem = $("#"+key); 
+              elem.nextAll(".error_message").show().html(value);
+              elem.nextAll(".ok").hide();
+              elem.nextAll(".no").show();
+          });
+
+          $.each(this.successList, function(i, value) {
+              $(value).nextAll(".ok").show();
+              $(value).nextAll(".no").hide();
+              $(value).nextAll(".error_message").hide();
+          });
+      },
+
+      rules: {
+          new_password: {
+              required: true,
+              minlength: 8,
+          },
+
+          confirm_password: {
+              required: true,
+              minlength: 8,
+              equalTo: "#new_password",
+          },
+
+          current_password: {
+              required: true,
+              minlength: 8,
+          }
+      },
+
+      messages: {
+          new_password: {
+              required: "required field",
+              minlength: "must be at least 8 characters"
+          },
+
+          confirm_password: {
+              required: "required field",
+              minlength: "must be at least 8 characters",
+              equalTo: "must be the same as 'new password'"
+          },
+
+          current_password: {
+              required: "required field",
+              minlength: "must be at least 8 characters"
+          }
       }
   });
+          
+  $("form").each(function(i, val) {
+      var saved_indicator = "#" + $(val).data("saved");
+      var error_indicator = "#" + $(val).data("error");    
+
+      var last_data = null;
+
+      $(val).ajaxForm({
+          beforeSubmit: function() {
+            $(".loading").show();
+            if (last_data != null) {
+                $.each(last_data.problems, function(key, value) {
+                    var elem = $("#"+key); 
+                    elem.nextAll(".error_message").show().html("").hide();
+                    elem.nextAll(".ok").hide();
+                    elem.nextAll(".no").hide();
+                });
+            }
+          },
+
+          success: function(data) {
+              console.log(data);
+              console.log(saved_indicator);
+              $(".loading").hide();
+
+              if(data.is_successful === true) {
+                 $(saved_indicator).show();
+                 $(error_indicator).hide();
+              } else {
+                 $(error_indicator).show();
+                 $(saved_indicator).hide();
+              }
+
+              if(data.problems) {
+                last_data = data;
+                $.each(data.problems, function(key, value) {
+       
+                    var elem = $("#"+key); 
+                    elem.nextAll(".error_message").show().html(value).show();
+                    elem.nextAll(".ok").hide();
+                    elem.nextAll(".no").show();
+                });
+              }
+          }
+      });
+  });
+
+  var current_nav = $("{{ target_nav_id }}");
+
+  $("[id^=settings_nav]").click(function() {
+      current_nav.closest("li").removeClass("active_nav");
+
+      $(".settings_page_content_item").hide();
+      var target = "#" + $(this).data("target");
+      console.log(target);
+      $(target).show(); 
+
+      $(this).closest("li").addClass("active_nav");
+      current_nav = $(this);
+
+      return false;
+  });
+
+  $("{{ target_nav_id }}").click();
 });
 </script>

@@ -237,7 +237,8 @@ def require_login(func):
             email = flask.session["email"]
             kwargs['luser'] = models.Luser.query.filter_by(email=email).first() 
 
-        if flask.request.method == "GET" and logged_in: 
+        if (flask.request.method == "GET" or 
+            flask.request.method == "POST" ) and logged_in: 
             return func(**kwargs)
         if flask.request.method == "GET" and not logged_in:
             return redirect_to("signup") 
@@ -2225,35 +2226,66 @@ def get_profile(luser_id, luser=None, **kwargs):
             # Otherwise, let them edit their profile:
 
             return cc_render_template("profile.html", luser=luser, 
-                                      profile=profile,
-                                      timezones=pytz.all_timezones,
-                                      themes=themes,
-                                      **kwargs)
+                      profile=profile,
+                      timezones=pytz.all_timezones,
+                      themes=themes,
+                      target_nav_id="#settings_nav_profile",
+                      **kwargs)
 
     else:
         # Don't allow users to edit the profiles of others.
         if luser._id != luser_id:
             return flask.abort(403)
 
-        profile.first_name = flask.request.form["first_name"]
-        profile.last_name = flask.request.form["last_name"]
-        profile.username = flask.request.form["username"]
-        profile.timezone = flask.request.form["timezone"]
-        profile.theme = flask.request.form["theme"]
-
+        profile.first_name = flask.request.form.get("first_name", "")
+        profile.last_name = flask.request.form.get("last_name", "")
+        profile.username = flask.request.form.get("username", "")
+        profile.timezone = flask.request.form.get("timezone", "")
+        profile.theme = flask.request.form.get("theme", "light")
         models.db.session.commit()
 
-        flask.flash("Profile updated.")
-        return cc_render_template("profile.html", luser=luser, 
-                                  profile=profile,
-                                  timezones=pytz.all_timezones,
-                                  themes=themes,
-                                  **kwargs)
+        return respond_with_json(json.dumps(
+            dict(dict(is_successful=True).items() +
+            profile._asdict().items())))
 
 
-###############################################################################
+#############################################################################
 ## Password Recovery
-###############################################################################
+#############################################################################
+
+@app.route("/reset-from-password", methods=["POST"])
+@require_login
+def password_reset_from_password(luser=None, **kwargs):
+    current_password = request.form.get("current_password", "")
+    new_password = request.form.get("new_password", "")
+    confirm_password = request.form.get("confirm_password", "")
+
+    is_successful = True 
+    problems = dict() 
+
+    if len(new_password) < 8:
+        problems["new_password"] = "Password must be at least 8 characters."
+        is_successful = False
+
+    elif new_password != confirm_password:
+        problems["confirm_password"] = "Passwords must match."
+        is_successful = False
+
+    elif bcrypt.hashpw(current_password, luser.pw_hash) != luser.pw_hash:
+        problems["current_password"] = "Current password is incorrect."
+        is_successful = False
+
+    if not is_successful:
+        return respond_with_json({ 'is_successful': is_successful, 
+                                   'problems': problems })
+    else:
+        # Success, update the user's password. 
+        user = models.Luser.query.filter_by(_id=luser._id).first()
+        user.pw_hash = bcrypt.hashpw(new_password, bcrypt.gensalt())
+        models.db.session.commit() 
+
+        return respond_with_json({ 'is_successful': is_successful })
+
 
 @app.route("/reset/<uuid>", methods=["POST", "GET"])
 def password_reset(uuid):
