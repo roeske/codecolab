@@ -4,7 +4,7 @@
   <div style="width: 1000px; margin: 0 auto;">
       {% with messages = get_flashed_messages() %}
           {% if messages %}
-          <ul style="list-style-type: none;" class=flashes>
+          <ul style="list-style-type: none;" class="flashes">
           {% for message in messages %}
             <li style="font-size: 110%;">{{ message }}</li>
           {% endfor %}
@@ -22,7 +22,8 @@
 
             <li><a data-target="settings_page_password_item" id="settings_nav_reset_password" href="#">Reset Password</a></li>
 
-            <li><a data-target="settings_page_deactivate_item" id="settings_nav_deactivate" href="#">Deactivate Account</a></li>
+            <li><a data-target="settings_page_deactivate_item"
+            id="settings_nav_deactivate" href="#">Account Activation</a></li>
           </ul>
       </div>
 
@@ -31,7 +32,7 @@
       <div class="settings_page_content_item" id="settings_page_profile_item">
         <h4>Profile</h4>
         <div class="body">
-          <form id="settings_profile_form" action="/profile/{{ luser._id }}" method="POST" data-saved="settings_item_profile_saved">
+          <form class="old_way" id="settings_profile_form" action="/profile/{{ luser._id }}" method="POST" data-saved="settings_item_profile_saved">
             <ul class="settings structural">
               <li> <label for="first_name">First Name</label>
                 <input type="text" name="first_name" value="{{ profile.first_name }}" id="first_name" />
@@ -120,7 +121,7 @@
       <div class="settings_page_content_item" id="settings_page_password_item">
         <h4>Reset Password</h4>
         <div class="body">
-          <form action="/reset-from-password" method="POST" id="settings_password_reset_form"
+          <form class="old_way" action="/reset-from-password" method="POST" id="settings_password_reset_form"
                 data-error="settings_password_reset_form_error"
                 data-saved="settings_password_reset_form_saved">
             <ul class="settings structural">
@@ -169,7 +170,7 @@
                   </p>
               </li>
             </ul>
-          </ul>
+          </form>
         </div>
 
 
@@ -177,14 +178,70 @@
 
       <div class="settings_page_content_item" 
            id="settings_page_deactivate_item">
-        <h4>Deactivate Account</h4>
+        <h4>Account Activation</h4>
         <div class="body">
-          <ul class="settings structural">
-              <p>Deactivating your account will unsubscribe you from all emails and notifications.</p>
+              <p>
+  Deactivating your account will unsubscribe you from all emails and
+  notifications. Your account can always be reactivated by returning to this
+  page. Please enter the email you registered with to confirm account
+  deactivation.
+              </p>
               <br />
 
-              <a style="margin-left: 0px;" href="#" class="btn">Deactivate Account</a>
-          </ul>
+              <form id="settings_deactivate_account_form" class="new_way"
+                  method="POST" action="/toggle-activation">
+
+                <ul class="settings structural">
+                  <li>
+                    <label for="toggle_activation_email">Email</label>
+                    <input type="email" id="toggle_activation_email"
+                           name="toggle_activation_email" value="" required/>
+                    <div style="display: none;" class="ok"></div>
+                    <div style="display: none;" class="no"></div>
+                    <div class="clear"></div>
+                    <div class="error_message" id="current_password_error"></div>
+                  </li>
+
+                  <li>
+                    <input id="toggle_activation_button" class="btn save"
+                    value="{% if luser.is_active %}Deactivate Account{% else %}Activate Account{%endif%}" type="submit" name="submit" />
+                    <div class="clear"></div>
+                  </li>
+                </ul>
+              </form>
+
+
+              <div class="state_message success" style="display: none;"
+                   id="toggle_activation_status_success_activated">
+                  <p>Your account has been activated.</p>
+                  <div class="ok"></div>
+                  <div class="clear"></div>
+              </div>
+
+              <div class="state_message success" style="display: none;"
+                   id="toggle_activation_status_success_deactivated">
+                  <p>Your account has been deactivated.</p>
+                  <div class="ok"></div>
+                  <div class="clear"></div>
+              </div>
+
+              <div class="state_message failure" style="display: none;"
+                   id="toggle_activation_status_failure_activated">
+                  <p>
+                  Failed to activate your account. Please check your email.
+                  </p>
+                  <div class="no"></div>
+                  <div class="clear"></div>
+              </div>
+
+              <div class="state_message failure" style="display: none;"
+                   id="toggle_activation_status_failure_deactivated">
+                  <p>
+                  Failed to deactivate your account. Please check your email. 
+                  </p>
+                  <div class="no"></div>
+                  <div class="clear"></div>
+              </div>
         </div>
       </div>
 
@@ -211,22 +268,35 @@ background-image:url('/assets/loading.gif'); background-position: center center;
 $(function() {
   $(".settings_page_content_item").hide();
 
-  $("#settings_password_reset_form").validate({
-      showErrors: function(errorMap, errorList) {
-          console.log("showErrors");
-          $.each(errorMap, function(key, value) {
-              var elem = $("#"+key); 
-              elem.nextAll(".error_message").show().html(value);
-              elem.nextAll(".ok").hide();
-              elem.nextAll(".no").show();
-          });
+  var show_errors = function(errorMap, errorList) {
+      console.log("OOPS");
+      $.each(errorMap, function(key, value) {
+          var elem = $("#"+key); 
+          console.log(elem);
+          elem.nextAll(".error_message").show().html(value);
+          elem.nextAll(".ok").hide();
+          elem.nextAll(".no").show();
+      });
 
-          $.each(this.successList, function(i, value) {
-              $(value).nextAll(".ok").show();
-              $(value).nextAll(".no").hide();
-              $(value).nextAll(".error_message").hide();
-          });
-      },
+      $.each(this.successList, function(i, value) {
+          $(value).nextAll(".ok").show();
+          $(value).nextAll(".no").hide();
+          $(value).nextAll(".error_message").hide();
+      });
+  };
+
+  $("#settings_deactivate_account_form").validate({
+      showErrors: show_errors,
+
+      rules: {
+          toggle_activation_email: {
+              required: true
+          }
+      }
+  });
+
+  $("#settings_password_reset_form").validate({
+      showErrors: show_errors,
 
       rules: {
           new_password: {
@@ -264,8 +334,20 @@ $(function() {
           }
       }
   });
-          
-  $("form").each(function(i, val) {
+        
+  $('form[class="new_way"]').ajaxForm({
+      beforeSubmit: function() {
+          $("[id^=toggle_activation_status]").hide();
+      },
+
+      success: function(data) {
+          $("#toggle_activation_status_" + data.state).show();
+          $("#toggle_activation_button").val(data.label);
+      }
+  });
+
+  
+  $('form[class="old_way"]').each(function(i, val) {
       var saved_indicator = "#" + $(val).data("saved");
       var error_indicator = "#" + $(val).data("error");    
 
@@ -313,16 +395,18 @@ $(function() {
 
   var current_nav = $("{{ target_nav_id }}");
 
-  $("[id^=settings_nav]").click(function() {
+  $("[id^=settings_nav]").parent().click(function() {
+      var link = $(this).find("a");
+
       current_nav.closest("li").removeClass("active_nav");
 
       $(".settings_page_content_item").hide();
-      var target = "#" + $(this).data("target");
+      var target = "#" + $(link).data("target");
       console.log(target);
       $(target).show(); 
 
-      $(this).closest("li").addClass("active_nav");
-      current_nav = $(this);
+      $(link).closest("li").addClass("active_nav");
+      current_nav = $(link);
 
       return false;
   });

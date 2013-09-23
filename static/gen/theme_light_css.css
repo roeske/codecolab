@@ -6551,6 +6551,10 @@ pre.commit_message {
 
 .settings_page_content_item .body { 
     padding: 10px;
+}
+
+.settings_page_content_item .body form { 
+    display: block;
     width: 480px;
 }
 
@@ -6560,7 +6564,6 @@ pre.commit_message {
     border: 1px solid #ccc;
     margin-bottom: 20px;
 }
-
 
 #settings_page_navigation ul li {
     border-bottom: 1px solid #ccc;
@@ -6582,7 +6585,8 @@ pre.commit_message {
 }
 
 .btn.save {
-    width: 120px;
+    width: auto;
+    min-width: 120px;
     float: right;
     margin: 0;
 }
@@ -6598,7 +6602,6 @@ pre.commit_message {
 }
 
 .ok { background-image: url("/assets/ok.png"); }
-
 .no { background-image: url("/assets/no.png"); }
 
 .error_message {
@@ -6619,6 +6622,38 @@ pre.commit_message {
     border-left: 1px solid #888;
     border-right: 1px solid #888;
 }
+
+.state_message {
+    padding: 0px 10px;
+    border: 1px solid gray;
+    background: #ddd;
+}
+
+.state_message.success {
+    border: 1px solid green;
+    background: #bfffab;
+    color: green;
+}
+
+.state_message.failure {
+    border: 1px solid red;
+    background: #ffabbf;
+    color: red;
+}
+
+.state_message p {
+    line-height: 50px;
+    float: left;
+    font-weight: 500;
+    text-shadow: none;
+}
+
+.state_message div.ok,
+.state_message div.no {
+    float: right;
+}
+
+    
 
 div.card_top p {
     float: left;

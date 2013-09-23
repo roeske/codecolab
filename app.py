@@ -2620,7 +2620,36 @@ def beta_signup():
         flask.abort(400)
 
 
-##############################################################################
+###############################################################################
+## Account Activation
+###############################################################################
+
+@app.route("/toggle-activation", methods=["POST"])
+@require_login
+def toggle_activation(luser=None, **kwargs):
+    email = request.form.get("toggle_activation_email", "")
+    is_successful = luser.email == email 
+
+    if is_successful:
+        luser.is_active = not luser.is_active
+        models.db.session.commit()
+
+    data = {}
+
+    if is_successful and luser.is_active:
+        data['state'] = "success_activated"
+        data['label'] = "Deactivate Account"
+    elif is_successful and not luser.is_active:
+        data['state'] = "success_deactivated"
+        data['label'] = "Activate Account"
+    elif not is_successful and not luser.is_active:
+        data['state'] = "failure_activated"
+        data['label'] = "Activate Account"
+    elif not is_successful and luser.is_active:
+        data['state'] = "failure_deactivated"
+        data['label'] = "Deactivate Account"
+        
+    return respond_with_json(data)
 
 
 if __name__ == '__main__':

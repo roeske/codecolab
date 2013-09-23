@@ -119,6 +119,7 @@ class Luser(db.Model, DictSerializable):
     google_id = db.Column(db.String, default=None)
     created = db.Column(db.DateTime, default=func.now())
     last_project_id = db.Column(db.Integer, default=None)
+    is_active = db.Column(db.Boolean, default=True)
 
     has_github_token = db.Column(db.Boolean, default=False)
     github_token = db.Column(db.String, default=None)
