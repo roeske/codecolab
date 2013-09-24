@@ -130,6 +130,8 @@ class Luser(db.Model, DictSerializable):
     reports = db.relationship("MemberReport",
                               order_by="MemberReport.created.desc()")
 
+    notification_preferences = db.relationship("NotificationPreferences",
+                                                uselist=False)
     schedules = db.relationship("MemberSchedule")
     card_assignments = db.relationship("CardAssignments")
 
@@ -201,6 +203,21 @@ class Luser(db.Model, DictSerializable):
         return "http://gravatar.com/%s" % email_hash
 
 
+
+class NotificationPreferences(db.Model, DictSerializable):
+    
+    __tablename__ = "notification_preferences"
+
+    _id = db.Column(db.Integer, primary_key=True)
+    luser_id = db.Column(db.Integer, db.ForeignKey(Luser._id), nullable=False) 
+    on_subscribed_only = db.Column(db.Boolean, default=True)
+    on_card_text_change = db.Column(db.Boolean, default=False)
+    on_card_comment = db.Column(db.Boolean, default=True)
+    on_card_attachment = db.Column(db.Boolean, default=True)
+    on_card_completion = db.Column(db.Boolean, default=True)
+    on_card_archived = db.Column(db.Boolean, default=False)
+
+
 class LuserProfile(db.Model, DictSerializable):
     """
     Defines a users profile: first name, last name, username, timezone.
@@ -241,6 +258,7 @@ class LuserProfile(db.Model, DictSerializable):
             return "UTC +%d" % self.tz_utc_offset_hours
         else:
             return "UTC %d" % self.tz_utc_offset_hours
+
 
 class Project(db.Model, DictSerializable):
     """

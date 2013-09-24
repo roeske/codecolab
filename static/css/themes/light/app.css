@@ -651,4 +651,23 @@ pre.commit_message {
     float: right;
 }
 
-    
+form.checkbox-list {
+    width: auto !important;
+}
+
+.checkbox-list li input {
+    float: left;
+    max-width: 42px;
+    margin: 10px 0px;
+}
+
+.checkbox-list li label {
+    float: left;
+    line-height: 27px;
+    margin: 10px 0px;
+}
+
+label {
+    font-size: 1.1em;
+    font-weight: bold;
+}

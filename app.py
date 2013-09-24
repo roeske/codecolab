@@ -2576,6 +2576,10 @@ def create_luser_data(luser, first_name="Unknown", last_name="Unknown"):
     models.db.session.add(profile)
 
 
+    # all users must have notification preferences
+    notifications = models.NotificationPreferences(luser_id=luser._id)
+    models.db.session.add(notifications)
+
     # Must also add the user to any projects he has been invited to:
     invites = models.ProjectInvite.query.filter_by(email=email).all()
     for invite in invites:
@@ -2650,6 +2654,28 @@ def toggle_activation(luser=None, **kwargs):
         data['label'] = "Deactivate Account"
         
     return respond_with_json(data)
+
+
+###############################################################################
+## Notification Preferences
+###############################################################################
+
+@app.route("/configure-notifications", methods=["POST"])
+@require_login
+def configure_notifications(luser=None, **kwargs):
+
+    p = luser.notification_preferences
+
+    p.on_subscribed_only = bool(request.form.get("on_subscribed_only", False))
+    p.on_card_text_change = bool(request.form.get("on_card_text_change", False))
+    p.on_card_comment = bool(request.form.get("on_card_comment", False))
+    p.on_card_attachment = bool(request.form.get("on_card_attachment", False))
+    p.on_card_completion = bool(request.form.get("on_card_completion", False))
+    p.on_card_archived = bool(request.form.get("on_card_archived", False))
+
+    models.db.session.commit()
+   
+    return respond_with_json(p)
 
 
 if __name__ == '__main__':
