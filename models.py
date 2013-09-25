@@ -293,12 +293,12 @@ class Project(db.Model, DictSerializable):
     reports     = db.relationship("MemberReport", order_by=lambda:
                                   MemberReport.created.desc())
 
-    @property
-    def recipients(self):
+    def recipients(self, required_preference=None):
         recipients = []
         for pluser in self.plusers:
-            if pluser.is_interested:
-                recipients.append(pluser.luser.email)
+            if pluser.is_interested and (required_preference is None or 
+                getattr(pluser.notification_preferences, required_preference)):
+                recipients.append(pluser.luser)
        
         return recipients
 
@@ -649,11 +649,16 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
         return card
 
 
-    @property
-    def subscribers(self):
+    def subscribers(self, required_preference=None):
         subscribers = []
         for sub in self.subscriptions:
-            subscribers.append(sub.luser.email)
+
+            if (required_preference is None or 
+                getattr(sub.luser.notification_preferences, 
+                            required_preference)):
+
+                subscribers.append(sub.luser.email)
+
         return subscribers
 
 

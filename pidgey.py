@@ -54,7 +54,8 @@ class Mailer(object):
             msg = self._make_message(to_addr, from_addr, subject, text, html)
             self._send_msg(from_addr, to_addr, msg)
         else:
-            print "skipped, since we're in debug mode..."
+            print "PRETEND EMAIL: to_addr=%r, from_addr=%r, subject=%r" % \
+                (to_addr, from_addr, subject)
 
 
     def _make_message(self, to_addr, from_addr, subject, text, html):

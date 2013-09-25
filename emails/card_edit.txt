@@ -1,0 +1,13 @@
+{{ username }} edited card #{{ card._id }}
+
+{% if is_description %}
+
+The description has changed.
+
+{% else %}
+
+The text has changed:
+  
+{{ card.text }}
+
+{% endif %}

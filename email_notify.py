@@ -4,8 +4,7 @@ from jinja2 import Template
 from urllib import quote_plus
 
 meta = dict(app_name="CodeColab")
-TEMPLATE_DIR = "emails/" ############################################################################## # Private
-##############################################################################
+TEMPLATE_DIR = "emails/" 
 
 def _render_email(name, header_name="header.html", with_header=False,
                               header_params={}, **kwargs):
@@ -24,13 +23,12 @@ def _render_email(name, header_name="header.html", with_header=False,
     return "<html><head></head><body>Template %s not found</body></html>" % name    
 
 
-def _send_comment_email(template_prefix, recipients, username, comment, 
-                        title):
-    params = dict(username=username, comment=comment, title=title, meta=meta)
+def _send_email(template_prefix, recipients, **kwargs):
+    kwargs['meta'] = meta
 
-    text = _render_email("%s.txt" % template_prefix, **params)
-    subject = _render_email("%s.sub.txt" % template_prefix, **params)
-    html = _render_email("%s.html" % template_prefix, **params)
+    text = _render_email("%s.txt" % template_prefix, **kwargs)
+    subject = _render_email("%s.sub.txt" % template_prefix, **kwargs)
+    html = _render_email("%s.html" % template_prefix, **kwargs)
     mailer = Mailer(**MAILER_PARAMS)
     mailer.send(from_addr=MAIL_FROM, to_addr=recipients,
                  subject=subject, text=text, html=html)
@@ -56,7 +54,8 @@ def project_invite(project, email, is_registered=True):
                 text=text, html=html)
 
 
-def member_report(recipients, report, subject):
+def member_report(project, report, subject):
+    recipients = project.recipients()
     html = _render_email("report.html", report=report, meta=meta)
     text = _render_email("report.txt", report=report, meta=meta)
     mailer = Mailer(**MAILER_PARAMS)
@@ -81,13 +80,32 @@ def send_welcome_email(luser):
                     subject=subject, text=text)
 
 
-def send_report_comment_email(recipients, username, comment, title):
+def send_report_comment_email(project, username, comment, title):
+    recipients = project.recipients()
+
     if MAIL_FROM not in recipients:
         recipients.append(MAIL_FROM)
-    _send_comment_email("report_comment", recipients, username, comment, title)
+
+    _send_email("report_comment", recipients, username=username,
+                comment=comment, title=title)
 
 
-def send_card_comment_email(recipients, username, comment, title):
+def send_card_comment_email(card, username, comment, title):
+    recipients = card.subscribers(required_preference="on_card_comment")
+
     if MAIL_FROM not in recipients:
         recipients.append(MAIL_FROM)
-    _send_comment_email("card_comment", recipients, username, comment, title)
+
+    _send_email("card_comment", recipients, username=username, 
+        comment=comment, title=title)
+
+
+def send_card_edit_email(card, username, is_description, value):
+    recipients = card.subscribers(required_preference="on_card_text_change")
+
+    if MAIL_FROM not in recipients:
+        print "WARNING: forced to use 'MAIL_FROM' value."
+        recipients.append(MAIL_FROM)
+
+    _send_email("card_edit", recipients, username=username, 
+                is_description=is_description, card=card)

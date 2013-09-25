@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+</head>
+<body>
+<p>
+{{ username }} edited card #{{card_id}}
+</p>
+{% if is_description %}
+<p>
+The description has changed.
+</p>
+{% else %}
+<p>
+The text has changed:
+  <pre>
+  {{ card.text }}
+  </pre>
+</p>
+{% endif %}
+
+</body>
+</html>
