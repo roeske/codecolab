@@ -90,22 +90,23 @@ def send_report_comment_email(project, username, comment, title):
                 comment=comment, title=title)
 
 
-def send_card_comment_email(card, username, comment, title):
-    recipients = card.subscribers(required_preference="on_card_comment")
-
-    if MAIL_FROM not in recipients:
-        recipients.append(MAIL_FROM)
-
-    _send_email("card_comment", recipients, username=username, 
-        comment=comment, title=title)
-
-
-def send_card_edit_email(card, username, is_description, value):
-    recipients = card.subscribers(required_preference="on_card_text_change")
+def _get_recipients_via_card(card, preference):
+    recipients = card.subscribers(required_preference=preference)
 
     if MAIL_FROM not in recipients:
         print "WARNING: forced to use 'MAIL_FROM' value."
         recipients.append(MAIL_FROM)
 
+    return recipients
+
+
+def send_card_comment_email(card, username, comment, title):
+    recipients = _get_recipients_via_card(card, "on_card_comment")
+    _send_email("card_comment", recipients, username=username, 
+        comment=comment, title=title)
+
+
+def send_card_edit_email(card, username, is_description, value):
+    recipients = _get_recipients_via_card(card, "on_card_text_change")
     _send_email("card_edit", recipients, username=username, 
                 is_description=is_description, card=card)
