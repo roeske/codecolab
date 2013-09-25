@@ -124,38 +124,44 @@
           <form method="POST" action="/configure-notifications"
                 id="configure_notifications_form" class="checkbox-list">
             <ul class="settings structural">
+              {% if false %}
+              <!-- have to disable this. unsure whether this really
+                  makes sense -->
+
               <li>
                 <input type="checkbox" name="on_subscribed_only" id="on_subscribed_only"/>
                 <label for="on_subscribed_only">Only send notifications when I am subscribed to the relevant card.</label>
                 <div class="clear"></div>
               </li>
+              {% endif %}
+
               <li>
-                <input type="checkbox" name="on_card_text_change" id="on_card_text_change"/>
+                <input type="checkbox" name="on_card_text_change" id="on_card_text_change" {{ notifications.on_card_text_change }}/>
 
                 <label for="on_card_text_change">Notify me when card description or title changes.</label>
 
                 <div class="clear"></div>
               </li>
               <li>
-                <input type="checkbox" name="on_card_comment" id="on_card_comment"/>
+                <input type="checkbox" name="on_card_comment" id="on_card_comment" {{ notifications.on_card_comment }}/>
                 <label for="on_card_comment">Notify me about new comments.</label>
 
                 <div class="clear"></div>
               </li>
               <li>
-                <input type="checkbox" name="on_card_attachment" id="on_card_attachment"/>
+                <input type="checkbox" name="on_card_attachment" id="on_card_attachment" {{ notifications.on_card_attachment }} />
                 <label for="on_card_attachment">Notify me about new attachments</label>
 
                 <div class="clear"></div>
               </li>
               <li>
-                <input type="checkbox" name="on_card_completion" id="on_card_completion"/>
+                <input type="checkbox" name="on_card_completion" id="on_card_completion" {{ notifications.on_card_completion }}/>
                 <label for="on_card_completion">Notify me when a card is completed.</label>
 
                 <div class="clear"></div>
               </li>
               <li>
-                <input type="checkbox" name="on_card_archived" id="on_card_archived "/>
+                <input type="checkbox" name="on_card_archived" id="on_card_archived " {{ notifications.on_card_archived }}/>
                 <label for="on_card_archived">Notify me when a card is archived</label>
 
                 <div class="clear"></div>

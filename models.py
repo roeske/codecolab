@@ -136,6 +136,10 @@ class Luser(db.Model, DictSerializable):
     card_assignments = db.relationship("CardAssignments")
 
 
+    def get_checked_notifications(self):
+        return notification_preferences.to_checkboxes()
+
+
     def is_assigned_to(self, card_id):
         for assignment in self.card_assignments:
             if card_id == assignment.card_id:
@@ -216,6 +220,22 @@ class NotificationPreferences(db.Model, DictSerializable):
     on_card_attachment = db.Column(db.Boolean, default=True)
     on_card_completion = db.Column(db.Boolean, default=True)
     on_card_archived = db.Column(db.Boolean, default=False)
+
+    
+    def to_checkboxes(self):
+        n = {}
+
+        # emit the text 'checked' if the preference is turned on.
+        c = lambda o,a: "checked" if getattr(o,a) else ""
+
+        n['on_subscribed_only'] = c(self, 'on_subscribed_only')
+        n['on_card_text_change'] = c(self, 'on_card_text_change')
+        n['on_card_comment'] = c(self, 'on_card_comment')
+        n['on_card_attachment'] = c(self, 'on_card_attachment')
+        n['on_card_completion'] = c(self, 'on_card_completion')
+        n['on_card_archived'] = c(self, 'on_card_archived')
+
+        return n
 
 
 class LuserProfile(db.Model, DictSerializable):

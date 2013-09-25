@@ -2236,11 +2236,10 @@ def get_profile(luser_id, luser=None, **kwargs):
             # Otherwise, let them edit their profile:
 
             return cc_render_template("profile.html", luser=luser, 
-                      profile=profile,
-                      timezones=pytz.all_timezones,
-                      themes=themes,
-                      target_nav_id="#settings_nav_profile",
-                      **kwargs)
+              profile=profile, timezones=pytz.all_timezones,
+              themes=themes, target_nav_id="#settings_nav_profile",
+              notifications=luser.notification_preferences \
+                .to_checkboxes(), **kwargs)
 
     else:
         # Don't allow users to edit the profiles of others.
