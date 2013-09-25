@@ -1004,7 +1004,7 @@ def cards_comment(project_name=None, luser=None, project=None, card_id=None,
     activity_logger.log(luser._id, project._id, card_id, "card_comment")
  
     card = comment.card 
-    email_notify.send_card_comment_email(card.subscribers, 
+    email_notify.send_card_comment_email(card,
         luser.profile.username, comment.text, comment.card.text)
 
     return flask.render_template("comments.html", 
@@ -1051,7 +1051,7 @@ def reports_comment(project_name=None, project=None, luser=None,
                       .order_by(models.ReportComment.created.desc())
                       .all())
 
-    email_notify.send_report_comment_email(project.recipients,
+    email_notify.send_report_comment_email(project,
          luser.profile.username, comment.text, comment.report.subject)
                                     
     return flask.render_template("comments.html", luser=luser,
@@ -1185,20 +1185,30 @@ def card_edit(project=None, luser=None, project_name=None,card_id=None,
     """
     # Here we enumerate properties that can possibly be edited. Only
     # one is sent at a time.
+    is_description = False
     if "text" in request.form:
         value = request.form["text"].strip()
-        params = dict(text=value)
     elif "description" in request.form:
+        is_description = True
         value = request.form["description"].strip()
-        params = dict(description=value)
     else:
         flask.abort(400)
 
-    (models.Card.query.filter(and_(models.Card._id==card_id,
-                                   models.Card.project_id==project._id))
-                     .update(params))
+    card = (models.Card.query.filter(and_(models.Card._id==card_id,
+                models.Card.project_id==project._id)).one())
+
+    if is_description:
+        card.description = value
+    else:
+        card.text = value
+
     models.db.session.commit()
+
     activity_logger.log(luser._id, project._id, card_id, "card_edit")
+
+    email_notify.send_card_edit_email(card, luser.profile.username,
+        is_description, value)
+
     return value
 
 
@@ -2083,7 +2093,7 @@ def member_reports(luser=None, project=None, **kwargs):
         models.db.session.add(report)
         models.db.session.commit()
 
-        email_notify.member_report(project.recipients, report, subject)
+        email_notify.member_report(project, report, subject)
 
     
     total = models.MemberReport.query.count()
