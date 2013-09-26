@@ -1,0 +1,1 @@
+{{ username }} completed card #{{ card._id }}

@@ -816,6 +816,7 @@ def archive_project(project=None, **kwargs):
     models.db.session.commit()
     return redirect_to("index")
 
+
 @app.route("/p/<project_name>/unarchive", methods=["GET"])
 @check_project_privileges
 def unarchive_project(project=None, **kwargs):
@@ -1105,6 +1106,8 @@ def archive(luser=None, project=None, card_id=None, **kwargs):
    
     activity_logger.log(luser._id, project._id, card_id, "card_archive")
 
+    email_notify.send_card_archived_email(card, luser)
+
     return respond_with_json({ "status" : "success",
                                "card_id" : card._id,
                                "message" : "Archived card %d" % card._id })
@@ -1368,12 +1371,14 @@ def card_toggle_is_completed(project=None, card_id=None, luser=None,
     elif not card.is_completed and card_completion is not None:
         models.db.session.delete(card_completion)
 
+    models.db.session.commit()
+
     if card.is_completed:
         type = "card_finished"
+        email_notify.send_card_complete_email(card_completion, luser)
     else:
         type = "card_incomplete"
 
-    models.db.session.commit()
 
     activity_logger.log(luser._id, project._id, card_id, type)
 

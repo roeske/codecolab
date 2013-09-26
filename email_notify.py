@@ -116,3 +116,17 @@ def send_card_edit_email(card, username, is_description, value):
     recipients = _get_recipients_via_card(card, "on_card_text_change")
     _send_email("card_edit", recipients, username=username, 
                 is_description=is_description, card=card)
+
+
+def send_card_complete_email(card_completion, luser):
+    recipients = _get_recipients_via_card(card_completion.card,
+        "on_card_completion")
+    _send_email("card_completion", recipients, luser=luser,
+        username=luser.profile.username, card_completion=card_completion,
+        card=card_completion.card)
+
+
+def send_card_archived_email(card, luser):
+    recipients = _get_recipients_via_card(card, "on_card_archived")
+    _send_email("card_archived", recipients, luser=luser, 
+        card=card, username=luser.profile.username)

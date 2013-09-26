@@ -734,6 +734,7 @@ class CardCompletions(db.Model):
 
     card = db.relationship("Card")
 
+
 class Commit(db.Model, FluxCapacitor):
     __tablename__ = "commit"
 
