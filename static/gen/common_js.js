@@ -27943,7 +27943,9 @@ requires jQuery 1.7+
 
 				self.data('timepicker-settings', settings);
 				self.prop('autocomplete', 'off');
-				self.on('click.timepicker focus.timepicker', methods.show);
+                // removed focus.timepicker here because of problem
+                // caused when using in modals.
+				self.on('click.timepicker ', methods.show);
 				self.on('blur.timepicker', _formatValue);
 				self.on('keydown.timepicker', _keyhandler);
 				self.addClass('ui-timepicker-input');

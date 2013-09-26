@@ -6690,11 +6690,11 @@ div.card_top div {
 }
 
 .ui-dialog .ui-dialog-titlebar {
-    padding: .5em .5em;
+    padding: 10px 10px;
 }
 
 .ui-dialog .ui-dialog-content {
-/*    padding: .5em; */
+/*    padding: 10px; */
 }
 
 .ui-dialog > div form.milestone {
@@ -6736,7 +6736,7 @@ div form.assign_to select {
 }
 
 .card_section {
-    font-size: 1em;
+    font-size: 20px;
     color: #333;
     text-shadow: 1px 1px #aaa;
 }
@@ -6825,6 +6825,25 @@ div.attachment .image {
 div.attachment .filename_notimage {
     font-weight: bold;
     margin-top: 5px;
+}
+
+#due_date_dialog li:first-child {
+    width: 50%;
+    float: left;
+}
+
+#due_date_dialog li:last-child {
+    width: 50%;
+    float: right;
+}
+
+#due_date_dialog input[type="text"] {
+    width: 113px;
+}
+
+#due_date_dialog input[type="submit"] { 
+    width: 100%;
+    margin-top: 10px;
 }
 
 textarea.comment {

@@ -595,6 +595,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     __tablename__ = "card"
 
     _id             = db.Column(db.Integer, primary_key=True)
+    due_datetime    = db.Column(db.DateTime, default=None, nullable=True)
     comment_count   = db.Column(db.Integer, default=0)
     attachment_count = db.Column(db.Integer, default=0)
     project_id      = db.Column(db.Integer, db.ForeignKey(Project._id), nullable=False)
@@ -632,6 +633,25 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
             if luser_id == sub.luser_id:
                 return True
         return False
+
+
+    @property
+    def due_time(self):
+        if self.due_datetime is not None:
+            return self.due_datetime.strftime("%I:%M%p")
+        else:
+            return ""
+
+
+    @property
+    def due_date(self):
+        """ uses the format expected for parameters to a javascript
+            date() function i.e. year, month, day """
+        if self.due_datetime is not None:
+            dt = self.due_datetime
+            return "%d, %d, %d" % (dt.year, dt.month -1, dt.day)
+        else:
+            return ""
 
 
     @property
