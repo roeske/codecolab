@@ -119,9 +119,6 @@ def sign_s3_put():
         object_name = urllib.quote_plus(object_name, safe="$/") 
 
         mime_type = request.args.get('s3_object_type')
-
-        print "mime_type=%r" % mime_type 
-        print "object_name=%r" % object_name
         
         expires = int(time.time()+300) # PUT request to S3 must start within X seconds
         amz_headers = "x-amz-acl:public-read" # set the public read permission on the uploaded file
@@ -961,8 +958,10 @@ def card_get_attachments(card_id=None, luser=None, **kwargs):
     models.db.session.add(attachment)
     models.db.session.commit()
 
+    email_notify.send_card_attachment_email(attachment, luser)
+        
+
     stuff = render_card("card_attachments.html", card_id=card_id, luser=luser, **kwargs)
-    print "stuff=%r" % stuff
     return stuff
 
 
@@ -1003,12 +1002,11 @@ def cards_comment(project_name=None, luser=None, project=None, card_id=None,
 
     activity_logger.log(luser._id, project._id, card_id, "card_comment")
  
-    card = comment.card 
-    email_notify.send_card_comment_email(card,
+    email_notify.send_card_comment_email(comment.card,
         luser.profile.username, comment.text, comment.card.text)
 
     return flask.render_template("comments.html", 
-                card_id=card_id, comments=comments, luser=luser,
+                comments=comments, luser=luser,
                 comment_delete_url=comment_delete_url,
                 comment_edit_url=comment_edit_url)
 

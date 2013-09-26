@@ -809,6 +809,7 @@ class CardFile(db.Model, DictSerializable):
     filename    = db.Column(db.String, nullable=False)
     url         = db.Column(db.String, nullable=False)
 
+    card        = db.relationship("Card")
     luser       = db.relationship("Luser")
 
 

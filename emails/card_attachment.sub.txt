@@ -1,0 +1,1 @@
+{{ username }} attached a file to card #{{ card._id }}

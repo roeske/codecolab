@@ -103,7 +103,13 @@ def _get_recipients_via_card(card, preference):
 def send_card_comment_email(card, username, comment, title):
     recipients = _get_recipients_via_card(card, "on_card_comment")
     _send_email("card_comment", recipients, username=username, 
-        comment=comment, title=title)
+        comment=comment, title=title, card=card)
+
+
+def send_card_attachment_email(attachment, luser):
+    recipients = _get_recipients_via_card(attachment.card, "on_card_attachment")
+    _send_email("card_attachment", recipients, attachment=attachment,
+    card=attachment.card, luser=luser, username=luser.profile.username)
 
 
 def send_card_edit_email(card, username, is_description, value):
