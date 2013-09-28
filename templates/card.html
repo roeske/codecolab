@@ -1,243 +1,211 @@
-<div>
-  <!-- Static created timestamp -->
-  <div class="card_top">
+<div class="card">
+  <div class="card_left">
+    <div class="card_top">
+      <div>
+      </div>
+      <div class="clear"></div>
+    </div>
+
+    <!-- Editable Title "text" field -->
+    <div class="editable text">{{ card.text }}</div>
+
+    <!-- Editable description field -->
+    <div class="clear"></div>
+
+    <h3 class="card_section">Description</h3>
+
+    <div class="wmd-panel">
+      <div style="display: none;" id="editor_container">
+        <div id="wmd-button-bar"></div>
+        <textarea class="wmd-input" id="wmd-input">{{ card.description }}</textarea>
+      </div>
+      <div class="wmd-preview" id="wmd-preview"></div>
+    </div>
+
+    <div class="editor_hint">
+      <a style="float: right;" class="save btn" href="#">Edit</a>
+      <div class="clear"></div>
+    </div>
+
+
     <div>
-      <a data-state="{{ card.is_completed }}" class="btn card_complete" href="/p/{{ project_name }}/cards/{{ card._id }}/complete">
-        <!-- Show the appropriate toggle state, but also make it easy
-           to change from javascript by manipulating the DOM -->
-        {% if card.is_completed == True %}
-          {% set display_complete = "inline;" %}
-          {% set display_incomplete = "none;" %}
-        {% else %}
-          {% set display_incomplete = "inline;" %}
-          {% set display_complete = "none;" %}
-        {% endif %} 
-
-        <div style="display: {{ display_complete }}" 
-            class="complete">
-            <div style="float: left;">Complete&nbsp;</div>
-            <div class="icon">&#10003;</div>
-            <div class="clear"></div>
-        </div>
-
-        
-        <div style="display: {{ display_incomplete }}"
-            class="incomplete">Finish&nbsp;</div>
-      </a>
-    </div>
-    <div class="clear"></div>
-  </div>
-
-  <!-- Editable Title "text" field -->
-  <div class="editable text">{{ card.text }}</div>
-
-  <!-- Editable description field -->
-  <div class="clear"></div>
-
-  <h3 class="card_section">Description</h3>
-
-  <div class="wmd-panel">
-    <div style="display: none;" id="editor_container">
-      <div id="wmd-button-bar"></div>
-      <textarea class="wmd-input" id="wmd-input">{{ card.description }}</textarea>
-    </div>
-    <div class="wmd-preview" id="wmd-preview"></div>
-  </div>
-
-  <div class="editor_hint">
-    <a style="float: right;" class="save btn" href="#">Edit</a>
-    <div class="clear"></div>
-  </div>
-
-
-  <div>
-    
-    <div class="difficulty_section">
-      <h3 class="card_section">Difficulty</h3>
-      <div class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div></p>
-    </div>
-    
-    <!-- Select milestone -->
-    <form action="/p/{{ project_name }}/cards/{{ card._id }}/select_milestone"
-        method="POST" 
-        class="milestone">
-       
-      <h3 class="card_section">Milestone</h3>
-     
-      <div class="styled-select">
-        <select style="width: 90%;" data-card-id="{{ card._id }}" class="card_select" id="select_milestone">
-
-          <option data-id="-1">None</option>
-          {% for milestone in project.milestones %}
-          
-            <option 
-              {% if milestone._id == card.milestone_id %}
-                selected
-              {% endif %}
-              data-card-id="{{ card.milestone_id }}" 
-              data-id="{{ milestone._id }}">
-              
-              {{ milestone.name }}
-            </option>
-
-          {% endfor %}
-        </select>
-      </div>
-
-    </form>
-
-
-    <div style="subcription">
-      <h3 class="card_section">Subscription</h3>
-      <form action="/p/{{ project_name }}/{{ card_id }}/subscribe"
-            method="POST" id="form_subscribe">
-            {% if is_subscribed %}
-              <input type="submit" name="submit" value="Subscribed"
-                     id="btn_subscribe"/>
-            {% else %}
-              <input type="submit" name="submit" value="Subscribe"
-                     id="btn_subscribe"/>
-            {% endif %}
-      </form>
-    </div>
-  </div>
-
-  <div class="clear"></div>
-
-  <!-- BEGIN due date -->
-  <div>
-    <a id="due_date" href="#" class="btn">Due Date</a>
-    <div style="display: none;" id="due_date_dialog">
-      <form id="due_date_form"
-        action="/p/{{ project_name }}/{{ card_id }}/due_date" method="POST">
-
-        <ul class="structural">
-          <li>
-            <label for="due_date_time">Time</label>
-            <input type="text" placeholder="hh:mm" name="time"
-                    id="due_date_time" value="{{ card.due_time }}" />
-          </li>
-          <li>
-            <label for="due_date_date">Date</label>
-            <input type="text" placeholder="yy/mm/dd" name="date"
-                    id="due_date_date" />
-          </li>
-        </ul>
-
-        <div class="clear"></div>
-        <div style="margin-top: 10px;" id="inline_datepicker"></div>
       
-        <div>
-            <input style="width: 30%; float: left;"  
-            type="submit" name="clear" value="clear" />
+      <div class="difficulty_section">
+        <h3 class="card_section">Difficulty</h3>
+        <div class="editable difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}"></div></p>
+      </div>
+      
+      <!-- Select milestone -->
+      <form action="/p/{{ project_name }}/cards/{{ card._id }}/select_milestone"
+          method="POST" 
+          class="milestone">
+         
+        <h3 class="card_section">Milestone</h3>
+       
+        <div class="styled-select">
+          <select style="width: 90%;" data-card-id="{{ card._id }}" class="card_select" id="select_milestone">
 
-            <input style="width: 30%; float: right;"  
-            type="submit" name="save" value="save" />
+            <option data-id="-1">None</option>
+            {% for milestone in project.milestones %}
+            
+              <option 
+                {% if milestone._id == card.milestone_id %}
+                  selected
+                {% endif %}
+                data-card-id="{{ card.milestone_id }}" 
+                data-id="{{ milestone._id }}">
+                
+                {{ milestone.name }}
+              </option>
 
-            <div class="clear"></div>
+            {% endfor %}
+          </select>
+        </div>
+
+      </form>
+
+
+    </div>
+
+    <div class="clear"></div>
+
+    <!-- BEGIN due date -->
+    <div>
+      <a id="due_date" href="#" class="btn">Due Date</a>
+      <div style="display: none;" id="due_date_dialog">
+        <form id="due_date_form"
+          action="/p/{{ project_name }}/{{ card_id }}/due_date" method="POST">
+
+          <ul class="structural">
+            <li>
+              <label for="due_date_time">Time</label>
+              <input type="text" placeholder="hh:mm" name="time"
+                      id="due_date_time" value="{{ card.due_time }}" />
+            </li>
+            <li>
+              <label for="due_date_date">Date</label>
+              <input type="text" placeholder="yy/mm/dd" name="date"
+                      id="due_date_date" />
+            </li>
+          </ul>
+
+          <div class="clear"></div>
+          <div style="margin-top: 10px;" id="inline_datepicker"></div>
+        
+          <div>
+              <input style="width: 30%; float: left;"  
+              type="submit" name="clear" value="clear" />
+
+              <input style="width: 30%; float: right;"  
+              type="submit" name="save" value="save" />
+
+              <div class="clear"></div>
+          </div>
+        </form>
+      </div>
+      <script type="text/javascript">
+          var button = $("#due_date");
+          button.click(function() {
+              $("#due_date_dialog").dialog({ 
+                title: "Due Date", 
+                resizable: false,
+                width: '300px',
+
+                position: {
+                  my: "left top", at: "left bottom", of: button 
+                }
+              });
+          });
+
+          $("#due_date_time").timepicker({
+              selectOnBlur: true,
+              disableTextInput: true,
+          });
+
+          $("#inline_datepicker").datepicker({
+              altField: "#due_date_date",
+              defaultDate: new Date( {{ card.due_date }} )
+          });
+
+          $("#due_date_form").ajaxForm({
+              success: function(data) {
+                  // need to update this in the event the user
+                  // leaves it unspecified.
+                  $("#due_date_time").val(data['time']);
+              }
+          });
+
+          </script>
+    </div>
+    <!-- END due date -->
+
+    <div>
+    <h3 class="card_section">Tag</h3>
+
+    <div data-tags="{% for tag in card.tags %}{{tag.tag.name}},{% endfor %}"
+         data-action="/p/{{ project_name }}/cards/{{ card._id }}/tag" 
+         style="height: 24px; width: 100%;" class="select_tag"/>
+
+    <div class="clear"></div>
+      <!-- Assign to user -->
+      <form action="/p/{{ project_name }}/cards/{{ card._id }}/assign_to"
+          method="POST" 
+          class="assign_to">
+         
+        <h3 class="card_section">Assign To</h3>
+       
+        <div class="styled-select">
+          <select style="width: 90%;" id="select_assign_to" class="card_select" multiple>
+            {% for member in project.lusers %}
+              <option {% if member.is_assigned_to(card._id) %} selected {% endif %}>{{member.profile.username }}</option>
+            {% endfor %}
+          </select>
         </div>
       </form>
-    </div>
-    <script type="text/javascript">
-        var button = $("#due_date");
-        button.click(function() {
-            $("#due_date_dialog").dialog({ 
-              title: "Due Date", 
-              resizable: false,
-              width: '300px',
+    <div class="clear"></div>
 
-              position: {
-                my: "left top", at: "left bottom", of: button 
-              }
-            });
-        });
+    <!-- [comments] -->
+    {% include 'card_comments.html' %}
+    <!-- [/comments] -->
 
-        $("#due_date_time").timepicker({
-            selectOnBlur: true,
-            disableTextInput: true,
-        });
-
-        $("#inline_datepicker").datepicker({
-            altField: "#due_date_date",
-            defaultDate: new Date( {{ card.due_date }} )
-        });
-
-        $("#due_date_form").ajaxForm({
-            success: function(data) {
-                // need to update this in the event the user
-                // leaves it unspecified.
-                $("#due_date_time").val(data['time']);
-            }
-        });
-
-        </script>
-  </div>
-  <!-- END due date -->
-
-  <div>
-  <h3 class="card_section">Tag</h3>
-
-  <div data-tags="{% for tag in card.tags %}{{tag.tag.name}},{% endfor %}"
-       data-action="/p/{{ project_name }}/cards/{{ card._id }}/tag" 
-       style="height: 24px; width: 100%;" class="select_tag"/>
-
-  <div class="clear"></div>
-    <!-- Assign to user -->
-    <form action="/p/{{ project_name }}/cards/{{ card._id }}/assign_to"
-        method="POST" 
-        class="assign_to">
-       
-      <h3 class="card_section">Assign To</h3>
-     
-      <div class="styled-select">
-        <select style="width: 90%;" id="select_assign_to" class="card_select" multiple>
-          {% for member in project.lusers %}
-            <option {% if member.is_assigned_to(card._id) %} selected {% endif %}>{{member.profile.username }}</option>
-          {% endfor %}
-        </select>
-      </div>
+    <!-- [attachments] -->
+    <h3 class="card_section">Attachments</h3>
+    <form class="attachment_form">
+      <ul class="structural">
+        <li> 
+          <input id="{{ card._id }}_file_input" type="file" name="file" id="file"/>
+          <input style="float: right" class="btn" value="Choose File" type="button" id="{{ card._id }}_file_input_button" />
+          <div class="clear"></div>
+          <div id="{{ card._id }}_progress" class="progress">
+            <p class="progress-text">&nbsp;</p>
+            <div class="progress-bar-container">
+                <div class="progress-bar"/>
+            </div> 
+          </div>
+        </li>
+      </ul>
     </form>
+    {% include "card_attachments.html" %}
+  </div>
+  </div>
+
+  <div class="card_right">
+    {% include "card/_complete_button.html" %}
+    {% include "card/_subscribe_button.html" %}
+  </div>
+
   <div class="clear"></div>
-
-  <!-- [comments] -->
-  {% include 'card_comments.html' %}
-  <!-- [/comments] -->
-
-  <!-- [attachments] -->
-  <h3 class="card_section">Attachments</h3>
-  <form class="attachment_form">
-    <ul class="structural">
-      <li> 
-        <input id="{{ card._id }}_file_input" type="file" name="file" id="file"/>
-        <input style="float: right" class="btn" value="Choose File" type="button" id="{{ card._id }}_file_input_button" />
-        <div class="clear"></div>
-        <div id="{{ card._id }}_progress" class="progress">
-          <p class="progress-text">&nbsp;</p>
-          <div class="progress-bar-container">
-              <div class="progress-bar"/>
-          </div> 
-        </div>
-      </li>
-    </ul>
-  </form>
-  {% include "card_attachments.html" %}
-  <script> 
+</div> 
+<script> 
 var card_id = {{ card._id }};
 var project_name = "{{ project.name }}";
 var card_attachments = new CardAttachments({
-    file_input: require("#" + card_id + "_file_input:file"),
-    file_input_button: require("#" + card_id + "_file_input_button"),
-    progress: require("#" + card_id  + "_progress"),
-    attachments_selector: require_selector("#" + card_id + "_card_attachments"),
-    project_name: project_name,
-    card_id: card_id
+  file_input: require("#" + card_id + "_file_input:file"),
+  file_input_button: require("#" + card_id + "_file_input_button"),
+  progress: require("#" + card_id  + "_progress"),
+  attachments_selector: require_selector("#" + card_id + "_card_attachments"),
+  project_name: project_name,
+  card_id: card_id
 });
 
-$("#form_subscribe").ajaxForm({ 
-    success: function(data) {
-        $("#btn_subscribe").val(data["state"]);
-    }
-});
-  </script>
-  <!-- [/attachments] --> 
-</div>
+</script>

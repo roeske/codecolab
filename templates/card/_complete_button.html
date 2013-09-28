@@ -1,0 +1,21 @@
+<a class="btn" href="/p/{{ project_name }}/{{ card._id }}/complete"
+   id="btn_complete">
+  {% if card.is_completed %}
+    {% set display_false = 'none' %}
+    {% set display_true = 'block' %}
+  {% else %}
+    {% set display_true = 'none' %}
+    {% set display_false = 'block' %}
+  {% endif %}
+
+  <div class="true" style="display: {{ display_true }}">
+    Complete <div class="btn_ok"></div>
+  </div>
+  <div class="false" style="display: {{ display_false }}">
+    Incomplete <div class="btn_no"></div>
+  </div>
+</a>
+
+<script type="text/javascript">
+$("#btn_complete").click(toggle_button_handler);
+</script>

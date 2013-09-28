@@ -904,11 +904,11 @@ def activity(project=None, **kwargs):
                                  **kwargs)
 
 
-##############################################################################
+###########################################################################
 ## Cards
-##############################################################################
+###########################################################################
 
-@app.route("/p/<project_name>/<int:card_id>/subscribe", methods=["POST"])
+@app.route("/p/<project_name>/<int:card_id>/subscribe", methods=["GET"])
 @check_project_privileges
 def card_subscribe(card_id=None, luser=None, project=None, **kwargs):
     card = query_card(card_id, project._id)
@@ -919,11 +919,11 @@ def card_subscribe(card_id=None, luser=None, project=None, **kwargs):
                                       card_id=card_id)
         models.db.session.add(sub)
         models.db.session.commit()
-        return respond_with_json({"state" : "Subscribed"})
+        return respond_with_json({"state" : True })
     else:
         models.db.session.delete(sub)
         models.db.session.commit()
-        return respond_with_json({"state" : "Subscribe"})
+        return respond_with_json({"state" : False })
 
 
 def render_card(template, **kwargs):
@@ -1338,26 +1338,22 @@ def cards_add(project=None, luser=None, **kwargs):
                                  project=project, **kwargs)
 
 
-@app.route("/p/<project_name>/cards/<int:card_id>/complete",
-            methods=["POST"])
+@app.route("/p/<project_name>/<int:card_id>/complete",
+            methods=["GET"])
 @check_project_privileges
 def card_toggle_is_completed(project=None, card_id=None, luser=None,
                              **kwargs):
     """
     Facilitate the toggling of the Card's "is_completed" state.
     """
-    state = flask.request.json["state"]
-
-    print "state=%r" % state
-
     # Update the is_complete boolean
     card = models.Card.query.filter_by(_id=card_id).first()
-    card.is_completed = not state
+    card.is_completed = not card.is_completed
     models.db.session.flush()
 
     # Also insert or delete a CardCompletion object, for the charts.
-    card_completion = (models.CardCompletions.query.filter_by(card_id=card_id) 
-                                                  .first())
+    card_completion = (models.CardCompletions.query
+        .filter_by(card_id=card_id).first())
 
     # If the card is complete, and there is no entry in the card
     # completion table, then make one now:

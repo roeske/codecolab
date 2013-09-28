@@ -8481,57 +8481,6 @@ function cc_connect_spinner(clazz, parent_elem, card_id) {
 }
 
 
-function cc_connect_complete_button(project_name, modal, card_id) {
-    // capture clicks on the complete button, which is really a link
-    // with modified behavior.
-    var btn = modal.find("a.card_complete");
-    btn.click(function(event) {
-        // Don't perform the default action of following the link.
-        event.preventDefault();
-        
-        var that = this;
-
-        // Instead, post the state to the href of the link.
-        $.ajax({
-            type: "POST",
-            url: $(this).attr("href"),
-
-            // Get the new state each time we submit, to toggle.
-            data: JSON.stringify({state: $(that).data("state") == "True" }),
-            
-            success: function(data) {
-                var toggle = $(that);
-                var card_item_selector = "li.card_item[data-id="+card_id+"] p span.card";
-               
-                if (data.state) {
-                    // Update the toggle button state
-                    toggle.find("div.complete").show();
-                    toggle.find("div.incomplete").hide();
-                    toggle.data("state", "True");
-                    
-                    // Update the card item text strikethrough
-                    var target = $(card_item_selector);
-                    target.html("<strike>" + target.text() + "</strike>");
-                } else {
-                    // Update the toggle button state
-                    toggle.find("div.complete").hide();
-                    toggle.find("div.incomplete").show();
-                    toggle.data("state", "False");
-
-                    // Update the card item text strikethrough
-                    var selector = "li.card_item[data-id=" +card_id+"] p span.card_text";
-                    target = $(card_item_selector + " strike");
-                    $(card_item_selector).html(target.html());
-                }
-
-                cc_activity_reload();
-            },
-
-            contentType: "application/json;charset=UTF-8"
-        });
-    });
-}
-
 function cc_on_modal_opened(project_name, card_id) {
     var modal_selector = "#modal_" + + card_id;
     var modal = $(modal_selector);
@@ -8544,7 +8493,6 @@ function cc_on_modal_opened(project_name, card_id) {
     var select = modal.find('.select_tag');
     setup_tags(select);
 
-    cc_connect_complete_button(project_name, modal, card_id);
     cc_setup_card(project_name, card_id);
 }
 
@@ -8596,8 +8544,8 @@ function cc_connect_card_to_modal(title, project_name, elem, is_link) {
         title: title,
         autoOpen: false,
 
-        width: screen.width * 0.4,
-        minWidth: screen.width * 0.4,
+        width: 800, 
+        minWidth: 800,
         height: screen.height * 0.8,
         minHeight: screen.height * 0.8
     };
@@ -8781,6 +8729,29 @@ function cc_append_pile(project_id, data, socket) {
       // can be seen
       $("div#piles").animate({ scrollLeft: width });
       $('#add_list_form input[type="text"]').val("");
+}
+
+function toggle_button_handler() {
+    var that = $(this);
+
+    $.ajax({
+        type: "GET",
+        url: $(this).attr("href"),
+        
+        success: function(data) {
+            if (data.state === true) {
+                that.find(".true").show();
+                that.find(".false").hide();
+            } else {
+                that.find(".true").hide();
+                that.find(".false").show();
+            }
+        },
+
+        contentType: "application/json;charset=UTF-8"
+    });
+
+    return false;
 }
 
 /*!

@@ -3172,7 +3172,6 @@ table th[class*="span"],
   width: 14px;
   height: 14px;
   margin-top: 1px;
-  margin-right: .3em;
   line-height: 14px;
   vertical-align: text-top;
   background-image: url("../img/glyphicons-halflings.png");
@@ -3451,7 +3450,6 @@ button.close {
   display: inline-block;
   padding: 4px 7px 4px 7px;
   margin-bottom: 0;
-  margin-left: .3em;
   font-size: 14px;
   line-height: 20px;
   color: #333333;
@@ -6604,6 +6602,19 @@ pre.commit_message {
 .ok { background-image: url("/assets/ok.png"); }
 .no { background-image: url("/assets/no.png"); }
 
+
+.btn_invis { background-image: none; }
+.btn_ok { background-image: url("/assets/ok.png"); }
+.btn_no { background-image: url("/assets/no.png"); }
+
+.btn_ok, .btn_no, .btn_invis {
+    width: 32px;
+    height: 32px; 
+    float: right;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
 .error_message {
     color: red;
     height: 32px;
@@ -6674,6 +6685,37 @@ label {
     font-weight: bold;
 }
 
+.card {
+    display: -webkit-flex;
+    display: flex;
+}
+
+.card_left {
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+.card_right {
+    width: 200px;
+    padding: 10px;
+}
+
+.card_right .btn div {
+    text-align: center;
+}
+
+.card_right .btn {
+    width: 100%;
+    text-align: center;
+    line-height: 32px !important;
+    font-weight: bold;
+    font-size: 16px;
+    color: #555;
+    padding: 0;
+    line-height: 32px;
+}
+
+
 div.card_top p {
     float: left;
     display: none;
@@ -6682,8 +6724,6 @@ div.card_top p {
 div.card_top div {
     float: right;
 }
-
-.ui-dialog > form ul li { width: 80%; }
 
 .ui-dialog > br {
     line-height: .2em;

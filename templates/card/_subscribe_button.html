@@ -1,0 +1,22 @@
+<a class="btn" id="btn_subscribe"
+href="/p/{{ project.urlencoded_name }}/{{ card._id }}/subscribe">
+
+  {% if card.is_subscribed %}
+    {% set display_false = 'none' %}
+    {% set display_true = 'block' %}
+  {% else %}
+    {% set display_true = 'none' %}
+    {% set display_false = 'block' %}
+  {% endif %}
+
+  <div class="true" style="display: {{ display_true }}">
+    Subscribed <div class="btn_invis"></div>
+  </div>
+  <div class="false" style="display: {{ display_false }}">
+    Subscribe <div class="btn_invis"></div>
+  </div>
+</a>
+
+<script type="text/javascript">
+$("#btn_subscribe").click(toggle_button_handler);
+</script>
