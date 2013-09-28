@@ -6715,6 +6715,9 @@ label {
     line-height: 32px;
 }
 
+.card_right > ul.structural > li:not(:last-child) {
+    margin-bottom: 10px;
+}
 
 div.card_top p {
     float: left;
@@ -6751,13 +6754,6 @@ div.card_top div {
     padding: 0px 7px;
 }
 
-.ui-dialog > div div.difficulty_section {
-    float: left;
-    width: 28%;
-    height: 70px;
-    padding: 0px 7px;
-}
-
 .ui-dialog > div form.assign_to {
     float: left;
     width: 100%;
@@ -6775,10 +6771,23 @@ div form.assign_to select {
     width: 90%;
 }
 
-.card_section {
-    font-size: 20px;
-    color: #333;
+div.card_section,
+li.card_section {
+    border: 1px solid #bbb;
+    background-color: #ccc;
+    padding: 10px;
+}
+
+.card_section h3,
+h3.card_section {
+    font-size: 16px;
+    color: #555;
     text-shadow: 1px 1px #aaa;
+    line-height: normal !important;
+}
+
+.difficulty {
+    margin-top: 3px;
 }
 
 /* upload progressbar */
@@ -6885,6 +6894,7 @@ div.attachment .filename_notimage {
     width: 100%;
     margin-top: 10px;
 }
+
 
 textarea.comment {
     width: 96.7%;
