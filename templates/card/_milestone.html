@@ -1,0 +1,30 @@
+<h3 class="card_section">Milestone</h3>
+<form action="/p/{{ project_name }}/cards/{{ card._id }}/select_milestone"
+    method="POST">
+
+  <div style="margin-top: 10px;">
+    <select data-card-id="{{ card._id }}" id="select_milestone"
+      style="width: 100%;">
+
+      <option data-id="-1">None</option>
+      {% for milestone in project.milestones %}
+      
+        <option 
+          {% if milestone._id == card.milestone_id %}
+            selected
+          {% endif %}
+          data-card-id="{{ card.milestone_id }}" 
+          data-id="{{ milestone._id }}">
+          
+          {{ milestone.name }}
+        </option>
+
+      {% endfor %}
+    </select>
+  </div>
+</form>
+<script type="text/javascript">
+$(document).ready(function() {
+  $("#select_milestone").select2();
+});
+</script>

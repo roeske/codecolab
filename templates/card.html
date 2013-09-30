@@ -30,34 +30,6 @@
 
     <div>
       
-      <!-- Select milestone -->
-      <form action="/p/{{ project_name }}/cards/{{ card._id }}/select_milestone"
-          method="POST" 
-          class="milestone">
-         
-        <h3 class="card_section">Milestone</h3>
-       
-        <div class="styled-select">
-          <select style="width: 90%;" data-card-id="{{ card._id }}" class="card_select" id="select_milestone">
-
-            <option data-id="-1">None</option>
-            {% for milestone in project.milestones %}
-            
-              <option 
-                {% if milestone._id == card.milestone_id %}
-                  selected
-                {% endif %}
-                data-card-id="{{ card.milestone_id }}" 
-                data-id="{{ milestone._id }}">
-                
-                {{ milestone.name }}
-              </option>
-
-            {% endfor %}
-          </select>
-        </div>
-
-      </form>
 
 
     </div>
@@ -123,11 +95,15 @@
       <li>
         {% include "card/_subscribe_button.html" %}
       </li>
-      <li class="card_section">
-        {% include "card/_difficulty.html" %}
-      </li>
       <li>
         {% include "card/_due_date.html" %}
+      </li>
+      <li class="card_section">
+        {% include "card/_difficulty.html" %}
+        <div class="clear"></div>
+      </li>
+      <li class="card_section">
+        {% include "card/_milestone.html" %}
       </li>
     </ul>
   </div>
