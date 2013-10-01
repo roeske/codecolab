@@ -1,0 +1,32 @@
+<h3 class="card_section" style="margin-bottom: 10px;">Tags</h3>
+
+<div style="width: 100%;" data-tags="{% for tag in card.tags %}{{tag.tag.name}},{% endfor %}"
+   data-action="/p/{{ project_name }}/cards/{{ card._id }}/tag" 
+  id="select_tags"></div>
+
+<script type="text/javascript">
+
+function setup_tags(select) {
+    var tags = select.data('tags');
+    select.val(tags.substring(0, tags.length -1));
+
+    select.select2({tags: [], tokenSeparators: [',']}).change(function() {
+        tags = $(this).val().split(",");
+        $.ajax({
+            type: 'POST',
+            url: $(this).data('action'),
+            data: JSON.stringify({ tags: tags }),
+            success: console.log,
+
+            failure: function(data) {
+                console.log(data);
+                alert("Failed to tag entity. See logs.");
+            },
+
+            contentType: "application/json;charset=UTF-8"
+        });
+    });
+}
+
+setup_tags($("#select_tags"));
+</script>
