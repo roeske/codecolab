@@ -6,6 +6,10 @@
 -->
 <div id="{{ card._id }}_card_attachments" class="card_attachments">
   <ul class="attachments structural">
+    {% if card.attachments|length == 0 %}
+      <p style="margin: 10px auto;">No attachments.</p>
+    {% endif %}
+
     {% for file in card.attachments %}
       <li id="attachment_{{ file._id }}">
         <div>
@@ -41,7 +45,7 @@
 </div>
 
 <script>
-(function() {
+$(document).ready(function() {
   var card_id = {{ card._id }};
   var project_name = "{{ project.name }}";
   var card_attachments = new CardAttachments({

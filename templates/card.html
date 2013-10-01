@@ -32,29 +32,28 @@
       {% include 'card_comments.html' %}
     </div>
 
-    {% if false %}
-      <div>
-        <h3 class="card_section_header expanded">Attachments</h3>
-        <div class="card_section_body">
-          <form class="attachment_form">
-            <ul class="structural">
-              <li> 
-                <input id="{{ card._id }}_file_input" type="file" name="file" id="file"/>
-                <input style="float: right" class="btn" value="Choose File" type="button" id="{{ card._id }}_file_input_button" />
-                <div class="clear"></div>
-                <div id="{{ card._id }}_progress" class="progress">
-                  <p class="progress-text">&nbsp;</p>
-                  <div class="progress-bar-container">
-                      <div class="progress-bar"/></div>
-                  </div> 
-                </div>
-              </li>
-            </ul>
-          </form>
-          {% include "card_attachments.html" %}
-        </div>
+    <div>
+      <h3 class="card_section_header expanded">Attachments</h3>
+      <div class="card_section_body">
+        {% include "card_attachments.html" %}
+        <form class="attachment_form">
+          <ul class="structural">
+            <li> 
+              <input id="{{ card._id }}_file_input" type="file" name="file" id="file"/>
+              <input style="float: right" class="btn" value="Choose File" type="button" id="{{ card._id }}_file_input_button" />
+
+              <div class="clear"></div>
+              <div id="{{ card._id }}_progress" class="progress">
+                <p class="progress-text">&nbsp;</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar"></div>
+                </div> 
+              </div>
+            </li>
+          </ul>
+        </form>
       </div>
-    {% endif %}
+    </div>
 
   </div> <!-- /left -->
 
