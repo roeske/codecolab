@@ -3,6 +3,10 @@
  {% set comments = report.comments %}
 {% endif %}
 
+{% if comments|length == 0 %}
+  <p> No comments yet. </p>
+{% endif %}
+
 {% for comment in comments %}
 <li id="comment_{{ comment._id }}">
  <div class="comment">

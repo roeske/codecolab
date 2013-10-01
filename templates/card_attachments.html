@@ -41,6 +41,18 @@
 </div>
 
 <script>
+(function() {
+  var card_id = {{ card._id }};
+  var project_name = "{{ project.name }}";
+  var card_attachments = new CardAttachments({
+    file_input: require("#" + card_id + "_file_input:file"),
+    file_input_button: require("#" + card_id + "_file_input_button"),
+    progress: require("#" + card_id  + "_progress"),
+    attachments_selector: require_selector("#" + card_id + "_card_attachments"),
+    project_name: project_name,
+    card_id: card_id
+  });
+
   // hook up delete comment button
   $(".btn.delete").click(function() {
       var filename = $(this).data("filename");
@@ -62,4 +74,5 @@
            
       return false;
   });
+});
 </script>

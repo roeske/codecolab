@@ -1,91 +1,62 @@
 <div class="card">
   <div class="card_left">
-    <div class="card_top">
-      <div>
-      </div>
-      <div class="clear"></div>
-    </div>
-
-    <!-- Editable Title "text" field -->
-    <div class="editable text">{{ card.text }}</div>
-
-    <!-- Editable description field -->
-    <div class="clear"></div>
-
-    <h3 class="card_section">Description</h3>
-
-    <div class="wmd-panel">
-      <div style="display: none;" id="editor_container">
-        <div id="wmd-button-bar"></div>
-        <textarea class="wmd-input" id="wmd-input">{{ card.description }}</textarea>
-      </div>
-      <div class="wmd-preview" id="wmd-preview"></div>
-    </div>
-
-    <div class="editor_hint">
-      <a style="float: right;" class="save btn" href="#">Edit</a>
-      <div class="clear"></div>
-    </div>
-
 
     <div>
-      
-
-
+      <h3 class="card_section_header expanded">Title</h3>
+      <div class="card_section_body">
+        <div  style="margin-top: 10px; line-height: 26px; min-height: 26px;" 
+          class="editable text">{{ card.text }}</div>
+        <div class="clear"></div>
+      </div>
     </div>
 
-    <div class="clear"></div>
-
-
-    <div>
-    <h3 class="card_section">Tag</h3>
-
-    <div data-tags="{% for tag in card.tags %}{{tag.tag.name}},{% endfor %}"
-         data-action="/p/{{ project_name }}/cards/{{ card._id }}/tag" 
-         style="height: 24px; width: 100%;" class="select_tag"/>
-
-    <div class="clear"></div>
-      <!-- Assign to user -->
-      <form action="/p/{{ project_name }}/cards/{{ card._id }}/assign_to"
-          method="POST" 
-          class="assign_to">
-         
-        <h3 class="card_section">Assign To</h3>
-       
-        <div class="styled-select">
-          <select style="width: 90%;" id="select_assign_to" class="card_select" multiple>
-            {% for member in project.lusers %}
-              <option {% if member.is_assigned_to(card._id) %} selected {% endif %}>{{member.profile.username }}</option>
-            {% endfor %}
-          </select>
-        </div>
-      </form>
-    <div class="clear"></div>
-
-    <!-- [comments] -->
-    {% include 'card_comments.html' %}
-    <!-- [/comments] -->
-
-    <!-- [attachments] -->
-    <h3 class="card_section">Attachments</h3>
-    <form class="attachment_form">
-      <ul class="structural">
-        <li> 
-          <input id="{{ card._id }}_file_input" type="file" name="file" id="file"/>
-          <input style="float: right" class="btn" value="Choose File" type="button" id="{{ card._id }}_file_input_button" />
-          <div class="clear"></div>
-          <div id="{{ card._id }}_progress" class="progress">
-            <p class="progress-text">&nbsp;</p>
-            <div class="progress-bar-container">
-                <div class="progress-bar"/>
-            </div> 
+    <div style="margin-top: 10px;">
+      <h3 style="margin-bottom: 10px;" class="card_section_header expanded">Description</h3>
+      <div class="card_section_body">
+        <div class="wmd-panel">
+          <div style="display: none;" id="editor_container">
+            <div id="wmd-button-bar"></div>
+            <textarea class="wmd-input" id="wmd-input">{{ card.description }}</textarea>
           </div>
-        </li>
-      </ul>
-    </form>
-    {% include "card_attachments.html" %}
-  </div>
-  </div>
+          <div class="wmd-preview" id="wmd-preview"></div>
+        </div>
+
+        <div class="editor_hint">
+          <a style="float: right;" class="save btn" href="#">Edit</a>
+          <div class="clear"></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      {% include 'card_comments.html' %}
+    </div>
+
+    {% if false %}
+      <div>
+        <h3 class="card_section_header expanded">Attachments</h3>
+        <div class="card_section_body">
+          <form class="attachment_form">
+            <ul class="structural">
+              <li> 
+                <input id="{{ card._id }}_file_input" type="file" name="file" id="file"/>
+                <input style="float: right" class="btn" value="Choose File" type="button" id="{{ card._id }}_file_input_button" />
+                <div class="clear"></div>
+                <div id="{{ card._id }}_progress" class="progress">
+                  <p class="progress-text">&nbsp;</p>
+                  <div class="progress-bar-container">
+                      <div class="progress-bar"/></div>
+                  </div> 
+                </div>
+              </li>
+            </ul>
+          </form>
+          {% include "card_attachments.html" %}
+        </div>
+      </div>
+    {% endif %}
+
+  </div> <!-- /left -->
 
   <div class="card_right">
     <ul class="structural">
@@ -105,21 +76,29 @@
       <li class="card_section">
         {% include "card/_milestone.html" %}
       </li>
+      <li class="card_section">
+        {% include "card/_tags.html" %}
+      </li>
     </ul>
   </div>
-
   <div class="clear"></div>
 </div> 
 <script> 
-var card_id = {{ card._id }};
-var project_name = "{{ project.name }}";
-var card_attachments = new CardAttachments({
-  file_input: require("#" + card_id + "_file_input:file"),
-  file_input_button: require("#" + card_id + "_file_input_button"),
-  progress: require("#" + card_id  + "_progress"),
-  attachments_selector: require_selector("#" + card_id + "_card_attachments"),
-  project_name: project_name,
-  card_id: card_id
-});
+$(function() {
+  // Allow clicking on the header to hide and show card sections. 
+  $(".card_section_header").each(function(i, val) {
+    $(val).click(function() {
+        var header = $(this);
+        header.next(".card_section_body").toggle();
 
+        if (header.hasClass("expanded")) {
+          header.removeClass("expanded");
+          header.addClass("collapsed");
+        } else {
+          header.addClass("expanded");
+          header.removeClass("collapsed");
+        }
+    });
+  });
+});
 </script>

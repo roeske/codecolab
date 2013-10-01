@@ -27571,8 +27571,6 @@ function cc_on_modal_opened(project_name, card_id) {
     cc_connect_milestone_spinner(modal, card_id);
     cc_connect_assign_to_spinner(modal, card_id);
 
-    var select = modal.find('.select_tag');
-    setup_tags(select);
 
     cc_setup_card(project_name, card_id);
 }

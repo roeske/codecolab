@@ -6693,6 +6693,7 @@ label {
 .card_left {
     -webkit-flex: 1;
     flex: 1;
+    margin-right: 10px;
 }
 
 .card_right {
@@ -6773,17 +6774,30 @@ div form.assign_to select {
 
 div.card_section,
 li.card_section {
-    border: 1px solid #bbb;
-    background-color: #ccc;
+    border: 1px solid #ccc;
+    background-color: #efefef;
     padding: 10px;
 }
 
-.card_section h3,
-h3.card_section {
+h3.card_section,
+h3.card_section_header {
     font-size: 16px;
     color: #555;
     text-shadow: 1px 1px #aaa;
     line-height: normal !important;
+}
+
+h3.card_section_header {
+    padding-bottom: 5px;
+    border-bottom: 1px solid #ccc;
+}
+
+.collapsed:before {
+    content: "[+] ";
+}
+
+.expanded:before {
+    content: "[-] ";
 }
 
 .difficulty {
@@ -6818,7 +6832,6 @@ h3.card_section {
 }
 
 .wmd-preview {
-    border: 1px solid #ccc;
 }
 
 
@@ -6832,7 +6845,6 @@ h3.card_section {
 }
 
 div.editable {
-    width: 79%;
 }
 
 img.mini_icon {
@@ -6895,6 +6907,9 @@ div.attachment .filename_notimage {
     margin-top: 10px;
 }
 
+.comment_form_structure li {
+    margin-top: 10px;
+}
 
 textarea.comment {
     width: 96.7%;
@@ -6984,10 +6999,6 @@ a.mini_icon :active {
 
 .username {
     font-size: .8em;
-}
-
-div.editable {
-    width: 79%;
 }
 
 

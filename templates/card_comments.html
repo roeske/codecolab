@@ -1,27 +1,28 @@
-<div class="comments_section">
-  
-  <h4 class="section">Comments</h4>
+<div>
+  <h3 class="card_section_header expanded">Comments</h3>
+  <div class="card_section_body">
 
-  <form id="comment_form_{{ card._id }}" class="comment_form" 
-        action="/p/{{ project_name }}/cards/{{ card._id }}/comment" 
-        method="POST">
-    <ul class="structural comment_form_structure">
-      <li> 
-        <textarea class="comment" placeholder="Comment..." name="text" id="text"></textarea>
-      </li>
+    <div id="comments_container_{{ card._id }}" id="comments_container">
+      {% include "comments.html" %}
+    </div>
 
-      <li>
-        <input class="btn" style="float: right;" type="submit" name="submit" 
-               value="Add Comment"/>
-        <div style="clear: both;"></div>
-      </li>
-    </ul>
-  </form> 
+    <form
+    style="margin-top: 10px;" 
+    id="comment_form_{{ card._id }}" class="comment_form" 
+          action="/p/{{ project_name }}/cards/{{ card._id }}/comment" 
+          method="POST">
+      <ul class="structural comment_form_structure">
+        <li> 
+          <textarea class="comment" placeholder="Comment..." name="text" id="text"></textarea>
+        </li>
 
-  <hr />
-
-  <div id="comments_container_{{ card._id }}" id="comments_container">
-    {% include "comments.html" %}
+        <li>
+          <input class="btn" style="float: right;" type="submit" name="submit" 
+                 value="Add Comment"/>
+          <div style="clear: both;"></div>
+        </li>
+      </ul>
+    </form> 
   </div>
 </div>
 
