@@ -14,6 +14,10 @@
     padding: 10px;
 }
 
+#card_tags_section .select2-choices {
+    height: 400px;
+}
+
 .card_right .btn div {
     text-align: center;
 }
@@ -68,21 +72,9 @@ div.card_top div {
     padding: 0px 7px;
 }
 
-.ui-dialog > div form.assign_to {
-    float: left;
-    width: 100%;
-    height: 70px;
-    padding: 0px 7px;
-    margin-bottom: 7px;
-}
 
 pre.description {
     display: block;
-}
-
-div form.milestone select, 
-div form.assign_to select {
-    width: 90%;
 }
 
 div.card_section,
