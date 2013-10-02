@@ -659,7 +659,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
         if self.due_datetime is None:
             return ""
         else:
-            return self.due_datetime.strftime("%b. %d, %Y at %I:%M %p")
+            return self.due_datetime.strftime("%b. %d, %Y %I:%M %p")
 
     @property
     def title(self):
