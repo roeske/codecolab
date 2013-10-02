@@ -2699,7 +2699,8 @@ def set_card_due_date(card_id, **kwargs):
     if request.form.get("clear", False):
         card.due_datetime = None
         models.db.session.commit()
-        return respond_with_json({'date' : '', 'time' : ''})
+        return respond_with_json({'date' : '', 'time' : '',
+                                  'due_human' : ''})
     else:
         card.due_datetime = date_parser.parse(date + ' ' + time)
         print 'due_datetime=%s' % card.due_datetime
@@ -2707,7 +2708,8 @@ def set_card_due_date(card_id, **kwargs):
         return respond_with_json({'year' : card.due_datetime.year,
                                   'month' : card.due_datetime.month -1,
                                   'day' : card.due_datetime.day,
-                                  'time' : card.due_time })
+                                  'time' : card.due_time,
+                                  'due_human' : card.due_human })
 
 
 if __name__ == '__main__':

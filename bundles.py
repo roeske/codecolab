@@ -30,6 +30,7 @@ def register(app):
                         "js/timepicker.js",
                         "js/require.js",
                         "js/select2.js",
+                        "js/lightbox-2.6.min.js",
                         output="gen/common_js.js")
 
     assets.register("common_js", common_js)
@@ -47,7 +48,10 @@ def register(app):
                             "css/common/reports.css",
                             "css/common/icons.css",
                             "css/select2.css",
+                            "css/common/lightbox.css",
+    #                        "css/common/screen.css",
                             output="gen/theme_light_css.css")
+
     assets.register("theme_light_css", theme_light_css)
 
     common_css = Bundle("css/google_open_sans.css",

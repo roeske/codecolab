@@ -216,7 +216,10 @@ div.attachment .filename_notimage {
     margin-top: 10px;
 }
 
+#due_date_timestamp:before {
+    content: "\0000a0\0000a0\0000a0\0000a0\000a0\000a0";
+}
+
 #due_date_timestamp {
-    padding-left: 2em;
     font-size: 12px;
 }

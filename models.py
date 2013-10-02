@@ -655,6 +655,13 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
 
 
     @property
+    def due_human(self):
+        if self.due_datetime is None:
+            return ""
+        else:
+            return self.due_datetime.strftime("%b. %d, %Y at %I:%M %p")
+
+    @property
     def title(self):
         return self.text[:50] + "..."
 

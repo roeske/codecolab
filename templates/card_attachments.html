@@ -14,7 +14,7 @@
       <li id="attachment_{{ file._id }}">
         <div>
           <div class="attachment">
-            <a href="{{ file.url }}">
+            <a href="{{ file.url }}" data-lightbox="{{ file.filename }}">
               {% if file.is_image %}
                 <p class="filename">{{ file.filename }}</p>
                 <div style="text-align: center;">

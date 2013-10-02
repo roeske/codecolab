@@ -2,6 +2,8 @@
 <div>
   <a id="due_date" href="#" class="btn">
     Due Date <div class="btn_invis"></div>
+    <p style="text-align: center;" id="due_date_timestamp">
+{{ card.due_human }}</p> 
   </a>
   <div style="display: none;" id="due_date_dialog">
   <form id="due_date_form"
@@ -63,6 +65,8 @@
           // need to update this in the event the user
           // leaves it unspecified.
           $("#due_date_time").val(data['time']);
+          $("#due_date_dialog").dialog("close");
+          $("#due_date_timestamp").text(data.due_human);
       }
   });
 
