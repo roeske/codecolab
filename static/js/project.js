@@ -160,6 +160,14 @@ function cc_init_list_controls(socket, project_id, selector_prefix) {
 function cc_setup_card_description_editor(project_name, card_id) {
     // Setup pagedown
     var converter = Markdown.getSanitizingConverter();
+    converter.hooks.chain("postConversion", function(text) {
+        if (text.trim() === "") {
+            return "No Description.";
+        } else {
+            return text;
+        }
+    });
+
     var editor = new Markdown.Editor(converter);
     editor.run();
 
@@ -171,6 +179,7 @@ function cc_setup_card_description_editor(project_name, card_id) {
         $("a.save").click();
     });
 
+    
     // Setup toggle preview / save
     $("a.save").click(function() {
       if ($(this).text() == "Edit") {

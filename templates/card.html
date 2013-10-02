@@ -86,7 +86,7 @@
   <div class="clear"></div>
 </div> 
 <script> 
-$(function() {
+$(document).ready(function() {
   // Allow clicking on the header to hide and show card sections. 
   $(".card_section_header").each(function(i, val) {
     $(val).click(function() {
@@ -102,5 +102,6 @@ $(function() {
         }
     });
   });
+
 });
 </script>

@@ -607,7 +607,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     archived_at     = db.Column(db.DateTime)
     text            = db.Column(db.String)
     score           = db.Column(db.Integer, default=0)
-    description     = db.Column(db.String, default="Please enter a description...")
+    description     = db.Column(db.String, default="")
     is_completed    = db.Column(db.Boolean, default=False)
 
     # Default this to current value of 'id' column, but we'll change it later
