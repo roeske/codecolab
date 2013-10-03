@@ -1150,7 +1150,11 @@ def card_set_attributes(project=None, card_id=None, **kwargs):
             methods=["POST"])
 @check_project_privileges
 def card_select_milestone(project=None, card_id=None, **kwargs):
-    return card_set_attributes(project=project, card_id=card_id, **kwargs)   
+    card = models.Card.query.filter_by(_id=card_id).one()
+    card.milestone_id = request.form.get('milestone_id', None)
+    models.db.session.commit()
+    
+    return respond_with_json({ "status" : "success" })
 
 
 @app.route("/p/<project_name>/cards/<int:card_id>/assign_to",
@@ -1417,7 +1421,8 @@ def milestones_add(project=None, **kwargs):
     models.db.session.add(milestone)
     models.db.session.commit()
     
-    return redirect_to("project_progress", **kwargs)
+    return respond_with_json({ 'name' : milestone.name,
+                                '_id' : milestone._id })
 
 
 @app.route("/p/<project_name>/milestone/<int:milestone_id>/accept",

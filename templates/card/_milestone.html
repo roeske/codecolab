@@ -1,10 +1,9 @@
 <h3 class="card_section">Milestone</h3>
-<form action="/p/{{ project_name }}/cards/{{ card._id }}/select_milestone"
-    method="POST">
+<form action="/p/{{ project_name }}/cards/{{ card._id }}/select_milestone" id="form_select_milestone" method="POST">
 
   <div style="margin-top: 10px;">
     <select data-card-id="{{ card._id }}" id="select_milestone"
-      style="width: 100%;">
+      style="width: 100%;" name="milestone_id">
 
       <option data-id="-1">None</option>
       {% for milestone in project.milestones %}
@@ -13,8 +12,7 @@
           {% if milestone._id == card.milestone_id %}
             selected
           {% endif %}
-          data-card-id="{{ card.milestone_id }}" 
-          data-id="{{ milestone._id }}">
+          value="{{ milestone._id }}">
           
           {{ milestone.name }}
         </option>
@@ -23,8 +21,59 @@
     </select>
   </div>
 </form>
+<a href="#" class="hidden" id="toggle_add_milestone"
+   style="margin-top: 10px; margin-bottom: 10px; float: right;">
+  <span class="off">Add Milestone</span>
+  <span style="display: none;" class="on">Hide</span>
+</a>
+
+<div class="clear"></div>
+
+<form style="display: none; width: auto; " 
+  method="POST" action="/p/{{ project.name }}/milestones/add" 
+  id="form_add_milestone">
+
+  <input id="milestone" type="text" name="name"
+    placeholder="Milestone..." style="width: auto; float: right; display: block; margin: 0;" />
+
+  <div class="clear"></div>
+  <input id="add_milestone" type="submit" name="submit" 
+         value="Add" class="btn" 
+         style="width: auto; padding: 0px 10px 0px; float: right; margin: 10px auto 0px; font-size: 1em;" />
+  
+  <div class="clear"></div>
+</form>
+
 <script type="text/javascript">
 $(document).ready(function() {
-  $("#select_milestone").select2();
+  function toggle_add_milestone() {
+      $("#form_add_milestone").toggle();
+      $(this).find(".on").toggle();
+      $(this).find(".off").toggle();
+  }
+
+  $("#toggle_add_milestone").click(toggle_add_milestone);
+
+  $("#form_add_milestone").ajaxForm({
+      success: function(data) {
+          console.log(data);
+          var option = $("<option/>").val(data._id)
+                                     .text(data.name);
+          $("#select_milestone").append(option);
+          $("#select_milestone").select2("val", data._id);
+          $("#form_select_milestone").ajaxSubmit();
+          toggle_add_milestone();
+      }
+  });
+  
+  $("#form_select_milestone").ajaxForm({
+      success: function(data) {
+          console.log(data);
+      }
+  });
+
+  $("#select_milestone").select2().change(function() {
+      $("#form_select_milestone").ajaxSubmit();
+  });
 });
 </script>
