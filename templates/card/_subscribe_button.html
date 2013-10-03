@@ -1,7 +1,7 @@
 <a class="btn" id="btn_subscribe"
 href="/p/{{ project.urlencoded_name }}/{{ card._id }}/subscribe">
 
-  {% if card.is_subscribed %}
+  {% if card.is_luser_subscribed(luser._id) %}
     {% set display_false = 'none' %}
     {% set display_true = 'block' %}
   {% else %}
