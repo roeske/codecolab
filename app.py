@@ -1699,7 +1699,8 @@ def init_team_cadence(start_date):
     return team_cadence_data, team_cadence_map
 
 
-def generate_team_cadence_commit_data(project, timeframe=1):
+def generate_team_cadence_commit_data(project, luser_id=None,
+                                      timeframe=1):
     """
     this data is structured the way it is because that is how jqbargraph
     expects it to be.
@@ -1722,7 +1723,8 @@ def generate_team_cadence_commit_data(project, timeframe=1):
     return team_cadence_data
 
 
-def generate_team_cadence_data(project, timeframe=1, category="cards"):
+def generate_team_cadence_data(project, luser_id=None, timeframe=1, 
+                               category="cards"):
     """
     this data is structured the way it is because that is how jqbargraph
     expects it to be.
@@ -1731,11 +1733,17 @@ def generate_team_cadence_data(project, timeframe=1, category="cards"):
     """
     now, one_day, end_date, start_date = calculate_timeframe(timeframe)
 
-    completions = (models.CardCompletions.query
-                   .filter(models.CardCompletions.card_id==models.Card._id)
-                   .filter(models.Card.project_id==project._id)
-                   .filter(models.CardCompletions.created > start_date)
-                   .filter(models.CardCompletions.created < end_date).all())
+    q = models.CardCompletions.query
+    
+    if luser_id is not None:
+        q = q.filter(models.CardCompletions.luser_id==luser_id)
+
+    q = (q.filter(models.CardCompletions.card_id==models.Card._id)
+         .filter(models.Card.project_id==project._id)
+         .filter(models.CardCompletions.created > start_date)
+         .filter(models.CardCompletions.created < end_date))
+    
+    completions = q.all()
 
     team_cadence_data, team_cadence_map = init_team_cadence(start_date)
 
@@ -1757,12 +1765,16 @@ def get_team_cadence(project=None, **kwargs):
     timeframe = int(request.args.get("timeframe", -1)) * -1
     category = str(request.args.get("category", "points"))
 
+    luser_id = int(request.args.get("luser_id", -1))
+    if luser_id == -1: luser_id = None 
+
     if category == "points" or category == "cards":
         return respond_with_json(generate_team_cadence_data(project,
-                             timeframe=timeframe, category=category)) 
+                                luser_id=luser_id, timeframe=timeframe, 
+                                category=category)) 
     elif category == "commits":
-        return respond_with_json(generate_team_cadence_commit_data(project,
-                             timeframe=timeframe))
+        return respond_with_json(generate_team_cadence_commit_data(
+                    project, timeframe=timeframe))
     else:
         return flask.abort(500)
 

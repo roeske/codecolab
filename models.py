@@ -200,6 +200,10 @@ class Luser(db.Model, DictSerializable):
         return "http://gravatar.com/avatar/%s?s=24&d=%s" % (email_hash,
             DEFAULT_AVATAR_24)
 
+    
+    @property
+    def default_gravatar_url_24(self):
+        return DEFAULT_AVATAR_24
 
     @property
     def gravatar_profile_url(self):

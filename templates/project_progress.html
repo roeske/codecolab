@@ -35,11 +35,23 @@
   </div>
   <div id="progress_right">
     <div id="stats_container">
-      <h5>Team Cadence</h5>
+      <div style="height: 28px;">
+        <h5 style="float: left;">Team Cadence</h5>
+        <div id="cadence_select_user_container" style="float: right;">
+            <select style="width: 100px;" id="cadence_select_user">
+                <option value="-1">all</option>
+                {% for luser in project.lusers %}
+                    <option value="{{ luser._id }}">{{ luser.profile.username }}</option>  
+                {% endfor %}
+            </select>
+        </div>
+        <div class="clear"></div>
+      </div>
       <a href="#" id="team_cadence_category_cards">Cards</a>&nbsp;
       <a href="#" id="team_cadence_category_points">Points</a>&nbsp;
       <a href="#" id="team_cadence_category_commits">Commits</a>&nbsp;
       <br />
+
       <div class="clear"></div>
       <div id="stats_left">
         <a href="#" id="stats_left_arrow"><p>&lsaquo;</p></a>
@@ -109,17 +121,17 @@
   </div>
 </div>
 
-{% include "common_js.html" %}
-
-
 <script type="text/javascript" src="/js/jqBarGraph.1.1.min.js"></script>
 <script type="text/javascript">
 
-function update_team_cadence(team_cadence, timeframe, color, width, category) {
+function update_team_cadence(team_cadence, luser_id, timeframe, color, width, category) {
+    team_cadence.html("");
+
     $.ajax({
         method: "GET",
         url: "/p/{{ project.name }}/team_cadence",
-        data: { timeframe: timeframe, category: category },
+        data: { timeframe: timeframe, category: category,
+                luser_id: luser_id },
         success: function(data) {
             team_cadence.jqBarGraph({data: data, color: color, width: width });
         }
@@ -131,8 +143,13 @@ function underline_category(category) {
   $("#team_cadence_category_"+category).css("border-bottom", "2px solid #ccc");
 }
 
-// Run this code when the DOM is ready.
-$(function() {
+function render_percentages(i, val) {
+    var percent = Number($(val).text());
+    console.log(percent);
+    $(val).html(make_progress_bar(percent));
+}
+
+$(document).ready(function() {
   // Draw bar chart for team cadence. (array is from template)
   var data = {{ team_cadence_data|safe }}
 
@@ -141,8 +158,28 @@ $(function() {
   var timeframe = -1;
   var category = "cards";
   var width = 800;
+  var luser_id = -1;
 
   var color = "blue";
+  
+  $(".card_completion").each(render_percentages);
+  $(".point_completion").each(render_percentages);
+  
+
+  var gravatar_urls = {};
+  {% for luser in project.lusers %}
+      gravatar_urls[{{luser._id}}] = "{{luser.gravatar_url_24}}";
+      {% if loop.first %}
+          gravatar_urls[-1] = "{{luser.default_gravatar_url_24}}";
+      {% endif %}
+  {% endfor %}
+
+
+  $("#cadence_select_user").select2({}).change(function() {
+      luser_id = $("#cadence_select_user").val();
+      update_team_cadence(team_cadence, luser_id, timeframe, color, width, category);
+  });
+
 
   team_cadence.jqBarGraph({data: data, color: color, width: width})
 
@@ -150,38 +187,36 @@ $(function() {
 
   // Paginate jqBarGraph via AJAX
   $("#stats_left_arrow").click(function() {
-      team_cadence.html("");
       timeframe -= 1;
-      update_team_cadence(team_cadence, timeframe, color, width, category);
+      update_team_cadence(team_cadence, luser_id, timeframe, color, width, category);
   });
 
   $("#stats_right_arrow").click(function() {
-      team_cadence.html("");
       timeframe += 1;
-      update_team_cadence(team_cadence, timeframe, color, width, category);
+      update_team_cadence(team_cadence, luser_id, timeframe, color, width, category);
   });
 
   $("#team_cadence_category_commits").click(function() {
-      team_cadence.html("");
+      $("#cadence_select_user_container").hide();
       color = "red";
       category = "commits";
-      update_team_cadence(team_cadence, timeframe, color, width, category);
+      update_team_cadence(team_cadence, luser_id, timeframe, color, width, category);
       underline_category(category);
   });
 
   $("#team_cadence_category_points").click(function() {
-      team_cadence.html("");
+      $("#cadence_select_user_container").show();
       color = "green";
       category = "points";
-      update_team_cadence(team_cadence, timeframe, color, width, category);
+      update_team_cadence(team_cadence, luser_id,  timeframe, color, width, category);
       underline_category(category);
   });
 
   $("#team_cadence_category_cards").click(function() {
-      team_cadence.html("");
+      $("#cadence_select_user_container").show();
       color = "blue";
       category = "cards";
-      update_team_cadence(team_cadence, timeframe, color, width, category);
+      update_team_cadence(team_cadence, luser_id, timeframe, color, width, category);
       underline_category(category);
   });
 
@@ -263,16 +298,5 @@ function make_progress_bar(fraction) {
 
       return $(outer_percent_html).html($(inner_percent_html).html(inner_percent_text));
 }
-
-function render_percentages(i, val) {
-    var percent = Number($(val).text());
-    console.log(percent);
-    $(val).html(make_progress_bar(percent));
-}
-
-$(function() {
-  $(".card_completion").each(render_percentages);
-  $(".point_completion").each(render_percentages);
-});
 
 </script>

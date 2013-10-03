@@ -73,7 +73,7 @@ $(document).ready(function() {
   });
 
   $("#select_milestone").select2().change(function() {
-      $("#form_select_milestone").ajaxSubmit();
+      alert($("#select_milestone").val());
   });
 });
 </script>

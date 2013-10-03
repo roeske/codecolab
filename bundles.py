@@ -22,6 +22,7 @@ def register(app):
    
 
     common_js = Bundle("js/jquery-latest.js",
+                        "js/select2.js",
                         "js/jquery-ui.js",
                         "js/jquery.jeditable.js",
                         "js/raty/jquery.raty.js",
@@ -29,7 +30,6 @@ def register(app):
                         "js/project.js",
                         "js/timepicker.js",
                         "js/require.js",
-                        "js/select2.js",
                         "js/lightbox-2.6.min.js",
                         output="gen/common_js.js")
 
