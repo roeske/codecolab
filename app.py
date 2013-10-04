@@ -1459,7 +1459,7 @@ def add_pile(project, name="Unnamed List"):
 @check_project_privileges
 def pile_add(project=None, luser=None, **kwargs):
     pile = add_pile(project, request.form["text"])
-    return cc_render_template("list.html", project=project,
+    return cc_render_template("pile.html", project=project,
                               luser=luser, pile=pile, **kwargs)
 
 
