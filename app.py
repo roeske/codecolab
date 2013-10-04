@@ -4,7 +4,7 @@ import models
 import bcrypt 
 import pytz
 import httplib2 
-import time
+import time 
 import base64
 import hmac
 import sha
@@ -14,6 +14,7 @@ import re
 import string
 import uuid
 import simplejson as json 
+import globals
 
 from StringIO import StringIO
 from flask import request
@@ -64,6 +65,10 @@ def round_time_up(t):
     else:
         # The 'time' object already satisfies the rounding criteria.
         return t.hour
+
+
+app.jinja_env.globals.update(make_card_links=
+    globals.make_card_links)
 
 app.jinja_env.filters["round_time_up"] = round_time_up 
 app.jinja_env.filters["debug"] = debug

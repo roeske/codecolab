@@ -17,7 +17,10 @@
             </div>
             <div class="clear"></div>
           </div>
-          <pre class="commit_message">{{ commit.message }}</pre>
+          <pre class="commit_message">
+          {% autoescape false %}
+            {{ make_card_links(commit.message, project.urlencoded_name) }}</pre>
+          {% endautoescape %}
           <p>
             {% if commit.added != "" %}
               <span class="commit_added_files">Added Files: {{ commit.added }}</span>
