@@ -533,6 +533,8 @@ def perform_project_add(email, project_name):
     models.db.session.add(project)
     models.db.session.flush()
 
+    initialize_sample_data(project, luser)
+
     # Add the creator to this project as the project owner.
     project_luser = models.ProjectLuser(luser_id=luser._id, 
                                         project_id=project._id,
@@ -2558,9 +2560,13 @@ def create_sample_project_for_luser(luser):
     # default the creator of a project into updates as well as admin
     assoc = models.ProjectLuser(luser_id=luser._id, project_id=sample._id,
                                 is_owner=True, is_interested=True)
-
     models.db.session.add(assoc)
     models.db.session.flush()
+
+    initialize_sample_data(sample, luser)
+
+
+def initialize_sample_data(sample, luser):
 
     todo = models.Pile(project_id=sample._id, name="To-Do")
     doing = models.Pile(project_id=sample._id, name="Doing")
