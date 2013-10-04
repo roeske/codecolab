@@ -17,5 +17,19 @@
 </a>
 
 <script type="text/javascript">
-$("#btn_complete").click(toggle_button_handler);
+$("#btn_complete").click(function () {
+    var card_id = {{ card._id }};
+
+    ajax_toggle(this, function(data) {
+        if (data.state === true) {
+            $("span.card.text[data-id=\""+card_id+"\"]")
+              .css('text-decoration', 'line-through');
+        } else {
+            $("span.card.text[data-id=\""+card_id+"\"]") 
+              .css('text-decoration', 'none');
+        }
+    });
+
+    return false;
+});
 </script>

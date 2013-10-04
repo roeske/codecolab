@@ -928,12 +928,12 @@ function cc_append_pile(project_id, data, socket) {
       $('#add_list_form input[type="text"]').val("");
 }
 
-function toggle_button_handler() {
-    var that = $(this);
+function ajax_toggle(that, callback) {
+    that = $(that);
 
     $.ajax({
         type: "GET",
-        url: $(this).attr("href"),
+        url: that.attr("href"),
         
         success: function(data) {
             if (data.state === true) {
@@ -943,10 +943,19 @@ function toggle_button_handler() {
                 that.find(".true").hide();
                 that.find(".false").show();
             }
+        
+            console.log(data);
+
+            if (callback !== undefined) {
+                callback(data);
+            }
         },
 
         contentType: "application/json;charset=UTF-8"
     });
+}
 
+function toggle_button_handler() {
+    ajax_toggle(this);
     return false;
 }

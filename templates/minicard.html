@@ -12,13 +12,11 @@
 
   <!-- card text -->
   <p>
-  <span class="card text" data-id="{{ card._id }}">
-   
+  <span class="card text" data-id="{{ card._id }}"
     {% if card.is_completed %}
-    <strike>{{ card.text }}</strike>
-    {% else %}
+      style="text-decoration: line-through;"
+    {% endif %}>
     {{ card.text }}
-    {% endif %}
   </span>
   </p>
   
