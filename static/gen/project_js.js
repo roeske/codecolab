@@ -8382,26 +8382,6 @@ function cc_connect_milestone_spinner(mommy, card_id) {
 }
 
 
-function cc_connect_assign_to_spinner(parent_elem, card_id) {
-    var form = parent_elem.find('form.assign_to');
-    form.find('select').select2().change(function() {
-        var assigned_users = $(this).val();
-
-        // Update the card with the newly chosen milestone id.
-        $.ajax({
-            type: 'POST',
-            url: form.attr('action'),
-            data: JSON.stringify({ assigned: assigned_users }),
-            success: console.log,
-
-            failure: function(data) {
-                alert("Failed to update assignment field.");
-            },
-                
-            contentType: "application/json;charset=UTF-8"
-        });
-    });
-}
 
 
 function cc_connect_spinner(clazz, parent_elem, card_id) {
@@ -8477,15 +8457,13 @@ function cc_on_modal_opened(project_name, card_id) {
 
     cc_connect_editables(project_name, modal, card_id);
     cc_connect_milestone_spinner(modal, card_id);
-    cc_connect_assign_to_spinner(modal, card_id);
-
 
     cc_setup_card(project_name, card_id);
 }
 
 function cc_open_modal(modal_id, options, url, on_load) {
-    var modal = $("<div id=" + modal_id + "></div>").load(url, on_load) 
-                                                    .dialog(options);
+    var modal = $("<div id=" + modal_id + "></div>").load(url, on_load).dialog(options);
+
     modal.dialog("open").on('dialogresize', function() {
         cc_resize_card($("#" + modal_id).width());
     });

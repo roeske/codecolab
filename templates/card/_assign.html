@@ -1,14 +1,28 @@
 <!-- Assign to user -->
 <h3 class="card_section" style="margin-bottom: 10px;">Assign To</h3>
 <form action="/p/{{ project_name }}/cards/{{ card._id }}/assign_to"
-    method="POST" class="assign_to">
+    method="POST" id="form_assign_to">
    
   <div class="styled-select" style="width: 100%;">
-    <select style="width: 100%;" id="select_assign_to" class="card_select" multiple>
+    <select style="width: 100%;" id="select_assign_to" class="card_select" multiple name="assigned">
       {% for member in project.lusers %}
-        <option {% if member.is_assigned_to(card._id) %} selected {% endif %}>{{member.profile.username }}</option>
+        <option value="{{ member._id }}" {% if member.is_assigned_to(card._id) %} selected {% endif %}>{{member.profile.username }}</option>
       {% endfor %}
     </select>
   </div>
 </form>
 <div class="clear"></div>
+<script type="text/javascript">
+$(document).ready(function() {
+
+    $("#form_assign_to").ajaxForm({
+        success: function() {
+            console.log(data); 
+        }
+    });
+
+    $("#select_assign_to").select2().change(function() {
+        $("#form_assign_to").ajaxSubmit();
+    });
+});
+</script>

@@ -1170,19 +1170,19 @@ def card_select_milestone(project=None, card_id=None, **kwargs):
 def card_assign_to(project=None, card_id=None, **kwargs):
     # clear the existing assignments.
     models.CardAssignments.query.filter_by(card_id=card_id).delete()
-    
-    print '%r' % request.json
+   
+    assigned = request.form.getlist('assigned')
+    print "%r" % assigned
 
-    # update assignments.
-    assigned = request.json['assigned']
-    if assigned is not None:
-        for username in assigned:
-            luser = (models.Luser.query
-                .filter(models.LuserProfile.username==username)
-                .filter(models.Luser._id==models.LuserProfile._id)).one()
+    for luser_id in assigned:
+        luser_id = int(luser_id)
+        print "%r" % luser_id
 
-            assignment = models.CardAssignments(luser_id=luser._id, card_id=card_id)
-            models.db.session.add(assignment) 
+        luser = (models.Luser.query
+            .filter(models.Luser._id==luser_id)).one()
+        assignment = models.CardAssignments(luser_id=luser._id,
+                                            card_id=card_id)
+        models.db.session.add(assignment) 
     
     models.db.session.commit()
     return respond_with_json({ "status" : "success" })
