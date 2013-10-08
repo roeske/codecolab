@@ -46,32 +46,9 @@ div.card_top div {
     float: right;
 }
 
-.ui-dialog > br {
-    line-height: .2em;
-}
-
 .ui-dialog .ui-dialog-titlebar {
     padding: 10px 10px;
 }
-
-.ui-dialog .ui-dialog-content {
-/*    padding: 10px; */
-}
-
-.ui-dialog > div form.milestone {
-    float: left;
-    width: 40%;
-    height: 70px;
-    padding: 0px 7px;
-}
-
-.ui-dialog > div.subscription {
-    float: left;
-    width: 28%;
-    height: 70px;
-    padding: 0px 7px;
-}
-
 
 pre.description {
     display: block;
@@ -136,20 +113,10 @@ h3.card_section_header {
     background: gray;
 }
 
-.wmd-preview {
-}
-
-
-.card_select{
-}
-
 .editor_hint { margin-top: 15px; }
 
 .attachment_form {
     margin-bottom: 15px;
-}
-
-div.editable {
 }
 
 img.mini_icon {
@@ -219,4 +186,35 @@ div.attachment .filename_notimage {
 #due_date_timestamp {
     padding-left: 20px;
     font-size: 12px;
+}
+
+.minicard_counts {
+    float: right;
+    margin-right: 5px;
+}
+
+.milestone_label, .attachment_count, .comment_count {
+    font-size: 14px;
+    line-height: 24px;
+}
+
+.attachment_count, .comment_count {
+    background-position: left;
+    background-repeat: no-repeat;
+    text-align: right;
+    width: 40px !important;
+    color: #727272;
+}
+
+.milestone_label {
+    color: #0a0;
+    float: left;
+}
+
+.score, .milestone_label, .minicard_counts div {
+    float: left;
+}
+
+.card_title {
+    padding: 5px 0px 10px;
 }

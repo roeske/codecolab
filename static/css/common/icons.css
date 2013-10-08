@@ -15,14 +15,23 @@
     content: "\00a0";
 }
 
-.btn .label,
-.btn .icon {
+.btn .label, .btn .icon {
     float: left;
 }
 
 .icon.archive {
     background-image: url('../../assets/ic_archive.png');
     background-size: 70%;
+}
+
+.icon.comment_count {
+    background-image: url('../../assets/ic_chat.png'); 
+    background-size: 14px !important;
+}
+
+.icon.attachment_count {
+    background-image: url('../../assets/ic_attach.png');
+    background-size: 14px !important;
 }
 
 .icon.project {
@@ -58,19 +67,6 @@
 .icon.delete {
     background-image: url('../../assets/ic_cross.png');
 }
-
-.icon_large.project_progress {
-}
-
-.icon_large.calendar {
-}
- 
-.icon_large.reports {
-}
-
-.icon_large.members {
-}
-
 
 .icon_large {   
     background-color: #ddd;

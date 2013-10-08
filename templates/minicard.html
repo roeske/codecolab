@@ -11,43 +11,51 @@
   <div class="clear"></div>
 
   <!-- card text -->
-  <p>
-  <span class="card text" data-id="{{ card._id }}"
-    {% if card.is_completed %}
-      style="text-decoration: line-through;"
-    {% endif %}>
-    {{ card.text }}
-  </span>
+  <p class="card_title">
+    <span class="card text" data-id="{{ card._id }}"
+      {% if card.is_completed %}
+        style="text-decoration: line-through;"
+      {% endif %}>
+      {{ card.text }}
+    </span>
   </p>
-  
+
+  <div class="clear"></div>
+ 
   <div>
-  <!-- hide score when not in use. -->
-    <div style="{% if card.score == 0 or card.score is none %} display: none; {% endif %}float: left;" class="editable
-    minicard difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}">
-  </div>
+    <div class="minicard_counts">
+      <div class="icon attachment_count">
+        <span id="card_{{ card._id }}_attachment_count" 
+          class="attachment_count_no">{{ card.attachment_count}}
+        </span>
+      </div>
+      <div class="icon comment_count">
+        <span id="card_{{ card._id }}_comment_count" 
+          class="comment_count_no">{{ card.comment_count }}
+        </span>
+      </div>
+    </div>
 
-  <div class="clear"></div>
-  
-  <div style="float: right;" class="counts">
-    <span  class="icon attachment_count">A:</span><span 
-    id="card_{{ card._id }}_attachment_count"
-    class="attachment_count_no">{{ card.attachment_count}}&nbsp;</span>
-    <span class="icon comment_count">C:</span><span 
-    id="card_{{ card._id }}_comment_count" 
-    class="comment_count_no">{{ card.comment_count }}</span>
-  </div>
-  
-  <div class="clear"></div>
-
-  <div class="milestone" style="float: right; {% if card.milestone == None %} display: none; {% endif %}">
-    {% if card.milestone.is_approved %}
-    <strike>
+    <div class="milestone_label" style="float: right; {% if card.milestone == None %} display: none; {% endif %}">
+      {% if card.milestone.is_approved %}
+      <strike>
+        {{ card.milestone.name }}
+      </strike>
+      {% else %}
       {{ card.milestone.name }}
-    </strike>
-    {% else %}
-    {{ card.milestone.name }}
-    {% endif %}
+      {% endif %}
+    </div>
+
+    <div class="score">
+    <!-- hide score when not in use. -->
+      <div style="{% if card.score == 0 or card.score is none %} display: none; {% endif %}float: left;" class="editable
+      minicard difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}">
+    </div>
   </div>
+
+  <div class="clear"></div>
+
+
   </div>
   <div class="clear"></div>
 </li>
