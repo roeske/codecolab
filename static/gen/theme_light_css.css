@@ -6873,8 +6873,11 @@ div.attachment .filename_notimage {
 }
 
 .milestone_label, .attachment_count, .comment_count {
-    font-size: 14px;
+    font-size: 10px;
     line-height: 24px;
+    max-width: 80px;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .attachment_count, .comment_count {
