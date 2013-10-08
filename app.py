@@ -44,9 +44,6 @@ AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 S3_BUCKET = os.environ.get('S3_BUCKET')
 
 
-def debug(text):
-    print "DEBUG: %r" % text
-
 
 activity_logger = models.ActivityLogger()
 app = models.app
@@ -142,8 +139,6 @@ def sign_s3_put():
         # prefix and recompute.
         if "+" not in sig and "%2B" not in sig:
             break
-
-    print "sig=%r" % sig
 
     url = 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, object_name)
     return json.dumps({
@@ -273,7 +268,6 @@ def index(**kwargs):
     if luser.last_project_id is not None:
         project = models.Project.query.filter_by(_id=
                             luser.last_project_id).first()
-        print "%r" % project.name
         return render_index(email, selected_project=project.name)
     else:
         return render_index(email)
@@ -441,7 +435,6 @@ def delete():
         project_name = args.get("project_name")
         return perform_delete_pile(email, pile_id, project_name)
 
-    print "[EE] Insufficient parameters."
     flask.abort(400)
 
 
@@ -456,32 +449,26 @@ def perform_delete_card(email, card_id, project_name, args):
     # Resolve the user
     luser = models.Luser.query.filter_by(email=email).first()
     if luser is None:
-        print "[EE] No such user for email=%r" % email
         flask.abort(404)
 
     # Resolve the project
     project = models.Project.query.filter_by(name=project_name).first()
     if project is None:
-        print "[EE] No such project for name=%r" % project_name
         flask.abort(404)
 
     # Assert that the user is a member of this project
     if luser not in project.lusers:
-        print "[EE] User is not a member of this project."
         flask.abort(403)
 
     # Resolve the card
     card = models.Card.query.filter_by(_id=card_id).first()
     if card is None:
-        print "[EE] No such card for _id=%r" % card_id
         flask.abort(404)
 
     # Assert that this card belongs to the resolved project
     if card.project_id != project._id:
-        print "[EE] Card does not belong to the specified project."
         flask.abort(403)
 
-    print ">>>HERE"
     # Looks OK, lets delete it
     card = models.Card.query.filter_by(_id=card_id).first()
     models.db.session.delete(card)
@@ -509,23 +496,19 @@ def project_add():
         return perform_project_add(email, project_name)
 
     elif not logged_in:
-        print "[EE] Must be logged in."
         flask.abort(403)
 
     else:
-        print "[EE] Missing parameters."
         flask.abort(400)
 
 
 def perform_project_add(email, project_name):
     luser = get_luser_for_email(email)
     if luser is None:
-        print "[EE] No user found for email=%r" % email
         flask.abort(404)
 
     project_name = project_name.strip()
     if len(project_name) == 0:
-        print "[WW] client attempted to create project with blank name."
         return redirect_to_index()
 
     # Create a new project
@@ -551,7 +534,6 @@ def get_luser_or_404(email):
     luser = get_luser_for_email(email)
 
     if luser is None:
-        print "[EE] No user for email=%r" % email
         flask.abort(404)
 
     return luser
@@ -561,7 +543,6 @@ def get_project_or_404(project_name, luser_id):
     project = get_project(project_name, luser_id)
 
     if project is None:
-        print "[EE] No project found for name=%r and luser_id=%r" % params
         flask.abort(404)
 
     return project
@@ -607,11 +588,9 @@ def add_to_project(callback):
         return callback(email, project_name, text, form=form)
 
     elif not logged_in and has_all_params:
-        print "[EE] Requires login."
         flask.abort(403)
 
     else:
-        print "[EE] Insufficient parameters."
         flask.abort(400)
 
 ##############################################################################
@@ -723,7 +702,6 @@ def before_request():
 
 @github.access_token_getter
 def token_getter():
-    print "TOKEN GETTER!: " + g.user.github_token
     return g.user.github_token
 
 
@@ -1172,11 +1150,9 @@ def card_assign_to(project=None, card_id=None, **kwargs):
     models.CardAssignments.query.filter_by(card_id=card_id).delete()
    
     assigned = request.form.getlist('assigned')
-    print "%r" % assigned
 
     for luser_id in assigned:
         luser_id = int(luser_id)
-        print "%r" % luser_id
 
         luser = (models.Luser.query
             .filter(models.Luser._id==luser_id)).one()
@@ -1299,7 +1275,6 @@ def card_score(project_name=None, card_id=None, project=None, **kwargs):
     if score is not None: 
         score = int(score)
 
-    print "score = %r" % score
     card.score = score
     
     models.db.session.commit()
@@ -1315,7 +1290,6 @@ def cards_reorder():
     cards in appropriate piles.
     """
 
-    print "%r" % flask.request.json
     updates = flask.request.json["updates"]
     for _id in updates.keys():
         number = int(updates[_id]["number"])
@@ -1440,12 +1414,8 @@ def milestone_toggle_is_accepted(project=None, milestone_id=None, **kwargs):
     Facilitate the toggling of the milestone's is_accepted attribute.
     """
     state = flask.request.json["state"]
-    print "state=%r" % state
-
     milestone = models.Milestone.query.filter_by(_id=milestone_id).first()
-
     milestone.is_approved = not state
-
     models.db.session.commit()
 
     return respond_with_json(dict(state=milestone.is_approved))
@@ -1527,20 +1497,17 @@ def render_project(project_name, email):
 
     luser = get_luser_for_email(email)
     if luser is None:
-        print "[EE] No user found for email=%r" % email
         flask.abort(404)
 
     project = get_project(project_name, luser._id)
     if project is None:
         params = (project_name, luser._id)
-        print "[EE] No project found for name=%r and luser_id=%r" % params
         flask.abort(404)
 
 
     json_pile_ids = json.dumps([p.pile_uuid for p in project.piles])
 
     target_card_id = int(request.args.get('card', -1))
-    print "target_card_id=%r" % target_card_id
     is_target_card_invocation = target_card_id != -1 
     return cc_render_template("project.html", email=email, project=project,
                           json_pile_ids=json_pile_ids, luser=luser,
@@ -1598,8 +1565,6 @@ def tag_card(project_name, card_id, luser=None, project=None, **kwargs):
     tags = inflate_tags(request.json["tags"])
     CardTag = models.CardTag
 
-    print "tags = %r" % tags
-
     # obtain reference to target card.
     card = query_card(card_id, project._id)
 
@@ -1611,7 +1576,6 @@ def tag_card(project_name, card_id, luser=None, project=None, **kwargs):
     # retag with new selections.
     for tag in tags:
         card_tag = CardTag(card_id=card_id, tag_id=tag._id)
-        print "Tagging w %r"  % card_tag
         models.db.session.add(card_tag)
 
     models.db.session.commit()        
@@ -1670,8 +1634,6 @@ def search_cards(luser=None, project=None, **kwargs):
     
     obj['is_locked'] = total != q.count()
     obj['is_cleared'] = request.args.get('submit', 'clear') == 'clear'
-
-    print 'is_locked=%r' % obj['is_locked']
 
     return respond_with_json(obj)
 
@@ -1991,7 +1953,6 @@ def member_schedule(luser=None, project=None, **kwargs):
         # IF the user clicked the "Add Day" button, add a day to their
         # schedule.
         if "add_day" in request.form:
-            print "add day!"
             time_range = models.MemberScheduleTimeRanges(schedule_id=schedule._id)
             models.db.session.add(time_range)
             models.db.session.commit()
@@ -2058,7 +2019,6 @@ def member_schedule(luser=None, project=None, **kwargs):
 
         hours_offset = m.luser.profile.tz_utc_offset_hours
         relative_offset = luser.profile.tz_utc_offset_hours - hours_offset
-        print "%r" % relative_offset
         relative_hours = hours[relative_offset:] + hours[:relative_offset]
         member_hours[m.luser_id] = relative_hours
 
@@ -2207,7 +2167,6 @@ def team_reports(luser=None, project=None, **kwargs):
     reports = q.all()
     total = q.count()
 
-    print "total=%d end=%d" % (total, end)
     has_next = total > end
     next_page = page + 1
 
@@ -2731,7 +2690,6 @@ def set_card_due_date(card_id, **kwargs):
                                   'due_human' : ''})
     else:
         card.due_datetime = date_parser.parse(date + ' ' + time)
-        print 'due_datetime=%s' % card.due_datetime
         models.db.session.commit()
         return respond_with_json({'year' : card.due_datetime.year,
                                   'month' : card.due_datetime.month -1,

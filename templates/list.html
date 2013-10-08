@@ -12,9 +12,12 @@
 </div>
 <div class="clear"></div>
 
-<ul id="{{ pile.pile_uuid }}" data-id="{{ pile._id }}" class="card_list">
+<ul id="{{ pile.pile_uuid }}" data-id="{{ pile._id }}" 
+    class="card_list">
   {% for card in pile.cards %}
-    {% include "minicard.html" %}
+    {% if not card.is_archived %}
+      {% include "minicard.html" %}
+    {% endif %}
   {% endfor %}
 </ul>
 
