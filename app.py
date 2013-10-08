@@ -68,7 +68,6 @@ app.jinja_env.globals.update(make_card_links=
     globals.make_card_links)
 
 app.jinja_env.filters["round_time_up"] = round_time_up 
-app.jinja_env.filters["debug"] = debug
 app.jinja_env.add_extension("jinja2.ext.loopcontrols")
 app.jinja_env.add_extension("jinja2.ext.do")
 

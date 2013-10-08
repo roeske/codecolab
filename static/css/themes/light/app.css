@@ -1,256 +1,81 @@
-/* reset **********************************************************************/
-html, body { width: 100%; height: 100%; padding: 0; margin: 0; overflow-x: hidden; }
-form, ul, ol, p, li, h1, h2, h3, h4, h5, h6, div { margin: 0; padding: 0; }
-div.navbar { margin-bottom: 0 }
-textarea, input { color: #000; }
-h1,h2,h3,h4,h5,h6 { font-weight: 100; }
-* { text-shadow: none; }
-small { font-family: "Open Sans"; }
+/* OpenSans for everything */
+* { font-family: "Open Sans"; }
 
-/* so 'editable' buttons don't display on the same line. */
-textarea { display: block; }
-div.clear { clear: both; }
-.content { margin: 0em .5em; }
-
-.cc-container {
-  padding: 1em;
-  height: 93%;
-}
-
-
-/* Flash messages ************************************************************/
-
-div.flashes {
-    position: fixed; 
-    top: 50%;
-    left: 25%;
-    width: 50%;
-    background-color: #fbfbfb; 
-    font-size: 120%;
-    font-weight: 600;
-}
-
-div.flashes h4 {
-    padding: .5em;
-}
-
-/* Forms *********************************************************************/
-
-.structural { list-style: none; }
-
-ul.structural.basic li input,
-ul.structural.basic li label {
-    width: 10em;
-    margin: 1em;
-}
-
-ul.structural.basic li label { 
-    float: left; 
-    color: #555; 
-    font-weight: bold;
-    font-size: 110%; 
-}
-
-ul.structural.basic li.spacer {
-    height: 1em;
-    clear: both;
-}
-
-ul.structural.basic li input,
-ul.structural.basic li select { float: right; }
-
+/* used to clear the floating state of dom subtree */
 .clear { clear: both; }
 
-form.basic { width: 30em; }
+/* styles the main body of each page. */
+.content { margin: 0px 5px; }
 
-/* Tables ********************************************************************/
-
-#add_project_controls input[type="text"] {
-    width: 94.5%;
+/* styles buttons, these may be links or input */
+.btn {
+  display: inline-block;
+  padding: 5px 10px;
+  font-size: 14px;
+  line-height: 20px;
+  background: #ccc;
+  border-radius: 5px;
+  border: none;
 }
 
-#toolbox-list input[type="text"] {
-    width: 10em;
-    margin-right: 1em;
-}
-
-table {
-    padding: 0;
-    width: 100%;
-}
-
-table th {
-    font-weight: bold;
-}
-
-table th, table tr td {
-    text-align: left;   
-    padding: 1em;
-    margin: 1em;
-    font-size: 110%;
+/* defines the style of a 'pile', piles are lists that contain 
+ * cards */
+.pile_container {
     background-color: #fbfbfb;
-    border: 1px solid #ddd;
-    color: #555;
+    margin: 5px;
+    width: 300px;
+    float: left;
+    height: 100%;
 }
 
-.wrap {
-    width: auto;
+/* every pile has a title, which can be edited. */
+.pile_title {
+    float: left;
+    margin: 5px 5px;
 }
 
-/** Font / Icons *************************************************************/
-
-@font-face {
-    font-family: entypo;
-    src: url("/css/entypo/entypo.ttf"),
-         url("/css/entypo/entypo.eot"),
-         url("/css/entypo/entypo.svg");
-}
-
-/** custom scrollbars ********************************************************/
-
-::-webkit-scrollbar {
-    width: 6px;
-    height: 8px;
-}
- 
-::-webkit-scrollbar-track {
-    background-color: #ccc;
-}
- 
-::-webkit-scrollbar-thumb {
-    background-color: #999;
-}
-
-
-/** Add Card *****************************************************************/
-
-ul.add_card {
-  margin: 0px 7px 0px 7px;
-  padding: 0;
-  width: auto;
-}
-
-ul.add_card input[type="text"] {
-  width: 94%;
-}
-
-ul.add_card li.input {
-    margin-top: 7px;
-    margin-bottom: 7px;
-} 
-
-ul.add_card li.button {
-    float: right;
-}
-
-/** sub-nav ******************************************************************/
-
-div#subnav { width: 100%; height: 51px; }
-div#subnav div.project_name { float: left; }
-div#subnav div.buttons { float: left; }
-div#subnav div.toolbox { float: right; }
-
-div#project_name { background-color: #ccc; }
-div#project_name { width: auto; }
-div#project_name div.nav { float: left; margin: 10px 5px; }
-div#project_name h3 { float: left; margin-right: 5px; line-height: 1em; }
-
-div#subnav div.buttons { font-size: 18px; margin-top: 7px; margin-left: 7px; }
-
-#toolbox { width: auto; float: right;}
-
-/****************************/
-
-/** do this so the table doesn't get resized when accept is clicked. */
-.btn.accept_milestone { width: 95px; }
-
-.empty_card a, .card_item a.archive.archive {
-    font-size: 225%;
-    float: right;
-}
-
-.empty_card p, .card_item p.text {
-    font-size: 110%;
-}
-
-.empty_card p, .card_item p.date {
-    font-size: 75%;
-}
-
+/* Please read 'list' to be pile, I am still refactoring that. */
 .card_list {
     list-style-type: none;
     margin: 0;
 }
 
-
-ul.card_list li {
+.card_item {
     background-color: #fbfbfb;
     padding: 5px;
 }
 
-.pile_container {
-    background-color: #fbfbfb;
-}
- 
-h4.pile_title {
-    float: left;
-    width: 12em;
-    margin: 7px 7px;
-    font-weight: 400;
-}
-
-div.pile_options {
+.pile_options {
     float: right;
-    padding: 7px;
+    padding: 5px;
 }
 
-.minimalist_bottom {
-    padding-top: 5px;
+.card_label {
+    color: red;
 }
 
-.minimalist_top {
-    padding-bottom: 5px;
-}
-
-
-ul#project { padding: 0; margin: 0; }
-
-.horizontal_left li {
-    float: left;
-}
-
-.horizontal_right li {
-    float: right;
+/** color of the placeholder that is drawn when  moving a card */
+.empty_card {
+  color: blue;
 }
 
 li.card_item p span {
     white-space: normal;
 }
 
-.card_label {
-    color: #fbfbfb;
-}
 
 li.empty_card, li.card_item {
   min-height: 72px;
   margin-bottom: 5px;
 }
 
-li.empty_card {
-  color: #fbfbfb;
-}
 
 div#piles {
   background-color: #bbb;
 }
 
-div.pile_chrome_bottom {
-  height: 80px;
-}
-
-div.content,
-div.content_nopad {
-    height: 94%;
+.content {
+    height: 100%;
 }
 
 div#piles {
@@ -281,13 +106,6 @@ div#piles ul#pile_list li {
     max-height: 99%;
 }
 
-.pile_container {
-    margin-bottom: 1em;
-    margin: 5px 5px 5px 5px;
-    width: 278px;
-    float: left;
-    height: 100%;
-}
 
 .pile_container ul.card_list {
     min-height: 80px;
@@ -334,11 +152,11 @@ ul {
 
 /* activity */
 .activity_list_item {
-    padding-bottom: 7px;
+    padding-bottom: 5px;
 }
 
 .activity_list_item:first {
-    padding-top: 7px;
+    padding-top: 5px;
 }
 
 .section {
@@ -390,7 +208,6 @@ h4.pile_title input {
 }
 
 .commit {
-    box-shadow: 1px 1px 7px #aaa;
     padding: 7px;
     background: #fff;
     width: 97%;
@@ -457,7 +274,6 @@ pre.commit_message {
 #milestones_container {
     background: #fff;
     height: 350px;
-    box-shadow: 2px 2px 7px #aaa;
     width: 850px;
     padding: 7px;
     margin-top: 20px;
@@ -476,7 +292,6 @@ pre.commit_message {
 }
 
 #stats_container {
-    box-shadow: 2px 2px 7px #aaa;
     padding: 7px;
     background: #fff;
     width: 850px;
@@ -549,7 +364,6 @@ pre.commit_message {
 }
 
 .settings_page_content_item {
-    box-shadow: 2px 2px 7px #aaa;
     background: #fff;
     border: 1px solid #ccc;
     margin-bottom: 20px;
@@ -593,7 +407,6 @@ pre.commit_message {
 
 .ok { background-image: url("/assets/ok.png"); }
 .no { background-image: url("/assets/no.png"); }
-
 
 .btn_invis { background-image: none; }
 .btn_ok { background-image: url("/assets/ok.png"); }
@@ -672,7 +485,17 @@ form.checkbox-list {
     margin: 10px 0px;
 }
 
-label {
-    font-size: 1.1em;
-    font-weight: bold;
+/* webkit specific */
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 8px;
+}
+ 
+::-webkit-scrollbar-track {
+    background-color: #ccc;
+}
+ 
+::-webkit-scrollbar-thumb {
+    background-color: #999;
 }
