@@ -575,6 +575,8 @@ def do_check_project_privileges(**kwargs):
     kwargs["luser"] = luser
     kwargs["project"] = project
 
+    print "%r" % project
+
     return kwargs
 
 
@@ -583,7 +585,6 @@ def get_project(project_id, luser_id):
     Obtains a project if and only if the name matches, and the luser is a
     member.
     """
-    print "%r %r" % (project_id, luser_id)
 
     return  (Project.query.filter(and_(Project._id==project_id,
                  ProjectLuser.luser_id==luser_id,
@@ -822,8 +823,11 @@ def list_delete(list_id=None, luser=None, **kwargs):
 
 @app.route("/project_id/<int:project_id>/dashboard")
 @check_project_privileges
-def dashboard(**kwargs):
-    return render_template("dashboard.html", **kwargs) 
+def dashboard(luser=None, project=None, **kwargs):
+    luser.last_project_id = project._id
+    models.db.session.commit()
+    return render_template("dashboard.html", luser=luser,
+                            project=project, **kwargs) 
 
 
 ###############################################################################
