@@ -37,9 +37,17 @@ function cc_alert(msg) {
   alert(msg);
 }
 
-$(function() {
+$(document).ready(function() {
+  // When loading the index, the last project the user visited is 
+  // restored.
   var last_project_id = {{ luser.last_project_id }};
 
+  // remembering the last tab the user was on is not currently planned,
+  // so default it to the dashboard.
+  var last_tab = "dashboard";
+
+  // handle switching projects
+  //----------------------------------------------------------------------
   $("._project_nav_link").click(function() {
     var project_id = $(this).find("a").data("id");
 
@@ -58,6 +66,17 @@ $(function() {
     }
 
     return false;
+  });
+
+  // handle switching project pages, via tabs
+  //----------------------------------------------------------------------
+  $("._tab").click(function() {
+    var tab = $(this).data("tab"); 
+    if (tab != last_tab) {
+      $("._tab").removeClass("active");
+      $(this).addClass("active");       
+      last_tab = tab;
+    }
   });
 });
 </script>

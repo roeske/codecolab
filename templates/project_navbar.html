@@ -1,14 +1,23 @@
 {% extends "navbar.html" %}
 {% block tabs %}
-<li class="active _tab">
-  <a href="#dash">Dash</a>
+<li class="active _tab" data-tab="dashboard">
+  <a href="#">
+    <i class="glyphicon glyphicon-home"></i>
+    &nbsp;&nbsp;Home
+  </a>
 </li>
 
-<li class="active _tab">
-  <a href="#boards">Board</a>
+<li class="_tab" data-tab="boards">
+  <a href="#">
+    <i class="glyphicon glyphicon-list-alt"></i>
+    &nbsp;&nbsp;Boards
+  </a>
 </li>
 
-<li class="active _tab">
-  <a href="#progress">Progress</a>
+<li class="_tab" data-tab="progress">
+  <a href="#">
+    <i class="glyphicon glyphicon-signal"></i>
+     &nbsp;&nbsp;Progress
+  </a>
 </li>
 {% endblock %}
