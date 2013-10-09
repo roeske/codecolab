@@ -1,70 +1,34 @@
-<div class="navbar">
-    <div class="navbar-inner">
-        <div class="container">
-            <div style="float: left; width: 55%;">
-              <div style="float: left;">
-                <a class="brand" href="/">CodeColab</a>
-              </div>
-              <div class="brand" style="float: left;">
-                {% if not hide_breadcrumb is defined %} &gt;&nbsp;{% include "breadcrumb.html" %}
-                {% endif %}
-              </div>
-              <div class="clear"></div>
-            </div>
-                <ul style="float: right;" class="nav">
-                    <li>
-                      <img style="margin-top: 5px;" src="{{ luser.gravatar_url_24 }}" />
-                    </li>
-                    <li>
-                        <a class="profile_link_nopopup" href="/profile/{{ luser._id }}">{{ email }}</a>
-                    </li>
-                    <li>
-                        <a href="/logout">Log out</a>
-                    </li>
-                </ul>
-            <div style="clear: both;"></div>
-        </div>
+<div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">CodeColab&trade;</a>
     </div>
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Projects<b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            {% for p in projects %}
+              <li><a href="/p/{{ p.urlencoded_name }}">{{ p.name }}</a></li>
+            {% endfor %}
+          </ul>
+         </li>
+      </ul>
+
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ luser.email }}<b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Edit Settings</a></li>
+            <li><a href="/logout">Log Out</a></li>
+          </ul>
+         </li>
+      </ul>
+    </div><!--/.navbar-collapse -->
+  </div>
 </div>
-<script>
-function show_profile_dialog(url) {
-    var options = {
-        modal: true,
-        title: "edit profile",
-
-        resizable: false,
-        width: screen.width * 0.5,
-        height: 410
-    };
-    var modal = $("<div></div>").load(url).dialog(options);
-}
-
-function show_other_profile_dialog(url) {
-    var options = {
-        modal: true,
-        title: "profile",
-        resizable: false,
-        width: screen.width * 0.2,
-        height: 200
-    };
-    var modal = $("<div></div>").load(url).dialog(options);
-}
-
-function cc_connect_profile_links(prefix, user_id) {
-/* popup profile is being phased out */
-/*
-    $('.profile_link').unbind('click');
-    $(".profile_link").click(function(e) {
-        var url = $(this).attr("href");
-        show_profile_dialog(url);
-        return false;
-    });
-*/
-    $('.profile_link_notmine').unbind('click');
-    $(".profile_link_notmine").click(function(e) {
-        var url = $(this).attr("href");
-        show_other_profile_dialog(url);
-        return false;
-    });
-}
-</script>

@@ -1186,6 +1186,9 @@ body .ui-tooltip {
 }
 
 
+/* require explicit margin & padding on p */
+p { margin: 0; padding: 0; }
+
 /* OpenSans for everything */
 * { font-family: "Open Sans"; }
 
@@ -1242,6 +1245,14 @@ body .ui-tooltip {
     color: red;
 }
 
+/* Refers to the string at the top of 'minicards'.
+   Could be named more accurately */
+.date {
+    font-size: .8em;
+    line-height: 1em;
+    margin: 5px 0px 0px;
+}
+
 /** color of the placeholder that is drawn when  moving a card */
 .empty_card {
   color: blue;
@@ -1284,6 +1295,15 @@ div#piles ul#pile_list {
     height: 99.5%;
 }
 
+/* jeditable editable labels ---------------------------------------*/
+.jeditable input,
+.pile_title input {
+    border-top: 0px;
+    border-left: 0px;
+    border-right: 0px;
+    border-bottom: 2px solid #aaa;
+    outline: 0;
+}
 
 div#activity_container h4 {
     background-color: #ccc;
@@ -1308,37 +1328,7 @@ div#piles ul#pile_list li {
 .handle { background-color: #ccc; height: 37px;}
 
 
-/* jquery ui fixes ************************************************************/
-
-/* fix unaligned 'x' in close button of modal */
-.ui-button-icon-only .ui-icon { left: 45%; }
-
-/* jquery ui tweaks ***********************************************************/
-.ui-dialog { padding: 0; }
-.ui-dialog-title { font-family: "Open Sans"; }
-.ui-widget-header {
-  border-top-left-radius: 3px;
-  border-bottom-left-radius: 0px;
-  border-top-right-radius: 3px;
-  border-bottom-right-radius: 0px;
-  background: #ddd;
-  border: 1px solid #cfcbca;
-}
-
-/** reset jquery-ui fonts */
-.ui-widget, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
-    font-family: "Open Sans", sans-serif;
-}
-
-.thumb {
-}
-
-ul {
-    list-style-type: disc;
-}
-    
-
-/* activity */
+/* activity page ------------------------------------------ */
 .activity_list_item {
     padding-bottom: 5px;
 }
@@ -1354,26 +1344,18 @@ ul {
     margin: 7px 0px 7px;
 }
 
-h4.pile_title {
+.pile_title {
     height: 28px;
     font-size: 1em;
 }
 
-h4.pile_title input {
+.pile_title input {
     background: #ccc;
     font-size: 1em;
     color: #555;
     letter-spacing: 1px;
 }
 
-form.jeditable input,
-h4.pile_title input {
-    border-top: 0px;
-    border-left: 0px;
-    border-right: 0px;
-    border-bottom: 2px solid #aaa;
-    outline: 0;
-}
 
 /* fix chart month label sizing. */
 .graphLabelteam_cadence {
@@ -1382,8 +1364,7 @@ h4.pile_title input {
     white-space: nowrap;
 }
 
-/* project progress                                                         
- * **************************************************************************/
+/* progress page ---------------------------------------------------*/ 
 
 
 .commit:not(:last-child) {
@@ -1504,7 +1485,8 @@ pre.commit_message {
     width: 800px;
 }
 
-/** settings page ************************************************************/
+/** settings page *******************************************/
+
 #settings_page_navigation {
     float: left;
     width: 160px;
@@ -1673,7 +1655,7 @@ form.checkbox-list {
     margin: 10px 0px;
 }
 
-/* webkit specific */
+/* webkit specific ------------------------------------------  */
 
 ::-webkit-scrollbar {
     width: 6px;

@@ -43,31 +43,13 @@ AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 S3_BUCKET = os.environ.get('S3_BUCKET')
 
-
-
 activity_logger = models.ActivityLogger()
 app = models.app
 
 bundles.register(app)
 
-def round_time_up(t):
-    """ 
-    Rounds a 'time' object up to the nearest hour. This means,
-    23:59:59.999999 will become 24.
-    """
-    # Avoid conditionals by using arithmetic. The same logic holds
-    # true.
-    if t.second + t.minute + t.microsecond > 0:
-        return t.hour + 1
-    else:
-        # The 'time' object already satisfies the rounding criteria.
-        return t.hour
-
-
 app.jinja_env.globals.update(make_card_links=
     globals.make_card_links)
-
-app.jinja_env.filters["round_time_up"] = round_time_up 
 app.jinja_env.add_extension("jinja2.ext.loopcontrols")
 app.jinja_env.add_extension("jinja2.ext.do")
 
@@ -256,27 +238,18 @@ def redirect(**kwargs):
 
 @app.route("/", methods=["POST", "GET"])
 @require_login
-def index(**kwargs):
+def index(luser=None, **kwargs):
     """
     Serves the index. Responsible for delegating to several 
     screens based on the state and type of request.
     """
-    email = flask.session["email"]
+    projects = (models.db.session.query(models.Project)
+              .filter(models.ProjectLuser.luser_id==luser._id)
+              .filter(models.ProjectLuser.project_id==models.Project._id)
+              .all())
 
-    luser = get_luser_for_email(email)
-    if luser.last_project_id is not None:
-        project = models.Project.query.filter_by(_id=
-                            luser.last_project_id).first()
-        return render_index(email, selected_project=project.name)
-    else:
-        return render_index(email)
-
-
-@app.route("/p/<project_name>", methods=["POST", "GET"])
-@require_login
-def project_selection(project_name, **kwargs):
-    email = flask.session["email"]
-    return render_index(email, selected_project=project_name)
+    return flask.render_template("project_selection.html", luser=luser, 
+                                projects=projects, **kwargs)
 
 
 @app.route("/p/<project_name>/remember_last", methods=["GET"])
@@ -288,30 +261,6 @@ def remember_last_project(project_name, **kwargs):
     luser.last_project_id = get_project_or_404(project_name, luser._id)._id
     models.db.session.commit()
     return respond_with_json({"status" : "success"})
-
-
-def get_projects_and_lusers(luser_id):
-    return (models.db.session.query(models.Project, models.ProjectLuser)
-                      .filter(models.ProjectLuser.luser_id==luser_id)
-                      .filter(models.ProjectLuser.project_id==models.Project._id)
-                      .all())
-
-
-def render_project_selection(email, **kwargs):
-    """
-    Render a selection of projects that the user is a member of.
-    
-    Display the 'Manage' for projects if the user is an owner.
-    """
-    luser = get_luser_for_email(email)
-    projects_and_lusers = get_projects_and_lusers(luser._id)
-    return flask.render_template("project_selection.html", email=email,
-                                 projects_and_lusers=projects_and_lusers,
-                                 luser=luser, **kwargs)
-
-
-def render_index(email, **kwargs):
-    return render_project_selection(email, **kwargs)
 
 
 
@@ -1855,331 +1804,6 @@ def project_add_member(project=None, luser=None, **kwargs):
     return flask.redirect("/p/%s/members" % project.name)
 
 
-###############################################################################
-## Member Office Hours 
-###############################################################################
-
-@app.route("/project/<project_name>/office_hours/update", methods=["POST"])
-@check_project_privileges
-def update_office_hours(project=None, luser=None, **kwargs):
-    weekday = request.json["weekday"]
-    hours = request.json["hours"]
-
-    # Drop all the existing time ranges for this day,
-    # we are going to update them.
-    schedule = (models.MemberSchedule.query
-                      .filter_by(project_id=project._id)
-                      .filter_by(luser_id=luser._id).first())
-
-    day = models.Day.query.filter_by(ordinal=weekday).first()
-
-    ranges = (models.MemberScheduleTimeRanges.query
-                    .filter_by(day_id=day._id)
-                    .filter_by(schedule_id=schedule._id)
-                    .all())
-        
-    for r in ranges:
-        models.db.session.delete(r)
-
-    start_time = None
-    end_time = None
-
-    hours_len = len(hours)
-
-
-    # State machine converts discrete hour units to continuous
-    # time ranges.
-    # TODO: Figure out where you overwrote the 'range' ref.
-    for i in __builtins__.range(hours_len):
-        
-        if start_time is None:
-            start_time = datetime.time(hour=hours[i])
-
-        # IF: The next hour is present 
-        #   AND: The next hour is more than one more than the current
-        #        one.
-        # THEN: We should mark the current hour as the end time, 
-        #       save this time range, and begin a new time range 
-        #       on the next iteration. 
-        if ((i + 1 < hours_len and hours[i + 1] > hours[i] + 1) or
-            (i + 1 == hours_len and start_time != None)):     
-
-            # Calculate end_time.
-            end_hour = hours[i] + 1 
-           
-            # The last hour will have to be encoded using lim->24 precision,
-            # as rolling over to the next day to encode it is not possible the
-            # way our ranges are implemented.
-            if end_hour == 24:
-                end_time = datetime.time(hour=23, minute=59, second=59, microsecond=999999)
-            else:
-                end_time = datetime.time(hour=end_hour)
-
-            
-            # Save new time range.  
-            params = dict(schedule_id=schedule._id, day_id=day._id,    
-                          start_time=start_time, end_time=end_time)
-            range = models.MemberScheduleTimeRanges(**params)
-            models.db.session.add(range)
-           
-            # Reset state.
-            start_time = end_time = None             
-
-    models.db.session.commit()
-    return respond_with_json({ "status" : "success" })
-
-
-@app.route("/p/<project_name>/office_hours", methods=["GET","POST"])
-@check_project_privileges
-def member_schedule(luser=None, project=None, **kwargs):
-    """
-    Defines a schedule per-user per-project.
-    """
-    # we need this every time
-    day_collection = models.Days()
-    days = day_collection.days
-
-    # Check for the existence of a schedule. If it does not exist,
-    # create it.
-    schedule = (models.MemberSchedule.query
-                      .filter_by(luser_id=luser._id, project_id=project._id)
-                      .first())
-
-    if schedule is None:
-        schedule = create_default_schedule(luser, project, day_collection)
-   
-    if request.method == "POST":
-        # IF the user clicked the "Add Day" button, add a day to their
-        # schedule.
-        if "add_day" in request.form:
-            time_range = models.MemberScheduleTimeRanges(schedule_id=schedule._id)
-            models.db.session.add(time_range)
-            models.db.session.commit()
-
-        # IF the user clicked the "Remove" button, remove that time 
-        # range from their schedule.
-        elif "remove" in request.form:
-            range_id = int(request.form["range_id"])
-            time_range = (models.MemberScheduleTimeRanges.query
-                            .filter_by(_id=range_id).first())
-            models.db.session.delete(time_range)
-            models.db.session.commit()
-
-        else: 
-        # Otherwise, we must be updating days or times,
-        # as it was the programmatic submit from change()
-            range_ids = request.form.getlist("range_id")
-            day_updates = request.form.getlist("day")
-            start_time_updates = request.form.getlist("start_time")
-            end_time_updates = request.form.getlist("end_time")
-            zipped = zip(range_ids, day_updates, start_time_updates, end_time_updates)
-
-            format = "%I:%M%p"
-            convert = lambda t: datetime.strptime(t, format).time()
-
-            for (_id, day, start_time, end_time) in zipped:
-                time_range = (models.MemberScheduleTimeRanges.query
-                                .filter_by(_id=int(_id)).first())
-
-                time_range.day_id = day
-                time_range.start_time = convert(start_time)
-                time_range.end_time = convert(end_time)
-        
-            models.db.session.commit()
-
-
-    # Sort members circularly by timezone offset, starting with the
-    # luser who is requesting the page, then ordering the closest 
-    # to him first, in the positive direction.
-
-    # First, sort by timezone.
-    key = lambda k : k.luser.profile.tz_utc_offset_seconds
-    project.members.sort(key=key)
-   
-    # Next, find the user who is requesting this:
-    i = 0
-    for other in project.members:
-        if luser._id == other.luser._id:
-            break
-        i += 1
-
-    # Now, reorder circularly from that index:
-    sorted_members = project.members[i:] + project.members[:i]
-    
-    # Calculate relative hours for each member, relative to the
-    # viewers hours 
-    member_hours = {} 
-    hours = range(24)
-    for m in sorted_members:
-        # don't convert our own
-        if m.luser_id == luser._id:
-            member_hours[luser._id] = hours
-            continue
-
-        hours_offset = m.luser.profile.tz_utc_offset_hours
-        relative_offset = luser.profile.tz_utc_offset_hours - hours_offset
-        relative_hours = hours[relative_offset:] + hours[:relative_offset]
-        member_hours[m.luser_id] = relative_hours
-
-    if "weekday" in request.args:
-        weekday = int(request.args["weekday"])
-    else:
-        weekday = datetime.now(timezone(luser.profile.timezone)).weekday()
-   
-    weekday_id = models.Day.query.filter_by(ordinal=weekday).first()._id
-
-    return cc_render_template("member_schedule.html", days=days, luser=luser,
-                              project=project, schedule=schedule, 
-                              sorted_members=sorted_members,
-                              hours=hours, member_hours=member_hours,
-                              weekday=weekday, weekday_id=weekday_id,
-                              **kwargs)
-
-
-def create_default_schedule(luser, project, day_collection):
-    " creates default 9-5 schedule"
-    days = day_collection.days
-    day_map = day_collection.day_map
-
-    schedule = models.MemberSchedule(project_id=project._id, luser_id=luser._id)
-    models.db.session.add(schedule)
-    models.db.session.flush()
-
-    for d in days:
-        r = models.MemberScheduleTimeRanges(schedule_id=schedule._id,   
-                                                day_id=day_map[d.name])
-        models.db.session.add(r)
-    
-    models.db.session.commit()
-    
-    return schedule
-
-
-###############################################################################
-## Reports
-###############################################################################
-
-REPORTS_PER_PAGE = 10
-@app.route("/p/<project_name>/reports", methods=["GET", "POST"])
-@check_project_privileges
-def member_reports(luser=None, project=None, **kwargs):
-    
-    if request.method == "POST":
-        text = request.form["text"]
-        subject = request.form["subject"]
-
-        report = models.MemberReport(text=text, subject=subject,
-                                     username=luser.profile.username,
-                                     luser_id=luser._id, 
-                                     project_id=project._id)
-        models.db.session.add(report)
-        models.db.session.commit()
-
-        email_notify.member_report(project, report, subject)
-
-    
-    total = models.MemberReport.query.count()
-
-    # TODO: refactor using class based views to avoid duplication
-    report_edit_url = "/project/%s/report/edit/" % project.name
-    comment_delete_url = "/project/%s/report-comments/delete/" % project.name
-    comment_edit_url = "/project/%s/report-comments/edit/" % project.name
-
-    return cc_render_template("reports.html", luser=luser, project=project,
-                              report_edit_url=report_edit_url,
-                              reports=project.reports[:REPORTS_PER_PAGE],
-                              has_next=total > REPORTS_PER_PAGE,
-                              comment_delete_url=comment_delete_url,
-                              comment_edit_url=comment_edit_url,
-                              next_page=1, **kwargs)
-
-def dump_query(query):
-    from sqlalchemy.sql import compiler
-
-    from psycopg2.extensions import adapt as sqlescape
-    # or use the appropiate escape function from your db driver
-
-    dialect = query.session.bind.dialect
-    statement = query.statement
-    comp = compiler.SQLCompiler(dialect, statement)
-    comp.compile()
-    enc = dialect.encoding
-    params = {}
-    for k,v in comp.params.iteritems():
-        if isinstance(v, unicode):
-            v = v.encode(enc)
-        params[k] = sqlescape(v)
-    return (comp.string.encode(enc) % params).decode(enc)
-
-
-@app.route("/p/<project_name>/team_reports")
-@check_project_privileges
-def team_reports(luser=None, project=None, **kwargs):
-    page = int(request.args.get('page', 0))
-    start = page * REPORTS_PER_PAGE 
-    end = start + REPORTS_PER_PAGE 
-
-    terms = request.args.get('q', None)
-    search_type = request.args.get('type', None)
-
-
-    q = models.MemberReport.query.filter_by(project_id=project._id)
-
-    # build for pagination links
-    query_string = ""
-    
-    # optionally filter by search terms using full-text index.
-    if terms is not None and search_type is not None and terms.strip() != '':
-        query_string += "&q=" + urllib.quote(terms)
-        query_string += "&type=" + search_type
-
-        if search_type == 'full_text':
-            q = q.filter('member_report.textsearchable_index_col @@ '
-                         'to_tsquery(:terms)').params(terms=terms)
-
-        elif search_type == 'tag':
-            terms = terms.strip().lower()
-            q = (q.filter(func.lower(models.Tag.name)==terms)
-                  .filter(models.ReportTag.tag_id==models.Tag._id)
-                  .filter(models.MemberReport._id==models.ReportTag.report_id))
-
-        elif search_type == 'reporter':
-            terms = terms.strip().lower()
-            q = q.filter(func.lower(models.MemberReport.username)==terms)
-
-    elif search_type == 'date_range':
-        start_date = request.args.get('start_date', None)
-        end_date = request.args.get('end_date', None)
-
-        if start_date is not None and start_date.strip() != '':
-            query_string += "&start_date=" + urllib.quote(start_date)
-            start_date = date_parser.parse(start_date)
-            q = q.filter(models.MemberReport.created >= start_date)
-
-        if end_date is not None and end_date.strip() != '':
-            query_string += "&end_date=" + urllib.quote(end_date)
-            end_date = date_parser.parse(end_date)
-            q = q.filter(models.MemberReport.created <= end_date)
-         
-    q = q.order_by(models.MemberReport.created.desc())
-    q = q.offset(start).limit(end)
-    reports = q.all()
-    total = q.count()
-
-    has_next = total > end
-    next_page = page + 1
-
-    comment_delete_url = "/project/%s/report-comments/delete/" % project.name
-    comment_edit_url = "/project/%s/report-comments/edit/" % project.name
-
-    return flask.render_template("team_reports_loop.html", reports=reports,
-                                 comment_delete_url=comment_delete_url,
-                                 comment_edit_url=comment_edit_url,
-                                 has_next=has_next, next_page=next_page,
-                                 query_string=query_string,
-                                 project=project, luser=luser,**kwargs)
-
-
 @app.route("/p/<project_name>/reports/<int:report_id>")
 @check_project_privileges
 def get_report(luser=None, project=None, report_id=None, **kwargs):
@@ -2193,7 +1817,6 @@ def get_report(luser=None, project=None, report_id=None, **kwargs):
 ###############################################################################
 ## User Profile
 ###############################################################################
-
 @app.route("/profile/<int:luser_id>", methods=["GET", "POST"])
 @check_luser_privileges
 def get_profile(luser_id, luser=None, **kwargs):
@@ -2449,8 +2072,6 @@ def signup():
     else:
         return flask.render_template("sign-up.html",
             predetermined_email=predetermined_email) 
-
-
 
 
 def perform_signup(email, password, confirm):

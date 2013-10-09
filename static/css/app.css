@@ -1,90 +1,474 @@
-/* reset **********************************************************************/
-html, body { width: 100%; height: 100%; padding: 0; margin 0; }
-ul, ol, p, li, h1, h2, h3, h4, h5, h6, div { margin: 0; padding: 0; }
-form { padding-right: 5px; }
-div.navbar { margin-bottom: 0 }
-textarea, input { color: #000; }
-textarea { display: block; }
-
-/* Flash messages ************************************************************/
-div.flashes {
-    position: fixed; 
-    top: 50%;
-    left: 25%;
-    width: 50%;
-    background-color: #222; 
-    font-size: 120%;
-    font-weight: 600;
+/* bootstrap fixes */
+._content {
+    position: relative;
+    margin-top: 70px;
 }
 
-div.flashes h4 {
-    padding: .5em;
+section {
+    padding-top: 70px;
+    margin-top: -70px;
 }
 
-/* Forms *********************************************************************/
+/* require explicit margin & padding on p */
+p { margin: 0; padding: 0; }
 
-.structural { list-style: none; }
+/* OpenSans for everything */
+body,h1,h2,h3,h4,h5,h6,p,span,div,li,input,label 
+{ font-family: "Open Sans" !important; }
 
-ul.structural.basic li input,
-ul.structural.basic li select,
-ul.structural.basic li label {
-    width: 10em;
-    margin: 1em;
-}
-
-ul.structural.basic li label { 
-    float: left; 
-    color: #ddd; 
-    font-weight: bold;
-    font-size: 110%; 
-}
-
-ul.structural.basic li.spacer {
-    height: 1em;
-    clear: both;
-}
-
-ul.structural.basic li input,
-ul.structural.basic li select { float: right; }
-
+/* used to clear the floating state of dom subtree */
 .clear { clear: both; }
 
-form.basic { width: 30em; }
+/* styles the main body of each page. */
+.content { margin: 0px 5px; }
 
-/* Tables ********************************************************************/
-
-#add_project_controls input[type="text"],  #toolbox-list input[type="text"] {
-    width: 10em;
-    margin-right: 1em;
+/* defines the style of a 'pile', piles are lists that contain 
+ * cards */
+.pile_container {
+    background-color: #fbfbfb;
+    margin: 5px;
+    width: 300px;
+    float: left;
+    height: 100%;
 }
 
-table {
-    margin: 2em 0 0 0;
+/* every pile has a title, which can be edited. */
+.pile_title {
+    float: left;
+    margin: 5px 5px;
+}
+
+/* Please read 'list' to be pile, I am still refactoring that. */
+.card_list {
+    list-style-type: none;
+    margin: 0;
+}
+
+.card_item {
+    background-color: #fbfbfb;
+    padding: 5px;
+}
+
+.pile_options {
+    float: right;
+    padding: 5px;
+}
+
+.card_label {
+    color: red;
+}
+
+/* Refers to the string at the top of 'minicards'.
+   Could be named more accurately */
+.date {
+    font-size: .8em;
+    line-height: 1em;
+    margin: 5px 0px 0px;
+}
+
+/** color of the placeholder that is drawn when  moving a card */
+.empty_card {
+  color: blue;
+}
+
+li.card_item p span {
+    white-space: normal;
+}
+
+
+li.empty_card, li.card_item {
+  min-height: 72px;
+  margin-bottom: 5px;
+}
+
+
+div#piles {
+  background-color: #bbb;
+}
+
+.content {
+    height: 100%;
+}
+
+div#piles {
+    height: 90%;
+    overflow-x: scroll;
+    width: 84%;
+    float: left;
+}
+
+div#piles ul#pile_list {
+    width: 9999px; /* hack to fix firefox horiz scroll */
+    list-style: none;
+    white-space: nowrap;
+    overflow: hidden;
+    float: left;
+    margin: 0;
     padding: 0;
+    height: 99.5%;
+}
+
+/* jeditable editable labels ---------------------------------------*/
+.jeditable input,
+.pile_title input {
+    border-top: 0px;
+    border-left: 0px;
+    border-right: 0px;
+    border-bottom: 2px solid #aaa;
+    outline: 0;
+}
+
+div#activity_container h4 {
+    background-color: #ccc;
+    color: #555;
+}  
+
+div#piles ul#pile_list li {
+    max-height: 99%;
+}
+
+
+.pile_container ul.card_list {
+    min-height: 80px;
+    max-height: 78%;
+    overflow-x: hidden;
+    background-color: #bbb;
+    padding: .5em .5em 0em .5em;
+    margin: .5em .5em 0em .5em;
+}
+
+
+.handle { background-color: #ccc; height: 37px;}
+
+
+/* activity page ------------------------------------------ */
+.activity_list_item {
+    padding-bottom: 5px;
+}
+
+.activity_list_item:first {
+    padding-top: 5px;
+}
+
+.section {
+    font-size: 1em;
+    color: #333;
+    text-shadow: 1px 1px #aaa;
+    margin: 7px 0px 7px;
+}
+
+.pile_title {
+    height: 28px;
+    font-size: 1em;
+}
+
+.pile_title input {
+    background: #ccc;
+    font-size: 1em;
+    color: #555;
+    letter-spacing: 1px;
+}
+
+
+/* fix chart month label sizing. */
+.graphLabelteam_cadence {
+    width: 3.2em;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* progress page ---------------------------------------------------*/ 
+
+
+.commit:not(:last-child) {
+    margin-bottom: 7px;
+}
+
+#commits_container {
+    overflow-y: scroll;
+    height: 750px;
+}
+
+.commit {
+    padding: 7px;
+    background: #fff;
+    width: 97%;
+    border: 1px solid #ccc;
+}
+
+pre.commit_message {
+    margin-bottom: 7px;
+    margin-top: 7px;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding: 7px;
+}
+
+.commit_title_container h4,
+.commit_title_container p {
+    line-height: 36px;
+}
+
+.commit_title_container {
+    float: left;
+    vertical-align: middle;
+}
+
+.commit_avatar_container {
+    float: right;
+    width: 100px;
+    height: 72px;
+}
+
+.commit_avatar_container img {
+    display: block;
+    margin: 0px auto 7px;
+}
+
+.commit_avatar_container a {
+    text-align: center;
+    display: block;
+}
+
+.progress_container {
+    display: table;
     width: 100%;
 }
 
-table th {
-    font-weight: 700;
-    font-style: bold;
+#progress_left {
+    width: 42%;
+    height: 100%;
 }
 
-table th, table td {
-    text-align: left;   
-    padding: 1em;
-    margin: 1em;
-    font-size: 110%;
-    background-color: #222;
-    border: 1px solid #111;
-    border-radius: 2px;
+#progress_right {
+    float: left;
+    margin-left: 1%;
+    min-width: 850px;
+    width: 52%;
+} 
+
+#progress_left {
+    width: 43%;
+    float: left;
+    margin-left: 7px;
+}
+
+#milestones_container {
+    background: #fff;
+    height: 350px;
+    width: 850px;
+    padding: 7px;
+    margin-top: 20px;
+}
+
+#milestones_inner table {
+    margin-right: 7px;
+    width: 99%;
+}
+
+#milestones_inner {
+    height: 99%;
+    width: 99%;
+    overflow-y: auto;
+    margin: 7px;
+}
+
+#stats_container {
+    padding: 7px;
+    background: #fff;
+    width: 850px;
+}
+
+#stats_left, #stats_middle, #stats_right {
+    float: left;
+}
+
+#stats_left, #stats_right {
+    width: 25px;
+}
+
+#stats_left p, #stats_right p {
+    line-height: 310px;
+    text-align: center;
+    font-size: 2em;
+    font-weight: bold;
+}
+
+#stats_middle {
+    width: 800px;
+}
+
+/** settings page *******************************************/
+
+#settings_page_navigation {
+    float: left;
+    width: 160px;
+    margin: 20px;
+}
+
+#settings_page_content {
+    float: left;
+    width: 740px;
+    margin: 20px;
+}
+
+.settings input {
+    width: 425px;
+    height: 28px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.settings input[type="submit"] {
+    float: right;
+    margin-right: 39px;
+}
+
+.settings li {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#settings_page_navigation h4,
+.settings_page_content_item h4 {
+    background: #555;
     color: #fff;
+    padding: 10px;
+    text-shadow: none;
 }
 
-.wrap {
+.settings_page_content_item .body { 
+    padding: 10px;
+}
+
+.settings_page_content_item .body form { 
+    display: block;
+    width: 480px;
+}
+
+.settings_page_content_item {
+    background: #fff;
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+}
+
+#settings_page_navigation ul li {
+    border-bottom: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    padding: 10px;
+}
+
+.error_indicator {
+    color: red;
+    width: 300px;
+    float: left;
+}
+
+.saved_indicator {
+    color: green;
+    width: 300px;
+    float: left;
+}
+
+.btn.save {
     width: auto;
+    min-width: 120px;
+    float: right;
+    margin: 0;
 }
 
-/** custom scrollbars ********************************************************/
+.ok, .no {
+    margin-bottom: 8px;
+    margin-top: 8px;
+    width: 32px;
+    height: 32px; 
+    float: right;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.ok { background-image: url("/assets/ok.png"); }
+.no { background-image: url("/assets/no.png"); }
+
+.btn_invis { background-image: none; }
+.btn_ok { background-image: url("/assets/ok.png"); }
+.btn_no { background-image: url("/assets/no.png"); }
+
+.btn_ok, .btn_no, .btn_invis {
+    width: 32px;
+    height: 32px; 
+    float: right;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.error_message {
+    color: red;
+    height: 32px;
+    width: 441px;
+    display: none;
+}
+
+.active_nav a,
+.active_nav {
+    color: #fff;
+    background: #888;
+}
+
+.active_nav {
+    border-bottom: 1px solid #888;
+    border-left: 1px solid #888;
+    border-right: 1px solid #888;
+}
+
+.state_message {
+    padding: 0px 10px;
+    border: 1px solid gray;
+    background: #ddd;
+}
+
+.state_message.success {
+    border: 1px solid green;
+    background: #bfffab;
+    color: green;
+}
+
+.state_message.failure {
+    border: 1px solid red;
+    background: #ffabbf;
+    color: red;
+}
+
+.state_message p {
+    line-height: 50px;
+    float: left;
+    font-weight: 500;
+    text-shadow: none;
+}
+
+.state_message div.ok,
+.state_message div.no {
+    float: right;
+}
+
+form.checkbox-list {
+    width: auto !important;
+}
+
+.checkbox-list li input {
+    float: left;
+    max-width: 42px;
+    margin: 10px 0px;
+}
+
+.checkbox-list li label {
+    float: left;
+    line-height: 27px;
+    margin: 10px 0px;
+}
+
+/* webkit specific ------------------------------------------  */
 
 ::-webkit-scrollbar {
     width: 6px;
@@ -92,255 +476,9 @@ table th, table td {
 }
  
 ::-webkit-scrollbar-track {
-    border-radius: 5px;
-    background-color: #000;
+    background-color: #ccc;
 }
  
 ::-webkit-scrollbar-thumb {
-    border-radius: 5px;
-    background-color: #555;
+    background-color: #999;
 }
-
-/*****************************************************************************/
-
-/** fg color of 'complete' button */
-.btn.card_complete, .btn.accept_milestone { color: #fff; }
-
-/** do this so the table doesn't get resized when accept is clicked. */
-.btn.accept_milestone { width: 104px; }
-
-.empty_card a, .card_item a.archive.archive {
-    font-size: 225%;
-    float: right;
-}
-
-.empty_card p, .card_item p.text {
-    font-size: 110%;
-}
-
-.empty_card p, .card_item p.date {
-    font-size: 75%;
-}
-
-.card_list {
-    list-style-type: none;
-    margin: 0;
-}
-
-
-ul.card_list li {
-    background-color: #222;
-    border-radius: 5px;
-    padding: 5px;
-}
-
-.pile_container {
-    background-color: #222;
-    border-radius: 5px;
-}
- 
-.pile_chrome_top {
-    padding: .08em 0em .08em 5px;
-}
-
-.pile_chrome_bottom {
-    padding: 5px 0em 0em 5px;
-}
-
-h4.pile_title {
-    float: left;
-    width: 10em;
-}
-
-div.pile_options {
-    float: right;
-    padding: 14px;
-}
-
-.minimalist_bottom {
-    padding-top: 5px;
-}
-
-.minimalist_top {
-    padding-bottom: 5px;
-}
-
-/*h1, h2, h3, h4, h5, h6 {
-    font-weight: 500;
-    font-size: 120%;
-}*/
-
-.top_corners {
-    border-top-right-radius: 5px;
-    border-top-left-radius: 5px;
-}
-
-.bottom_corners {
-    border-bottom-right-radius: 5px;
-    border-bottom-left-radius: 5px;
-}
-
-ul#project { padding: 0; margin: 0; }
-
-.project_item {
-    padding: 1em;
-    border-bottom: 1px solid #111;
-}
-
-.horizontal_left li {
-    float: left;
-}
-
-.horizontal_right li {
-    float: right;
-}
-
-div.clear {
-    clear: both;
-}
-
-.content {
-    margin: 1em;
-}
-
-div#project_name { width: 50%; }
-
-div#project_name h3,
-div#project_name div.nav { float: left; margin: 10.5px 5px; 
-                            line-height: 42px;}
-
-#toolbox { width: 50%; }
-
-div#project_name, #toolbox {
-    float: left;
-}
-
-ul.controls li.button {
-    width: 7em;
-}
-
-ul.controls li.input {
-    width: 10em;
-} 
-
-ul.controls li.input input {
-    width: 8em;
-} 
-
-li.card_item p span {
-    white-space: normal;
-}
-
-li.empty_card, li.card_item {
-    min-height: 6em;
-}
-
-li.card_item div.milestone {
-    color: #0a0;
-    font-size: 80%;
-    line-height: 27px;
-    height: 21px;
-}
-
-.card_label {
-    color: #222;
-}
-
-.card_item {
-    margin-bottom: 5px;
-}
-
-@media(min-width: 900px) {
-    div.content { height: 94%; }
-
-    div#piles {
-        margin-top: .65em;
-        background-color: #151515;
-        border-radius: 5px;
-        height: 90%;
-        width: 100%;
-    /*    overflow-y: hidden; */
-        overflow-x: scroll;
-    }
-
-    div#piles ul#pile_list {
-        list-style: none;
-        white-space: nowrap;
-        overflow: hidden;
-        float: left;
-        margin: 0;
-        padding: 0;
-        height: 99.5%;
-        width: 100px;
-    }
-
-    div#piles ul#pile_list li {
-        max-height: 99%;
-    }
-
-    .pile_container {
-        margin-bottom: 1em;
-        margin: 5px 5px 5px 5px;
-        width: 278px;
-        float: left;
-        height: 100%;
-    }
-
-    .pile_container ul li {
-        width: 17em;
-    }
-
-
-    .pile_container ul.card_list {
-        min-height: 6em;
-        max-height: 73.5%;
-        overflow-x: hidden;
-        overfloy-y: scroll;
-        background-color: #171717;
-        padding: .5em .5em .1em .5em;
-        margin: .5em;
-        border-radius: 5px;
-    }
-}
-
-@media (max-width: 900px) {
-    div#piles {
-        margin-top: 5px;
-        background-color: #151515;
-        border-radius: 5px;
-    }
-
-    div#piles ul#pile_list {
-        list-style: none;
-        white-space: nowrap;
-        overflow: hidden;
-        margin: 0;
-        padding: 0;
-        width: 100%;
-    }
-
-    .pile_container {
-        margin-bottom: 5px;
-        margin: 5px 5px 5px 5px;
-        float: left;
-        width: 100%;
-    }
-
-    li.pile_container,
-    .pile_chrome_top, .pile_chrome_bottom {
-        width: 99%;
-    }
-
-    li.pile_container 
-    li.card_item, .empty_card {
-        width: 98%; 
-    }
-
-    .pile_container ul.card_list {
-        min-height: 100px;
-        background-color: #171717;
-        border-radius: 5px;
-    }
-}
-
-.handle { background-color: #282828; height: 50px;}

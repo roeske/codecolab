@@ -4,6 +4,7 @@ from flask.ext.assets import Environment, Bundle
 
 def register(app):
     assets = Environment(app)
+    assets.debug = True
 
     project_js = Bundle("js/lodash.min.js", 
                         "js/socket.io.js",
@@ -19,7 +20,6 @@ def register(app):
                         output="gen/project_js.js") 
 
     assets.register("project_js", project_js)
-   
 
     common_js = Bundle("js/jquery-latest.js",
                         "js/select2.js",
@@ -63,3 +63,9 @@ def register(app):
                         output="gen/common_css.css")
 
     assets.register("common_css", common_css)
+
+    css_overrides = Bundle("css/google_open_sans.css",
+                           "css/app.css", 
+                           output="gen/overrides.css")
+
+    assets.register("css_overrides", css_overrides)

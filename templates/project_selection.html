@@ -1,112 +1,45 @@
-{% include "min_head.html" %}
-  {% include "themes/" + luser.profile.theme + "/project_selection.html" %}
+{% include "header.html" %}
+<div class="container _content">
+  <div class="row">
+    <div class="col-md-3 bs-docs-sidebar">
+      <div class="row">
+        <div class="col-md-8">
+          <ul class="nav nav-pills nav-stacked bs-docs-sidenav affix-top">
+          {% for p in projects %}
+            <li class="_project_nav_link">
+              <a data-id="{{ p._id }}" class="active">
+                {{ p.name }}
+                <div class="clearfix"></div>
+              </a>
+            </li>
+          {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
 
-  </head>
-<body> {% include "common_js.html" %} 
-{% include "navbar.html" %}
-{% include "project_selection_content.html" %}
+    <div class="col-md-8 _page">
+      <h1>Dashboard</h1>
 
+    </div>
+  </div>
+</div>
+</div>
+{% include "footer.html" %}
 <script type="text/javascript">
+function show_project(id) {
 
-function update_dimensions() {
-    $("#frame").height($(window).height() - $(".navbar").height() - 20);
-
-    var width = 0;
-    $("#project_members_container ul li").each(function(i,elem) {
-        width += $(elem).width();
-        width += parseInt($(elem).css('margin-right').replace("px", ""), 10);
-    });
-    
-    $("#project_members_container ul").width(width);
-}
-
-function navigate_to_project(name) {
-    $('.project_list_item[data-name="' + name +'"]').trigger('click');
-    save_as_last_project(ev.state.name);
-}
-
-function save_as_last_project(name) {
-  $.get("/" + name + "/remember_last")
 }
 
 $(function() {
-    // Now that everything is loaded, reveal the project list
-    // this prevents it from looking bad while loading
-    $(window).bind('resize', update_dimensions);
-  
-    var last = $('.project_list_item').first();
-    last.addClass('active');
-
-    var is_history_navigation = false;
-
-    window.onpopstate = function(ev) {
-        if (ev.state) {
-            is_history_navigation = true;
-            navigate_to_project(ev.state.name);
-        }
-    };
-
-    $(".project_list_item").click(function(ev) {
-        if (last != null) {
-          last.removeClass('active');
-        }
-
-        $(this).addClass('active'); 
-        last = $(this);
-
-        var selector = "#" + $(this).find("a").data("id");
-
-        $(current).hide();
-        $(selector).show();
-        current = selector;
-        update_dimensions();
-  
-        var path_name = "/p/" + $(this).data("name");
-        save_as_last_project(path_name);
-      
-        // don't push state if we are just using the browser's history buttons
-        if (!is_history_navigation) {
-            window.history.pushState({name: path_name}, "", path_name);
-        }
-        is_history_navigation = false;
-
-        breadcrumb_update(path_name);
-
-        // since this is transitional code, i.e. we're working towards
-        // a one-page app eventually, handle clicks on the breadcrumb here
-        // for this page only to direct to the appropriate page.
-        $(".breadcrumb_link").unbind("click");
-        $(".breadcrumb_link").click(function(ev) {
-            // It needs not do anything here, but doing it this way 
-            // allows us to reuse the breadcrumb.html more easily
-            // across other pages.
-            return false;
-        });
-
-        return false;
-    })
-
-    $("li.project_item").hide();
-
-    var current = $("li.project_item:first").show();
-
-    $("a.menu").click(function(ev) {
-    });
-
-    $("#project").removeClass("invisible");
-
-    update_dimensions();
-    
-    var user_id = "{{ luser._id }}";
-    cc_connect_profile_links("", user_id);
-    $(".project_list_item").first().trigger("click");
-
-// allow remote linking to projects inside this page.
-{% if selected_project is defined %}
-    navigate_to_project("{{ selected_project }}");
-{% endif %}
+  $("._show_sidenav").hide();
+  $("._project_nav_link").click(function() {
+    var project_id = $(this).find("a").data("id");
+    $("._project_nav_link").removeClass("active");
+    $(this).addClass("active");
+    return false;
+  });
 });
-
 </script>
-
-{% include "foot.html" %}
+</body>
+</html>
