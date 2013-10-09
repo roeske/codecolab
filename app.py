@@ -1,6 +1,10 @@
 import os
 import flask
+from flask import render_template
+
 import models
+from models import *
+
 import bcrypt 
 import pytz
 import httplib2 
@@ -18,7 +22,6 @@ import globals
 
 from StringIO import StringIO
 from flask import request
-from flaskext import uploads
 from flaskext.markdown import Markdown
 from functools import wraps
 from sqlalchemy import and_, func, or_
@@ -58,9 +61,6 @@ Markdown(app)
 app.debug = False if os.getenv("CODECOLAB_DEBUG", False) == False else True
 
 PORT = 8080
-files = uploads.UploadSet("files", uploads.ALL, default_dest=lambda app:"./uploads")
-uploads.configure_uploads(app, (files,))
-
 
 # TODO: clean this up.
 def is_logged_in():
@@ -248,8 +248,24 @@ def index(luser=None, **kwargs):
               .filter(models.ProjectLuser.project_id==models.Project._id)
               .all())
 
+    # If there are no projects, project will be set to None.
+    # Will only happen if user deletes all his projects to 
+    # include sample.
+    project = None
+   
+    # Find the project that the user was on last for preload.
+    for p in projects:
+        if p._id == luser.last_project_id:
+            project = p
+    
+    # If the user is visiting for the first time, preload the
+    # dashboard.
+    if project is None and len(projects) > 0:
+        project = projects[0]
+
     return flask.render_template("project_selection.html", luser=luser, 
-                                projects=projects, **kwargs)
+                                 projects=projects, project=project, 
+                                 **kwargs)
 
 
 @app.route("/p/<project_name>/remember_last", methods=["GET"])
@@ -487,13 +503,6 @@ def get_luser_or_404(email):
     return luser
 
 
-def get_project_or_404(project_name, luser_id):
-    project = get_project(project_name, luser_id)
-
-    if project is None:
-        flask.abort(404)
-
-    return project
 
 
 def add_to_project(callback):
@@ -560,13 +569,35 @@ def do_check_project_privileges(**kwargs):
     luser = get_luser_or_404(email)
  
     # Do this to make sure the luser is a member of the project. 
-    project = get_project_or_404(kwargs["project_name"], luser._id)
+    project = get_project_or_404(kwargs["project_id"], luser._id)
 
     kwargs["email"] = email
     kwargs["luser"] = luser
     kwargs["project"] = project
 
     return kwargs
+
+
+def get_project(project_id, luser_id):
+    """
+    Obtains a project if and only if the name matches, and the luser is a
+    member.
+    """
+    print "%r %r" % (project_id, luser_id)
+
+    return  (Project.query.filter(and_(Project._id==project_id,
+                 ProjectLuser.luser_id==luser_id,
+                 ProjectLuser.project_id==Project._id))
+                 .one())
+
+
+def get_project_or_404(project_id, luser_id):
+    project = get_project(project_id, luser_id)
+
+    if project is None:
+        flask.abort(404)
+
+    return project
 
 
 def check_project_privileges(func):
@@ -783,6 +814,16 @@ def list_delete(list_id=None, luser=None, **kwargs):
     models.db.session.commit()
 
     return respond_with_json(dict(status=True))
+
+
+###############################################################################
+## Dashboard 
+###############################################################################
+
+@app.route("/project_id/<int:project_id>/dashboard")
+@check_project_privileges
+def dashboard(**kwargs):
+    return render_template("dashboard.html", **kwargs) 
 
 
 ###############################################################################
@@ -1403,19 +1444,6 @@ def pile_edit(project_name, pile_id, luser=None, project=None, **kwargs):
 ###############################################################################
 ## Projects
 ###############################################################################
-
-def get_project(project_name, luser_id):
-    """
-    Obtains a project if and only if the name matches, and the luser is a
-    member.
-    """
-    query = models.Project.query
-
-    return  (query.filter(and_(models.Project.name==str(project_name),
-                 models.ProjectLuser.luser_id==luser_id,
-                 models.ProjectLuser.project_id==models.Project._id))
-                 .first())
-
 
 def cc_render_template(filename, email=None, **kwargs):
     """ 
