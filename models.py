@@ -784,7 +784,7 @@ class Commit(db.Model, FluxCapacitor):
     @property
     def gravatar_url(self):
         email_hash = md5(self.committer_email.strip().lower()).hexdigest()
-        return "http://gravatar.com/avatar/%s?s=48&d=%s" % (email_hash,
+        return "http://gravatar.com/avatar/%s?s=24&d=%s" % (email_hash,
             DEFAULT_AVATAR_48)
 
 

@@ -1,3 +1,20 @@
+._margin_auto {
+  margin: 0 auto;
+}
+
+/* handy classes */
+._center_content {
+  display: inline-block;
+}
+
+._row_odd {
+  background-color: #f0f0f0;
+}
+
+._commit_row:not(:first-child) {
+  padding-top: 10px;
+}
+
 /* bootstrap fixes */
 ._content {
     position: relative;
@@ -8,9 +25,6 @@ section {
     padding-top: 70px;
     margin-top: -70px;
 }
-
-/* require explicit margin & padding on p */
-p { margin: 0; padding: 0; }
 
 /* OpenSans for everything */
 body,h1,h2,h3,h4,h5,h6,p,span,div,li,input,label 
@@ -471,8 +485,8 @@ form.checkbox-list {
 /* webkit specific ------------------------------------------  */
 
 ::-webkit-scrollbar {
-    width: 6px;
-    height: 8px;
+    width: 12px;
+    height: 14px;
 }
  
 ::-webkit-scrollbar-track {

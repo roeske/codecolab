@@ -575,8 +575,6 @@ def do_check_project_privileges(**kwargs):
     kwargs["luser"] = luser
     kwargs["project"] = project
 
-    print "%r" % project
-
     return kwargs
 
 
@@ -828,6 +826,30 @@ def dashboard(luser=None, project=None, **kwargs):
     models.db.session.commit()
     return render_template("dashboard.html", luser=luser,
                             project=project, **kwargs) 
+
+
+###############################################################################
+## Progress 
+###############################################################################
+
+@app.route("/project_id/<int:project_id>/progress")
+@check_project_privileges
+def project_progress(luser=None, project=None, **kwargs):
+    """
+    Renders the project management view. 
+
+    This view should allow project owners to create milestones, and
+    view progress.
+    """
+    member = models.ProjectLuser.query.filter_by(luser_id=luser._id).first()
+    team_cadence_data = generate_team_cadence_data(project)
+    commits = (Commit.query.filter_by(project_id=project._id)
+                     .order_by(Commit.timestamp.desc()).all())
+
+    return render_template("project_progress.html", luser=luser,
+                           project=project, commits=commits, 
+                           team_cadence_data=team_cadence_data,
+                           **kwargs)
 
 
 ###############################################################################
@@ -1727,26 +1749,6 @@ def get_team_cadence(project=None, **kwargs):
     else:
         return flask.abort(500)
 
-
-@app.route("/p/<project_name>/progress")
-@check_project_privileges
-def project_progress(project_name=None, luser=None,  project=None, **kwargs):
-    """
-    Renders the project management view. 
-
-    This view should allow project owners to create milestones, and
-    view progress.
-    """
-    member = models.ProjectLuser.query.filter_by(luser_id=luser._id).first()
-
-    team_cadence_data = generate_team_cadence_data(project)
-  
-    commits = models.Commit.query.filter_by(project_id=project._id).order_by(models.Commit.timestamp.desc()).all()
-
-    return cc_render_template("project_progress.html", luser=luser,
-                               commits=commits, is_owner=member.is_owner, 
-                               project=project, team_cadence_data=team_cadence_data,
-                               **kwargs)
 
 
 

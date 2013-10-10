@@ -1,0 +1,66 @@
+<div class=" _cadence_container">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      Team Cadence
+    </div>
+    <div class="panel-body">
+      <div class="_margin_auto _team_cadence_chart">
+      </div>
+      <div class="clearfix"></div>
+
+      <a href="#">Cards</a>&nbsp;
+      <a href="#">Points</a>&nbsp;
+      <a href="#">Commits</a>&nbsp;
+
+      <select>
+        <option value="-1">all</option>
+        {% for luser in project.lusers %}
+        <option value="{{ luser._id }}">{{ luser.profile.username }}</option>  
+        {% endfor %}
+      </select>
+
+      <ul class="pager">
+        <li class="previous"><a href="#">&larr; Older</a></li>
+        <li class="next"><a href="#">Newer &rarr;</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+<script type="text/javascript" src="/js/jqBarGraph.1.1.min.js"></script>
+<script type="text/javascript">
+function update_team_cadence() {
+  $.ajax({
+    method: "GET",
+    url: "/p/{{ project._id }}/team_cadence",
+    data: { timeframe: timeframe, category: category,
+        luser_id: luser_id },
+    success: function(data) {
+      team_cadence.jqBarGraph({data: data, color: color, width: width });
+    }
+  });
+}
+
+function show_cadence(cadence) {
+  cadence.elem.jqBarGraph(cadence.jqBarGraph_options);
+}
+
+$(document).ready(function() {
+  // Draw bar chart for team cadence. (array is from template)
+
+  // Initialize jqBarGraph
+  var cadence = {
+    jqBarGraph_options: {
+      data: {{ team_cadence_data|safe }},
+      color: "blue",
+      width: 600,
+    },
+
+    elem: $("._team_cadence_chart"),
+    timeframe: -1,
+    category: "cards",
+    luser_id: -1,
+  };
+
+  show_cadence(cadence);
+});
+</script>

@@ -32,10 +32,21 @@
 </div>
 </div> {% include "footer.html" %}
 <script type="text/javascript">
+
 // stub so we can replace with nicer alert.
 function cc_alert(msg) {
   alert(msg);
 }
+
+
+function load_project_page(tab, project_id) {
+  $.get("/project_id/" + project_id + "/" + tab, function(data) {
+    $("#__project_page_container").html(data);
+  }).fail(function() {
+    cc_alert("error loading page.");
+  });
+}
+
 
 $(document).ready(function() {
   // When loading the index, the last project the user visited is 
@@ -56,12 +67,7 @@ $(document).ready(function() {
       $("._project_nav_link").removeClass("active");
       $(this).addClass("active");
 
-      $.get("/project_id/" + project_id + "/dashboard", function(data) {
-        $("#__project_page_container").html(data);
-      }).fail(function() {
-        cc_alert("error loading page.");
-      });
-
+      load_project_page(last_tab, project_id);
       last_project_id = project_id;
     }
 
@@ -75,6 +81,7 @@ $(document).ready(function() {
     if (tab != last_tab) {
       $("._tab").removeClass("active");
       $(this).addClass("active");       
+      load_project_page(tab, last_project_id);
       last_tab = tab;
     }
   });

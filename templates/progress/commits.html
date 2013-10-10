@@ -1,0 +1,50 @@
+<div class=" _commits_container">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      Commits
+    </div>
+    <div class="panel-body">
+      {% set i = 0 %}
+      {% for commit in commits %}
+        {% if i % 2 == 0 %}
+          {% set _clazz = "_row_even" %}
+        {% else %}
+          {% set _clazz = "_row_odd" %}
+        {% endif %} 
+        <div class="row {{ _clazz }} _commit_row">
+        {% set i = i + 1 %}
+
+          <div class="col-md-2 text-center">
+            <div class="_center_content">
+              <img class="text-center thumbnail" src="{{ commit.gravatar_url }}" />
+            </div>
+            <p class="text-center"><small>{{ commit.committer }}</small></p>
+          </div>
+          <div class="col-md-8">
+            <p>
+              <a href="{{ commit.url }}">
+              {{ commit.timestamp_as_timezone(luser.profile.timezone) }}
+              </a>
+            </p>
+            <p> 
+  {% autoescape false %}
+  {{ make_card_links(commit.message, project.urlencoded_name) }}
+  {% endautoescape %}
+            </p>
+            {% if commit.added != "" %}
+            <p>
+              <small>Added: {{ commit.added }}</small>
+            </p>
+            {% endif %}
+
+            {% if commit.removed != "" %}
+            <p>
+              <small>Removed: {{ commit.removed }}</small>
+            </p>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
