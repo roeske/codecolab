@@ -4,20 +4,30 @@
       Team Cadence
     </div>
     <div class="panel-body">
-      <div class="_margin_auto _team_cadence_chart">
+      
+      <div class="row">
+        <div class="col-md-6">
+          <div class="btn-group">
+            <button type="button" class="btn btn-default">Cards</button>
+            <button type="button" class="btn btn-default">Points</button>
+            <button type="button" class="btn btn-default">Commits</button>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <select class="form-control">
+            <option value="-1">all</option>
+            {% for luser in project.lusers %}
+            <option value="{{ luser._id }}">{{ luser.profile.username }}</option>  
+            {% endfor %} </select>
+        </div>
       </div>
-      <div class="clearfix"></div>
 
-      <a href="#">Cards</a>&nbsp;
-      <a href="#">Points</a>&nbsp;
-      <a href="#">Commits</a>&nbsp;
+      <br />
+      <div class="row">
+        <div class="_margin_auto _team_cadence_chart">
+        </div> 
+      </div>
 
-      <select>
-        <option value="-1">all</option>
-        {% for luser in project.lusers %}
-        <option value="{{ luser._id }}">{{ luser.profile.username }}</option>  
-        {% endfor %}
-      </select>
 
       <ul class="pager">
         <li class="previous"><a href="#">&larr; Older</a></li>

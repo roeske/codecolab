@@ -482,7 +482,7 @@ form.checkbox-list {
     margin: 10px 0px;
 }
 
-/* webkit specific ------------------------------------------  */
+/* webkit specific 
 
 ::-webkit-scrollbar {
     width: 12px;
@@ -496,3 +496,4 @@ form.checkbox-list {
 ::-webkit-scrollbar-thumb {
     background-color: #999;
 }
+/*

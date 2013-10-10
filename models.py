@@ -526,9 +526,10 @@ class Milestone(db.Model, DictSerializable):
         if total_score == 0:
             progress = 0
         else:
-            progress = float(complete_score) / float(total_score)
+            progress = int((float(complete_score) / float(total_score))*100)
+            print progress
         
-        progress = "%d%%" % (round(progress, 2) * 100)
+#        progress = "%d%%" % (round(progress, 2) * 100)
 
 
         if total_cards == 0:
@@ -542,7 +543,8 @@ class Milestone(db.Model, DictSerializable):
             point_completion = complete_score / float(total_score)
 
         return dict(name=self.name, card_completion=card_completion, 
-                    point_completion=point_completion)
+                    point_completion=point_completion,
+                    progress=progress)
 
     @property
     def stat_names(self):
