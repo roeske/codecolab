@@ -1489,33 +1489,6 @@ def cc_render_template(filename, email=None, **kwargs):
                                  **kwargs)
 
 
-def render_project(project_name, email):
-    """
-    Obtain necessary data for showing the user a project and bind it
-    with the 'project.html' template.
-
-    Responds to user with rendered project output.
-    """
-
-    luser = get_luser_for_email(email)
-    if luser is None:
-        flask.abort(404)
-
-    project = get_project(project_name, luser._id)
-    if project is None:
-        params = (project_name, luser._id)
-        flask.abort(404)
-
-
-    json_pile_ids = json.dumps([p.pile_uuid for p in project.piles])
-
-    target_card_id = int(request.args.get('card', -1))
-    is_target_card_invocation = target_card_id != -1 
-    return cc_render_template("project.html", email=email, project=project,
-                          json_pile_ids=json_pile_ids, luser=luser,
-                          is_target_card_invocation=is_target_card_invocation,
-                          target_card_id=target_card_id)
-
 
 def inflate_tags(tag_names):
     Tag = models.Tag
@@ -1585,6 +1558,15 @@ def tag_card(project_name, card_id, luser=None, project=None, **kwargs):
     return respond_with_json({'tags': request.json["tags"], 
                                 'status': 'success' });
 
+
+@app.route("/project_id/<int:project_id>/boards")
+@check_project_privileges
+def boards(project=None, **kwargs):
+    target_card_id = int(request.args.get('card', -1))
+    return render_template("boards.html", project=project,
+        target_card_id=target_card_id, **kwargs)
+
+
 @app.route("/p/<project_name>/search_cards")
 @check_project_privileges
 def search_cards(luser=None, project=None, **kwargs):
@@ -1638,13 +1620,6 @@ def search_cards(luser=None, project=None, **kwargs):
     obj['is_cleared'] = request.args.get('submit', 'clear') == 'clear'
 
     return respond_with_json(obj)
-
-
-@app.route("/p/<project_name>/boards")
-@check_project_privileges
-def project(project_name, project=None, luser=None, **kwargs):
-    email = flask.session["email"]
-    return render_project(project_name, email)
 
 
 def calculate_timeframe(timeframe):

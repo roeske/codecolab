@@ -2,7 +2,7 @@
 {% include "project_navbar.html" %}
 <div class="container _content">
   <div class="row">
-    <div class="col-md-3 bs-docs-sidebar">
+    <div class="col-md-2 bs-docs-sidebar">
       <div class="row">
         <div class="col-md-8">
           <ul class="nav nav-pills nav-stacked bs-docs-sidenav affix-top">
@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <div class="col-md-8">
+    <div class="col-md-10">
       <div id="__project_page_container">
         {% include "dashboard.html" %}
       </div>
@@ -32,15 +32,26 @@
 </div>
 </div> {% include "footer.html" %}
 <script type="text/javascript">
+$(".container").css("max-width", "none");
 
 // stub so we can replace with nicer alert.
 function cc_alert(msg) {
   alert(msg);
 }
 
-
 function load_project_page(tab, project_id) {
+
   $.get("/project_id/" + project_id + "/" + tab, function(data) {
+    if (tab == "boards") {
+      var height = screen.height - $(".navbar").height() - 100;
+      $("._content").css("max-height", height);
+      $("._content").css("height", height);
+      $("._content").css("overflow-y", "hidden");
+    } else {
+      $("._content").css("max-height", "none");
+      $("._content").css("height", "auto");
+    }
+
     $("#__project_page_container").html(data);
   }).fail(function() {
     cc_alert("error loading page.");
@@ -63,7 +74,6 @@ $(document).ready(function() {
     var project_id = $(this).find("a").data("id");
 
     if (project_id != last_project_id) {
-
       $("._project_nav_link").removeClass("active");
       $(this).addClass("active");
 

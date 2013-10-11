@@ -1,11 +1,31 @@
-<li id="{{ card.card_uuid }}" class="card_item ui-state-default"
-  data-pile-id="{{ card.pile_id }}" data-id="{{ card._id }}" 
-  data-number="{{ card.number }}" data-title="#{{ card._id }} | {{ card.title }}">
-   
-  <div>
-  <p style="float: left;" class="date"><b>#{{ card._id }}</b> | {{ card.created_as_timezone(luser.profile.timezone) }}</p> 
-  <a href="/p/{{ project.name }}/card/{{ card._id }}/archive"
-     class="icon archive" style="float: right;"></a>
+<div class="container _minicard">
+  <div class="row">
+    <div class="col-md-2">
+      <p class="_card_id">#{{ card._id }}</p> 
+    </div>
+    <div class="col-md-8">
+      <p class="_card_created">
+        {{ card.created_as_timezone(luser.profile.timezone) }}
+      </p> 
+    </div>
+    <div class="col-md-1">
+      <button href="/p/{{ project._id }}/card/{{ card._id }}/archive"
+         class="btn _card_archive_button">
+          <i class="glyphicon glyphicon-folder-close"/> 
+      </button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <p class="lead">{{ card.text }}</p>
+    </div>
+
+  </div>
+</div>
+
+{% if false %}
+
   </div>
   <div class="clear"></div>
 
@@ -49,12 +69,4 @@
     <!-- hide score when not in use. -->
       <div style="{% if card.score == 0 or card.score is none %} display: none; {% endif %}float: left;" class="editable
       minicard difficulty" data-card-id="{{ card._id }}" data-score="{{ card.score }}">
-    </div>
-  </div>
-
-  <div class="clear"></div>
-
-
-  </div>
-  <div class="clear"></div>
-</li>
+{% endif %}
