@@ -846,6 +846,7 @@ def project_progress(luser=None, project=None, **kwargs):
     commits = (Commit.query.filter_by(project_id=project._id)
                      .order_by(Commit.timestamp.desc()).all())
 
+    print "%r"  % team_cadence_data
     return render_template("project_progress.html", luser=luser,
                            project=project, commits=commits, 
                            team_cadence_data=team_cadence_data,
@@ -1139,7 +1140,6 @@ def card_set_attributes(project=None, card_id=None, **kwargs):
     json = flask.request.json
 
     for k in json.keys():
-        print k, json[k]
         setattr(card, k, json[k])
     
     models.db.session.commit()
@@ -1728,7 +1728,7 @@ def generate_team_cadence_data(project, luser_id=None, timeframe=1,
     return team_cadence_data
 
 
-@app.route("/p/<project_name>/team_cadence")
+@app.route("/p/<int:project_id>/team_cadence")
 @check_project_privileges
 def get_team_cadence(project=None, **kwargs):
     # flip the sign because it's more intuitive to think of negative

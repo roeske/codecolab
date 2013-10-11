@@ -8,13 +8,23 @@
       <div class="row">
         <div class="col-md-6">
           <div class="btn-group">
-            <button type="button" class="btn btn-default">Cards</button>
-            <button type="button" class="btn btn-default">Points</button>
-            <button type="button" class="btn btn-default">Commits</button>
+            <button id="__cards" type="button"
+                    data-color="blue" data-category="cards" 
+                    class="btn btn-default active _category_selector">
+              Cards
+            </button>
+            <button id="__points" data-category="points" data-color="green"
+                    type="button" class="btn btn-default _category_selector">
+              Points
+            </button>
+            <button id="__commits" data-category="commits" data-color="red"
+                    type="button" class="btn btn-default _category_selector">
+              Commits
+            </button>
           </div>
         </div>
         <div class="col-md-6">
-          <select class="form-control">
+          <select class="form-control" id="__cadence_select_user">
             <option value="-1">all</option>
             {% for luser in project.lusers %}
             <option value="{{ luser._id }}">{{ luser.profile.username }}</option>  
@@ -24,33 +34,34 @@
 
       <br />
       <div class="row">
-        <div class="_margin_auto _team_cadence_chart">
+        <div class="_margin_auto" id="__team_cadence_chart">
         </div> 
       </div>
 
 
       <ul class="pager">
-        <li class="previous"><a href="#">&larr; Older</a></li>
-        <li class="next"><a href="#">Newer &rarr;</a></li>
+        <li class="previous"><a id="__cadence_last" href="#">&larr; Older</a></li>
+        <li class="next"><a id="__cadence_next" href="#">Newer &rarr;</a></li>
       </ul>
     </div>
   </div>
 </div>
 <script type="text/javascript" src="/js/jqBarGraph.1.1.min.js"></script>
 <script type="text/javascript">
-function update_team_cadence() {
+function update_cadence(cadence) {
   $.ajax({
     method: "GET",
     url: "/p/{{ project._id }}/team_cadence",
-    data: { timeframe: timeframe, category: category,
-        luser_id: luser_id },
+    data: cadence.data,
     success: function(data) {
-      team_cadence.jqBarGraph({data: data, color: color, width: width });
+      cadence.jqBarGraph_options.data = data;
+      show_cadence(cadence);
     }
   });
 }
 
 function show_cadence(cadence) {
+  cadence.elem.html("");
   cadence.elem.jqBarGraph(cadence.jqBarGraph_options);
 }
 
@@ -65,12 +76,44 @@ $(document).ready(function() {
       width: 600,
     },
 
-    elem: $("._team_cadence_chart"),
-    timeframe: -1,
-    category: "cards",
-    luser_id: -1,
+    elem: $("#__team_cadence_chart"),
+
+    data: {
+      timeframe: -1,
+      category: "cards",
+      luser_id: -1
+    }
   };
 
   show_cadence(cadence);
+
+  $("#__cadence_last").click(function() {
+    cadence.data.timeframe -= 1;
+    update_cadence(cadence);
+  });
+
+  $("#__cadence_next").click(function() {
+    cadence.data.timeframe += 1;
+    update_cadence(cadence);
+  });
+
+  $("._category_selector").click(function() {
+    cadence.data.category = $(this).data("category");
+    cadence.jqBarGraph_options.color = $(this).data("color");
+    update_cadence(cadence);
+    $("._category_selector").removeClass("active");
+    $(this).addClass("active");
+
+    if (cadence.data.category == "commits") {
+      $("#__cadence_select_user").hide();
+    } else {
+      $("#__cadence_select_user").show();
+    }
+  });
+
+  $("#__cadence_select_user").change(function() {
+    cadence.data.luser_id = $(this).val();
+    update_cadence(cadence);
+  });
 });
 </script>
