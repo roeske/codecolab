@@ -46,7 +46,7 @@ function px_to_int(px_str) {
 
 function calculate_max_height() {
   var diff = px_to_int($("._content").css("margin-top"));
-  return window.innerHeight - diff * 2.5;
+  return window.innerHeight - diff - 15;
 }
 
 function update_selection_dimensions() {
