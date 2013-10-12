@@ -19,6 +19,7 @@
         <div class="_toggle_side" id="__toggle_project_selection">
             <div>
               <i class="glyphicon glyphicon-chevron-right"></i>
+            </div>
         </div>
     </div>
 
@@ -44,9 +45,8 @@ function px_to_int(px_str) {
 }
 
 function calculate_max_height() {
-  var max = window.innerHeight - px_to_int($("._content").css("margin-top"));
-  console.log("max_height=" + max);
-  return max;
+  var diff = px_to_int($("._content").css("margin-top"));
+  return window.innerHeight - diff * 2.5;
 }
 
 function update_selection_dimensions() {

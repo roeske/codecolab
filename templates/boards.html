@@ -32,22 +32,26 @@
 <script>
 function calculate_pile_container_width() {
   var piles = $("._pile");
-  return piles.length * (piles.width() + px_to_int(piles.css("padding-left"))*2);
+  if (piles.length == 0) {
+    return 0;
+  } else {
+    return piles.length * (piles.width() + px_to_int(piles.css("padding-left"))*2);
+  }
 }
 
 function init_board_dimensions() {
   $("._pile").css("float", "left");
   $("._pile").css("width", "400px");
   $(".panel-body").css("overflow-y", "auto");
-  $("._piles_container").width(calculate_pile_container_width());
   $("._boards_container").css("height", "auto");
   $("._boards_container").css("overflow-x", "scroll");
   $("._boards_container").css("overflow-y", "hidden");
 }
 
 function update_board_dimensions() {
-  $(".panel-body").css("max-height", calculate_max_height() - 110);
-  console.log("resize!");
+  $(".panel-body").css("max-height", calculate_max_height() - 135);
+  $("._piles_container").width(calculate_pile_container_width());
+  $("._piles_container").height(calculate_max_height());
 }
 
 $(document).ready(function() { 
