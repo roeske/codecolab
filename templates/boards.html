@@ -1,0 +1,55 @@
+<div class="_boards_container scrollbox">
+  <div class="row _piles_container">
+    {% for p in project.piles %}
+      <div class="col-md-4 _pile">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <div class="pull-left _pile_name">
+            {{ p.name }} 
+          </div>
+          <div class="pull-right">
+            <i class="glyphicon glyphicon-remove"/>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+        <div class="panel-body">
+          {% for card in p.cards %}
+            {% include "minicard.html" %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    <div class="clearfix"></div>
+  </div>
+</div>
+
+<script src="/js/enscroll.min.js" type="text/javascript"></script>
+<script src="//cdn.jsdelivr.net/jquery.enscroll/0.4.0/enscroll.min.js"></script>
+<script>
+function calculate_pile_container_width() {
+  var piles = $("._pile");
+  return piles.length * (piles.width() + px_to_int(piles.css("padding-left"))*2);
+}
+
+function init_board_dimensions() {
+  $("._pile").css("float", "left");
+  $("._pile").css("width", "400px");
+  $(".panel-body").css("overflow-y", "auto");
+  $("._piles_container").width(calculate_pile_container_width());
+  $("._boards_container").css("height", "auto");
+  $("._boards_container").css("overflow-x", "scroll");
+  $("._boards_container").css("overflow-y", "hidden");
+}
+
+function update_board_dimensions() {
+  $(".panel-body").css("max-height", calculate_max_height() - 110);
+  console.log("resize!");
+}
+
+$(document).ready(function() { 
+  init_board_dimensions();
+  update_board_dimensions();
+  window.onresize = update_board_dimensions;
+});
+</script>

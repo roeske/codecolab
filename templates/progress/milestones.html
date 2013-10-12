@@ -1,0 +1,31 @@
+<div class=" _milestones_container">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      Milestones
+    </div>
+    <div class="panel-body" >
+      {% for m in project.milestones %}
+        <h3>{{ m.name }}</h3>
+        <p>Card Completion</p>
+        <div class="progress">
+          <div class="progress-bar" role="progressbar" 
+               aria-valuenow="{{ m.stats.progress }}"
+               aria-valuemin="0" 
+               aria-valuemax="100" style="width: {{ m.stats.card_completion}}%;">
+               <span class="sr-only">{{ m.stats.progress }}% complete</span>
+          </div>
+        </div>
+
+        <p>Point Completion</p>
+        <div class="progress">
+          <div class="progress-bar progress-bar-success" role="progressbar"
+               aria-valuenow="{{ m.stats.progress }}"
+               aria-valuemin="0" 
+               aria-valuemax="100" style="width: {{ m.stats.point_completion }}%;">
+               <span class="sr-only">{{ m.stats.progress }}% complete</span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+<h3 class="card_section">Milestone</h3>
+<form action="/p/{{ project_name }}/cards/{{ card._id }}/select_milestone"
+    method="POST">
+
+  <div style="margin-top: 10px;">
+    <select data-card-id="{{ card._id }}" id="select_milestone"
+      style="width: 100%;">
+
+      <option data-id="-1">None</option>
+      {% for milestone in project.milestones %}
+      
+        <option 
+          {% if milestone._id == card.milestone_id %}
+            selected
+          {% endif %}
+          data-card-id="{{ card.milestone_id }}" 
+          data-id="{{ milestone._id }}">
+          
+          {{ milestone.name }}
+        </option>
+
+      {% endfor %}
+    </select>
+  </div>
+</form>
+
+<a href="#" class="hidden" id="toggle_add_milestone"
+   style="margin-top: 10px; margin-bottom: 10px; float: right;">
+  <span class="off">Add Milestone</span>
+  <span style="display: none;" class="on">Hide</span>
+</a>
+
+<div class="clear"></div>
+
+<form style="display: none; width: auto;  " 
+  method="POST" action="/p/{{ project.name }}/milestones/add" 
+  id="form_add_milestone">
+
+  <input id="milestone" type="text" name="name"
+    placeholder="Milestone..." style="width: auto; float: right; display: block; margin: 0;" />
+
+  <div class="clear"></div>
+  <input id="add_milestone" type="submit" name="submit" 
+         value="Add" class="btn" 
+         style="width: auto; padding: 0px 10px 0px; float: right; margin: 10px auto 0px; font-size: 1em;" />
+  
+  <div class="clear"></div>
+</form>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  $("#select_milestone").select2();
+  $("#toggle_add_milestone").click(function() {
+      $("#form_add_milestone").toggle();
+      $(this).find(".on").toggle();
+      $(this).find(".off").toggle();
+  });
+});
+</script>
