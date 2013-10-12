@@ -1,5 +1,38 @@
+._flexrow { 
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+}
+
+#__project_navbar {
+    display: -webkit-flex;
+    display: flex;
+    margin-right: 15px;
+}
+
+#__project_sidenav {
+    margin-right: 15px;
+    flex: 1;
+}
+
+._toggle_side {
+    width: 20px;
+}
+
+#__project_wrapper {
+    -webkit-flex: 1;
+    flex: 1;
+    margin-right: 15px;
+}
+
 ._margin_auto {
   margin: 0 auto;
+}
+
+._boards_container {
+    background: #ccc;
+    padding: 15px;
 }
 
 /* handy classes */
@@ -481,11 +514,9 @@ form.checkbox-list {
     margin: 10px 0px;
 }
 
-/* webkit specific 
-
 ::-webkit-scrollbar {
-    width: 12px;
-    height: 14px;
+    width: 8px;
+    height: 10px;
 }
  
 ::-webkit-scrollbar-track {
@@ -495,4 +526,3 @@ form.checkbox-list {
 ::-webkit-scrollbar-thumb {
     background-color: #999;
 }
-/*

@@ -1,33 +1,33 @@
 {% include "header.html" %}
 {% include "project_navbar.html" %}
 <div class="container _content">
-  <div class="row">
-    <div class="col-md-2 bs-docs-sidebar">
-      <div class="row">
-        <div class="col-md-8">
-          <ul class="nav nav-pills nav-stacked bs-docs-sidenav affix-top">
-          {% for p in projects %}
-            {% if p._id == luser.last_project_id %}
-              {% set active = "active" %}
-            {% endif %}
-            <li class="_project_nav_link {{ active }}">
-            {% set active = "" %}
-              <a data-id="{{ p._id }}" class="active">
-                {{ p.name }}
-                <div class="clearfix"></div>
-              </a>
-            </li>
-          {% endfor %}
-          </ul>
+  <div class="row _flexrow">
+    <div id="__project_navbar" class="bs-docs-sidebar">
+        <ul class="nav nav-pills nav-stacked affix-top" id="__project_sidenav">
+        {% for p in projects %} {% if p._id == luser.last_project_id %}
+            {% set active = "active" %}
+          {% endif %}
+          <li class="_project_nav_link {{ active }}">
+          {% set active = "" %}
+            <a data-id="{{ p._id }}" class="active">
+              {{ p.name }}
+              <div class="clearfix"></div>
+            </a>
+          </li>
+        {% endfor %}
+        </ul>
+        <div class="_toggle_side" id="__toggle_project_selection">
+            <div>
+              <i class="glyphicon glyphicon-chevron-right"></i>
         </div>
-      </div>
     </div>
 
-    <div class="col-md-10">
+    <div id="__project_wrapper">
       <div id="__project_page_container">
         {% include "dashboard.html" %}
       </div>
     </div>
+    <div class="clearfix"></div>
   </div>
 </div>
 </div> {% include "footer.html" %}
@@ -39,19 +39,23 @@ function cc_alert(msg) {
   alert(msg);
 }
 
+function px_to_int(px_str) {
+  return parseInt(px_str.replace("px", ""), 10);
+}
+
+function calculate_max_height() {
+  var max = window.innerHeight - px_to_int($("._content").css("margin-top"));
+  console.log("max_height=" + max);
+  return max;
+}
+
+function update_selection_dimensions() {
+  $("#__project_navbar").css("min-height", calculate_max_height());
+  $("#__toggle_project_selection > div").css("margin-top", $("#__toggle_project_selection").height() / 2 - 14);
+}
+
 function load_project_page(tab, project_id) {
-
   $.get("/project_id/" + project_id + "/" + tab, function(data) {
-    if (tab == "boards") {
-      var height = screen.height - $(".navbar").height() - 100;
-      $("._content").css("max-height", height);
-      $("._content").css("height", height);
-      $("._content").css("overflow-y", "hidden");
-    } else {
-      $("._content").css("max-height", "none");
-      $("._content").css("height", "auto");
-    }
-
     $("#__project_page_container").html(data);
   }).fail(function() {
     cc_alert("error loading page.");
@@ -60,6 +64,9 @@ function load_project_page(tab, project_id) {
 
 
 $(document).ready(function() {
+  update_selection_dimensions();
+  $(window).resize(update_selection_dimensions);
+
   // When loading the index, the last project the user visited is 
   // restored.
   var last_project_id = {{ luser.last_project_id }};
@@ -94,6 +101,10 @@ $(document).ready(function() {
       load_project_page(tab, last_project_id);
       last_tab = tab;
     }
+  });
+
+  $("#__toggle_project_selection").click(function() {
+    $("#__project_sidenav").toggle();
   });
 });
 </script>
