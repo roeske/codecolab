@@ -8,13 +8,15 @@
             {{ p.name }} 
           </div>
           <div class="pull-right">
-            <i class="glyphicon glyphicon-remove"/>
+            <i class="glyphicon glyphicon-remove"></i>
           </div>
           <div class="clearfix"></div>
         </div>
         <div class="panel-body">
           {% for card in p.cards %}
-            {% include "minicard.html" %}
+            {% if not card.is_archived %}
+              {% include "minicard.html" %}
+            {% endif %}
           {% endfor %}
         </div>
       </div>
@@ -26,6 +28,7 @@
 
 <script src="/js/enscroll.min.js" type="text/javascript"></script>
 <script src="//cdn.jsdelivr.net/jquery.enscroll/0.4.0/enscroll.min.js"></script>
+
 <script>
 function calculate_pile_container_width() {
   var piles = $("._pile");
@@ -50,6 +53,6 @@ function update_board_dimensions() {
 $(document).ready(function() { 
   init_board_dimensions();
   update_board_dimensions();
-  window.onresize = update_board_dimensions;
+  $(window).resize(update_board_dimensions);
 });
 </script>
