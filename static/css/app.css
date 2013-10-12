@@ -1,3 +1,12 @@
+._pile {
+    margin: 15px;
+    padding: 0;
+}
+
+._pile:not(:first-child) {
+    margin-left: 0;
+}
+
 ._flexrow { 
     display: -webkit-flex;
     display: flex;
@@ -32,7 +41,7 @@
 
 ._boards_container {
     background: #ccc;
-    padding: 15px;
+    padding-left: 15px;
 }
 
 /* handy classes */
