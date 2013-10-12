@@ -35,7 +35,13 @@ function calculate_pile_container_width() {
   if (piles.length == 0) {
     return 0;
   } else {
-    return piles.length * (piles.width() + px_to_int(piles.css("padding-left"))*2);
+    var total = 0;
+    $("._pile").each(function(i,elem) {
+      total += $(elem).width();
+      total += px_to_int($(elem).css("padding-left"));
+      total += px_to_int($(elem).css("padding-right"));
+    });
+    return total;
   }
 }
 
