@@ -1,35 +1,38 @@
 <div class="_boards_container scrollbox">
-  <div class="row _piles_container">
-    {% for p in project.piles %}
-      <div class="col-md-4 _pile">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <div class="pull-left _pile_name">
-            {{ p.name }} 
+  <div class="row _piles_container" id="__piles_container">
+    <div id="__piles_wrapper">
+      {% for p in project.piles %}
+        <div class="col-md-4 _pile">
+        <div class="panel panel-default">
+          <div class="panel-heading _handle">
+            <div class="pull-left _pile_name">
+              {{ p.name }} 
+            </div>
+            <div class="pull-right">
+              <i class="glyphicon glyphicon-remove"></i>
+            </div>
+            <div class="clearfix"></div>
           </div>
-          <div class="pull-right">
-            <i class="glyphicon glyphicon-remove"></i>
+          <div class="panel-body">
+            {% for card in p.cards %}
+              {% if not card.is_archived %}
+                {% include "minicard.html" %}
+              {% endif %}
+            {% endfor %}
           </div>
-          <div class="clearfix"></div>
-        </div>
-        <div class="panel-body">
-          {% for card in p.cards %}
-            {% if not card.is_archived %}
-              {% include "minicard.html" %}
-            {% endif %}
-          {% endfor %}
         </div>
       </div>
+      {% endfor %}
     </div>
-    {% endfor %}
     <div class="clearfix"></div>
   </div>
 </div>
 
-<script src="/js/enscroll.min.js" type="text/javascript"></script>
-<script src="//cdn.jsdelivr.net/jquery.enscroll/0.4.0/enscroll.min.js"></script>
-
+<script src="/js/socket.io.js"></script>
+<script src="/js/jquery-ui.js"></script>
 <script>
+var SOCKETIO_SERVER = "http://192.241.181.165:8080"
+
 function calculate_pile_container_width() {
   var piles = $("._pile");
   if (piles.length == 0) {
@@ -45,24 +48,164 @@ function calculate_pile_container_width() {
   }
 }
 
-function init_board_dimensions() {
-  $("._pile").css("float", "left");
-  $("._pile").css("width", "400px");
-  $(".panel-body").css("overflow-y", "auto");
-  $("._boards_container").css("overflow-x", "scroll");
-  $("._boards_container").css("overflow-y", "hidden");
+function get_height_of_tallest_pile() {
+  var piles = $("._pile");
+  var tallest = 0;
+  if (piles.length == 0) {
+    return tallest;
+  } else {
+    $("._pile").each(function(i,elem) {
+      var elem_height = $(elem).height();
+      if (elem_height > tallest) {
+        tallest = elem_height;
+      }
+    });
+    return tallest;
+  }
 }
 
 function update_board_dimensions() {
   $(".panel-body").css("max-height", calculate_max_height() - 135);
-  $("._piles_container").width(calculate_pile_container_width());
+  $("#__piles_wrapper").width(calculate_pile_container_width());
   $("._piles_container").height(calculate_max_height());
   $("._boards_container").height(calculate_max_height());
+  var height = get_height_of_tallest_pile();
+  $("#__piles_wrapper").height(height);
+//  $("._pile").height(height);
 }
 
 $(document).ready(function() { 
-  init_board_dimensions();
+  var project_id = {{ project._id }};
+
+  // Initialize board dimensions.
+  $("._pile").css("float", "left");
+  $("._pile").css("width", "400px");
+  $(".panel-body").css("overflow-y", "auto");
+  $("#__piles_container").width("100%");
+  $("._boards_container").css("overflow-x", "scroll");
+  $("._boards_container").css("overflow-y", "hidden");
   update_board_dimensions();
+
+  // Keep board dimensions updated when resizing the window.
   $(window).resize(update_board_dimensions);
+
+  // Initialize socket.io
+  var socket = io.connect(SOCKETIO_SERVER);
+  socket.on("ready", function(data) {
+      socket.emit("observe_project", {project_id: project_id});
+  });
+  socket.on("add_card", function(data) {});
+  socket.on("archive_card", function(data) {});
+  socket.on("reorder_cards", function(data) {});
+  socket.on("reorder_piles", function(data) {});
+  socket.on("delete_pile", function(data) {});
+  socket.on("add_pile", function(data) {});
+
+
+  // Initialize pile sorting.
+  $("#__piles_wrapper").sortable({
+
+    delay: 100,
+    distance: 10,
+    revert: "invalid",
+    tolerance: "pointer",
+    handle: "._handle",
+    placeholder: "_pile_placeholder",
+
+    start: function(e, ui) {
+      ui.placeholder.height(ui.helper.outerHeight());
+    },
+
+    stop: function(event, ui) {
+      // Update the values in the DOM to reflect the current
+      // state of the cards.
+      //var updates = cc_piles_reorder_update_dom($(selector).children());
+      //console.log(updates);            
+      // Post those updates back to the server.
+      //cc_piles_reorder_post(socket, project_id, updates);
+    }
+  });
 });
+
 </script>
+
+{% if false %}
+
+// Run this code when the DOM is ready.
+$(function() {
+  // Async list add
+  $("#add_list_form").ajaxForm({
+    success: function(data) {
+      socket.emit('add_pile', { project_id: {{ project._id }},
+                                html: data });
+
+      cc_append_pile({{ project._id }}, data, socket);
+    }
+  });
+
+  cc_init_list_controls(socket, {{ project._id }}, "")
+})
+
+function delete_list(project_name, list_id, callback) {
+    $.ajax({
+        type: "GET",
+        url: "/p/{{ project.urlencoded_name }}/list/" + list_id + "/delete",
+        
+        success: function(data) {
+            callback(data)
+        },
+
+        contentType: "application/json;charset=UTF-8"
+    })
+}
+
+$(function() {
+  var user_id = "{{ luser._id }}";
+  cc_connect_profile_links(".navbar ", user_id);
+});
+
+$(function() {
+    $('#datepickers').hide();
+
+    var options = {
+      showOn: 'both',
+      buttonImage: '/assets/calendar.gif',
+    };
+
+    $('#start_date').datepicker(options);
+    $('#end_date').datepicker(options);
+      
+    $("#select_criteria").select2({
+        minimumResultsForSearch: 10
+    }).change(function(ev) {
+        var selection = $(this).val();
+
+        if (selection == 'date_range') {
+            $('#datepickers').show();
+            $('#start_date').prop('disabled', false);
+            $('#end_date').prop('disabled', false);
+            $('#q').hide().prop('disabled', true);
+        } else {
+            $('#datepickers').hide();
+            $('#start_date').prop('disabled', true);
+            $('#end_date').prop('disabled', true);
+            var hint = 'Enter ' + $(this).find(':selected').text() + '...';
+            $('#q').show().prop('disabled', false).attr('placeholder', hint);
+        }
+    });
+
+    $('button').first().css('margin-right', '7px');
+});
+
+{% if is_target_card_invocation %}
+$(function() {
+  // This is called when there is a specific card referenced in the URL,
+  // used to link to cards externally.
+  $("li.card_item[data-id={{ target_card_id }}]").dblclick();
+});
+{% endif %}
+
+</script>
+</body>
+</html>
+{% endif %}

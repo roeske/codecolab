@@ -3,8 +3,21 @@
     margin: 0;
 }
 
-._pile:not(:first-child) {
-    padding-left: 0;
+._pile .panel {
+    margin-bottom: 0;
+}
+
+._pile_placeholder {
+    background: #aaa;
+    width: 370px;
+    float: left;
+    margin: 15px 15px 0px;
+    border-radius: 2px;
+}
+
+#__piles_wrapper {
+    white-space: nowrap;
+    width: 99999px;
 }
 
 ._flexrow { 
@@ -22,6 +35,7 @@
 
 #__project_sidenav {
     margin-right: 15px;
+    -webkit-flex: 1;
     flex: 1;
 }
 

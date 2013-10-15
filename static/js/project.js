@@ -785,82 +785,6 @@ function cc_insert_card_into_pile(card, number, pile_id) {
     }
 }
 
-function cc_initialize_socketio(project_id) {
-    var socket = io.connect(SOCKETIO_SERVER);
-
-    socket.on("ready", function(data) {
-        socket.emit("observe_project", {project_id: project_id});
-    });
-
-    socket.on("add_card", function(data) {
-        cc_add_card(socket, project_id, data["html"], data["pile_id"], true);
-        cc_activity_reload();
-    });
-
-    socket.on("archive_card", function(data) {
-        var card_id = data['card_id'];
-        $('li[data-id="'+card_id+'"]').remove();
-        cc_activity_reload();
-    });
-
-    socket.on("reorder_cards", function(data) {
-        console.log("socket.io reorder_cards: ");
-       
-        $("ul.card_list li").each(function(i, elem) {
-            var card = $(elem);
-            var updates = data['updates'];
-
-            var card_id = card.data('id');
-
-            if (updates.hasOwnProperty(card_id)) {
-                var pile_id = updates[card_id]['pile_id'];
-                var number = updates[card_id]['number'];
-                
-                // First, check if the card is in the correct pile.
-                // If it is not, we will need to insert it at the
-                // correct location in the correct pile.
-                var my_parent = card.parent();
-                var parent_id = parseInt(my_parent.data('id'), 10);
-
-                if (parent_id !== pile_id) {
-                    cc_insert_card_into_pile(card, number, pile_id);
-                } else {
-                    // We could optimize here, but do the same for now.
-                    cc_insert_card_into_pile(card, number, parent_id);
-                }
-
-                card.data('number', number);
-                card.data('pile-id', pile_id);
-            }
-        });
-
-
-    });
-
-    socket.on("reorder_piles", function(data) {
-        $("li.pile_container").each(function(i, elem) {
-            var old_number = $(elem).data('number');
-            $(elem).data('number', data['updates'][parseInt($(elem).data('id'),10)]['number']);
-            console.log(old_number +"->"+$(elem).data('number'));
-        });
-
-        $("li.pile_container").sort(function(a,b) {
-            var nA = parseInt($(a).data('number'), 10);
-            var nB = parseInt($(b).data('number'), 10);
-            return (nA < nB ) ? - 1 : (nA > nB) ? 1 : 0;
-        }).appendTo("#pile_list");
-    });
-
-    socket.on("delete_pile", function(data) {
-        $('li.pile_container[data-id="'+data['pile_id']+'"]').remove();
-    });
-
-    socket.on("add_pile", function(data) {
-        cc_append_pile(data["project_id"], data["html"], socket);
-    });
-
-    return socket;
-}
 
 
 /** Sets up all state of the project page. */
@@ -883,7 +807,7 @@ function cc_initialize_cards(selector_prefix) {
 
 function cc_initialize_lists(socket, project_id) {
     var pile_selector = "ul#pile_list";
-    $(pile_selector).sortable(cc_make_pile_sorter(socket, project_id,
+    $("#__piles_container").sortable(cc_make_pile_sorter(socket, project_id,
         "ul#pile_list"));
     $("ul.card_item, li.card_item").disableSelection();
     cc_setup_editable_fields(project_name);
