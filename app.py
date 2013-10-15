@@ -1563,8 +1563,11 @@ def tag_card(project_name, card_id, luser=None, project=None, **kwargs):
 @check_project_privileges
 def boards(project=None, **kwargs):
     target_card_id = int(request.args.get('card', -1))
+    piles = (Pile.query.filter_by(project_id=project._id)
+                    .filter_by(is_deleted=False).all())
+        
     return render_template("boards.html", project=project,
-        target_card_id=target_card_id, **kwargs)
+        target_card_id=target_card_id, piles=piles, **kwargs)
 
 
 @app.route("/p/<project_name>/search_cards")

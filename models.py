@@ -575,8 +575,8 @@ class Pile(db.Model, DictSerializable):
     is_deleted  = db.Column(db.Boolean, default=False)
     name        = db.Column(db.String, nullable=False, default="Unnamed Pile")
     created     = db.Column(db.DateTime, default=func.now())
-
     cards       = db.relationship("Card", order_by=lambda: Card.number)
+
     @property
     def pile_uuid(self):
         return "pile_" + md5(str(self._id) + self.name + str(self.created)).hexdigest()

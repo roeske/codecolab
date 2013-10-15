@@ -4,6 +4,11 @@
     padding: 0;
 }
 
+._pile .panel-body {
+    margin: 0;
+    padding: 0;
+}
+
 ._pile .panel {
     margin-bottom: 0;
 }
@@ -66,7 +71,6 @@
 
 ._boards_container {
     background: #ccc;
-    padding-left: 15px;
 }
 
 /* handy classes */
