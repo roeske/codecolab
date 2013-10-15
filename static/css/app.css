@@ -4,8 +4,6 @@
     padding: 0;
 }
 
-
-
 ._pile .panel {
     margin-bottom: 0;
 }
@@ -34,11 +32,6 @@
     border-radius: 2px;
 }
 
-#__piles_jrapper {
-    white-space: nowrap;
-    width: 99999px;
-}
-
 ._flexrow { 
     display: -webkit-flex;
     display: flex;
@@ -49,7 +42,6 @@
 #__project_navbar {
     display: -webkit-flex;
     display: flex;
-    margin-right: 15px;
 }
 
 #__project_sidenav {
