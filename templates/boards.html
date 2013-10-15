@@ -14,11 +14,13 @@
             <div class="clearfix"></div>
           </div>
           <div class="panel-body">
+            <div class="_cards_wrapper">
             {% for card in p.cards %}
               {% if not card.is_archived %}
                 {% include "minicard.html" %}
               {% endif %}
             {% endfor %}
+            </div>
           </div>
         </div>
       </div>
@@ -40,9 +42,9 @@ function calculate_pile_container_width() {
   } else {
     var total = 0;
     $("._pile").each(function(i,elem) {
-      total += $(elem).width();
-      total += px_to_int($(elem).css("padding-left"));
-      total += px_to_int($(elem).css("padding-right"));
+      total += px_to_int($(elem).css("width"));
+      total += px_to_int($(elem).css("margin-left"));
+      total += px_to_int($(elem).css("margin-right"));
     });
     return total;
   }
@@ -104,7 +106,6 @@ $(document).ready(function() {
 
   // Initialize pile sorting.
   $("#__piles_wrapper").sortable({
-
     delay: 100,
     distance: 10,
     revert: "invalid",
@@ -114,15 +115,30 @@ $(document).ready(function() {
 
     start: function(e, ui) {
       ui.placeholder.height(ui.helper.outerHeight());
+      ui.placeholder.width(ui.helper.outerWidth());
     },
 
     stop: function(event, ui) {
-      // Update the values in the DOM to reflect the current
-      // state of the cards.
-      //var updates = cc_piles_reorder_update_dom($(selector).children());
-      //console.log(updates);            
-      // Post those updates back to the server.
-      //cc_piles_reorder_post(socket, project_id, updates);
+
+    }
+  });
+
+  $("._cards_wrapper").sortable({
+    delay: 100,
+    distance: 10,
+    revert: "invalid",
+    tolerance: "pointer",
+    placeholder: "_card_placeholder",
+    connectWith: "._cards_wrapper",
+
+    start: function(e, ui) {
+      ui.placeholder.height(ui.helper.outerHeight());
+      ui.placeholder.width(ui.helper.outerWidth());
+
+    },
+
+    stop: function(e, ui) {
+
     }
   });
 });

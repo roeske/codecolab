@@ -545,26 +545,6 @@ function cc_make_card_sorter(socket, project_id, selector) {
 }
 
 
-function cc_make_pile_sorter(socket, project_id, selector) {
-    var that = {
-        delay: 100,
-        distance: 10,
-        revert: "invalid",
-        tolerance: "pointer",
-        handle : ".handle",
-
-        stop: function(event, ui) {
-            // Update the values in the DOM to reflect the current
-            // state of the cards.
-            var updates = cc_piles_reorder_update_dom($(selector).children());
-            console.log(updates);            
-            // Post those updates back to the server.
-            cc_piles_reorder_post(socket, project_id, updates);
-        }
-    };
-
-    return that;
-}
 
 /** 
  * Makes fields clazzed with the 'editable' clazz editable, and submit
@@ -585,13 +565,6 @@ function cc_setup_editable_fields(project_name) {
         });
     });
 }
-
-
-function cc_connect_milestone_spinner(mommy, card_id) {
-    return cc_connect_spinner('milestone', mommy, card_id);
-}
-
-
 
 
 function cc_connect_spinner(clazz, parent_elem, card_id) {

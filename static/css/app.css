@@ -1,21 +1,40 @@
 ._pile {
-    padding: 15px;
-    margin: 0;
+    width: 400px;
+    margin: 15px;
+    padding: 0;
 }
+
+
 
 ._pile .panel {
     margin-bottom: 0;
 }
 
+._minicard {
+    padding: 15px;
+    background: #fff;
+    border-radius: 2px;
+}
+
+._card_placeholder {
+    background: #f0f0f0;
+    border-radius: 2px;
+}
+
+._pile_placeholder:not(:first-child),
+._pile:not(:first-child) {
+    margin-left: 0px;
+}
+
 ._pile_placeholder {
-    background: #aaa;
-    width: 370px;
+    background: #bbb;
+    width: 400px;
     float: left;
     margin: 15px 15px 0px;
     border-radius: 2px;
 }
 
-#__piles_wrapper {
+#__piles_jrapper {
     white-space: nowrap;
     width: 99999px;
 }
