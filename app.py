@@ -792,23 +792,17 @@ def unarchive_project(project=None, **kwargs):
 ## Lists 
 ##########################################################################
 
-@app.route("/p/<project_name>/list/<int:list_id>/delete")
+@app.route("/project_id/<int:project_id>/pile/<int:pile_id>/delete")
 @check_project_privileges
-def list_delete(list_id=None, luser=None, **kwargs):
-    """
-    'Deletes' a list. Note, lists are NEVER really deleted,
-    since any archived cards still related to them will require
-    their existence.
-    """
-
-    # When 'deleting' a list, automatically archive all its cards.
-    cards = models.Card.query.filter_by(pile_id=list_id).all()
+def pile_delete(pile_id=None, luser=None, **kwargs):
+    # It's not really deleted.
+    # When 'deleting' a pile, automatically archive all its cards.
+    cards = models.Card.query.filter_by(pile_id=pile_id).all()
     for card in cards:
         card.is_archived = True
         card.archived_at = datetime.utcnow()
 
-
-    pile = models.Pile.query.filter_by(_id=list_id).first()
+    pile = models.Pile.query.filter_by(_id=pile_id).first()
     pile.is_deleted = True
     models.db.session.commit()
 

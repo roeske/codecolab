@@ -1,14 +1,15 @@
 <div class="_boards_container">
   <div class="_piles_container" id="__piles_container">
-    <div id="__piles_wrapper"> {% for p in piles %}
-          <div class="col-md-4 _pile">
+    <div id="__piles_wrapper"> 
+      {% for p in piles %}
+          <div class="col-md-4 _pile" data-id="{{ p._id }}" data-title="{{ p.name }}">
             <div class="panel panel-default">
               <div class="panel-heading _handle">
                 <div class="pull-left _pile_name">
                   {{ p.name }} 
                 </div>
                 <div class="pull-right">
-                  <i class="glyphicon glyphicon-remove"></i>
+                  <i class="glyphicon glyphicon-remove _pile_delete"></i>
                 </div>
                 <div class="clearfix"></div>
               </div>
@@ -154,6 +155,7 @@ $(document).ready(function() {
     }
   });
 
+
   // Handle archival of cards:
   $("._archive_card").click(function() {
     var card_id = $(this).data("id");
@@ -164,5 +166,45 @@ $(document).ready(function() {
       $("._minicard[data-id=" + card_id + "]").remove();
     });
   });
+
+
+  // BEGIN: delete pile
+  var delete_pile = function(pile) {
+    var pile_id = parseInt(pile.data("id"), 10);
+
+    var url = "/project_id/" + project_id + "/pile/" + pile.data("id") + "/delete";
+    $.get(url, function(data) {
+      console.log(data);
+      socket.emit('delete_pile', { project_id: project_id, pile_id: pile_id }); 
+      pile.remove();
+    });    
+  };
+
+  $("._pile_delete").click(function() {
+    var pile = $(this).closest("._pile");
+    if (pile.find("._minicard").length > 0) {
+  
+      var btn_cancel = $("#__btn_cancel");
+      var btn_delete_pile = $("#__btn_delete_pile");
+      var modal_confirm_delete_pile = $("#__modal_confirm_delete_pile");
+
+      btn_cancel.unbind("click");
+      btn_cancel.click(function() {
+        modal_confirm_delete_pile.modal("hide");
+      });
+
+      btn_delete_pile.unbind("click");
+      btn_delete_pile.click(function() {
+        delete_pile(pile); 
+        modal_confirm_delete_pile.hide("hide");
+      });
+
+      $("#__modal_confirm_pile_title").text(pile.data("title"));
+      modal_confirm_delete_pile.modal("show");
+    } else {
+      delete_pile(pile); 
+    }
+  });
+  // END: delete pile
 });
 </script>
