@@ -34,9 +34,9 @@
     border-radius: 2px;
 }
 
-._pile_placeholder:not(:first-child),
-._pile:not(:first-child) {
-    margin-left: 0px;
+._pile_placeholder:not(:last-child),
+._pile:not(:last-child) {
+    margin-right: 0px;
 }
 
 ._pile_placeholder {
