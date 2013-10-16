@@ -158,7 +158,7 @@ $(document).ready(function() {
   });
 
   // Handle opening cards:
-  $("._minicard").click(function() {
+  $("._minicard").dblclick(function() {
     var card_id = $(this).data("id");
     var url = "/project_id/" + project_id + "/card_id/" + card_id;
     $.get(url, function(html) {
@@ -176,7 +176,6 @@ $(document).ready(function() {
       $("._minicard[data-id=" + card_id + "]").remove();
     });
   });
-
 
   // BEGIN: delete pile
   var delete_pile = function(pile) {
@@ -210,7 +209,7 @@ $(document).ready(function() {
       });
 
       $("#__modal_confirm_pile_title").text(pile.data("title"));
-      modal_confirm_delete_pile.modal("show");
+      modal_confirm_delete_pile.modal("toggle");
     } else {
       delete_pile(pile); 
     }

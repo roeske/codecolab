@@ -1,16 +1,52 @@
 <div class="modal fade" id="__modal_confirm_delete_pile" aria-hidden="true">
   <div class="modal-dialog">
-    <div class="modal-content">
+    <div class="modal-content container">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title">Delete <span id="__modal_confirm_pile_title"></span>?</h4>
+        <h4 class="modal-title">
+          <span id="__card_editable_title" class="editable text">{{ card.text }}</span>
       </div>
       <div class="modal-body">
-        <p>Are you sure you want to delete this pile? All the cards in it will be archived.</p>
+        <div id="__card_body_container" class="_flexrow">
+          <div id="__card_body_left" class="row">
+            <div class="col-md-12">
+              <h5>Description</h5>
+            </div>
+
+            <div class="col-md-12">
+              <h5>Comments</h5>
+            </div>
+
+            <div class="col-md-12">
+              <h5>Attachments</h5>
+            </div>
+          </div>
+          <div id="__card_body_right" class="row">
+             <div class="col-md-12 _card_feature">
+              <button id="__btn_toggle_complete" type="button" class="btn">
+                Complete
+              </button>
+            </div>
+
+            <div class="col-md-12 _card_feature">
+              <button id="__btn_toggle_subscription" type="button" class="btn">
+                Subscribe
+              </button>
+            </div>
+
+            <div class="col-md-12 _card_feature">
+              <button id="__btn_set_due_date" type="button" class="btn">
+                Due Date
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
+        <!-- example buttons 
         <button id="__btn_delete_pile" type="button" class="btn btn-danger" data-dismiss="modal">Delete</button>
         <button id="__btn_cancel" type="button" class="btn btn-primary">Cancel</button>
+        -->
       </div>
     </div>
   </div>
@@ -24,7 +60,6 @@
       <h3 class="card_section_header expanded">Title</h3>
       <div class="card_section_body">
         <div  style="margin-top: 10px; line-height: 26px; min-height: 26px;" 
-          class="editable text">{{ card.text }}</div>
         <div class="clear"></div>
       </div>
     </div>
