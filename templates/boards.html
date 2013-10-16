@@ -157,6 +157,14 @@ $(document).ready(function() {
     }
   });
 
+  // Handle opening cards:
+  $("._minicard").click(function() {
+    var card_id = $(this).data("id");
+    var url = "/project_id/" + project_id + "/card_id/" + card_id;
+    $.get(url, function(html) {
+      $(html).modal("show");
+    });
+  });
 
   // Handle archival of cards:
   $("._archive_card").click(function() {

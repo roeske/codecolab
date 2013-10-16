@@ -13,10 +13,9 @@ def register(app):
     assets.register("css_overrides", css_overrides)
 
 
-    boards_js = Bundle("js/jquery-latest.js",
-                       "js/jquery.jeditable.js",
+    boards_js = Bundle("js/jquery.jeditable.js",
                        "js/select2.js",
-                       "js/jquery-ui.js",
                        "js/socket.io.js",
+                       "js/jquery-ui.js",
                         output="gen/boards_js.js") 
     assets.register("boards_js", boards_js)
