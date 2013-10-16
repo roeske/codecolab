@@ -32,8 +32,10 @@
 <!-- modal for authorizing pile deletion -->
 {% include "modals/confirm_delete_pile.html" %}
 
-<script src="/js/socket.io.js"></script>
-<script src="/js/jquery-ui.js"></script>
+{% assets "boards_js" %}
+<script src="{{ ASSET_URL }}" type="text/javascript"></script>
+{% endassets %}
+
 <script type="text/javascript">
 var SOCKETIO_SERVER = "http://192.241.181.165:8080"
 
