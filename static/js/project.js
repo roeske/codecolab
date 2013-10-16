@@ -8,29 +8,6 @@ String.prototype.htmlDecode = function() {
     return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
 };
 
-function make_archive_click_handler(project_id, socket) {
-    return function (event) {
-        event.preventDefault();
-
-        var that = this;
-        $.ajax({
-            type: "GET",
-            url: $(this).attr("href"),
-            
-            success: function(data) {
-                var card = $(that).parent().parent();
-                var card_id = parseInt(card.data("id"), 10);
-                card.remove();
-                cc_activity_reload();
-                socket.emit('archive_card', { project_id: project_id, 
-                                              card_id: card_id });
-            },
-
-            contentType: "application/json;charset=UTF-8"
-        });
-    };
-}
-
 function recalculate_container_width() {
   var total_width = 0;
   $(".pile_container").each(function(i, elem) {

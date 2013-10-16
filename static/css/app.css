@@ -1,3 +1,11 @@
+._minicard_menu.open .dropdown-menu { 
+    overflow: visible;
+    height: auto;
+    z-index: 9999;
+    position: absolute;
+    left: -150px;
+}
+
 ._pile {
     width: 400px;
     margin: 15px;
@@ -14,9 +22,11 @@
 }
 
 ._minicard {
+    min-height: 110px;
     padding: 15px;
     background: #fff;
     border-radius: 2px;
+    border-bottom: 1px solid #eee;
 }
 
 ._card_placeholder {

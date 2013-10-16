@@ -1,7 +1,6 @@
 <div class="_boards_container">
   <div class="_piles_container" id="__piles_container">
-    <div id="__piles_wrapper">
-      {% for p in piles %}
+    <div id="__piles_wrapper"> {% for p in piles %}
           <div class="col-md-4 _pile">
             <div class="panel panel-default">
               <div class="panel-heading _handle">
@@ -23,16 +22,18 @@
                 </div>
               </div>
             </div>
-        </div>
-      {% endfor %}
+        </div> {% endfor %}
     </div>
     <div class="clearfix"></div>
   </div>
 </div>
 
+<!-- modal for authorizing pile deletion -->
+{% include "modals/confirm_delete_pile.html" %}
+
 <script src="/js/socket.io.js"></script>
 <script src="/js/jquery-ui.js"></script>
-<script>
+<script type="text/javascript">
 var SOCKETIO_SERVER = "http://192.241.181.165:8080"
 
 function calculate_pile_container_width() {
@@ -106,6 +107,7 @@ $(document).ready(function() {
   socket.on("ready", function(data) {
       socket.emit("observe_project", {project_id: project_id});
   });
+
   socket.on("add_card", function(data) {});
   socket.on("archive_card", function(data) {});
   socket.on("reorder_cards", function(data) {});
@@ -113,8 +115,7 @@ $(document).ready(function() {
   socket.on("delete_pile", function(data) {});
   socket.on("add_pile", function(data) {});
 
-
-  // Initialize pile sorting.
+  // Initialize pile sorting:
   $("#__piles_wrapper").sortable({
     delay: 100,
     distance: 10,
@@ -133,6 +134,7 @@ $(document).ready(function() {
     }
   });
 
+  // Initialize card sorting:
   $("._cards_wrapper").sortable({
     delay: 100,
     distance: 10,
@@ -150,6 +152,17 @@ $(document).ready(function() {
     stop: function(e, ui) {
 
     }
+  });
+
+  // Handle archival of cards:
+  $("._archive_card").click(function() {
+    var card_id = $(this).data("id");
+    var url = "/project_id/" + project_id +"/card/" + card_id + "/archive";
+    $.get(url, function(data) {
+      console.log(data);
+      socket.emit('archive_card', { project_id: project_id, card_id: card_id });
+      $("._minicard[data-id=" + card_id + "]").remove();
+    });
   });
 });
 </script>

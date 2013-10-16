@@ -1095,7 +1095,7 @@ def delete_report_comment(project=None, luser=None, project_name=None,
 
 
 
-@app.route("/p/<project_name>/card/<int:card_id>/archive")
+@app.route("/project_id/<int:project_id>/card/<int:card_id>/archive")
 @check_project_privileges
 def archive(luser=None, project=None, card_id=None, **kwargs):
     """
@@ -1105,13 +1105,10 @@ def archive(luser=None, project=None, card_id=None, **kwargs):
     card.is_archived = True
     models.db.session.commit()
    
-    activity_logger.log(luser._id, project._id, card_id, "card_archive")
-
     email_notify.send_card_archived_email(card, luser)
 
-    return respond_with_json({ "status" : "success",
-                               "card_id" : card._id,
-                               "message" : "Archived card %d" % card._id })
+    return respond_with_json(activity_logger.log(luser._id, project._id, 
+      card_id, "card_archive"))
 
 
 @app.route("/p/<project_name>/cards/<int:card_id>/restore",

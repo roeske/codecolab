@@ -910,8 +910,9 @@ class Activity(db.Model, DictSerializable, FluxCapacitor):
     luser           = db.relationship("Luser")
     card            = db.relationship("Card")
 
-   
-    def describe(self, username):
+    
+    @property  
+    def description(self):
         return self.type.format % { "user_id" : self.luser_id,
                                     "username" : self.luser.profile.username,
                                     "project_name" : self.card.project.name,
@@ -940,11 +941,12 @@ class ActivityLogger(object):
 
     def log(self, luser_id, project_id, card_id, type):
         type_id = self.type_map[type]
-
         activity = Activity(luser_id=luser_id, project_id=project_id,
                             card_id=card_id, type_id=type_id)
         db.session.add(activity)
         db.session.commit()
+  
+        return activity
 
 
 ##############################################################################
