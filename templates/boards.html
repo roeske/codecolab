@@ -159,10 +159,19 @@ $(document).ready(function() {
 
   // Handle opening cards:
   $("._minicard").dblclick(function() {
+    // Increase card width.
+
     var card_id = $(this).data("id");
     var url = "/project_id/" + project_id + "/card_id/" + card_id;
     $.get(url, function(html) {
-      $(html).modal("show");
+      // prevent multiple/simultaneous instantiations of card
+      if ($("#__card").length == 0) {
+        var card = $(html);
+        card.on("hidden.bs.modal", function() {
+          card.remove();
+        });
+        card.modal("show");
+      }
     });
   });
 
@@ -180,7 +189,6 @@ $(document).ready(function() {
   // BEGIN: delete pile
   var delete_pile = function(pile) {
     var pile_id = parseInt(pile.data("id"), 10);
-
     var url = "/project_id/" + project_id + "/pile/" + pile.data("id") + "/delete";
     $.get(url, function(data) {
       console.log(data);
