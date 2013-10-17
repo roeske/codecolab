@@ -157,6 +157,13 @@ $(document).ready(function() {
     }
   });
 
+  // Ensure that TinyMCE is not blocked by bootstrap's modal.
+  $(document).on("focusin", function(e) {
+    if ($(event.target).closest(".mce-window").length) {
+      e.stopImmediatePropagation();
+    }
+  });
+
   // Handle opening cards:
   $("._minicard").dblclick(function() {
     // Increase card width.
@@ -164,14 +171,55 @@ $(document).ready(function() {
     var card_id = $(this).data("id");
     var url = "/project_id/" + project_id + "/card_id/" + card_id;
     $.get(url, function(html) {
-      // prevent multiple/simultaneous instantiations of card
-      if ($("#__card").length == 0) {
+        // prevent multiple/simultaneous instantiations of card
         var card = $(html);
+        card.find(".modal-dialog").width(screen.width * .7);
+
         card.on("hidden.bs.modal", function() {
           card.remove();
         });
+
+        card.on("shown.bs.modal", function() {
+
+          // Set up title editor    
+          tinymce.init({
+            selector: "#__card_title.editable",
+            inline: true,
+            toolbar: false,
+            menubar: false,
+          });
+
+          // Enable single line editing for titles.
+          //---------------------------------------
+
+          // Unbind the original keydown, as it has special logic to handle
+          // the enter key which will interfere.
+          tinymce.activeEditor.off("keydown");
+
+          // Bind a new keydown that filters out enter and instead
+          // fires the blur event.
+          tinymce.activeEditor.on("keydown", function(e) {
+            // detect when enter is pressed.
+            if (e.keyCode == 13 || e.keyCode == 10) {
+              // prevent the enter key from echoing.
+              e.preventDefault();
+              // fire the blur event to stop editing
+              $("#__card_title").blur();
+            }
+          });
+ 
+          tinymce.init({
+            selector: "textarea",
+            width: '80%',
+            height: 400,
+            plugins: "link",
+            statusbar: false,
+            menubar: false,
+            toolbar: "link"
+          });
+        });
+
         card.modal("show");
-      }
     });
   });
 

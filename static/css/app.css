@@ -1,3 +1,7 @@
+#__card_title {
+    width: 90%;
+}
+
 ._card_feature {
     padding: 15px;
 }
@@ -71,6 +75,10 @@
     margin-right: 15px;
     -webkit-flex: 1;
     flex: 1;
+}
+
+#__card .modal-body {
+    min-height: 500px;
 }
 
 #__card_body_left {

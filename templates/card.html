@@ -4,13 +4,16 @@
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title">
-          <span id="__card_editable_title" class="editable text">{{ card.text }}</span>
+          <div id="__card_title" class="editable text">{{ card.text }}</div>
       </div>
       <div class="modal-body">
         <div id="__card_body_container" class="_flexrow">
           <div id="__card_body_left" class="row">
             <div class="col-md-12">
               <h5>Description</h5>
+              <form action="" method="POST">
+                <textarea name="content" style="height: 600px; width: 600px;"></textarea>
+              </form>
             </div>
 
             <div class="col-md-12">
@@ -43,119 +46,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <!-- example buttons 
-        <button id="__btn_delete_pile" type="button" class="btn btn-danger" data-dismiss="modal">Delete</button>
-        <button id="__btn_cancel" type="button" class="btn btn-primary">Cancel</button>
-        -->
       </div>
     </div>
   </div>
 </div>
 
-
-{% if 0 %}
-<div class="card modal fade">
-  <div class="card_left">
-    <div>
-      <h3 class="card_section_header expanded">Title</h3>
-      <div class="card_section_body">
-        <div  style="margin-top: 10px; line-height: 26px; min-height: 26px;" 
-        <div class="clear"></div>
-      </div>
-    </div>
-
-    <div style="margin-top: 10px;">
-      <h3 style="margin-bottom: 10px;" class="card_section_header expanded">Description</h3>
-      <div class="card_section_body">
-        <div class="wmd-panel">
-          <div style="display: none;" id="editor_container">
-            <div id="wmd-button-bar"></div>
-            <textarea class="wmd-input" id="wmd-input">{{ card.description }}</textarea>
-          </div>
-          <div class="wmd-preview" id="wmd-preview"></div>
-        </div>
-
-        <div class="editor_hint">
-          <a style="float: right;" class="save btn" href="#">Edit</a>
-          <div class="clear"></div>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      {% include 'card_comments.html' %}
-    </div>
-
-    <div>
-      <h3 class="card_section_header expanded">Attachments</h3>
-      <div class="card_section_body">
-        {% include "card_attachments.html" %}
-        <form class="attachment_form">
-          <ul class="structural">
-            <li> 
-              <input id="{{ card._id }}_file_input" type="file" name="file" id="file"/>
-              <input style="float: right" class="btn" value="Choose File" type="button" id="{{ card._id }}_file_input_button" />
-
-              <div class="clear"></div>
-              <div id="{{ card._id }}_progress" class="progress">
-                <p class="progress-text">&nbsp;</p>
-                <div class="progress-bar-container">
-                    <div class="progress-bar"></div>
-                </div> 
-              </div>
-            </li>
-          </ul>
-        </form>
-      </div>
-    </div>
-
-  </div> <!-- /left -->
-
-  <div class="card_right">
-    <ul class="structural">
-      <li>
-        {% include "card/_complete_button.html" %}
-      </li>
-      <li>
-        {% include "card/_subscribe_button.html" %}
-      </li>
-      <li>
-        {% include "card/_due_date.html" %}
-      </li>
-      <li class="card_section">
-        {% include "card/_difficulty.html" %}
-        <div class="clear"></div>
-      </li>
-      <li class="card_section">
-        {% include "card/_milestone.html" %}
-      </li>
-      <li id="card_tags_section" class="card_section">
-        {% include "card/_tags.html" %}
-      </li>
-      <li id="card_assign_section" class="card_section">
-        {% include "card/_assign.html" %}
-      </li>
-    </ul>
-  </div>
-  <div class="clear"></div>
-</div> 
-<script> 
-$(document).ready(function() {
-  // Allow clicking on the header to hide and show card sections. 
-  $(".card_section_header").each(function(i, val) {
-    $(val).click(function() {
-        var header = $(this);
-        header.next(".card_section_body").toggle();
-
-        if (header.hasClass("expanded")) {
-          header.removeClass("expanded");
-          header.addClass("collapsed");
-        } else {
-          header.addClass("expanded");
-          header.removeClass("collapsed");
-        }
-    });
-  });
-});
-</script>
-{% endif %}

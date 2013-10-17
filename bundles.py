@@ -18,4 +18,5 @@ def register(app):
                        "js/socket.io.js",
                        "js/jquery-ui.js",
                         output="gen/boards_js.js") 
+
     assets.register("boards_js", boards_js)
