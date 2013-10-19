@@ -1,3 +1,7 @@
+._cards_wrapper {
+    min-height: 139px;
+}
+
 #__card_title {
     width: 90%;
 }
