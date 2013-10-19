@@ -1088,40 +1088,23 @@ def card_assign_to(project=None, card_id=None, **kwargs):
     return respond_with_json({ "status" : "success" })
 
 
-@app.route("/p/<int:project_id>/cards/edit/<int:card_id>", methods=["POST"])
+@app.route("/project_id/<int:project_id>/card_id/<int:card_id>/description",
+           methods=["POST"])
 @check_project_privileges
-def card_edit(project=None, luser=None, project_name=None,card_id=None,
-              **kwargs):
+def post_card_description(project_id, card_id, luser=None, **kwargs):
     """
     Allow editing of card properties from within the modal.
     """
-    # Here we enumerate properties that can possibly be edited. Only
-    # one is sent at a time.
-    is_description = False
-    if "text" in request.form:
-        value = request.form["text"].strip()
-    elif "description" in request.form:
-        is_description = True
-        value = request.form["description"].strip()
-    else:
-        flask.abort(400)
-
-    card = (models.Card.query.filter(and_(models.Card._id==card_id,
-                models.Card.project_id==project._id)).one())
-
-    if is_description:
-        card.description = value
-    else:
-        card.text = value
-
+    card = (Card.query.filter(and_(models.Card._id==card_id,
+                models.Card.project_id==project_id)).one())
+    card.description = request.form.get("description", "")
     models.db.session.commit()
-
-    activity_logger.log(luser._id, project._id, card_id, "card_edit")
-
+    
+    activity_logger.log(luser._id, project_id, card_id, "card_edit")
     email_notify.send_card_edit_email(card, luser.profile.username,
-        is_description, value)
+        True, card.description)
 
-    return value
+    return respond_with_json({ "status" : "success" })
 
 
 def edit_comment(Comment, luser, comment_id):

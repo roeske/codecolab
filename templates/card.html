@@ -9,36 +9,39 @@
       <div class="modal-body">
         <div id="__card_body_container" class="_flexrow">
           <div id="__card_body_left" class="row">
-            <div class="col-md-12">
-              <h5>Description</h5>
-              <form action="" method="POST">
-                <textarea name="content" style="height: 600px; width: 600px;"></textarea>
-              </form>
+            <div class="clearfix _description_container _card_section">
+              <div id="__card_description" data-placeholder="Edit card description...">
+              {% autoescape off %}
+                {{ card.description }} 
+              {% endautoescape %}
+              </div>
+              <a class="btn btn-primary pull-right" href="#" 
+                  id="__card_description_btn_save">Save</a>
             </div>
 
-            <div class="col-md-12">
-              <h5>Comments</h5>
+            <div class="_card_section">
+              <h4>Comments</h4>
             </div>
 
-            <div class="col-md-12">
-              <h5>Attachments</h5>
+            <div class="_card_section">
+              <h4>Attachments</h4>
             </div>
           </div>
           <div id="__card_body_right" class="row">
              <div class="col-md-12 _card_feature">
-              <button id="__btn_toggle_complete" type="button" class="btn">
+              <button id="__btn_toggle_complete" type="button" class="btn btn-primary">
                 Complete
               </button>
             </div>
 
             <div class="col-md-12 _card_feature">
-              <button id="__btn_toggle_subscription" type="button" class="btn">
+              <button id="__btn_toggle_subscription" type="button" class="btn btn-primary">
                 Subscribe
               </button>
             </div>
 
             <div class="col-md-12 _card_feature">
-              <button id="__btn_set_due_date" type="button" class="btn">
+              <button id="__btn_set_due_date" type="button" class="btn btn-primary">
                 Due Date
               </button>
             </div>
