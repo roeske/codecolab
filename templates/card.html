@@ -4,7 +4,7 @@
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title">
-          <div id="__card_title" class="editable text">{{ card.text }}</div>
+          <div id="__card_title" class="editable text">{% autoescape off %}{{ card.text }}{% endautoescape %}</div>
       </div>
       <div class="modal-body">
         <div id="__card_body_container" class="_flexrow">

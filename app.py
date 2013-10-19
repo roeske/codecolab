@@ -1088,6 +1088,25 @@ def card_assign_to(project=None, card_id=None, **kwargs):
     return respond_with_json({ "status" : "success" })
 
 
+@app.route("/project_id/<int:project_id>/card_id/<int:card_id>/text",
+           methods=["POST"])
+@check_project_privileges
+def post_card_text(project_id, card_id, luser=None, **kwargs):
+    """
+    Allow editing of card properties from within the modal.
+    """
+    card = (Card.query.filter(and_(models.Card._id==card_id,
+                models.Card.project_id==project_id)).one())
+    card.text = request.form.get("text", "")
+    models.db.session.commit()
+    
+    activity_logger.log(luser._id, project_id, card_id, "card_edit")
+    email_notify.send_card_edit_email(card, luser.profile.username,
+        True, card.text)
+
+    return respond_with_json({ "status" : "success" })
+
+
 @app.route("/project_id/<int:project_id>/card_id/<int:card_id>/description",
            methods=["POST"])
 @check_project_privileges

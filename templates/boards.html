@@ -195,6 +195,15 @@ $(document).ready(function() {
           // the enter key which will interfere.
           tinymce.activeEditor.off("keydown");
 
+          $("#__card_title").blur(function() {
+              var text = $(this).text().trim();
+              $.post("/project_id/"+project_id+"/card_id/"+card_id+"/text",
+                { text : text}, function(data) {
+                console.log(data);
+              });
+              $("._minicard[data-id=" + card_id + "]").find("._minicard_title").text(text);
+          });
+
           // Bind a new keydown that filters out enter and instead
           // fires the blur event.
           tinymce.activeEditor.on("keydown", function(e) {
@@ -204,6 +213,7 @@ $(document).ready(function() {
               e.preventDefault();
               // fire the blur event to stop editing
               $("#__card_title").blur();
+
             }
           });
 
