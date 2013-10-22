@@ -29,6 +29,8 @@
   </div>
 </div>
 
+<div id="__card_target"></div>
+
 <!-- modal for authorizing pile deletion -->
 {% include "modals/confirm_delete_pile.html" %}
 
@@ -89,6 +91,111 @@ function update_board_dimensions() {
   var height = get_height_of_tallest_pile();
   $("#__piles_wrapper").height(height);
   $("._pile").height(height);
+}
+
+function show_card(card) {
+  card.find(".modal-dialog").width(865);
+  card.on("hidden.bs.modal", function() {
+    card.remove();
+    $("#__card_target").children().remove(); 
+  });
+
+  card.on("shown.bs.modal", function() {
+    // Set up title editor    
+    tinymce.init({
+      selector: "#__card_title.editable",
+      inline: true,
+      toolbar: false,
+      menubar: false,
+    });
+
+    tinymce.activeEditor.off("keydown");
+    
+    $("#__card_title").blur(function() {
+        var text = $(this).text().trim();
+        $.post("/project_id/"+project_id+"/card_id/"+card_id+"/text",
+          { text : text}, function(data) {
+          console.log(data);
+        });
+        $("._minicard[data-id=" + card_id + "]").find("._minicard_title").text(text);
+    });
+
+    // Bind a new keydown that filters out enter and instead
+    // fires the blur event.
+    tinymce.activeEditor.on("keydown", function(e) {
+      // detect when enter is pressed.
+      if (e.keyCode == 13 || e.keyCode == 10) {
+        // prevent the enter key from echoing.
+        e.preventDefault();
+        // fire the blur event to stop editing
+        $("#__card_title").blur();
+      }
+    });
+  });
+
+  // When the user clicks the editor, we don't want the text to be
+  // the color of the placeholder.
+  $("#__card_description").click(function() {
+      $(this).removeClass("_placeholder"); 
+      $("#__card_description_btn_save").show();
+  });
+
+  var occupy_description = function() {
+    var description = $("#__card_description"); 
+    var description_html = description.html().trim();
+
+    // This is the best we can do for now for displaying the empty message. We
+    // need to figure out a way to get tinymce to strip extraneous whitespace and
+    // linebreaks.
+    if (description.html().match("<p><br data-mce-bogus.*></p>") ||
+        description.html().trim() == "") {
+        description.html("");
+      // show the placeholder text.
+      description.addClass("_placeholder");   
+    } else {
+      // hide the placeholder text.
+      description.removeClass("_placeholder"); 
+    }
+  };
+  occupy_description();
+
+  // Save when the user clicks out, or when they click save.
+  $("#__card_description").blur(function(e) {
+    console.log(e.relatedTarget);
+    if (e.relatedTarget == null || $(e.relatedTarget).attr("id") == "__card_title" ||
+        $(e.relatedTarget).attr("id") == "__card_description_btn_save") {
+      $("#__card_description_btn_save").hide();
+      occupy_description();
+      var html = $("#__card_description").html();
+      console.log(html);
+      $.post("/project_id/"+project_id+"/card_id/"+card_id+"/description",
+             { description: html },
+             function(data) {
+        console.log(data);
+      });
+    }
+  });
+
+  $("#__card_description_save").click(function() {
+    $("#__card_description").blur();
+  });
+
+  tinymce.init({
+    selector: "#__card_description",
+    width: 570,
+    height: 400,
+    plugins:  [
+["advlist autolink link lists charmap preview hr anchor pagebreak spellchecker"],
+["searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime nonbreaking"],
+["table contextmenu directionality emoticons template paste"]
+    ],
+    statusbar: false,
+    menubar: false,
+    toolbar: "undo redo | styleselect | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | link ",
+    inline: true,
+  });
+
+  card.modal("show");
 }
 
 $(document).ready(function() { 
@@ -167,120 +274,10 @@ $(document).ready(function() {
   // Handle opening cards:
   $("._minicard").dblclick(function() {
     // Increase card width.
-
     var card_id = $(this).data("id");
     var url = "/project_id/" + project_id + "/card_id/" + card_id;
-    $.get(url, function(html) {
-        // prevent multiple/simultaneous instantiations of card
-        var card = $(html);
-        card.find(".modal-dialog").width(865);
-
-        card.on("hidden.bs.modal", function() {
-          card.remove();
-        });
-
-        card.on("shown.bs.modal", function() {
-          // Set up title editor    
-          tinymce.init({
-            selector: "#__card_title.editable",
-            inline: true,
-            toolbar: false,
-            menubar: false,
-          });
-
-          // Enable single line editing for titles.
-          //---------------------------------------
-
-          // Unbind the original keydown, as it has special logic to handle
-          // the enter key which will interfere.
-          tinymce.activeEditor.off("keydown");
-
-          $("#__card_title").blur(function() {
-              var text = $(this).text().trim();
-              $.post("/project_id/"+project_id+"/card_id/"+card_id+"/text",
-                { text : text}, function(data) {
-                console.log(data);
-              });
-              $("._minicard[data-id=" + card_id + "]").find("._minicard_title").text(text);
-          });
-
-          // Bind a new keydown that filters out enter and instead
-          // fires the blur event.
-          tinymce.activeEditor.on("keydown", function(e) {
-            // detect when enter is pressed.
-            if (e.keyCode == 13 || e.keyCode == 10) {
-              // prevent the enter key from echoing.
-              e.preventDefault();
-              // fire the blur event to stop editing
-              $("#__card_title").blur();
-
-            }
-          });
-
-          // When the user clicks the editor, we don't want the text to be
-          // the color of the placeholder.
-          $("#__card_description").click(function() {
-              $(this).removeClass("_placeholder"); 
-              $("#__card_description_btn_save").show();
-          });
-
-          var occupy_description = function() {
-            var description = $("#__card_description"); 
-            var description_html = description.html().trim();
-
-            // This is the best we can do for now for displaying the empty message. We
-            // need to figure out a way to get tinymce to strip extraneous whitespace and
-            // linebreaks.
-            if (description.html().match("<p><br data-mce-bogus.*></p>") ||
-                description.html().trim() == "") {
-                description.html("");
-              // show the placeholder text.
-              description.addClass("_placeholder");   
-            } else {
-              // hide the placeholder text.
-              description.removeClass("_placeholder"); 
-            }
-          };
-          occupy_description();
-
-          // Save when the user clicks out, or when they click save.
-          $("#__card_description").blur(function(e) {
-            console.log(e.relatedTarget);
-            if (e.relatedTarget == null || $(e.relatedTarget).attr("id") == "__card_title" ||
-                $(e.relatedTarget).attr("id") == "__card_description_btn_save") {
-              $("#__card_description_btn_save").hide();
-              occupy_description();
-              var html = $("#__card_description").html();
-              console.log(html);
-              $.post("/project_id/"+project_id+"/card_id/"+card_id+"/description",
-                     { description: html },
-                     function(data) {
-                console.log(data);
-              });
-            }
-          });
-
-          $("#__card_description_save").click(function() {
-            $("#__card_description").blur();
-          });
-
-          tinymce.init({
-            selector: "#__card_description",
-            width: 570,
-            height: 400,
-            plugins:  [
-["advlist autolink link lists charmap preview hr anchor pagebreak spellchecker"],
-["searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime nonbreaking"],
-["table contextmenu directionality emoticons template paste"]
-            ],
-            statusbar: false,
-            menubar: false,
-            toolbar: "undo redo | styleselect | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | link ",
-            inline: true,
-          });
-        });
-
-        card.modal("show");
+    $("#__card_target").load(url, function() {
+      show_card($(this).find(".modal"));
     });
   });
 
@@ -331,6 +328,5 @@ $(document).ready(function() {
       delete_pile(pile); 
     }
   });
-  // END: delete pile
 });
 </script>

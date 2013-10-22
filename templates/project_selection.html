@@ -33,6 +33,7 @@
 </div>
 </div> 
 {% include "footer.html" %}
+
 <script src="//tinymce.cachefly.net/4.0/tinymce.min.js"></script>
 <script type="text/javascript">
 $(".container").css("max-width", "none");
@@ -57,11 +58,7 @@ function update_selection_dimensions() {
 }
 
 function load_project_page(tab, project_id) {
-  $.get("/project_id/" + project_id + "/" + tab, function(data) {
-    $("#__project_page_container").html(data);
-  }).fail(function() {
-    cc_alert("error loading page.");
-  });
+  $("#__project_page_container").load("/project_id/" + project_id + "/" + tab);
 }
 
 

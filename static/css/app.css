@@ -1,3 +1,51 @@
+._empty_msg {
+    color: #aaa;
+    font-size: 1.3em;
+    padding: 10px;
+}
+
+textarea {
+    border: 1px solid #ccc;
+}
+
+._comment {
+    padding-bottom: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #ccc;
+}
+
+._comment:last-child {
+    margin-bottom: 15px;
+}
+
+._comment > .clearfix {
+    display: -webkit-flex;
+    display: flex;
+}
+
+._comment_left {
+    text-align: center;
+}
+
+._comment_left > * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+._comment_right {
+    flex: 1;
+    margin-left: 15px;
+}
+
+#__card_cancel_comment_btn {
+    margin-right: 10px;
+}
+
+#__card_comment_input {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
 #__card .modal-header {
     padding-bottom: 15px !important;
     border-bottom: none;

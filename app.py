@@ -892,24 +892,19 @@ def delete_attachment(attachment_id, luser=None, **kwargs):
     return respond_with_json({ "status" : "success" })
 
 
-@app.route("/p/<int:project_id>/cards/<int:card_id>/comment", methods=["POST"])
+###############################################################################
+## Card Comments
+##############################################################################
+
+@app.route("/project_id/<int:project_id>/card_id/<int:card_id>/comment", 
+    methods=["POST"])
 @check_project_privileges
-def cards_comment(project_name=None, luser=None, project=None, card_id=None,
-                  **kwargs):
-    """
-    Update the database when a user posts a comment.
-    """
-
+def post_card_comment(luser=None, project=None, card_id=None, **kwargs):
     text = request.form["text"].encode("UTF-8").strip()
-
     comment = models.CardComment(card_id=card_id, luser_id=luser._id, 
                                  text=text)
     models.db.session.add(comment)
     models.db.session.commit()
-
-    comments = (models.CardComment.query.filter_by(card_id=card_id)
-                      .order_by(models.CardComment.created.desc())
-                      .all())
 
     comment_delete_url = "/p/%s/comment/delete/" % project.name
     comment_edit_url = "/p/%s/comments/edit/" % project.name
@@ -919,93 +914,53 @@ def cards_comment(project_name=None, luser=None, project=None, card_id=None,
     email_notify.send_card_comment_email(comment.card,
         luser.profile.username, comment.text, comment.card.text)
 
-    return flask.render_template("comments.html", 
-                comments=comments, luser=luser,
-                comment_delete_url=comment_delete_url,
-                comment_edit_url=comment_edit_url)
+    return flask.render_template("comment.html", comment=comment, luser=luser,
+        comment_delete_url=comment_delete_url, comment_edit_url=comment_edit_url)
 
 
-@app.route("/p/<int:project_id>/report/edit/<int:report_id>",
-    methods=["GET", "POST"])
+@app.route("/project_id/<int:project_id>/card_id/<int:card_id>/comment_id"
+           "/<int:comment_id>/delete", methods=["GET"])
 @check_project_privileges
-def report_edit(report_id, luser=None, **kwargs):
-    report = (models.MemberReport.query
-                    .filter_by(_id=report_id,luser_id=luser._id)
-                    .first())
-    if request.method == "POST":
-        report.text = request.form.get("text", "").strip()
-        models.db.session.commit()
+def delete_card_comment(luser=None, project=None, card_id=None, 
+                        comment_id=None, **kwargs):
+    comment = CardComment.query.filter_by(_id=comment_id).one()
 
-        resp = flask.render_template_string("{{ text|markdown }}",
-                                            text=report.text)
-        return resp
-    else:
-        return report.text
+    if luser._id != comment.luser_id:
+        return respond_with_json({ "status" : "failure",
+                                    "reason" : "no permission." })
+
+    db.session.delete(comment)
+    db.session.commit()
+
+    return respond_with_json({ "status" : "success" })
 
 
-@app.route("/p/<int:project_id>/reports/<int:report_id>/comment",
-    methods=["POST"])
-@check_project_privileges
-def reports_comment(project_name=None, project=None, luser=None, 
-    report_id=None, **kwargs):
+"""
+def edit_comment(Comment, luser, comment_id):
+    value = request.form.get("text", "").strip()
 
-    text = request.form["text"].encode("UTF-8").strip()
-
-    comment = models.ReportComment(report_id=report_id, luser_id=luser._id,
-                                   text=text)
-    models.db.session.add(comment)
-    models.db.session.commit()
-
-    comment_delete_url = "/project/%s/report-comments/delete/" % project_name
-    comment_edit_url = "/project/%s/report-comments/edit/" % project_name
-
-    comments = (models.ReportComment.query.filter_by(report_id=report_id)
-                      .order_by(models.ReportComment.created.desc())
-                      .all())
-
-    email_notify.send_report_comment_email(project,
-         luser.profile.username, comment.text, comment.report.subject)
-                                    
-    return flask.render_template("comments.html", luser=luser,
-                                 comment_delete_url=comment_delete_url,
-                                 comment_edit_url=comment_edit_url,
-                                 comments=comments) 
-
-## TODO: refactor/modularize this
-
-def delete_comment(Comment, comment_id):
-    comment = Comment.query.filter_by(_id=comment_id).first()
-    models.db.session.delete(comment)
+    comment = (Comment.query.filter(and_(Comment._id==comment_id,
+                                        Comment.luser_id==luser._id))
+                .first())
+    comment.text = value
     models.db.session.commit()
     return comment
 
 
-@app.route("/p/<int:project_id>/comment/delete/<int:comment_id>",
-           methods=["POST"])
+@app.route("/p/<int:project_id>/comments/edit/<int:comment_id>", methods=["POST"])
 @check_project_privileges
-def delete_card_comment(project=None, luser=None, project_name=None,
-                   comment_id=None, **kwargs):
-    """
-    Delete a comment.
-    """
-    comment = delete_comment(models.CardComment, comment_id)
-    card_id = comment.card._id
-    activity_logger.log(luser._id, project._id, card_id, "card_comment_delete")
-    return respond_with_json({ "status" : "success" })
+def edit_card_comment(project=None, luser=None, project_name=None, 
+                        comment_id=None, **kwargs):
+
+    comment = edit_comment(models.CardComment, luser, comment_id)
+    activity_logger.log(luser._id, project._id, comment.card_id, 
+                        "edit_comment")
+    return comment.text
+
+"""
 
 
-@app.route("/p/<int:project_id>/report-comments/delete/<int:comment_id>",
-           methods=["POST"])
-@check_project_privileges
-def delete_report_comment(project=None, luser=None, project_name=None,
-                   comment_id=None, **kwargs):
-    """
-    Delete a comment.
-    """
-    delete_comment(models.ReportComment, comment_id)
-    return respond_with_json({ "status" : "success" })
-
-
+###############################################################################
 
 @app.route("/project_id/<int:project_id>/card/<int:card_id>/archive")
 @check_project_privileges
@@ -1124,28 +1079,6 @@ def post_card_description(project_id, card_id, luser=None, **kwargs):
         True, card.description)
 
     return respond_with_json({ "status" : "success" })
-
-
-def edit_comment(Comment, luser, comment_id):
-    value = request.form.get("text", "").strip()
-
-    comment = (Comment.query.filter(and_(Comment._id==comment_id,
-                                        Comment.luser_id==luser._id))
-                .first())
-    comment.text = value
-    models.db.session.commit()
-    return comment
-
-
-@app.route("/p/<int:project_id>/comments/edit/<int:comment_id>", methods=["POST"])
-@check_project_privileges
-def edit_card_comment(project=None, luser=None, project_name=None, 
-                        comment_id=None, **kwargs):
-
-    comment = edit_comment(models.CardComment, luser, comment_id)
-    activity_logger.log(luser._id, project._id, comment.card_id, 
-                        "edit_comment")
-    return comment.text
 
 
 @app.route("/p/<int:project_id>/report-comments/edit/<int:comment_id>", methods=["POST"])

@@ -1,0 +1,36 @@
+<div class="_comment clearfix" data-id="{{ comment._id }}">
+  <div class="clearfix">
+    <div class="_comment_left">
+      <img src="{{ comment.luser.tiny_gravatar_url }}" />
+    </div>
+
+    <div class="_comment_right">
+      <p class="username">
+        {% if comment.luser._id == luser._id %}
+          {% set mine = "" %}
+        {% else %}
+          {% set mine = "_notmine" %}
+        {% endif %}
+        <a class="profile_link{{ mine }}" href="/profile/{{ comment.luser._id }}">@{{ comment.luser.profile.username }}</a>
+      </p>
+      <!-- comment -->
+      <p data-comment-id="{{ comment._id }}" id="editable_comment_{{ comment._id }}" class="quoted comment_text {% if comment.luser._id == luser._id %} editable_comment {% endif %}">{{ comment.text }}</p>
+
+    </div>
+  </div>
+
+  <div style="width: 100%;">
+    <div class="pull-left">
+      <small class="timestamp"> {{ comment.created_as_timezone(luser.profile.timezone) }}
+      </small>
+    </div>
+    <!-- /comment -->
+    <div class="pull-right">
+    {% if comment.luser._id == luser._id %}
+      <i class="_comment_edit_btn glyphicon glyphicon-edit"></i>
+      <i class="_comment_delete_btn glyphicon glyphicon-trash"></i>
+    {% endif %}
+    </div>
+  </div>
+  <div class="clearfix"></div>
+</div>

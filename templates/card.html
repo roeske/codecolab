@@ -21,6 +21,33 @@
 
             <div class="_card_section">
               <h4>Comments</h4>
+              <p {% if card.comments|length != 0 %}
+                style="display: none;" {% endif %} 
+              class="_empty_msg" id="__card_comments_empty_msg">
+              No comments.
+              </p>
+
+              <div id="__card_comments_container">
+                {% for comment in card.comments %}
+                  {% include "comment.html" %}
+                {% endfor %}
+              </div>
+              <div class="pull-right">
+                <button class="btn btn-sm btn-primary" id="__card_toggle_comment">
+                  Comment
+                </button>
+              </div>
+              <div class="clearfix"></div>
+              <div class="clearfix" style="display: none;" id="__card_comment_form_container">
+              <div id="__card_comment_input_container" class="form-group">
+                <textarea class="_card_comment_input form-control" id="__card_comment_input"></textarea>
+              </div>
+                <a class="btn btn-sm btn-success pull-right" href="#" 
+                  id="__card_comment_btn">Comment</a>
+
+                <a class="btn btn-sm btn-danger pull-right" href="#" 
+                  id="__card_cancel_comment_btn">Cancel</a>
+              </div>
             </div>
 
             <div class="_card_section">
@@ -53,4 +80,82 @@
     </div>
   </div>
 </div>
+<script type="text/javascript">
+$(document).ready(function() {
+  // <jinja2>
+  var project_id = {{ project._id }};
+  var card_id = {{ card._id }};
+  // </jinja2>
 
+  var _toggle_comment_form = function() {
+    $("#__card_comment_input_container").removeClass("has-error");
+    $("#__card_comment_input").val("");
+    $("#__card_toggle_comment").toggle();
+    $("#__card_comment_form_container").toggle();
+    return false;
+  };
+  $("#__card_toggle_comment").click(_toggle_comment_form);
+  $("#__card_cancel_comment_btn").click(_toggle_comment_form);
+
+  var _update_empty_state = function() {
+    var len = $("#__card_comments_container").children().length;
+    if (len != 0) {
+      $("#__card_comments_empty_msg").hide();
+    } else {
+      $("#__card_comments_empty_msg").show();
+    }
+  };
+
+  // <event type="delete">
+  var _card_comment_delete_click = function() {
+    var comment = $(this).closest("._comment");
+    var comment_id = comment.data("id");
+    comment.remove();
+    _update_empty_state();
+    var url = "/project_id/" + project_id + "/card_id/" + card_id + "/comment_id/" +
+              comment_id + "/delete";
+    $.get(url, function(data) {
+      console.log(data);
+    });
+  };
+  $("._comment_delete_btn").click(_card_comment_delete_click);
+  // </event>
+
+  // <event type="edit">
+  var _card_comment_edit_click = function() {
+    var url = "/project_id/" + project_id + "/card_id/" + card_id + "/comment_id/" +
+              comment_id;
+  };
+  $("._comment_edit_btn").click(_card_comment_edit_click);
+  // </event>
+
+  // <event type="post">
+  $("#__card_comment_btn").click(function() {
+    $("#__card_comment_input_container").removeClass("has-error");
+
+    var url = "/project_id/" + project_id + "/card_id/" + card_id + "/comment";
+    var text = $("#__card_comment_input").val()
+
+    if (text.trim() == "") {
+      $("#__card_comment_input_container").addClass("has-error"); 
+      return false;
+    }
+
+    $.post(url, { text: text }, function(html) {
+      // show comment at the top
+      $("#__card_comments_container").prepend(html);
+      
+      // connect event handlers to new comment
+      $("._comment_delete_btn").first().click(_card_comment_delete_click);
+      $("._comment_edit_btn").first().click(_card_comment_edit_click);
+
+      // clear text input and hide
+      _toggle_comment_form();
+
+      // remove empty message
+      _update_empty_state();
+    });
+  });
+  // </event>
+});
+</script>
