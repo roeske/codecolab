@@ -11,6 +11,9 @@ textarea {
 ._comment {
     padding-bottom: 10px;
     padding-top: 10px;
+}
+
+._comment:not(:first-child) {
     border-top: 1px solid #ccc;
 }
 
