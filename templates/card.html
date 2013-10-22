@@ -85,6 +85,7 @@ $(document).ready(function() {
   // <jinja2>
   var project_id = {{ project._id }};
   var card_id = {{ card._id }};
+  var luser_id = {{ luser._id }};
   // </jinja2>
 
   var _toggle_comment_form = function() {
@@ -122,11 +123,47 @@ $(document).ready(function() {
   // </event>
 
   // <event type="edit">
+
+  // Sets up tinymce inline editor on a single comment.
+  var _card_comment_tinymce_setup = function(luser_id, comment_id) {
+    tinymce.init({
+      // Only click tos edit on comments that we own.
+      selector: "._comment_text_" + luser_id + "_" + comment_id,
+      inline: true,
+      toolbar: false,
+      menubar: false,
+    });
+  };
+
+  // Connect existing comments to editor.
+  $("._comment").each(function() {
+    var comment_id = $(this).data("id");
+    console.log(comment_id);
+    _card_comment_tinymce_setup(luser_id, comment_id);
+  });
+
+  // Shows the tinymce inline editor programmatically
   var _card_comment_edit_click = function() {
-    var url = "/project_id/" + project_id + "/card_id/" + card_id + "/comment_id/" +
-              comment_id;
+    $(this).closest("._comment").find("._comment_text").focus();
+    var editor = tinymce.activeEditor;
+    editor.select(editor.getBody(), true);
+    editor.selection.collapse(false);
   };
   $("._comment_edit_btn").click(_card_comment_edit_click);
+
+  // Saves the contents of the tinymce inline editor.
+  var _card_comment_edit_blur = function() {
+    var comment_id = $(this).closest("._comment").data("id");
+    var text = $(this).text();
+    var url = "/project_id/" + project_id + "/card_id/" + card_id + "/comment_id/"
+              + comment_id + "/edit";
+    $.post(url, { text: text }, function(data) {
+      console.log(data);
+    });
+  };
+  $("._comment_text").blur(_card_comment_edit_blur);
+
+
   // </event>
 
   // <event type="post">
@@ -148,7 +185,9 @@ $(document).ready(function() {
       // connect event handlers to new comment
       $("._comment_delete_btn").first().click(_card_comment_delete_click);
       $("._comment_edit_btn").first().click(_card_comment_edit_click);
-
+      $("._comment_text").first().blur(_card_comment_edit_blur);
+      _card_comment_tinymce_setup(luser_id, $("._comment").first().data("id"));
+      
       // clear text input and hide
       _toggle_comment_form();
 

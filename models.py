@@ -941,6 +941,7 @@ class ActivityLogger(object):
 
     def log(self, luser_id, project_id, card_id, type):
         type_id = self.type_map[type]
+
         activity = Activity(luser_id=luser_id, project_id=project_id,
                             card_id=card_id, type_id=type_id)
         db.session.add(activity)

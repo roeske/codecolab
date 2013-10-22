@@ -14,8 +14,9 @@
         <a class="profile_link{{ mine }}" href="/profile/{{ comment.luser._id }}">@{{ comment.luser.profile.username }}</a>
       </p>
       <!-- comment -->
-      <p data-comment-id="{{ comment._id }}" id="editable_comment_{{ comment._id }}" class="quoted comment_text {% if comment.luser._id == luser._id %} editable_comment {% endif %}">{{ comment.text }}</p>
-
+      <p class="_comment_text _comment_text_{{ luser._id }}_{{ comment._id }}">
+        {{ comment.text }}
+      </p>
     </div>
   </div>
 
