@@ -93,8 +93,10 @@ function update_board_dimensions() {
   $("._pile").height(height);
 }
 
-function show_card(card) {
+function show_card(project_id, card) {
   card.find(".modal-dialog").width(865);
+  var card_id = parseInt(card.data("id"), 10);
+
   card.on("hidden.bs.modal", function() {
     card.remove();
     $("#__card_target").children().remove(); 
@@ -113,8 +115,8 @@ function show_card(card) {
     
     $("#__card_title").blur(function() {
         var text = $(this).text().trim();
-        $.post("/project_id/"+project_id+"/card_id/"+card_id+"/text",
-          { text : text}, function(data) {
+        var url = "/project_id/"+project_id+"/card_id/"+card_id+"/text";
+        $.post(url, { text : text}, function(data) {
           console.log(data);
         });
         $("._minicard[data-id=" + card_id + "]").find("._minicard_title").text(text);
@@ -277,7 +279,7 @@ $(document).ready(function() {
     var card_id = $(this).data("id");
     var url = "/project_id/" + project_id + "/card_id/" + card_id;
     $("#__card_target").load(url, function() {
-      show_card($(this).find(".modal"));
+      show_card(project_id, $(this).find(".modal"));
     });
   });
 
