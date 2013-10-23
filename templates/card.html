@@ -180,13 +180,13 @@ $(document).ready(function() {
 
     $.post(url, { text: text }, function(html) {
       // show comment at the top
-      $("#__card_comments_container").prepend(html);
+      $("#__card_comments_container").append(html);
       
       // connect event handlers to new comment
-      $("._comment_delete_btn").first().click(_card_comment_delete_click);
-      $("._comment_edit_btn").first().click(_card_comment_edit_click);
-      $("._comment_text").first().blur(_card_comment_edit_blur);
-      _card_comment_tinymce_setup(luser_id, $("._comment").first().data("id"));
+      $("._comment_delete_btn").last().click(_card_comment_delete_click);
+      $("._comment_edit_btn").last().click(_card_comment_edit_click);
+      $("._comment_text").last().blur(_card_comment_edit_blur);
+      _card_comment_tinymce_setup(luser_id, $("._comment").last().data("id"));
       
       // clear text input and hide
       _toggle_comment_form();

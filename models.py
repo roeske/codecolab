@@ -622,7 +622,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     created = db.Column(db.DateTime, default=func.now())
 
     comments = db.relationship("CardComment", cascade="all,delete",
-                                order_by=lambda: CardComment.created.desc())
+                                order_by=lambda: CardComment.created)
     attachments = db.relationship("CardFile", cascade="all,delete",
                                   order_by=lambda: CardFile.created.desc())
     subscriptions = db.relationship("CardSubscription", cascade="all,delete")
