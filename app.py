@@ -1032,12 +1032,15 @@ def post_card_text(project_id, card_id, luser=None, **kwargs):
     """
     card = (Card.query.filter(and_(models.Card._id==card_id,
                 models.Card.project_id==project_id)).one())
-    card.text = request.form.get("text", "")
-    models.db.session.commit()
-    
-    activity_logger.log(luser._id, project_id, card_id, "card_edit")
-    email_notify.send_card_edit_email(card, luser.profile.username,
-        True, card.text)
+    text = request.form.get("text", "")
+
+    # don't send emails if nothing changed.
+    if card.text.strip() != text.strip():
+        card.text = request.form.get("text", "")
+        models.db.session.commit()
+        activity_logger.log(luser._id, project_id, card_id, "card_edit")
+        email_notify.send_card_edit_email(card, luser.profile.username,
+            True, card.text)
 
     return respond_with_json({ "status" : "success" })
 
