@@ -85,14 +85,31 @@
 
           <div id="__card_body_right" class="row">
              <div class="col-md-12 _card_feature">
-              <button id="__btn_toggle_complete" type="button" class="btn btn-primary">
-                Complete
+              {% if card.is_completed %} {% set clazz = "btn-success" %} {% endif %}
+              <button id="__btn_toggle_complete" type="button" class="btn btn-primary _toggle_incomplete {{ clazz }}">
+                <span {% if card.is_completed %} style="display: none;" {% endif %} class="_false">Complete</span>
+                <span {% if not card.is_completed %} style="display: none;" {% endif %} class="_true">Incomplete</span>
               </button>
             </div>
 
+            {% set clazz = "" %}
+
             <div class="col-md-12 _card_feature">
-              <button id="__btn_toggle_subscription" type="button" class="btn btn-primary">
-                Subscribe
+              {% set is_subscribed = card.is_luser_subscribed(luser._id) %}
+              {% if is_subscribed %} {% set clazz = "btn-success" %} {% endif %}
+              <button id="__btn_toggle_subscription" type="button" class="btn btn-primary {{ clazz }}">
+                <span {% if is_subscribed %} style="display: none;" {% endif %}class="_false">Subscribe</span>
+                <span {% if not is_subscribed %} style="display: none;" {% endif %}class="_true">Unsubscribe</span>
+              </button>
+            </div>
+            
+            {% set clazz = "" %}
+
+            <div class="col-md-12 _card_feature">
+              {% if card.is_flagged %} {% set clazz = "btn-danger" %} {% endif %}
+              <button id="__btn_toggle_flag" type="button" class="btn btn-primary {{ clazz }}">
+                <span {% if card.is_flagged %} style="display: none;" {% endif %} class="_false">Flag</span>
+                <span {% if not card.is_flagged %} style="display: none;" {% endif %} class="_true">Unflag</span>
               </button>
             </div>
 
@@ -110,6 +127,7 @@
   </div>
 </div>
 
+<!-- lodash is required for the s3upload script. -->
 <script src="/js/lodash.min.js"></script>
 <script src="/js/s3upload.js"></script>
 <script src="/js/card_attachments.js"></script>
@@ -121,6 +139,64 @@ $(document).ready(function() {
   var luser_id = {{ luser._id }};
   // </jinja2>
 
+  // Factory makes functions that can handle toggle buttons, 
+  // but allows the adjustment of class to be toggled, action
+  // to be performed, and callback to be called, via
+  // a closure.
+  var _make_toggle_handler = function(clazz, action, callback) {
+    return (function() {
+      console.log("CLICK MOFO");
+      // Disable clicks to avoid putting the button in an invalid state.
+      $(this).prop("disabled", true);
+
+      $(this).find("._true").toggle();
+      $(this).find("._false").toggle();
+      
+      if ($(this).hasClass(clazz)) {
+        $(this).removeClass(clazz);
+      } else {
+        $(this).addClass(clazz);
+      }
+
+      var url = "/project_id/" + project_id + "/card_id/" + card_id + "/" + action;
+      var that = this;
+      $.get(url, function(data) {
+        console.log(data);
+        if (callback !== undefined) {
+          callback(data);
+          // The user can safely click it again, now...
+        }
+        $(that).prop("disabled", false);
+      });
+    });
+  }
+
+  // <event entity="completion" type="toggle">
+  $("#__btn_toggle_complete").click(_make_toggle_handler("btn-success", 
+    "complete", function(data) {
+
+      // Strikeout the card title if the card is complete.
+      var minicard_title = $("._minicard[data-id=\"" + card_id + "\"]").find("._minicard_title");
+      if (data.state) {
+        minicard_title.addClass("_strike"); 
+      } else {
+        minicard_title.removeClass("_strike");
+      }
+
+    }));
+  // </event>
+
+  // <event entity="subscription" type="toggle">
+  $("#__btn_toggle_subscription").click(_make_toggle_handler("btn-success", 
+    "subscribe"));
+  // </event>
+
+  // <event entity="flag" type="toggle">
+  $("#__btn_toggle_flag").click(_make_toggle_handler("btn-danger", "flag"));
+  // </event>
+
+
+  // Show and hide the comment form.
   var _toggle_comment_form = function() {
     $("#__card_comment_input_container").removeClass("has-error");
     $("#__card_comment_input").val("");
@@ -131,6 +207,7 @@ $(document).ready(function() {
   $("#__card_toggle_comment").click(_toggle_comment_form);
   $("#__card_cancel_comment_btn").click(_toggle_comment_form);
 
+  // Ensure that the "No comments..." message is displayed when there are none.
   var _update_card_comments_empty_state = function() {
     var len = $("#__card_comments_container").children().length;
     if (len != 0) {
@@ -194,8 +271,6 @@ $(document).ready(function() {
     });
   };
   $("._comment_text").blur(_card_comment_edit_blur);
-
-
   // </event>
 
   // <event entity="comment" type="post">
@@ -210,6 +285,7 @@ $(document).ready(function() {
       return false;
     }
 
+    // post a new comment
     $.post(url, { text: text }, function(html) {
       // show comment at the top
       $("#__card_comments_container").append(html);

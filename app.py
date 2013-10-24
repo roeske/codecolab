@@ -819,37 +819,82 @@ def activity(project=None, **kwargs):
 
 
 ###########################################################################
-## Cards
+## Card Toggle Buttons
 ###########################################################################
 
-@app.route("/p/<int:project_id>/<int:card_id>/subscribe", methods=["GET"])
+@app.route("/project_id/<int:project_id>/card_id/<int:card_id>/complete")
 @check_project_privileges
-def card_subscribe(card_id=None, luser=None, project=None, **kwargs):
+def toggle_card_complete(project=None, card_id=None, luser=None, **kwargs):
+    """
+    Facilitate the toggling of the Card's "is_completed" state.
+    """
+    # Update the is_complete boolean
+    card = models.Card.query.filter_by(_id=card_id).first()
+    card.is_completed = not card.is_completed
+    models.db.session.flush()
+
+    # Also insert or delete a CardCompletion object, for the charts.
+    card_completion = (models.CardCompletions.query
+        .filter_by(card_id=card_id).first())
+
+    # If the card is complete, and there is no entry in the card
+    # completion table, then make one now:
+    if card.is_completed and card_completion is None:
+        card_completion = models.CardCompletions(card_id=card._id,
+                                                luser_id=luser._id)
+        models.db.session.add(card_completion)
+
+    # If the card is not complete, and an entry exists in the card
+    # completion table, then remove it.
+    elif not card.is_completed and card_completion is not None:
+        models.db.session.delete(card_completion)
+
+    models.db.session.commit()
+
+    if card.is_completed:
+        type = "card_finished"
+        email_notify.send_card_complete_email(card_completion, luser)
+    else:
+        type = "card_incomplete"
+
+    activity = activity_logger.log(luser._id, project._id, card_id, type)
+    
+    return respond_with_json({ "status" : "success",
+                               "state" : card.is_completed })
+
+
+@app.route("/project_id/<int:project_id>/card_id/<int:card_id>/flag")
+@check_project_privileges
+def toggle_card_flag(card_id=None, luser=None, project=None, **kwargs):
+    card = query_card(card_id, project._id)
+    card.is_flagged = not card.is_flagged
+    db.session.commit()
+
+    return respond_with_json({ "status" : "success",
+                               "state" : card.is_flagged })
+
+
+@app.route("/project_id/<int:project_id>/card_id/<int:card_id>/subscribe")
+@check_project_privileges
+def toggle_card_subscribe(card_id=None, luser=None, project=None, **kwargs):
     card = query_card(card_id, project._id)
     sub = models.CardSubscription.query.filter_by(luser_id=luser._id, 
                                             card_id=card_id).first()
+    state = None
     if sub is None:
         sub = models.CardSubscription(luser_id=luser._id,
                                       card_id=card_id)
         models.db.session.add(sub)
         models.db.session.commit()
-        return respond_with_json({"state" : True })
+        state = True
     else:
         models.db.session.delete(sub)
         models.db.session.commit()
-        return respond_with_json({"state" : False })
+        state = False
+    
+    return respond_with_json({ "status" : "success",
+                                "state" : state })
 
-
-def render_card(template, **kwargs):
-    card_id = kwargs["card_id"]
-    project = kwargs["project"]
-    luser_id = kwargs["luser"]._id
-
-    card = query_card(card_id, project._id)
-    is_subscribed = card.is_luser_subscribed(luser_id)
-
-    return flask.render_template(template, card=card, comments=card.comments,
-                                 is_subscribed=is_subscribed, **kwargs)
 
 
 @app.route("/project_id/<int:project_id>/card_id/<int:card_id>/attach", methods=["POST"])
@@ -1077,6 +1122,18 @@ def query_card(card_id, project_id):
                    .first())
 
 
+def render_card(template, **kwargs):
+    card_id = kwargs["card_id"]
+    project = kwargs["project"]
+    luser_id = kwargs["luser"]._id
+
+    card = query_card(card_id, project._id)
+    is_subscribed = card.is_luser_subscribed(luser_id)
+
+    return flask.render_template(template, card=card, comments=card.comments,
+                                 is_subscribed=is_subscribed, **kwargs)
+
+
 @app.route("/project_id/<int:project_id>/card_id/<int:card_id>", methods=["GET"])
 @check_project_privileges
 def get_card(**kwargs):
@@ -1162,47 +1219,6 @@ def cards_add(project=None, luser=None, **kwargs):
                                  project=project, **kwargs)
 
 
-@app.route("/p/<int:project_id>/<int:card_id>/complete",
-            methods=["GET"])
-@check_project_privileges
-def card_toggle_is_completed(project=None, card_id=None, luser=None,
-                             **kwargs):
-    """
-    Facilitate the toggling of the Card's "is_completed" state.
-    """
-    # Update the is_complete boolean
-    card = models.Card.query.filter_by(_id=card_id).first()
-    card.is_completed = not card.is_completed
-    models.db.session.flush()
-
-    # Also insert or delete a CardCompletion object, for the charts.
-    card_completion = (models.CardCompletions.query
-        .filter_by(card_id=card_id).first())
-
-    # If the card is complete, and there is no entry in the card
-    # completion table, then make one now:
-    if card.is_completed and card_completion is None:
-        card_completion = models.CardCompletions(card_id=card._id,
-                                                luser_id=luser._id)
-        models.db.session.add(card_completion)
-
-    # If the card is not complete, and an entry exists in the card
-    # completion table, then remove it.
-    elif not card.is_completed and card_completion is not None:
-        models.db.session.delete(card_completion)
-
-    models.db.session.commit()
-
-    if card.is_completed:
-        type = "card_finished"
-        email_notify.send_card_complete_email(card_completion, luser)
-    else:
-        type = "card_incomplete"
-
-
-    activity_logger.log(luser._id, project._id, card_id, type)
-
-    return respond_with_json(dict(state=card.is_completed))
 
 ############################################################################
 # Piles

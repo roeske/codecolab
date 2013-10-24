@@ -1,3 +1,7 @@
+._strike {
+    text-decoration: line-through;
+}
+
 ._small {
     font-size: 10px;
 }
@@ -132,7 +136,7 @@ textarea {
 }
 
 ._card_feature .btn {
-    width: 120px;
+    width: 135px;
 }
 
 ._minicard_menu.open .dropdown-menu { 

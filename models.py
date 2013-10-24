@@ -615,6 +615,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     score           = db.Column(db.Integer, default=0)
     description     = db.Column(db.String, default="")
     is_completed    = db.Column(db.Boolean, default=False)
+    is_flagged      = db.Column(db.Boolean, default=False)
 
     # Default this to current value of 'id' column, but we'll change it later
     # to adjust the order of the list.
