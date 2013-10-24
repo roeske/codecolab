@@ -55,30 +55,30 @@
 
             <div class="_card_section">
               <h4>Attachments</h4>
-              <div id="attachments_container">
+              <p {% if card.attachments|length != 0 %}
+                style="display: none;" {% endif %} 
+              class="_empty_msg" id="__card_attachments_empty_msg">
+              No attachments.
+              </p>
+              <div id="__attachment_container">
                 {% for attachment in card.attachments %} 
-                  <div class="_attachment" data-id="{{ attachment._id }}">
-                    <div class="_attachment_left pull-left">
-                      {% if attachment.url.lower().endswith(".jpg") %}
-                        <a class="_fancybox_preview" href="{{ attachment.url }}">
-                          <p>{{ attachment.filename }}</p>
-                          <img width="33%" src="{{ attachment.url }}"></img>
-                        </a>
-                      {% else %}
-                        <a href="{{ attachment.url }}">{{ attachment.filename }}</a>
-                      {% endif %}
-                    </div>
-                    <div class="pull-right">
-                    <!-- only show delete to owner -->
-                    {% if luser._id == attachment.luser_id %}
-                      <button class="_small btn btn-small btn-danger _delete_attachment">
-                      Delete <i class="_small glyphicon glyphicon-trash"></i>
-                      </button>
-                    {% endif %}
-                    </div>
-                    <div class="clearfix"></div>
+                  {% include "attachment.html" %}
+                {% endfor %} 
+                
+              </div> 
+
+              <div id="__attachment_form">
+                <input id="__file_input" type="file" name="file" id="file"/>
+                <button class="btn btn-sm btn-primary pull-right" type="button" id="__file_input_button">
+                Attach File
+                </button>
+                <div class="clearfix"></div>
+                <div class="progress progress-striped active" style="margin-top: 15px; display: none;"
+                     id="__progress_bar">
+                  <div class="progress-bar" aria-valuemin="0" aria-valuemax="100">
+                    <span class="progress-text">&nbsp;</span>
                   </div>
-                {% endfor %}
+                </div>
               </div>
             </div>
           </div>
@@ -110,6 +110,9 @@
   </div>
 </div>
 
+<script src="/js/lodash.min.js"></script>
+<script src="/js/s3upload.js"></script>
+<script src="/js/card_attachments.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
   // <jinja2>
@@ -128,7 +131,7 @@ $(document).ready(function() {
   $("#__card_toggle_comment").click(_toggle_comment_form);
   $("#__card_cancel_comment_btn").click(_toggle_comment_form);
 
-  var _update_empty_state = function() {
+  var _update_card_comments_empty_state = function() {
     var len = $("#__card_comments_container").children().length;
     if (len != 0) {
       $("#__card_comments_empty_msg").hide();
@@ -142,7 +145,7 @@ $(document).ready(function() {
     var comment = $(this).closest("._comment");
     var comment_id = comment.data("id");
     comment.remove();
-    _update_empty_state();
+    _update_card_comments_empty_state();
     var url = "/project_id/" + project_id + "/card_id/" + card_id + "/comment_id/" +
               comment_id + "/delete";
     $.get(url, function(data) {
@@ -153,7 +156,6 @@ $(document).ready(function() {
   // </event>
 
   // <event entity="comment" type="edit">
-
   // Sets up tinymce inline editor on a single comment.
   var _card_comment_tinymce_setup = function(luser_id, comment_id) {
     tinymce.init({
@@ -222,15 +224,24 @@ $(document).ready(function() {
       _toggle_comment_form();
 
       // remove empty message
-      _update_empty_state();
+      _update_card_comments_empty_state();
     });
   });
 
   $("._fancybox_preview").fancybox();
   // </event>
 
-  // <event entity="attachment" type="delete">
-  $("._delete_attachment").click(function() {
+  var _update_card_attachments_empty_state = function() {
+    var len = $("#__attachment_container").children().length;
+    if (len != 0) {
+      $("#__card_attachments_empty_msg").hide();
+    } else {
+      $("#__card_attachments_empty_msg").show();
+    }
+  };
+
+  // <event entity="attachment" type="delete" name="_attachment_delete_click">
+  var _attachment_delete_click = function() {
     var attachment = $(this).closest("._attachment");
     var url = "/project_id/"+project_id+"/card_id/"+card_id+"/attachment_id/"
               + attachment.data("id") + "/delete";
@@ -238,7 +249,94 @@ $(document).ready(function() {
       console.log(data);
     });
     attachment.remove();
-  });
+    _update_card_attachments_empty_state();
+  };
+  $("._delete_attachment").click(_attachment_delete_click);
   // </event>
+
+
+  // <event entity="attachment" type="post">
+
+  // Hide the browser's file input but phantom click it so we can style
+  // the way it looks.
+  var file_input = $("#__file_input");
+  file_input.hide();
+  $("#__file_input_button").click(function() {
+    file_input.click();
+  });
+
+  // Register a change event handler on the file input to trigger
+  // the s3 upload.
+  file_input.change(function() {
+    var filename = get_filename_from_input(file_input);
+
+    // Show the upload progress bar
+    $(".progress").show();
+
+    // Disable the upload button until upload is finished.
+    $("#__file_input_button").prop("disabled", true);
+
+    // Sign & perform the upload to amazon s3.
+    var s3upload = new S3Upload({
+      file_dom_selector: $("#__file_input"),
+      s3_sign_put_url: '/sign_s3_upload/',
+
+      // Update the progress bar as the upload happens.
+      onProgress: function(percent, message) { 
+        // update the upload progress bar
+        $(".progress-bar").width(percent + "%");
+      },
+
+      // Called when the S3 upload is finished.
+      onFinishS3Put: function(file_url) { 
+        // Store a record of the attachment in the database so that it 
+        // will appear in cards.
+        var url = "/project_id/" + project_id + "/card_id/" + card_id
+                  +"/attach";
+        $.post(url, { filename : filename, url : file_url }, function(data) {
+          // Clear file input
+          $("#__file_input").val("");
+
+          // Reset progress bar
+          $("._progress_bar").width("0%");
+
+          // append new attachment to container
+          $("#__attachment_container").append(data["attachment_html"]);
+          _update_card_attachments_empty_state();
+
+          // connect delete event to new attachment 
+          $("._delete_attachment").last().click(_attachment_delete_click);
+
+          // Hide progress bar
+          $(".progress").hide();
+
+          // Re-enable uploads.
+          $("#__file_input_button").prop("disabled", false);
+        });
+      },
+
+      // Called if the S3 upload fails.
+      onError: function(message) {
+        // Reset file input
+        $("#__file_input").val("");
+
+        // Hide progress bar
+        $(".progress").hide();
+
+        // Reset progress bar
+        $("._progress_bar").width("0%");
+
+        // Re-enable uploads.
+        $("#__file_input_button").prop("disabled", false);
+
+        // Show error
+        alert("Error: " + message);
+      },
+
+    }, filename);
+  });
+
+  // </event>
+
 });
 </script>

@@ -1,9 +1,8 @@
+// requires lodash.js
 (function() {
   window.S3Upload = (function() {
     S3Upload.prototype.s3_object_name = "default_object";
-
     S3Upload.prototype.s3_sign_put_url = '/signS3put';
-
     S3Upload.prototype.file_dom_selector = '#file_upload';
 
     S3Upload.prototype.onFinishS3Put = function(public_url) {

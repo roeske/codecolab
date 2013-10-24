@@ -31,7 +31,7 @@ textarea {
 
 ._comment:not(:first-child),
 ._attachment:not(:first-child) {
-    border-top: 1px solid #ccc;
+    border-top: 1px solid #ddd;
 }
 
 ._attachment:last-child,

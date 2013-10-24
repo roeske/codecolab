@@ -122,6 +122,7 @@ def sign_s3_put():
             break
 
     url = 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, object_name)
+    print url
     return json.dumps({
         'signed_request':
         '{url}?AWSAccessKeyId={access_key}&Expires={expires}&Signature={sig}' \
@@ -851,26 +852,25 @@ def render_card(template, **kwargs):
                                  is_subscribed=is_subscribed, **kwargs)
 
 
-@app.route("/p/<int:project_id>/cards/<int:card_id>/attachments", methods=["POST"])
+@app.route("/project_id/<int:project_id>/card_id/<int:card_id>/attach", methods=["POST"])
 @check_project_privileges
-def card_get_attachments(card_id=None, luser=None, **kwargs):
-    """
-    Called via ajax to refresh attachments after an attachment is added.
-    """
-    url = flask.request.json["url"]
-    filename = flask.request.json["filename"]
+def post_card_attachment(project_id, card_id, project=None, luser=None, **kwargs):
+    url = flask.request.form.get("url", "")
+    filename = flask.request.form.get("filename", "")
 
-    attachment = models.CardFile(card_id=card_id, luser_id=luser._id, 
-                    filename=filename, url=url)
-
-    models.db.session.add(attachment)
-    models.db.session.commit()
+    attachment = CardFile(card_id=card_id, luser_id=luser._id, 
+                          filename=filename, url=url)
+    db.session.add(attachment)
+    db.session.commit()
 
     email_notify.send_card_attachment_email(attachment, luser)
-        
 
-    stuff = render_card("card_attachments.html", card_id=card_id, luser=luser, **kwargs)
-    return stuff
+    html = flask.render_template("attachment.html", card=attachment.card, 
+                                 attachment=attachment, luser=luser, 
+                                 project=project, **kwargs)
+
+    return respond_with_json({ "status" : "success",
+                                "attachment_html" : html })
 
 
 @app.route("/project_id/<int:project_id>/card_id/<int:card_id>/"

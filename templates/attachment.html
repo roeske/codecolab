@@ -1,0 +1,21 @@
+<div class="_attachment" data-id="{{ attachment._id }}">
+  <div class="_attachment_left pull-left">
+    {% if attachment.url.lower().endswith(".jpg") %}
+      <a class="_fancybox_preview" href="{{ attachment.url }}">
+        <p>{{ attachment.filename }}</p>
+        <img width="33%" src="{{ attachment.url }}"></img>
+      </a>
+    {% else %}
+      <a href="{{ attachment.url }}">{{ attachment.filename }}</a>
+    {% endif %}
+  </div>
+  <div class="pull-right">
+  <!-- only show delete to owner -->
+  {% if luser._id == attachment.luser_id %}
+    <button class="_small btn btn-small btn-danger _delete_attachment">
+    Delete <i class="_small glyphicon glyphicon-trash"></i>
+    </button>
+  {% endif %}
+  </div>
+  <div class="clearfix"></div>
+</div>

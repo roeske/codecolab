@@ -44,39 +44,3 @@
   </ul>
 </div>
 
-<script>
-$(document).ready(function() {
-  var card_id = {{ card._id }};
-  var project_name = "{{ project.name }}";
-  var card_attachments = new CardAttachments({
-    file_input: require("#" + card_id + "_file_input:file"),
-    file_input_button: require("#" + card_id + "_file_input_button"),
-    progress: require("#" + card_id  + "_progress"),
-    attachments_selector: require_selector("#" + card_id + "_card_attachments"),
-    project_name: project_name,
-    card_id: card_id
-  });
-
-  // hook up delete comment button
-  $(".btn.delete").click(function() {
-      var filename = $(this).data("filename");
-      var base_url = "/p/{{ project_name }}/attachments/delete/";
-
-      if(confirm("Are you sure you want to delete " + filename + "?")) {
-          var attachment_id = $(this).data("attachment-id");
-          var url = base_url + attachment_id;
-          $.post(url, function(data) {
-              $("#attachment_" + attachment_id).fadeOut("fast", function() {
-                  $(this).remove();
-
-                  $("#card_{{ card._id }}_attachment_count").text(
-                    Number($("#card_{{ card._id }}_attachment_count").text()) 
-                    - 1);
-              });
-          });
-      } 
-           
-      return false;
-  });
-});
-</script>
