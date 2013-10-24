@@ -676,7 +676,6 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     def card_uuid(self):
         return "card_" + md5(str(self._id) + self.text + str(self.created)).hexdigest()
 
-
     @property
     def created_human(self):
         return self.created.strftime("%d, %Y at %I:%M %p")
@@ -831,7 +830,7 @@ class ReportComment(db.Model, BaseComment):
     report      = db.relationship("MemberReport")
 
 
-# TODO: refactor, use mixin for 'created'
+
 class CardFile(db.Model, DictSerializable):
 
     __tablename__ = "card_file"

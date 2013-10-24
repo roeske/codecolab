@@ -1,3 +1,13 @@
+._small {
+    font-size: 10px;
+}
+
+._attachment_left {
+    width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 ._empty_msg {
     color: #aaa;
     font-size: 1.3em;
@@ -8,15 +18,23 @@ textarea {
     border: 1px solid #ccc;
 }
 
-._comment {
+
+._attachment img {
+    border: 5px solid #f0f0f0;
+    box-shadow: 1px 1px 2px #aaa;
+}
+
+._comment, ._attachment {
     padding-bottom: 10px;
     padding-top: 10px;
 }
 
-._comment:not(:first-child) {
+._comment:not(:first-child),
+._attachment:not(:first-child) {
     border-top: 1px solid #ccc;
 }
 
+._attachment:last-child,
 ._comment:last-child {
     margin-bottom: 15px;
 }
@@ -37,7 +55,7 @@ textarea {
 
 ._comment_right {
     flex: 1;
-    margin-left: 15px;
+    margin-left: 30px;
 }
 
 #__card_cancel_comment_btn {

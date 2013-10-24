@@ -873,13 +873,12 @@ def card_get_attachments(card_id=None, luser=None, **kwargs):
     return stuff
 
 
-@app.route("/p/<int:project_id>/attachments/delete/<int:attachment_id>",
-    methods=["POST"])
+@app.route("/project_id/<int:project_id>/card_id/<int:card_id>/"
+            "attachment_id/<int:attachment_id>/delete")
 @check_project_privileges
 def delete_attachment(attachment_id, luser=None, **kwargs):
-
-    attachment = models.CardFile.query.filter_by(_id=attachment_id, 
-                    luser_id=luser._id).first()
+    attachment = CardFile.query.filter_by(_id=attachment_id, 
+                                          luser_id=luser._id).one()
     models.db.session.delete(attachment)
     models.db.session.commit()
 

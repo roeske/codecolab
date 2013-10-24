@@ -35,25 +35,54 @@
               <div class="pull-right">
                 <button class="btn btn-sm btn-primary" id="__card_toggle_comment">
                   Comment
-                </button>
-              </div>
+                </button> </div>
               <div class="clearfix"></div>
               <div class="clearfix" style="display: none;" id="__card_comment_form_container">
               <div id="__card_comment_input_container" class="form-group">
                 <textarea class="_card_comment_input form-control" id="__card_comment_input"></textarea>
               </div>
                 <a class="btn btn-sm btn-success pull-right" href="#" 
-                  id="__card_comment_btn">Comment</a>
+                  id="__card_comment_btn">Comment
+                  
+                  </a>
 
                 <a class="btn btn-sm btn-danger pull-right" href="#" 
-                  id="__card_cancel_comment_btn">Cancel</a>
+                  id="__card_cancel_comment_btn">Cancel
+                  
+                  </a>
               </div>
             </div>
 
             <div class="_card_section">
               <h4>Attachments</h4>
+              <div id="attachments_container">
+                {% for attachment in card.attachments %} 
+                  <div class="_attachment" data-id="{{ attachment._id }}">
+                    <div class="_attachment_left pull-left">
+                      {% if attachment.url.lower().endswith(".jpg") %}
+                        <a class="_fancybox_preview" href="{{ attachment.url }}">
+                          <p>{{ attachment.filename }}</p>
+                          <img width="33%" src="{{ attachment.url }}"></img>
+                        </a>
+                      {% else %}
+                        <a href="{{ attachment.url }}">{{ attachment.filename }}</a>
+                      {% endif %}
+                    </div>
+                    <div class="pull-right">
+                    <!-- only show delete to owner -->
+                    {% if luser._id == attachment.luser_id %}
+                      <button class="_small btn btn-small btn-danger _delete_attachment">
+                      Delete <i class="_small glyphicon glyphicon-trash"></i>
+                      </button>
+                    {% endif %}
+                    </div>
+                    <div class="clearfix"></div>
+                  </div>
+                {% endfor %}
+              </div>
             </div>
           </div>
+
           <div id="__card_body_right" class="row">
              <div class="col-md-12 _card_feature">
               <button id="__btn_toggle_complete" type="button" class="btn btn-primary">
@@ -80,6 +109,7 @@
     </div>
   </div>
 </div>
+
 <script type="text/javascript">
 $(document).ready(function() {
   // <jinja2>
@@ -107,7 +137,7 @@ $(document).ready(function() {
     }
   };
 
-  // <event type="delete">
+  // <event entity="comment" type="delete">
   var _card_comment_delete_click = function() {
     var comment = $(this).closest("._comment");
     var comment_id = comment.data("id");
@@ -122,7 +152,7 @@ $(document).ready(function() {
   $("._comment_delete_btn").click(_card_comment_delete_click);
   // </event>
 
-  // <event type="edit">
+  // <event entity="comment" type="edit">
 
   // Sets up tinymce inline editor on a single comment.
   var _card_comment_tinymce_setup = function(luser_id, comment_id) {
@@ -166,7 +196,7 @@ $(document).ready(function() {
 
   // </event>
 
-  // <event type="post">
+  // <event entity="comment" type="post">
   $("#__card_comment_btn").click(function() {
     $("#__card_comment_input_container").removeClass("has-error");
 
@@ -194,6 +224,20 @@ $(document).ready(function() {
       // remove empty message
       _update_empty_state();
     });
+  });
+
+  $("._fancybox_preview").fancybox();
+  // </event>
+
+  // <event entity="attachment" type="delete">
+  $("._delete_attachment").click(function() {
+    var attachment = $(this).closest("._attachment");
+    var url = "/project_id/"+project_id+"/card_id/"+card_id+"/attachment_id/"
+              + attachment.data("id") + "/delete";
+    $.get(url, function(data) {
+      console.log(data);
+    });
+    attachment.remove();
   });
   // </event>
 });
