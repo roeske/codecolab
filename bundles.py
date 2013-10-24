@@ -9,6 +9,7 @@ def register(app):
     css_overrides = Bundle("css/jquery-ui.css",
                            "css/google_open_sans.css",
                            "css/app.css", 
+                           "css/timepicker.css",
                            output="gen/overrides.css")
 
     assets.register("css_overrides", css_overrides)

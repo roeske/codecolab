@@ -645,7 +645,8 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
     @property
     def due_time(self):
         if self.due_datetime is not None:
-            return self.due_datetime.strftime("%I:%M%p")
+            return self.due_datetime.strftime("%I:%M%p").replace("AM", "am") \
+                    .replace("PM", "pm")
         else:
             return ""
 
@@ -666,7 +667,8 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
         if self.due_datetime is None:
             return ""
         else:
-            return self.due_datetime.strftime("%b. %d, %Y %I:%M %p")
+            return self.due_datetime.strftime("%m/%d/%y %I:%M %p").replace(" AM", "am") \
+                    .replace(" PM", "pm")
 
     @property
     def title(self):

@@ -2148,12 +2148,10 @@ def configure_notifications(luser=None, **kwargs):
     return respond_with_json(p)
 
 
-@app.route("/p/<int:project_id>/<int:card_id>/due_date", methods=["POST"])
+
+@app.route("/project_id/<int:project_id>/card_id/<int:card_id>/due_date", methods=["POST"])
 @check_project_privileges
-def set_card_due_date(card_id, **kwargs):
-    date = request.form["date"]
-    time = request.form["time"]
-   
+def post_card_due_date(card_id, **kwargs):
     card = models.Card.query.filter_by(_id=card_id).one()
 
     # If the user is clearing the value
@@ -2163,6 +2161,9 @@ def set_card_due_date(card_id, **kwargs):
         return respond_with_json({'date' : '', 'time' : '',
                                   'due_human' : ''})
     else:
+        date = request.form["date"]
+        time = request.form["time"]
+   
         card.due_datetime = date_parser.parse(date + ' ' + time)
         models.db.session.commit()
         return respond_with_json({'year' : card.due_datetime.year,

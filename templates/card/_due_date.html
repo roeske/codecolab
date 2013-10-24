@@ -1,18 +1,19 @@
 <button id="__btn_set_due_date" type="button" class="btn btn-primary">
   Due Date
+  <div id="__due_date_timestamp">{{ card.due_human }}</div>
 </button>
 
 <div style="display: none; width: 300px; z-index: 2000;" id="__due_date_dialog" class="panel panel-default">
   <div class="panel-heading clearfix">Set Due Date <i class="pull-right glyphicon glyphicon-remove" id="__due_date_dialog_close"></i></div>
   <div class="panel-body">
     <div role="form">
-      <div class="form-group">
+      <div class="form-group pull-left" style="width: 48%;">
         <label for="__due_date_time">Time</label>
         <input type="text" placeholder="hh:mm" name="time" class="form-control"
                 id="__due_date_time" value="{{ card.due_time }}" />
       </div>
 
-      <div class="form-group">
+      <div class="form-group pull-right" style="width: 48%;">
         <label for="__due_date_date">Date</label>
         <input type="text" placeholder="yy/mm/dd" name="date"
                 id="__due_date_date" class="form-control" />
@@ -22,15 +23,20 @@
 
       <div style="margin-top: 10px;" id="__inline_datepicker"></div>
 
-      <div style="margin-top: 10px;"> 
-        <button id="__due_date_clear_btn" class="btn btn-small">Clear</button>
-        <button id="__due_date_save_btn" class="btn btn-small btn-primary">Save</button>
+      <div style="margin-top: 20px;" class="clearfix"> 
+        <button style="width: 48%;" id="__due_date_clear_btn" class="btn btn-sm pull-left">Clear</button>
+        <button style="width: 48%;" id="__due_date_save_btn" class="btn btn-sm btn-primary pull-right">Save</button>
       </div>
     </div>
 </div>
 
 <script type="text/javascript">
 $(document).ready(function() {
+  // <jinja2>
+  var project_id = {{ project._id }};
+  var card_id = {{ card._id }};
+  // </jinja2>
+
   $("#__due_date_dialog_close").click(function() {
     $("#__due_date_dialog").hide();
   });
@@ -50,14 +56,33 @@ $(document).ready(function() {
       defaultDate: new Date( {{ card.due_date }} )
   });
 
-  $("null").click(function() {
-    $.get("", function(data) {
-      // need to update this in the event the user
+  // Save the due date and display it within the due date button.
+  $("#__due_date_save_btn").click(function() {
+    // Build URL.
+    var url = "/project_id/" + project_id  + "/card_id/" + card_id + "/due_date";
+
+    // Create post data object.
+    var data = {
+      date: $("#__due_date_date").val(),
+      time: $("#__due_date_time").val()
+    };
+
+    // Display the new date in the button.
+    // Substring lines are for removing the higher order digits from the year.
+    var date = data.date.substring(0, data.date.length - 4) + 
+               data.date.substring(data.date.length - 2);
+    var timestamp =  date + " " + data.time;
+    $("#__due_date_timestamp").text(timestamp);
+
+    // Perform the post to save the date in db.
+    $.post(url, data, function(data) {
+      // Need to update this in the event the user
       // leaves it unspecified.
-      $("#due_date_time").val(data['time']);
-      $("#due_date_dialog").dialog("close");
-      $("#due_date_timestamp").text(data.due_human);
+      $("#__due_date_time").val(data['time']);
     });
+
+    // We're done, make the dialog go away.
+    $("#__due_date_dialog").hide();
   });
 });
 </script>
