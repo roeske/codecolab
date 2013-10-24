@@ -1,75 +1,63 @@
-<!-- BEGIN due date -->
-<div>
-  <a id="due_date" href="#" class="btn">
-    Due Date <div class="btn_invis"></div>
-    <p style="text-align: center;" id="due_date_timestamp">
-{{ card.due_human }}</p> 
-  </a>
-  <div style="display: none;" id="due_date_dialog">
-  <form id="due_date_form"
-  action="/p/{{ project_name }}/{{ card_id }}/due_date" method="POST">
+<button id="__btn_set_due_date" type="button" class="btn btn-primary">
+  Due Date
+</button>
 
-  <ul class="structural">
-    <li>
-      <label for="due_date_time">Time</label>
-      <input type="text" placeholder="hh:mm" name="time"
-              id="due_date_time" value="{{ card.due_time }}" />
-    </li>
-    <li>
-      <label for="due_date_date">Date</label>
-      <input type="text" placeholder="yy/mm/dd" name="date"
-              id="due_date_date" />
-    </li>
-  </ul>
+<div style="display: none; width: 300px; z-index: 2000;" id="__due_date_dialog" class="panel panel-default">
+  <div class="panel-heading clearfix">Set Due Date <i class="pull-right glyphicon glyphicon-remove" id="__due_date_dialog_close"></i></div>
+  <div class="panel-body">
+    <div role="form">
+      <div class="form-group">
+        <label for="__due_date_time">Time</label>
+        <input type="text" placeholder="hh:mm" name="time" class="form-control"
+                id="__due_date_time" value="{{ card.due_time }}" />
+      </div>
 
-  <div class="clear"></div>
-  <div style="margin-top: 10px;" id="inline_datepicker"></div>
+      <div class="form-group">
+        <label for="__due_date_date">Date</label>
+        <input type="text" placeholder="yy/mm/dd" name="date"
+                id="__due_date_date" class="form-control" />
+      </div>
 
-  <div>
-      <input style="width: 30%; float: left;"  
-      type="submit" name="clear" value="clear" />
+      <div class="clearfix"></div>
 
-      <input style="width: 30%; float: right;"  
-      type="submit" name="save" value="save" />
+      <div style="margin-top: 10px;" id="__inline_datepicker"></div>
 
-      <div class="clear"></div>
-  </div>
-  </form>
-  </div>
-  <script type="text/javascript">
-  var button = $("#due_date");
-  button.click(function() {
-      $("#due_date_dialog").dialog({ 
-        title: "Due Date", 
-        resizable: false,
-        width: '300px',
+      <div style="margin-top: 10px;"> 
+        <button id="__due_date_clear_btn" class="btn btn-small">Clear</button>
+        <button id="__due_date_save_btn" class="btn btn-small btn-primary">Save</button>
+      </div>
+    </div>
+</div>
 
-        position: {
-          my: "left top", at: "left bottom", of: button 
-        }
-      });
+<script type="text/javascript">
+$(document).ready(function() {
+  $("#__due_date_dialog_close").click(function() {
+    $("#__due_date_dialog").hide();
   });
 
-  $("#due_date_time").timepicker({
-      selectOnBlur: true,
-      disableTextInput: true,
+  $("#__btn_set_due_date").click(function() {
+      var that = this;
+      $("#__due_date_dialog").toggle();
   });
 
-  $("#inline_datepicker").datepicker({
-      altField: "#due_date_date",
+  
+  $("#__due_date_time").timepicker({
+      selectOnBlur: true
+  });
+
+  $("#__inline_datepicker").datepicker({
+      altField: "#__due_date_date",
       defaultDate: new Date( {{ card.due_date }} )
   });
 
-  $("#due_date_form").ajaxForm({
-      success: function(data) {
-          // need to update this in the event the user
-          // leaves it unspecified.
-          $("#due_date_time").val(data['time']);
-          $("#due_date_dialog").dialog("close");
-          $("#due_date_timestamp").text(data.due_human);
-      }
+  $("null").click(function() {
+    $.get("", function(data) {
+      // need to update this in the event the user
+      // leaves it unspecified.
+      $("#due_date_time").val(data['time']);
+      $("#due_date_dialog").dialog("close");
+      $("#due_date_timestamp").text(data.due_human);
+    });
   });
-
-  </script>
-</div>
-<!-- END due date -->
+});
+</script>
