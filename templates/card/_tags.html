@@ -1,32 +1,47 @@
-<h3 class="card_section" style="margin-bottom: 10px;">Tags</h3>
+ <div class="panel panel-default" style="width: 150px;">
+  <div class="panel-heading">
+    Tags
+  </div>
 
-<div style="width: 100%;" data-tags="{% for tag in card.tags %}{{tag.tag.name}},{% endfor %}"
-   data-action="/p/{{ project_name }}/cards/{{ card._id }}/tag" 
-  id="select_tags"></div>
+  <div class="panel-body">
+    <div style="width: 100%;" id="__select_tags"></div>
+  </div>
+</div>
 
 <script type="text/javascript">
+$(document).ready(function() {
+  // <jinja2>
+  var project_id = {{ project._id }};
+  var card_id = {{ card._id }};
+  var tags = "{% for tag in card.tags %}{{ tag.tag.name }},{% endfor %}";
+  // </jinja2>
 
-function setup_tags(select) {
-    var tags = select.data('tags');
+  // <event type="post" entity="tag">
+  var _setup_tags = function(selector) {
+    var select = $(selector);
     select.val(tags.substring(0, tags.length -1));
-
+    tags = tags.split(",");
     select.select2({tags: [], tokenSeparators: [',']}).change(function() {
-        tags = $(this).val().split(",");
-        $.ajax({
-            type: 'POST',
-            url: $(this).data('action'),
-            data: JSON.stringify({ tags: tags }),
-            success: console.log,
+      tags = $(this).val().split(",");
+      var url = "/project_id/" + project_id + "/card_id/" + card_id + "/tag";
+      $.ajax({
+        type: 'POST',
+        url: url,
+        data: JSON.stringify({ tags: tags }),
+        success: console.log,
 
-            failure: function(data) {
-                console.log(data);
-                alert("Failed to tag entity. See logs.");
-            },
+        failure: function(data) {
+          console.log(data);
+          alert("Failed to tag entity. See logs.");
+        },
 
-            contentType: "application/json;charset=UTF-8"
-        });
+        // When posting JSON to flask we have to spec this.
+        contentType: "application/json;charset=UTF-8"
+      });
     });
-}
+  };
+  // </event>
 
-setup_tags($("#select_tags"));
+  _setup_tags("#__select_tags");
+});
 </script>
