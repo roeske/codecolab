@@ -25,8 +25,7 @@
                 style="display: none;" {% endif %} 
               class="_empty_msg" id="__card_comments_empty_msg">
               No comments.
-              </p>
-
+              </p> 
               <div id="__card_comments_container">
                 {% for comment in card.comments %}
                   {% include "comment.html" %}
@@ -117,8 +116,12 @@
               {% include "card/_due_date.html" %}
             </div>
 
-            <div class="col-md-12 _card_feature">
+            <div class="col-md-12">
               {% include "card/_milestone.html" %}
+            </div>
+
+            <div class="col-md-12">
+              {% include "card/_difficulty.html" %}
             </div>
           </div>
         </div>

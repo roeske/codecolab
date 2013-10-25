@@ -1,5 +1,56 @@
-<h3 class="card_section" style="width: 90px; float: left;">Difficulty</h3>
-<div style="width: 90px; float: left;" class="editable difficulty" 
-     data-card-id="{{ card._id }}" 
-     data-score="{{ card.score }}"></div>
+<div class="panel panel-default" style="width: 150px;">
+  <div class="panel-heading">
+   Score 
+  </div>
+  <div class="panel-body">
+    <div id="__card_difficulty"></div>
+  </div>
+</div>
+
 <div class="clear"></div>
+<script type="text/javascript">
+$(document).ready(function() {
+  //<jinja2>
+  var card_id = {{ card._id }};
+  var project_id = {{ project._id }};
+  var score = {{ card.score }};
+  //</jinja2>
+
+  // <event type="post" entity="difficulty">
+  $("#__card_difficulty").raty({
+    // Load correct score when document is loaded.
+    score: function() { 
+      return score;
+    },
+
+    click: function(score, evt) {
+        console.log("score="+score);
+    },
+
+    cancel: true,
+    cancelHint: "Reset this score.",
+
+    // Specify correct paths to images.
+    starHalf:   "/js/raty/img/star-half.png",
+    starOn:     "/js/raty/img/star-on.png",
+    starOff:    "/js/raty/img/star-off.png",
+    cancelOff:  "/js/raty/img/cancel-off.png",
+    cancelOn:   "/js/raty/img/cancel-on.png",
+
+    // # of stars to display
+    number: 3,
+    numberMax: 3,
+
+    hints: ["Easy", "Normal", "Difficult"],
+
+    // Allow the user to update the score on the backend by clicking.
+    click: function(score, ev) {
+      var url = "/project_id/" + project_id + "/card_id/" + card_id + "/score"; 
+      $.post(url, { score : score }, function(data) {
+        console.log(data);
+      });
+    }
+  });
+  // </event>
+}); 
+</script>

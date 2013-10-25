@@ -1177,20 +1177,18 @@ def cards_description(project=None, card_id=None, **kwargs):
                                "description" : description })
 
 
-@app.route("/p/<int:project_id>/cards/<int:card_id>/score", methods=["POST"])
+@app.route("/project_id/<int:project_id>/card_id/<int:card_id>/score", methods=["POST"])
 @check_project_privileges
 def card_score(project_name=None, card_id=None, project=None, **kwargs):
-    
     card = query_card(card_id, project._id)
-    
-    score = flask.request.json["score"]
+    score = flask.request.form["score"]
 
     if score is not None: 
         score = int(score)
 
     card.score = score
-    
-    models.db.session.commit()
+    db.session.commit()
+
     return respond_with_json({ "status" : "success",
                                "message" : "updated card %d" % card._id })
 
