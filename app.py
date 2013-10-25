@@ -1058,18 +1058,21 @@ def post_card_milestone(project=None, **kwargs):
                                 '_id' : milestone._id })
 
 
-@app.route("/p/<int:project_id>/cards/<int:card_id>/assign_to",
-            methods=["POST"])
+@app.route("/project_id/<int:project_id>/card_id/<int:card_id>/assign", methods=["POST"])
 @check_project_privileges
 def card_assign_to(project=None, card_id=None, **kwargs):
-    # clear the existing assignments.
+    # Clear the existing assignments.
     models.CardAssignments.query.filter_by(card_id=card_id).delete()
-   
-    assigned = request.form.getlist('assigned')
+    assigned = json.loads(request.form.get("assigned", "[]"))
 
+    # If the list is being cleared.
+    if assigned is None:
+        models.db.session.commit()
+        return respond_with_json({ "status" : "success" })
+
+    # If the list is being appended to.
     for luser_id in assigned:
         luser_id = int(luser_id)
-
         luser = (models.Luser.query
             .filter(models.Luser._id==luser_id)).one()
         assignment = models.CardAssignments(luser_id=luser._id,

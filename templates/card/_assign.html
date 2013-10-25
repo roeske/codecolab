@@ -1,27 +1,35 @@
-<!-- Assign to user -->
-<h3 class="card_section" style="margin-bottom: 10px;">Assign To</h3>
-<form action="/p/{{ project_name }}/cards/{{ card._id }}/assign_to"
-    method="POST" id="form_assign_to">
-   
-  <div class="styled-select" style="width: 100%;">
-    <select style="width: 100%;" id="select_assign_to" class="card_select" multiple name="assigned">
-      {% for member in project.lusers %}
-        <option value="{{ member._id }}" {% if member.is_assigned_to(card._id) %} selected {% endif %}>{{member.profile.username }}</option>
-      {% endfor %}
-    </select>
+<div class="panel panel-default" style="width:150px;">
+  <div class="panel-heading">
+    Assign
   </div>
-</form>
-<div class="clear"></div>
+  <div class="panel-body">
+    <div class="form" role="form">
+      <div class="form-group">
+        <select style="width: 100%;" id="select_assign_to" class="card_select" multiple name="assigned">
+          {% for member in project.lusers %}
+            <option value="{{ member._id }}" {% if member.is_assigned_to(card._id) %} selected {% endif %}>{{member.profile.username }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
 $(document).ready(function() {
-    $("#form_assign_to").ajaxForm({
-        success: function() {
-            console.log(data); 
-        }
-    });
+  // <jinja2>
+  var project_id = {{ project._id }};
+  var card_id = {{ card._id }};
+  // </jinja2>
 
-    $("#select_assign_to").select2().change(function() {
-        $("#form_assign_to").ajaxSubmit();
+  // <event type="post" entity="assignment">
+  $("#select_assign_to").select2().change(function() {
+    var url = "/project_id/" + project_id + "/card_id/" + card_id + "/assign";
+    var assigned = $(this).val();
+    console.log(assigned);
+    $.post(url, { assigned: JSON.stringify(assigned) }, function(data) {
+      console.log(data);
     });
+  });
+  // </event>
 });
 </script>
