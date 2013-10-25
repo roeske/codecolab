@@ -57,16 +57,32 @@ $(document).ready(function() {
       defaultDate: new Date( {{ card.due_date }} )
   });
 
+  // Build URL.
+  var url = "/project_id/" + project_id  + "/card_id/" + card_id + "/due_date";
+
   // Save the due date and display it within the due date button.
   $("#__due_date_save_btn").click(function() {
-    // Build URL.
-    var url = "/project_id/" + project_id  + "/card_id/" + card_id + "/due_date";
-
     // Create post data object.
     var data = {
       date: $("#__due_date_date").val(),
       time: $("#__due_date_time").val()
     };
+ 
+    var due_date_time_container = $("#__due_date_time").closest(".form-group");
+    var due_date_date_container = $("#__due_date_date").closest(".form-group");
+
+    due_date_time_container.removeClass("has-error");
+    due_date_date_container.removeClass("has-error");
+
+    if (data.date.trim() === "") {
+      due_date_date_container.addClass("has-error");
+      return false;
+    }
+
+    if (data.time.trim() === "") {
+      due_date_time_container.addClass("has-error");
+      return false;
+    }
 
     // Display the new date in the button.
     // Substring lines are for removing the higher order digits from the year.
@@ -85,5 +101,15 @@ $(document).ready(function() {
     // We're done, make the dialog go away.
     $("#__due_date_dialog").hide();
   });
+
+  $("#__due_date_clear_btn").click(function() {
+    $("#__due_date_time").val("");
+    $("#__due_date_date").val("");
+    $("#__due_date_timestamp").text("");
+    $.post(url, { clear: true }, function(data) {
+      console.log(data);
+    });
+  });
+  // </event>
 });
 </script>
