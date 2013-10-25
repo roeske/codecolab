@@ -731,8 +731,10 @@ def pile_delete(pile_id=None, luser=None, **kwargs):
 @app.route("/project_id/<int:project_id>/dashboard")
 @check_project_privileges
 def dashboard(luser=None, project=None, **kwargs):
+    luser.last_tab = "dashboard"
     luser.last_project_id = project._id
-    models.db.session.commit()
+    db.session.commit()
+
     return render_template("dashboard.html", luser=luser,
                             project=project, **kwargs) 
 
@@ -750,6 +752,9 @@ def project_progress(luser=None, project=None, **kwargs):
     This view should allow project owners to create milestones, and
     view progress.
     """
+    luser.last_tab = "progress"
+    db.session.commit()
+
     member = models.ProjectLuser.query.filter_by(luser_id=luser._id).first()
     team_cadence_data = generate_team_cadence_data(project)
     commits = (Commit.query.filter_by(project_id=project._id)
@@ -1375,6 +1380,7 @@ def post_card_tags(project_id, card_id, luser=None, project=None, **kwargs):
 @app.route("/project_id/<int:project_id>/boards")
 @check_project_privileges
 def boards(project=None, luser=None,  **kwargs):
+    luser.last_tab = "boards"
     target_card_id = int(request.args.get('card', -1))
     piles = (Pile.query.filter_by(project_id=project._id)
                     .filter_by(is_deleted=False).all())

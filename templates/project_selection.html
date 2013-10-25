@@ -1,5 +1,9 @@
 {% include "header.html" %}
 {% include "project_navbar.html" %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
+</script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js">
+</script>
 <div class="container _content">
   <div class="row _flexrow">
     <div id="__project_navbar" class="bs-docs-sidebar">
@@ -25,7 +29,6 @@
 
     <div id="__project_wrapper">
       <div id="__project_page_container">
-        {% include "dashboard.html" %}
       </div>
     </div>
     <div class="clearfix"></div>
@@ -36,6 +39,11 @@
 
 <script src="//tinymce.cachefly.net/4.0/tinymce.min.js"></script>
 <script type="text/javascript">
+// <jinja2>
+var last_project_id = {{ luser.last_project_id }};
+var last_tab = "{{ luser.last_tab }}";
+// </jinja2>
+
 $(".container").css("max-width", "none");
 
 // stub so we can replace with nicer alert.
@@ -58,6 +66,7 @@ function update_selection_dimensions() {
 }
 
 function load_project_page(tab, project_id) {
+  console.log(tab);
   $("#__project_page_container").load("/project_id/" + project_id + "/" + tab);
 }
 
@@ -65,15 +74,7 @@ function load_project_page(tab, project_id) {
 $(document).ready(function() {
   update_selection_dimensions();
   $(window).resize(update_selection_dimensions);
-
-  // When loading the index, the last project the user visited is 
-  // restored.
-  var last_project_id = {{ luser.last_project_id }};
-
-  // remembering the last tab the user was on is not currently planned,
-  // so default it to the dashboard.
-  var last_tab = "dashboard";
-
+  
   // handle switching projects
   //----------------------------------------------------------------------
   $("._project_nav_link").click(function() {
@@ -105,7 +106,10 @@ $(document).ready(function() {
   $("#__toggle_project_selection").click(function() {
     $("#__project_sidenav").toggle();
   });
+
+  load_project_page(last_tab, last_project_id);
 });
+
 </script>
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js">

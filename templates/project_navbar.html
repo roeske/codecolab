@@ -1,23 +1,37 @@
 {% extends "navbar.html" %}
 {% block tabs %}
-<li class="active _tab" data-tab="dashboard">
+{% set clazz = "" %}
+
+{% if luser.last_tab == "dashboard" %}
+    {% set clazz = "active" %}
+{% endif %}
+<li class="{{ clazz }} _tab" data-tab="dashboard">
   <a href="#">
     <i class="glyphicon glyphicon-home"></i>
     &nbsp;&nbsp;Home
   </a>
 </li>
+{% set clazz = "" %}
 
-<li class="_tab" data-tab="boards">
+{% if luser.last_tab == "boards" %}
+    {% set clazz = "active" %}
+{% endif %}
+<li class="{{ clazz }} _tab" data-tab="boards">
   <a href="#">
     <i class="glyphicon glyphicon-list-alt"></i>
     &nbsp;&nbsp;Boards
   </a>
 </li>
+{% set clazz = "" %}
 
-<li class="_tab" data-tab="progress">
+{% if luser.last_tab == "progress" %}
+    {% set clazz = "active" %}
+{% endif %}
+<li class="{{ clazz }} _tab" data-tab="progress">
   <a href="#">
     <i class="glyphicon glyphicon-signal"></i>
      &nbsp;&nbsp;Progress
   </a>
 </li>
+{% set clazz = "" %}
 {% endblock %}

@@ -2,28 +2,8 @@
   <div class="_piles_container" id="__piles_container">
     <div id="__piles_wrapper"> 
       {% for p in piles %}
-          <div class="col-md-4 _pile" data-id="{{ p._id }}" data-title="{{ p.name }}">
-            <div class="panel panel-default">
-              <div class="panel-heading _handle">
-                <div class="pull-left _pile_name">
-                  {{ p.name }} 
-                </div>
-                <div class="pull-right">
-                  <i class="glyphicon glyphicon-remove _pile_delete"></i>
-                </div>
-                <div class="clearfix"></div>
-              </div>
-              <div class="panel-body">
-                <div class="_cards_wrapper">
-                {% for card in p.cards %}
-                  {% if not card.is_archived %}
-                    {% include "minicard.html" %}
-                  {% endif %}
-                {% endfor %}
-                </div>
-              </div>
-            </div>
-        </div> {% endfor %}
+        {% include "pile.html" %}
+      {% endfor %}
     </div>
     <div class="clearfix"></div>
   </div>
@@ -84,7 +64,8 @@ function update_board_dimensions() {
   // The magic number 60 is kind of ugly, but it stands for some combination
   // of the 15 px margins that exist. Just keep them at 15 for now. It looks nice
   // anwyway.
-  $("._cards_wrapper").css("max-height", max_height - 60 -
+  $("._cards_wrapper").css("max-height", max_height - $("._add_card_form").height() -
+    - px_to_int($("._add_card_form").css("margin-top")) * 2 - 120 - 
     $("._pile .panel-heading").height()).css("overflow-y", "auto");
 
   $("#__piles_wrapper").width(calculate_pile_container_width());
