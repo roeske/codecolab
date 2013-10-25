@@ -39,24 +39,20 @@ from helpers import (make_gravatar_url, make_gravatar_profile_url,
                      redirect_to, redirect_to_index, respond_with_json,
                      jsonize, get_luser_for_email)
 import email_notify
-
 import bundles
 
-AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')       
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-S3_BUCKET = os.environ.get('S3_BUCKET')
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', 'AKIAJL4ISO7I666MONUA')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY','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')
+S3_BUCKET = os.environ.get('S3_BUCKET', 'codecolab')
 
 activity_logger = models.ActivityLogger()
 app = models.app
 
 bundles.register(app)
 
-app.jinja_env.globals.update(make_card_links=
-    globals.make_card_links)
+app.jinja_env.globals.update(make_card_links=globals.make_card_links)
 app.jinja_env.add_extension("jinja2.ext.loopcontrols")
 app.jinja_env.add_extension("jinja2.ext.do")
-
-Markdown(app)
 
 app.debug = False if os.getenv("CODECOLAB_DEBUG", False) == False else True
 
