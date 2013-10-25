@@ -10,6 +10,7 @@ def register(app):
                            "css/google_open_sans.css",
                            "css/app.css", 
                            "css/timepicker.css",
+                           "css/select2.css",
                            output="gen/overrides.css")
 
     assets.register("css_overrides", css_overrides)

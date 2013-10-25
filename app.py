@@ -1034,15 +1034,32 @@ def card_set_attributes(project=None, card_id=None, **kwargs):
     return respond_with_json({ "status" : "success" })
 
 
-@app.route("/p/<int:project_id>/cards/<int:card_id>/select_milestone",
-            methods=["POST"])
+###############################################################################
+# Milestones
+###############################################################################
+
+@app.route("/project_id/<int:project_id>/card_id/<int:card_id>/milestone", 
+    methods=["POST"])
 @check_project_privileges
-def card_select_milestone(project=None, card_id=None, **kwargs):
+def edit_card_milestone(project=None, card_id=None, **kwargs):
     card = models.Card.query.filter_by(_id=card_id).one()
     card.milestone_id = request.form.get('milestone_id', None)
     models.db.session.commit()
     
     return respond_with_json({ "status" : "success" })
+
+
+@app.route("/project_id/<int:project_id>/card_id/<int:card_id>/add_milestone", 
+            methods=["POST"])
+@check_project_privileges
+def post_card_milestone(project=None, **kwargs):
+    name = flask.request.form["name"]
+    milestone = models.Milestone(name=name, project_id=project._id)
+    models.db.session.add(milestone)
+    models.db.session.commit()
+    
+    return respond_with_json({ 'name' : milestone.name,
+                                '_id' : milestone._id })
 
 
 @app.route("/p/<int:project_id>/cards/<int:card_id>/assign_to",
@@ -1242,23 +1259,6 @@ def piles_reorder():
 ## Milestones
 ############################################################################
 
-@app.route("/p/<int:project_id>/milestones/add", methods=["POST"])
-@check_project_privileges
-def milestones_add(project=None, **kwargs):
-    """
-    Adds a new milestone. Confirms that user is an owner of this project,
-    first.
-    """
-    if project is None:
-        raise ValueError("project required.")
-
-    name = flask.request.form["name"]
-    milestone = models.Milestone(name=name, project_id=project._id)
-    models.db.session.add(milestone)
-    models.db.session.commit()
-    
-    return respond_with_json({ 'name' : milestone.name,
-                                '_id' : milestone._id })
 
 
 @app.route("/p/<int:project_id>/milestone/<int:milestone_id>/accept",

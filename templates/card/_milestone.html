@@ -1,79 +1,83 @@
-<h3 class="card_section">Milestone</h3>
-<form action="/p/{{ project_name }}/cards/{{ card._id }}/select_milestone" id="form_select_milestone" method="POST">
-
-  <div style="margin-top: 10px;">
-    <select data-card-id="{{ card._id }}" id="select_milestone"
-      style="width: 100%;" name="milestone_id">
-
-      <option data-id="-1">None</option>
-      {% for milestone in project.milestones %}
-      
-        <option 
-          {% if milestone._id == card.milestone_id %}
-            selected
-          {% endif %}
-          value="{{ milestone._id }}">
-          
-          {{ milestone.name }}
-        </option>
-
-      {% endfor %}
-    </select>
+<div class="panel panel-default" style="width: 150px;">
+  <div class="panel-heading">
+    Milestone
   </div>
-</form>
-<a href="#" class="hidden" id="toggle_add_milestone"
-   style="margin-top: 10px; margin-bottom: 10px; float: right;">
-  <span class="off">Add Milestone</span>
-  <span style="display: none;" class="on">Hide</span>
-</a>
 
-<div class="clear"></div>
+  <div class="panel-body">
+    <div>
+      <select id="__select_milestone" style="width: 100%;" name="milestone_id">
+        <option data-id="-1">None</option>
+        {% for milestone in project.milestones %}
+        
+          <option 
+            {% if milestone._id == card.milestone_id %}
+              selected
+            {% endif %}
+            value="{{ milestone._id }}">
+            
+            {{ milestone.name }}
+          </option>
 
-<form style="display: none; width: auto; " 
-  method="POST" action="/p/{{ project.name }}/milestones/add" 
-  id="form_add_milestone">
+        {% endfor %}
+      </select>
+    </div>
 
-  <input id="milestone" type="text" name="name"
-    placeholder="Milestone..." style="width: auto; float: right; display: block; margin: 0;" />
+    <div class="form" id="__add_milestone_form" style="display: none; margin-top: 15px;">
+      <div class="form-group">
+        <input class="form-control" id="__milestone_input" type="text"
+               name="name" placeholder="Milestone..." />
+      </div>
+      <div>
+        <input id="__add_milestone_btn" class="form-control" type="submit" 
+            name="submit" value="Add" class="btn btn-sm"
+            style="width: 70%;" />
+      </div>
+    </div>
 
-  <div class="clear"></div>
-  <input id="add_milestone" type="submit" name="submit" 
-         value="Add" class="btn" 
-         style="width: auto; padding: 0px 10px 0px; float: right; margin: 10px auto 0px; font-size: 1em;" />
-  
-  <div class="clear"></div>
-</form>
+    <a style="display: block; margin-top: 15px;" id="__toggle_add_milestone" href="#">
+      <span class="_true">Add Milestone</span>
+      <span style="display: none;" class="_false">Hide</span>
+    </a>
 
+  </div>
+</div>
 <script type="text/javascript">
 $(document).ready(function() {
-  function toggle_add_milestone() {
-      $("#form_add_milestone").toggle();
-      $(this).find(".on").toggle();
-      $(this).find(".off").toggle();
-  }
+  // <jinja2>
+  var project_id = {{ project._id }};
+  var card_id = {{ card._id }};
+  // </jinja2>
 
-  $("#toggle_add_milestone").click(toggle_add_milestone);
+  var _set_current_milestone = function() {
+    var url = "/project_id/" + project_id + "/card_id/" + card_id + "/milestone";
+    var milestone_id = $("#__select_milestone").val();
+    $.post(url, { milestone_id : milestone_id }, function(data) {
+      console.log(data);
+    });
+  };
 
-  $("#form_add_milestone").ajaxForm({
-      success: function(data) {
-          console.log(data);
-          var option = $("<option/>").val(data._id)
-                                     .text(data.name);
-          $("#select_milestone").append(option);
-          $("#select_milestone").select2("val", data._id);
-          $("#form_select_milestone").ajaxSubmit();
-          toggle_add_milestone();
-      }
-  });
-  
-  $("#form_select_milestone").ajaxForm({
-      success: function(data) {
-          console.log(data);
-      }
+  // <event type="post" entity="milestone">
+  $("#__select_milestone").select2().change(_set_current_milestone);
+  // </event>
+
+  // show & hide add milestone form
+  $("#__toggle_add_milestone").click(function() {
+    $("#__add_milestone_form").toggle();
+    $(this).find("._true").toggle();
+    $(this).find("._false").toggle();
   });
 
-  $("#select_milestone").select2().change(function() {
-      console.log($("#select_milestone").val());
+  // <event type="post" entity="milestone">
+  $("#__add_milestone_btn").click(function() {
+    var url = "/project_id/" + project_id + "/card_id/" + card_id + "/add_milestone";
+    $.post(url, { name: $("#__milestone_input").val().trim() }, function(data) {
+      // append the newly created option and select it automatically
+      var option = $("<option/>").val(data._id).text(data.name);
+      $("#__select_milestone").append(option);
+      $("#__select_milestone").select2("val", data._id);
+      _set_current_milestone();
+    });
   });
+  // </event>
 });
 </script>
