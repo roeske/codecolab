@@ -254,26 +254,6 @@ $(document).ready(function() {
     }
   });
 
-  // Handle opening cards:
-  $("._minicard").dblclick(function() {
-    // Increase card width.
-    var card_id = $(this).data("id");
-    var url = "/project_id/" + project_id + "/card_id/" + card_id;
-    $("#__card_target").load(url, function() {
-      show_card(project_id, $(this).find(".modal"));
-    });
-  });
-
-  // Handle archival of cards:
-  $("._archive_card").click(function() {
-    var card_id = $(this).data("id");
-    var url = "/project_id/" + project_id +"/card/" + card_id + "/archive";
-    $.get(url, function(data) {
-      console.log(data);
-      socket.emit('archive_card', { project_id: project_id, card_id: card_id });
-      $("._minicard[data-id=" + card_id + "]").remove();
-    });
-  });
 
   // BEGIN: delete pile
   var delete_pile = function(pile) {
@@ -311,5 +291,80 @@ $(document).ready(function() {
       delete_pile(pile); 
     }
   });
+  
+  // Handle opening cards:
+  var _minicard_dblclick_handler = function() {
+    // Increase card width.
+    var card_id = $(this).data("id");
+    var url = "/project_id/" + project_id + "/card_id/" + card_id;
+    $("#__card_target").load(url, function() {
+      show_card(project_id, $(this).find(".modal"));
+    });
+  };
+  $("._minicard").dblclick(_minicard_dblclick_handler);
+
+  // Handle archival of cards:
+  var _archive_click_handler = function() {
+    var card_id = $(this).data("id");
+    var url = "/project_id/" + project_id +"/card/" + card_id + "/archive";
+    $.get(url, function(data) {
+      console.log(data);
+      socket.emit('archive_card', { project_id: project_id, card_id: card_id });
+      $("._minicard[data-id=" + card_id + "]").remove();
+    });
+  };
+  $("._archive_card").click(_archive_click_handler);
+
+  // This can be used for socket io as well, as we'll send the exact
+  // same payload back that way.
+  var _append_card_to_pile = function(data) {
+    var pile = $("._pile[data-id=" + data.pile_id + "]");
+    var cards_wrapper = pile.find("._cards_wrapper");
+    
+    // append the card to the pile
+    cards_wrapper.append(data.card_html);
+
+    // scroll to the bottom
+    cards_wrapper.scrollTop(cards_wrapper.prop("scrollHeight"));
+
+    // connect events
+    cards_wrapper.find("._minicard").last().dblclick(_minicard_dblclick_handler);
+    cards_wrapper.find("._archive_card").last().click(_archive_click_handler);
+  }
+
+  // <event type="post" entity="card">
+  var _post_add_card = function(that) {
+    var pile = $(that).closest("._pile")
+    var pile_id = pile.data("id");
+    
+    var url = "/project_id/" + project_id + "/pile_id/" + pile_id + "/card";
+
+    // This may be triggered by the button or the textbox itself.
+    var add_card_input = null;
+    if ($(that).hasClass("_add_card_input")) {
+      add_card_input = $(that);
+    } else {
+      add_card_input = $(that).parent().parent().find("._add_card_input");
+    }
+
+    var text = add_card_input.val();
+    add_card_input.val("");
+
+    $.post(url, { text: text }, _append_card_to_pile);
+  };
+
+  $("._add_card_input").keydown(function() {
+    if (event.keyCode == 13) {
+      _post_add_card(this);
+      return false;
+    }
+    return true;
+  });
+
+  $("._add_card_btn").click(function() {
+    _post_add_card(this);
+  });
+
+  // </event>
 });
 </script>

@@ -1222,6 +1222,7 @@ def archives(**kwargs):
     return cc_render_template("archived_cards.html", **kwargs)
 
 
+# TODO: purge if possible
 @app.route("/p/<int:project_id>/minicards/<int:card_id>")
 @check_project_privileges
 def minicards_get(card_id=None, **kwargs):
@@ -1229,13 +1230,16 @@ def minicards_get(card_id=None, **kwargs):
     return flask.render_template("minicard.html", card=card, **kwargs)
 
 
-@app.route("/p/<int:project_id>/cards/add", methods=["POST"])
+@app.route("/project_id/<int:project_id>/pile_id/<int:pile_id>/card", methods=["POST"])
 @check_project_privileges
-def cards_add(project=None, luser=None, **kwargs):
-    card = models.Card.create(luser._id, project, request.form["pile_id"], request.form["text"])
+def post_card(project_id, pile_id, project=None, luser=None, **kwargs):
+    card = models.Card.create(luser._id, project, pile_id, request.form["text"])
     activity_logger.log(luser._id, project._id, card._id, "card_created")
-    return flask.render_template("minicard.html", card=card, luser=luser,
+
+    card_html = flask.render_template("minicard.html", card=card, luser=luser,
                                  project=project, **kwargs)
+    
+    return respond_with_json({ "card_html" : card_html, "pile_id" : card.pile_id })
 
 
 
