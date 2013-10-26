@@ -27,7 +27,10 @@ function calculate_pile_container_width() {
     return 0;
   } else {
     var total = 0;
+    var cnt = 0;
     $("._pile").each(function(i,elem) {
+      cnt++;
+      console.log(cnt);
       total += px_to_int($(elem).css("width"));
       total += px_to_int($(elem).css("margin-left"));
       total += px_to_int($(elem).css("margin-right"));
@@ -55,15 +58,14 @@ function get_height_of_tallest_pile() {
 function update_board_dimensions() {
   var max_height = calculate_max_height();
 
-  $("._boards_container").height(max_height - 0);
+  $("._boards_container").height(max_height);
   $("._piles_container").css("overflow-y", "hidden");
-  $("._piles_container").height(max_height - 0);
+  $("._piles_container").height(max_height);
 
   // Calculate perfect height for card scrolling containers.
 
-  // The magic number 60 is kind of ugly, but it stands for some combination
-  // of the 15 px margins that exist. Just keep them at 15 for now. It looks nice
-  // anwyway.
+  // Sorry it uses a magic number, try as I might I couldn't get the measurements
+  // to add up properly without it. Just play with it to get the right size.
   $("._cards_wrapper").css("max-height", max_height - $("._add_card_form").height() -
     - px_to_int($("._add_card_form").css("margin-top")) * 2 - 120 - 
     $("._pile .panel-heading").height()).css("overflow-y", "auto");
@@ -185,8 +187,6 @@ $(document).ready(function() {
   var project_id = {{ project._id }};
 
   // Initialize board dimensions.
-  $("._pile").css("float", "left");
-  $("._pile").css("width", "370px");
   $(".panel-body").css("overflow-y", "auto");
   $("#__piles_container").width("100%");
   $("._boards_container").css("overflow-y", "hidden");
@@ -228,7 +228,7 @@ $(document).ready(function() {
   });
 
   // Initialize card sorting:
-  $("._cards_wrapper").sortable({
+  var _handle_sort_cards = {
     delay: 100,
     distance: 10,
     revert: "invalid",
@@ -245,7 +245,8 @@ $(document).ready(function() {
     stop: function(e, ui) {
 
     }
-  });
+  };
+  $("._cards_wrapper").sortable(_handle_sort_cards);
 
   // Ensure that TinyMCE is not blocked by bootstrap's modal.
   $(document).on("focusin", function(e) {
@@ -254,44 +255,6 @@ $(document).ready(function() {
     }
   });
 
-
-  // BEGIN: delete pile
-  var delete_pile = function(pile) {
-    var pile_id = parseInt(pile.data("id"), 10);
-    var url = "/project_id/" + project_id + "/pile/" + pile.data("id") + "/delete";
-    $.get(url, function(data) {
-      console.log(data);
-      socket.emit('delete_pile', { project_id: project_id, pile_id: pile_id }); 
-      pile.remove();
-    });    
-  };
-
-  $("._pile_delete").click(function() {
-    var pile = $(this).closest("._pile");
-    if (pile.find("._minicard").length > 0) {
-  
-      var btn_cancel = $("#__btn_cancel");
-      var btn_delete_pile = $("#__btn_delete_pile");
-      var modal_confirm_delete_pile = $("#__modal_confirm_delete_pile");
-
-      btn_cancel.unbind("click");
-      btn_cancel.click(function() {
-        modal_confirm_delete_pile.modal("hide");
-      });
-
-      btn_delete_pile.unbind("click");
-      btn_delete_pile.click(function() {
-        delete_pile(pile); 
-        modal_confirm_delete_pile.hide("hide");
-      });
-
-      $("#__modal_confirm_pile_title").text(pile.data("title"));
-      modal_confirm_delete_pile.modal("toggle");
-    } else {
-      delete_pile(pile); 
-    }
-  });
-  
   // Handle opening cards:
   var _minicard_dblclick_handler = function() {
     // Increase card width.
@@ -320,7 +283,7 @@ $(document).ready(function() {
   var _append_card_to_pile = function(data) {
     var pile = $("._pile[data-id=" + data.pile_id + "]");
     var cards_wrapper = pile.find("._cards_wrapper");
-    
+  
     // append the card to the pile
     cards_wrapper.append(data.card_html);
 
@@ -353,18 +316,128 @@ $(document).ready(function() {
     $.post(url, { text: text }, _append_card_to_pile);
   };
 
-  $("._add_card_input").keydown(function() {
+  var _handle_add_card_input = function() {
     if (event.keyCode == 13) {
       _post_add_card(this);
       return false;
     }
     return true;
-  });
+  };
+  $("._add_card_input").keydown(_handle_add_card_input);
 
-  $("._add_card_btn").click(function() {
+  var _handle_add_card_btn = function() {
     _post_add_card(this);
+  };
+  $("._add_card_btn").click(_handle_add_card_btn);
+  // </event>
+
+  // BEGIN: delete pile
+  var delete_pile = function(pile) {
+    var pile_id = parseInt(pile.data("id"), 10);
+    var url = "/project_id/" + project_id + "/pile/" + pile.data("id") + "/delete";
+    $.get(url, function(data) {
+      console.log(data);
+      //socket.emit('delete_pile', { project_id: project_id, pile_id: pile_id }); 
+      pile.remove();
+      var w = calculate_pile_container_width();
+      console.log("w="+w);
+      $("#__piles_wrapper").width(w);
+    });    
+  };
+
+  var _handle_delete_pile = function() {
+    var pile = $(this).closest("._pile");
+    if (pile.find("._minicard").length > 0) {
+  
+      var btn_cancel = $("#__btn_cancel");
+      var btn_delete_pile = $("#__btn_delete_pile");
+      var modal_confirm_delete_pile = $("#__modal_confirm_delete_pile");
+
+      btn_cancel.unbind("click");
+      btn_cancel.click(function() {
+        modal_confirm_delete_pile.modal("hide");
+      });
+
+      btn_delete_pile.unbind("click");
+      btn_delete_pile.click(function() {
+        delete_pile(pile); 
+        modal_confirm_delete_pile.hide("hide");
+      });
+
+      $("#__modal_confirm_pile_title").text(pile.data("title"));
+      modal_confirm_delete_pile.modal("toggle");
+    } else {
+      delete_pile(pile); 
+    }
+  };
+  $("._pile_delete").click(_handle_delete_pile);
+
+
+  // <event type="post" entity="pile">
+
+  // should be usable for socket.io
+  var _handle_add_pile = function(data) {
+    // obtain object refs
+    var piles_wrapper = $("#__piles_wrapper");
+    var piles_container = $("._piles_container");
+
+    // remove old card sortable, required for refresh
+    $("._cards_wrapper").sortable("destroy");
+    
+    // append pile
+    piles_wrapper.append(data.pile_html);
+    
+    // refresh sortable so cards can be sorted properly
+    $("._cards_wrapper").sortable(_handle_sort_cards);
+
+    // Update width of container to suit new pile.
+    $("#__piles_wrapper").width(calculate_pile_container_width());
+
+    // Scroll all the way to the right so we can see it.
+    piles_container.scrollLeft(piles_container.prop("scrollWidth"));
+
+    // connect events
+    $("._pile_delete").last().click(_handle_delete_pile);
+    $("._add_card_btn").last().click(_handle_add_card_btn);
+    $("._add_card_input").last().click(_handle_add_card_input);
+
+    // refresh sortable so that piles can be sorted
+    // properly
+    $("#__piles_wrapper").sortable("refresh");
+  };
+
+  var _post_add_pile = function(name) {
+    var url = "/project_id/" + project_id + "/pile";
+    var data = { name: name };
+    $.post(url, data, _handle_add_pile);
+    $("#__add_pile_input").val("");
+  };
+
+  var _post_if_not_empty = function(name) {
+    var form_group = $("#__add_pile_input").closest(".form-group");
+    form_group.removeClass("has-error");
+    if (name !== "") {
+      _post_add_pile(name);
+    } else {
+      form_group.addClass("has-error");
+    }
+  };
+
+  $("#__add_pile_input").keydown(function(ev) {
+    if (ev.keyCode == 13) {
+      var name = $(this).val().trim();
+      _post_if_not_empty(name);
+      return false;
+    } 
+    
+    return true;
   });
 
+  $("#__btn_add_pile").click(function() {
+    var name = $("#__add_pile_input").val().trim();
+    _post_if_not_empty(name);
+    return false;
+  });
   // </event>
 });
 </script>

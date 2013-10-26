@@ -52,12 +52,19 @@ function cc_alert(msg) {
 }
 
 function px_to_int(px_str) {
+  if (px_str === undefined) return 0;
   return parseInt(px_str.replace("px", ""), 10);
 }
 
 function calculate_max_height() {
-  var diff = px_to_int($("._content").css("margin-top"));
-  return window.innerHeight - diff - 15;
+  // call this code in the repl after loading the page to calculate the value 
+  // for margin:
+  // px_to_int($("#__subnav").css("margin-top"));
+  var bottom_padding = 30; // Leave it, this represents the negative space below the 
+                           // content area.
+  var margin = 40;
+  var diff = + $("#__subnav").height() + margin + bottom_padding;
+  return window.innerHeight - diff;
 }
 
 function update_selection_dimensions() {
@@ -66,7 +73,12 @@ function update_selection_dimensions() {
 }
 
 function load_project_page(tab, project_id) {
-  console.log(tab);
+  // it's a kludge but it works.
+  if (tab != "boards") {
+    $("#__add_pile_form").fadeOut();
+  } else {
+    $("#__add_pile_form").fadeIn("slow");
+  }
   $("#__project_page_container").load("/project_id/" + project_id + "/" + tab);
 }
 
@@ -78,7 +90,9 @@ $(document).ready(function() {
   // handle switching projects
   //----------------------------------------------------------------------
   $("._project_nav_link").click(function() {
-    var project_id = $(this).find("a").data("id");
+    var link = $(this).find("a");
+    $("#__project_name").text(link.text());
+    var project_id = link.data("id");
 
     if (project_id != last_project_id) {
       $("._project_nav_link").removeClass("active");
@@ -107,6 +121,10 @@ $(document).ready(function() {
     $("#__project_sidenav").toggle();
   });
 
+  // Load the correct project name when the page is loaded.
+  $("#__project_name").text($("a[data-id="+last_project_id+"]").text());
+
+  // Load project content for correct tab when the page is loaded.
   load_project_page(last_tab, last_project_id);
 });
 

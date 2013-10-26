@@ -1293,12 +1293,13 @@ def add_pile(project, name="Unnamed List"):
     return pile
 
 
-@app.route("/p/<int:project_id>/piles/add", methods=["POST"])
+@app.route("/project_id/<int:project_id>/pile", methods=["POST"])
 @check_project_privileges
-def pile_add(project=None, luser=None, **kwargs):
-    pile = add_pile(project, request.form["text"])
-    return cc_render_template("list.html", project=project,
-                              luser=luser, pile=pile, **kwargs)
+def post_pile(project=None, luser=None, **kwargs):
+    pile = add_pile(project, request.form["name"])
+    pile_html = flask.render_template("pile.html", project=project, luser=luser, 
+                                    p=pile, **kwargs)
+    return respond_with_json({ 'pile_html' : pile_html })
 
 
 @app.route("/p/<int:project_id>/piles/edit/<int:pile_id>", methods=["POST"])

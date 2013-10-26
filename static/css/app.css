@@ -1,3 +1,65 @@
+._pile {
+    width: 370px;
+    float: left;
+}
+
+._toggle_side {
+    background: #fafafa;
+}
+
+._boards_container{
+    background: #ddd;
+}
+
+#__project_sidenav {
+    margin-top: 15px;
+}
+
+.navbar {
+    margin-bottom: 0px !important;
+    min-height: 40px;
+}
+
+.navbar a,
+.navbar-nav li a {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#__subnav {
+    margin-top: 40px;
+    margin-bottom: 10px;
+    height: 40px;
+    background-color: #fcfcfc;
+    border-bottom: 1px solid #eee;
+}
+
+#__subnav h1 {
+    margin: 0;
+    font-size: 20px;
+    color: #aaa;
+    margin: 10px 15px;
+}
+
+
+#__add_pile_form {
+    margin-top: 5px;
+    margin-right: 15px;
+}
+
+#__add_pile_form input,
+#__add_pile_form button {
+    height: 30px;
+}
+
+#__add_pile_form button { 
+}
+
+#__add_pile_form input {
+    width: 200px;
+    margin-right: 15px;
+}
+
 ._strike {
     text-decoration: line-through;
 }
@@ -253,7 +315,6 @@ textarea {
 /* bootstrap fixes */
 ._content {
     position: relative;
-    margin-top: 70px;
 }
 
 section {
