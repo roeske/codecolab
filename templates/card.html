@@ -9,6 +9,13 @@
       <div class="modal-body">
         <div id="__card_body_container" class="_flexrow">
           <div id="__card_body_left" class="row">
+
+            {% if card.is_archived %}
+            <div class="_card_section clearfix" style="margin-bottom: 45px;">
+              <h4 style="color: red;" class="pull-left">This card is archived</h4>
+              <button class="btn btn-danger pull-right" id="__unarchive_card_btn">Unarchive</button>
+            </div>
+            {% endif %}
             <div class="clearfix _description_container _card_section">
               <div id="__card_description" data-placeholder="Edit card description...">
               {% autoescape off %}
@@ -427,5 +434,11 @@ $(document).ready(function() {
 
   // </event>
 
+  $("#__unarchive_card_btn").click(function() {
+    $.get("/project_id/" + project_id + "/card_id/" + card_id + "/restore",
+      function(data) { console.log(data); });
+    $("._minicard[data-id=" + card_id + "]").remove();
+    $(this).closest(".modal").modal("hide");
+  });
 });
 </script>

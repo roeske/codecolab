@@ -684,7 +684,7 @@ def github_register_project(luser=None, project=None, **kwargs):
 
 
 ##########################################################################
-# Archive Projects
+# Archive Projects (we still need new frontend code for this)
 ##########################################################################
 
 @app.route("/p/<int:project_id>/archive", methods=["GET"])
@@ -1003,7 +1003,7 @@ def archive(luser=None, project=None, card_id=None, **kwargs):
       card_id, "card_archive"))
 
 
-@app.route("/p/<int:project_id>/cards/<int:card_id>/restore",
+@app.route("/project_id/<int:project_id>/card_id/<int:card_id>/restore",
             methods=["GET"])
 @check_project_privileges
 def restore_card(project=None, card_id=None, **kwargs):
@@ -1017,7 +1017,7 @@ def restore_card(project=None, card_id=None, **kwargs):
     card.pile.is_deleted = False
     models.db.session.commit()
 
-    return flask.redirect("/p/%s/archives" % project.urlencoded_name)
+    return respond_with_json({ "status" : "success" })
 
 
 def card_set_attributes(project=None, card_id=None, **kwargs):
@@ -1398,7 +1398,9 @@ def archives(luser=None, project=None, **kwargs):
     luser.last_tab = "archives"
     db.session.commit()
 
-    cards = Card.query.filter_by(project_id=project._id).all()
+    cards = Card.query.filter_by(project_id=project._id) \
+                      .filter_by(is_archived=True).all()
+
     return flask.render_template("search_results.html", 
       luser=luser, project=project, cards=cards, **kwargs)
 
