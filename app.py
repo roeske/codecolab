@@ -1653,42 +1653,23 @@ def get_report(luser=None, project=None, report_id=None, **kwargs):
                                  report=report, **kwargs)
 
 
+
 ###############################################################################
 ## User Profile
 ###############################################################################
-@app.route("/profile/<int:luser_id>", methods=["GET", "POST"])
+@app.route("/settings", methods=["GET","POST"])
 @check_luser_privileges
-def get_profile(luser_id, luser=None, **kwargs):
-    """
-    Obtain a user's profile given their id.
-    """
-    profile = models.LuserProfile.query.filter_by(luser_id=luser_id).first()
-   
-    themes = ["light", "dark"]
+def settings(luser=None, **kwargs):
+    themes = ["light"]
 
-    if flask.request.method == "GET":
-        if profile is None:
-            return flask.abort(404)
-
-        # If this request does not originate from the owner of the profile
-        if luser._id != luser_id:
-            # Then serve them a read-only profile:
-            return cc_render_template("profile_readonly.html", luser=luser, 
-                                      profile=profile, **kwargs)
-        else:
-            # Otherwise, let them edit their profile:
-
-            return cc_render_template("profile.html", luser=luser, 
-              profile=profile, timezones=pytz.all_timezones,
-              themes=themes, target_nav_id="#settings_nav_profile",
-              notifications=luser.notification_preferences \
-                .to_checkboxes(), **kwargs)
-
+    profile = models.LuserProfile.query.filter_by(luser_id=luser._id).first()
+    if request.method == "GET":
+        return render_template("profile.html", luser=luser, 
+          profile=profile, timezones=pytz.all_timezones,
+          themes=themes, target_nav_id="#settings_nav_profile",
+          notifications=luser.notification_preferences \
+            .to_checkboxes(), **kwargs)
     else:
-        # Don't allow users to edit the profiles of others.
-        if luser._id != luser_id:
-            return flask.abort(403)
-
         profile.first_name = flask.request.form.get("first_name", "")
         profile.last_name = flask.request.form.get("last_name", "")
         profile.username = flask.request.form.get("username", "")
@@ -1700,6 +1681,17 @@ def get_profile(luser_id, luser=None, **kwargs):
             dict(dict(is_successful=True).items() +
             profile._asdict().items())))
 
+
+@app.route("/profile/<int:luser_id>")
+@check_luser_privileges
+def get_profile(luser_id, luser=None, **kwargs):
+    """
+    Obtain a user's profile given their id.
+    """
+    profile = models.LuserProfile.query.filter_by(luser_id=luser_id).first()
+    # Then serve them a read-only profile:
+    return cc_render_template("profile_readonly.html", luser=luser, 
+                              profile=profile, **kwargs)
 
 #############################################################################
 ## Password Recovery

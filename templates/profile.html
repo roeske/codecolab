@@ -1,6 +1,13 @@
-{% set hide_breadcrumb = True %}
-{% include "head.html" %}
-<div class="content" style="overflow-y: auto;" >
+{% include "header.html" %}
+{% include "navbar.html" %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
+</script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js">
+</script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery.form/3.32/jquery.form.js">
+</script>
+
+<div class="content" style="margin-top: 50px;">
   <div style="width: 1000px; margin: 0 auto;">
       {% with messages = get_flashed_messages() %}
           {% if messages %}
@@ -32,7 +39,7 @@
       <div class="settings_page_content_item" id="settings_page_profile_item">
         <h4>Profile</h4>
         <div class="body">
-          <form class="old_way" id="settings_profile_form" action="/profile/{{ luser._id }}" method="POST" data-saved="settings_item_profile_saved">
+          <form class="old_way" id="settings_profile_form" action="/settings" method="POST" data-saved="settings_item_profile_saved">
             <ul class="settings structural">
               <li> <label for="first_name">First Name</label>
                 <input type="text" name="first_name" value="{{ profile.first_name }}" id="first_name" />
@@ -88,7 +95,7 @@
                       <p style="float: left; font-size: .9em;">Avatar determined by <a style="color: #4B8EFD;" href="{{ luser.gravatar_profile_url }}">your gravatar profile.</a></p>
                   </li>
                   <li>
-                      <input id="submit" class="btn save" type="submit" name="submit" value="Save" />
+                      <input id="submit" class="btn btn-primary save" type="submit" name="submit" value="Save" />
                       <p>&nbsp;
                         <p id="settings_item_profile_saved" style="display: none;" class="saved_indicator">Your changes were saved.</p>
 
@@ -107,11 +114,11 @@
         <div class="body">
           <ul class="settings structural">
             <li>
-                <label>Connect Github</label>
+                <label>Connect Github&nbsp;&nbsp;</label>
                 {% if not luser.has_github_token %}
-                  <a style="margin-left: 0px;"  class="btn" href="/github/authorize">Connect Github</a>
+                  <a style="margin-left: 0px;"  class="btn btn-primary" href="/github/authorize">Connect Github</a>
                 {% else %}
-                  <p style="margin-left: 0px;" class="btn">Github Connected</p>
+                  <p style="margin-left: 0px;" class="btn btn-primary">Github Connected</p>
                 {% endif %}
             </li>
           </ul>
@@ -207,7 +214,7 @@
               </li>
               <li>
                   <label></label>
-                  <input id="submit" class="btn save" type="submit" name="submit" value="Save" />
+                  <input id="submit" class="btn btn-primary save" type="submit" name="submit" value="Save" />
                   <p>&nbsp;
                     <p id="settings_password_reset_form_saved" style="display: none;" class="saved_indicator">Your changes were saved.</p>
 
@@ -256,7 +263,7 @@
                   </li>
 
                   <li>
-                    <input id="toggle_activation_button" class="btn save"
+                    <input id="toggle_activation_button" class="btn btn-primary save"
                     value="{% if luser.is_active %}Deactivate Account{% else %}Activate Account{%endif%}" type="submit" name="submit" />
                     <div class="clear"></div>
                   </li>
@@ -313,10 +320,8 @@ $(function() {
   $(".settings_page_content_item").hide();
 
   var show_errors = function(errorMap, errorList) {
-      console.log("OOPS");
       $.each(errorMap, function(key, value) {
           var elem = $("#"+key); 
-          console.log(elem);
           elem.nextAll(".error_message").show().html(value);
           elem.nextAll(".ok").hide();
           elem.nextAll(".no").show();
