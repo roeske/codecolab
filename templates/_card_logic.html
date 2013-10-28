@@ -2,13 +2,17 @@
 var project_id = {{ project._id }};
 // </jinja2>
 
-var _minicard_dblclick_handler = function() {
+var _minicard_dblclick_handler = function(ev) {
+  ev.stopImmediatePropagation();
+
   // Increase card width.
   var card_id = $(this).data("id");
   var url = "/project_id/" + project_id + "/card_id/" + card_id;
   $("#__card_target").load(url, function() {
     show_card(project_id, $(this).find(".modal"));
   });
+
+  return false;
 };
 
 // This is not in a .js file because none of the other business logic

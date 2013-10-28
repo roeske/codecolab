@@ -31,7 +31,8 @@
 }
 
 ._toggle_side {
-    background: #fafafa;
+    width: 20px;
+    background: #eee;
 }
 
 ._boards_container{
@@ -283,16 +284,38 @@ textarea {
     flex-direction: row;
 }
 
+#__project_sidenav {
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+#__project_wrapper {
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+#__activity_container {
+  display: -webkit-flex;
+  display: flex;
+}
+
+#__activity {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow-y: scroll;
+    width: 200px;
+}
+
+._activity_item {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
 #__project_navbar {
     display: -webkit-flex;
     display: flex;
 }
 
-#__project_sidenav {
-    margin-right: 15px;
-    -webkit-flex: 1;
-    flex: 1;
-}
 
 #__card .modal-body {
     min-height: 500px;
@@ -308,15 +331,7 @@ textarea {
     float: right;
 }
 
-._toggle_side {
-    width: 20px;
-}
 
-#__project_wrapper {
-    -webkit-flex: 1;
-    flex: 1;
-    margin-right: 15px;
-}
 
 ._margin_auto {
   margin: 0 auto;

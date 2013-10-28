@@ -1008,7 +1008,7 @@ if __name__ == "__main__":
 
 <span class="activity_action">%s</span>
 
-<a data-id="%%(card_id)d" class="activity_card" href="/project/%%(project_name)s/cards/%%(card_id)d">%%(card_text)s</a>
+<a data-id="%%(card_id)d" class="activity_card" href="#">%%(card_text)s</a>
 """
 
         base_text_fmt = "%s %%(card_text)s"

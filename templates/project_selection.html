@@ -36,6 +36,22 @@
       <div id="__project_page_container">
       </div>
     </div>
+    <div id="__activity_container">
+      <div class="_toggle_side" id="__toggle_activity">
+          <div>
+            <i class="glyphicon glyphicon-chevron-left"></i>
+          </div>
+      </div>
+      <div class="_activity" id="__activity">
+        {% autoescape off %}
+        {% for a in project.activity %}
+        <div class="_activity_item">
+          {{ a.description }}
+        </div>
+        {% endfor %}
+        {% endautoescape %}
+      </div>
+    </div>
     <div class="clearfix"></div>
   </div>
 </div>
@@ -77,7 +93,11 @@ function calculate_max_height() {
 
 function update_selection_dimensions() {
   $("#__project_navbar").css("min-height", calculate_max_height());
+  $("#__project_navbar").css("max-height", calculate_max_height());
+  $("#__activity").css('max-height', calculate_max_height());
+
   $("#__toggle_project_selection > div").css("margin-top", $("#__toggle_project_selection").height() / 2 - 14);
+  $("#__toggle_activity > div").css("margin-top", $("#__toggle_activity").height() / 2 - 14);
 }
 
 function load_project_page(tab, project_id) {
@@ -98,7 +118,8 @@ function load_project_page(tab, project_id) {
 $(document).ready(function() {
   update_selection_dimensions();
   $(window).resize(update_selection_dimensions);
-  
+
+
   // handle switching projects
   //----------------------------------------------------------------------
   $("._project_nav_link").click(function() {
@@ -136,6 +157,10 @@ $(document).ready(function() {
 
   $("#__toggle_project_selection").click(function() {
     $("#__project_sidenav").toggle();
+  });
+
+  $("#__toggle_activity").click(function() {
+    $("#__activity").toggle();
   });
 
   // initialize search

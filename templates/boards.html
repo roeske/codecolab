@@ -16,6 +16,7 @@
 
 
 <script type="text/javascript">
+
 var SOCKETIO_SERVER = "http://192.241.181.165:8080"
 
 function calculate_pile_container_width() {
@@ -76,7 +77,16 @@ function update_board_dimensions() {
 {% include "_card_logic.html" %}
 
 $(document).ready(function() { 
+
   var project_id = {{ project._id }};
+
+  // Do nothing when clicking activity usernames temporarily
+  $(".activity_username").click(function() {
+    return false;
+  });
+
+  // Show cards when clicking the activity card link
+  $(".activity_card").click(_minicard_dblclick_handler);
 
   // Initialize board dimensions.
   $(".panel-body").css("overflow-y", "auto");
