@@ -1,0 +1,33 @@
+<div class="col-md-4 _pile" data-id="{{ p._id }}" data-title="{{ p.name }}" data-number="{{ p.number }}">
+  <div class="panel panel-default">
+    <div class="panel-heading _handle">
+      <span style="display: inline;" class="_number" style="color: red;">{{ p._id }} {{ p.number }}</span>
+      <div class="pull-left _pile_name">
+        {{ p.name }} 
+      </div>
+      <div class="pull-right">
+        <i class="glyphicon glyphicon-remove _pile_delete"></i>
+      </div>
+      <div class="clearfix"></div>
+    </div>
+    <div class="panel-body">
+      <div class="_cards_wrapper">
+      {% for card in p.cards %}
+        {% if not card.is_archived %}
+          {% include "minicard.html" %}
+        {% endif %}
+      {% endfor %}
+      </div>
+      <div class="form _add_card_form" role="form" style="margin: 15px;">
+        <div class="form-group">
+          <input type="text" class="_add_card_input form-control" name="text" placeholder="Enter card title..."></input>
+        </div>
+        <div class="form-group clearfix">
+          <button class="_add_card_btn btn btn-sm btn-primary pull-right">
+            Add Card
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

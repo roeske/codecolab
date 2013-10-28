@@ -1,0 +1,25 @@
+<div class="clearfix">
+  {% for card in cards %} 
+    <div class="pull-left">
+      {% include "minicard.html" %}
+    </div>
+  {% endfor %}
+</div>
+<div id="__card_target"></div>
+<script type="text/javascript">
+{% include "_card_logic.html" %}
+$(document).ready(function() {
+  // line up in rows of 300px each card
+  $("._minicard").width(300).css('border', '1px solid #ddd')
+    .css("margin", "15px 15px");
+
+  // double click to show cards
+  $("._minicard").dblclick(_minicard_dblclick_handler);
+
+  // prevent highlighting of text when double clicking
+  $("._minicard").mousedown(function() { return false; });
+
+  // not used on search pages
+  $("._minicard_menu").hide();
+});
+</script>
