@@ -73,7 +73,66 @@ function update_board_dimensions() {
   $("._pile").height(height);
 }
 
-// I can't believe it's not butter!
+function post_reorder(socket, project_id, name, updates) {
+    $.ajax({
+        type: "POST",
+        url: "/" + name + "/reorder", 
+        data: JSON.stringify({updates: updates, project_id: project_id}),
+        
+        success: function(data) {
+            // If the cards are successfully reordered on the server,
+            // push them via socket.io to all other clients connected
+            // to this project's hub.
+            var ev_name = "reorder_" + name;
+            console.log("emitting: " + ev_name);
+            socket.emit(ev_name, data); 
+            console.log(JSON.stringify(data));
+        },
+
+        contentType: "application/json;charset=UTF-8"
+    });
+}
+
+/** 
+ * Returns an array of sorted 'sort numbers' found in a target list
+ * of elements.
+ */
+function cc_sort_into_numbers_array(elems) {
+    // Iterate the children and obtain the data-number values:
+    var sort_numbers = [];
+    
+    elems.each(function(i, elem) {
+        sort_numbers.push($(elem).data("number"));
+    });
+    
+    // Sort the data number values least to greatest.
+    var sorted_numbers = sort_numbers.sort(function(a,b) {
+        return a - b;
+    });
+
+    return sorted_numbers;
+}
+
+function reorder_piles_update_dom() {
+    var sorted_numbers = cc_sort_into_numbers_array($("._pile"));
+    var updates = {};
+
+    console.log(sorted_numbers);
+
+    $("._pile").each(function(i, elem) {
+        // Update the 'sort number' in the DOM
+        elem = $(elem);
+        console.log(elem.data("number") + "->" + sorted_numbers[i]);
+        elem.data("number", sorted_numbers[i]);
+        elem.find("._number").text(sorted_numbers[i]);
+        updates[parseInt(elem.data('id'),10)] = {
+            number: sorted_numbers[i]
+        };
+    });
+
+    return updates;
+}
+
 {% include "_card_logic.html" %}
 
 $(document).ready(function() { 
@@ -125,7 +184,12 @@ $(document).ready(function() {
     },
 
     stop: function(event, ui) {
-
+      // Update the values in the DOM to reflect the current
+      // state of the cards.
+      var updates = reorder_piles_update_dom();
+      console.log(updates);            
+      // Post those updates back to the server.
+      post_reorder(socket, project_id, "piles", updates);
     }
   });
 

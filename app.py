@@ -1383,7 +1383,8 @@ def boards(project=None, luser=None,  **kwargs):
     luser.last_tab = "boards"
     target_card_id = int(request.args.get('card', -1))
     piles = (Pile.query.filter_by(project_id=project._id)
-                    .filter_by(is_deleted=False).all())
+                    .filter_by(is_deleted=False)
+                    .order_by(Pile.number).all())
     
     luser.last_project_id = project._id
     models.db.session.commit()

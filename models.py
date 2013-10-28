@@ -311,7 +311,7 @@ class Project(db.Model, DictSerializable):
 
     archived_cards = db.relationship("Card", order_by=lambda: Card.archived_at.desc())
 
-    piles       = db.relationship("Pile", order_by=lambda: Pile.number)    
+    piles       = db.relationship("Pile", order_by=lambda: Pile.number.asc())    
     members     = db.relationship("Luser", secondary=ProjectLuser.__table__)
     activity    = db.relationship("Activity", order_by=lambda: Activity.created.desc())
    
