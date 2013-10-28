@@ -147,6 +147,12 @@ $(document).ready(function() {
       _clear_search_form();
     }
 
+    if (tab != "boards") {
+      $("#__activity_container").hide();
+    } else {
+      $("#__activity_container").show();
+    }
+
     if (tab != last_tab) {
       $("._tab").removeClass("active");
       $(this).addClass("active");       
