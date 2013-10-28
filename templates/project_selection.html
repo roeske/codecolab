@@ -138,6 +138,12 @@ $(document).ready(function() {
     return false;
   });
 
+  if (last_tab != "boards") {
+    $("#__activity_container").hide();
+  } else {
+    $("#__activity_container").show();
+  }
+
   // handle switching project pages, via tabs
   //----------------------------------------------------------------------
   $("._tab").click(function() {
