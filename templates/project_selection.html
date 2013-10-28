@@ -1,9 +1,14 @@
 {% include "header.html" %}
 {% include "project_navbar.html" %}
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
-</script>
+
+{% assets "boards_js" %}
+<script src="{{ ASSET_URL }}" type="text/javascript"></script>
+{% endassets %}
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js">
 </script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery.form/3.32/jquery.form.js">
+</script>
+
 <div class="container _content">
   <div class="row _flexrow">
     <div id="__project_navbar" class="bs-docs-sidebar">
@@ -35,6 +40,9 @@
   </div>
 </div>
 </div> 
+<div class="loading" style="display: none; position: absolute; top:0; left:0; width: 100%; height: 100%;
+background-image:url('/assets/loading.gif'); background-position: center center; background-repeat: no-repeat; background-color: rgba(0, 0, 0, 0.5); z-index: 99999;">
+</div>
 {% include "footer.html" %}
 
 <script src="//tinymce.cachefly.net/4.0/tinymce.min.js"></script>
@@ -73,13 +81,17 @@ function update_selection_dimensions() {
 }
 
 function load_project_page(tab, project_id) {
+  $(".loading").show();
+
   // it's a kludge but it works.
   if (tab != "boards") {
     $("#__add_pile_form").fadeOut();
   } else {
     $("#__add_pile_form").fadeIn("slow");
   }
-  $("#__project_page_container").load("/project_id/" + project_id + "/" + tab);
+
+  $("#__project_page_container").load("/project_id/" + project_id + "/" + tab,
+    function() { $(".loading").hide(); });
 }
 
 
@@ -109,6 +121,11 @@ $(document).ready(function() {
   //----------------------------------------------------------------------
   $("._tab").click(function() {
     var tab = $(this).data("tab"); 
+
+    if (tab != "search") {
+      _clear_search_form();
+    }
+
     if (tab != last_tab) {
       $("._tab").removeClass("active");
       $(this).addClass("active");       
@@ -119,6 +136,72 @@ $(document).ready(function() {
 
   $("#__toggle_project_selection").click(function() {
     $("#__project_sidenav").toggle();
+  });
+
+  // initialize search
+  $('.datepickers').hide();
+
+  $('#start_date').datepicker({});
+  $('#end_date').datepicker({});
+    
+  $("#select_criteria").select2({
+      minimumResultsForSearch: 10
+  }).change(function(ev) {
+      var selection = $(this).val();
+
+      if (selection == 'date_range') {
+          $('.datepickers').show();
+          $('#start_date').prop('disabled', false);
+          $('#end_date').prop('disabled', false);
+          $('#q').hide().prop('disabled', true);
+      } else {
+          $('.datepickers').hide();
+          $('#start_date').prop('disabled', true);
+          $('#end_date').prop('disabled', true);
+          var hint = $(this).find(':selected').text() + '...';
+          $('#q').show().prop('disabled', false).attr('placeholder', hint);
+      }
+  });
+
+  $('#card_search').ajaxForm({
+      success: function(data) {
+        if (data.is_cleared) {
+        }
+      }
+  });
+    
+  $("#card_search").show();
+
+  $("#__search_btn").click(function() {
+    var query = $("#card_search").formSerialize();
+    console.log(query);
+
+    $("._tab").removeClass("active");
+    $("._tab[data-tab=\"search\"]").addClass("active");       
+    last_tab = "search?" + query;
+
+    load_project_page("search?" + query, last_project_id);
+    return false;
+  });
+
+  var _clear_search_form = function() {
+      $('input[name="q"]').val("").show().prop('disabled', false).attr('placeholder', 'Search Text...');
+      $('#select_criteria').select2("val", "full_text");
+      $('input[name="end_date"]').val("").prop('disabled', true);
+      $('input[name="start_date"]').val("").prop('disabled', true);
+      $('.datepickers').hide();
+  };
+
+  $("#__clear_btn").click(function() {
+      _clear_search_form();
+
+      // only refresh to a parameterless search if on the search tab.
+      if (last_tab.indexOf("search") == 0) {
+        last_tab = "search";
+        load_project_page(last_tab, last_project_id);
+      } 
+
+      return false;
   });
 
   // Load the correct project name when the page is loaded.

@@ -1,3 +1,11 @@
+._minicard:hover {
+  background: #f0f0ff;
+}
+
+._minicard:active {
+  background: #e0e0ee;
+}
+
 .structural {
     list-style-type: none;
 }
@@ -751,3 +759,37 @@ form.checkbox-list {
 ::-webkit-scrollbar-thumb {
     background-color: #999;
 }
+
+/** search form */
+#card_search form-control,
+#card_search form-control,
+#card_search div,
+#card_search div form-control {
+  float: left;
+}
+
+#card_search input,
+#card_search button,
+#card_search select,
+#card_search div input,
+#card_search div button {
+  margin-left: 10px;
+  max-width: 125px;
+}
+
+#card_search input,
+#card_search div input {
+  padding: 5px;
+}
+
+#card_search {
+  padding: 10px;
+  display: none;
+}
+
+#card_search .select2-container {
+  height: 34px; 
+  min-width: 150px; 
+  margin-top: 2px;
+}
+

@@ -34,14 +34,78 @@
   </a>
 </li>
 {% set clazz = "" %}
+
+{% if luser.last_tab == "search" %}
+    {% set clazz = "active" %}
+{% endif %}
+<li class="{{ clazz }} _tab" data-tab="search">
+  <a href="#">
+    <i class="glyphicon glyphicon-search"></i>
+     &nbsp;&nbsp;Search
+  </a>
+</li>
+
+{% if luser.last_tab == "archives" %}
+    {% set clazz = "active" %}
+{% endif %}
+<li class="{{ clazz }} _tab" data-tab="archives">
+  <a href="#">
+    <i class="glyphicon glyphicon-list"></i>
+     &nbsp;&nbsp;Archives
+  </a>
+</li>
+{% set clazz = "" %}
+
 {% endblock %}
 
 {% block subnav %}
 <div id="__subnav" class="clearfix">
     <div class="pull-left">
-        <h1>
-            <span id="__project_name"></span>
-        </h1>
+        <div class="pull-left">
+            <h1>
+                <span id="__project_name"></span>
+            </h1>
+        </div>
+        <div class="pull-right">
+          <form role="form" class="form" id="card_search" method="GET"
+                action="/project_id/{{ project._id }}/search">
+           
+            <div class="form-group _no_margin">
+              <select class=""  name="type" id="select_criteria">
+                <option value="full_text">Search Text</option>
+                <option value="tag">Tag</option>
+                <option value="creator">Creator</option>
+                <option value="date_range">Date Range</option>
+              </select>
+            </div>
+
+            <div class="_no_margin form-group">
+              <input class="form-control" type="text" name="q" id="q" 
+                     placeholder="Search..." />
+            </div>
+            <div class="_no_margin form-group">
+              <input disabled placeholder="Start Date" class="form-control
+              datepickers" type="text" name="start_date" id="start_date"/>
+            </div>
+
+            <div class="_no_margin form-group">
+              <input disabled placeholder="End Date" type="text" name="end_date"
+                     id="end_date" class="form-control datepickers" />
+            </div>
+
+            <div class="_no_margin form-group">
+              <button id="__search_btn" class="btn btn-primary">
+                <i class="glyphicon glyphicon-search"></i>
+              </button>
+            </div>
+
+            <div id="__clear_btn" class="_no_margin form-group">
+              <button value="clear" class="btn">
+                <i class="glyphicon glyphicon-remove"></i>
+              </button>
+            </div>
+          </form>
+        </div>
     </div>
     <div class="pull-right">
         <div class="form" role="form" id="__add_pile_form">

@@ -14,9 +14,6 @@
 <!-- modal for authorizing pile deletion -->
 {% include "modals/confirm_delete_pile.html" %}
 
-{% assets "boards_js" %}
-<script src="{{ ASSET_URL }}" type="text/javascript"></script>
-{% endassets %}
 
 <script type="text/javascript">
 var SOCKETIO_SERVER = "http://192.241.181.165:8080"
@@ -29,8 +26,7 @@ function calculate_pile_container_width() {
     var total = 0;
     var cnt = 0;
     $("._pile").each(function(i,elem) {
-      cnt++;
-      console.log(cnt);
+      cnt++; 
       total += px_to_int($(elem).css("width"));
       total += px_to_int($(elem).css("margin-left"));
       total += px_to_int($(elem).css("margin-right"));
@@ -76,112 +72,8 @@ function update_board_dimensions() {
   $("._pile").height(height);
 }
 
-function show_card(project_id, card) {
-  card.find(".modal-dialog").width(865);
-  var card_id = parseInt(card.data("id"), 10);
-
-  card.on("hidden.bs.modal", function() {
-    card.remove();
-    $("#__card_target").children().remove(); 
-  });
-
-  card.on("shown.bs.modal", function() {
-    // Set up title editor    
-    tinymce.init({
-      selector: "#__card_title.editable",
-      inline: true,
-      toolbar: false,
-      menubar: false,
-    });
-
-    tinymce.activeEditor.off("keydown");
-    
-    $("#__card_title").blur(function() {
-        var text = $(this).text().trim();
-        var url = "/project_id/"+project_id+"/card_id/"+card_id+"/text";
-        $.post(url, { text : text}, function(data) {
-          console.log(data);
-        });
-        $("._minicard[data-id=" + card_id + "]").find("._minicard_title").text(text);
-    });
-
-    // Bind a new keydown that filters out enter and instead
-    // fires the blur event.
-    tinymce.activeEditor.on("keydown", function(e) {
-      // detect when enter is pressed.
-      if (e.keyCode == 13 || e.keyCode == 10) {
-        // prevent the enter key from echoing.
-        e.preventDefault();
-        // fire the blur event to stop editing
-        $("#__card_title").blur();
-      }
-    });
-  });
-
-  // When the user clicks the editor, we don't want the text to be
-  // the color of the placeholder.
-  $("#__card_description").click(function() {
-      $(this).removeClass("_placeholder"); 
-      $("#__card_description_btn_save").show();
-  });
-
-  var occupy_description = function() {
-    var description = $("#__card_description"); 
-    var description_html = description.html().trim();
-
-    // This is the best we can do for now for displaying the empty message. We
-    // need to figure out a way to get tinymce to strip extraneous whitespace and
-    // linebreaks.
-    if (description.html().match("<p><br data-mce-bogus.*></p>") ||
-        description.html().trim() == "") {
-        description.html("");
-      // show the placeholder text.
-      description.addClass("_placeholder");   
-    } else {
-      // hide the placeholder text.
-      description.removeClass("_placeholder"); 
-    }
-  };
-  occupy_description();
-
-  // Save when the user clicks out, or when they click save.
-  $("#__card_description").blur(function(e) {
-    console.log(e.relatedTarget);
-    if (e.relatedTarget == null || $(e.relatedTarget).attr("id") == "__card_title" ||
-        $(e.relatedTarget).attr("id") == "__card_description_btn_save") {
-      $("#__card_description_btn_save").hide();
-      occupy_description();
-      var html = $("#__card_description").html();
-      console.log(html);
-      $.post("/project_id/"+project_id+"/card_id/"+card_id+"/description",
-             { description: html },
-             function(data) {
-        console.log(data);
-      });
-    }
-  });
-
-  $("#__card_description_save").click(function() {
-    $("#__card_description").blur();
-  });
-
-  tinymce.init({
-    selector: "#__card_description",
-    width: 570,
-    height: 400,
-    plugins:  [
-["advlist autolink link lists charmap preview hr anchor pagebreak spellchecker"],
-["searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime nonbreaking"],
-["table contextmenu directionality emoticons template paste"]
-    ],
-    statusbar: false,
-    menubar: false,
-    toolbar: "undo redo | styleselect | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | link ",
-    inline: true,
-  });
-
-  card.modal("show");
-}
+// I can't believe it's not butter!
+{% include "_card_logic.html" %}
 
 $(document).ready(function() { 
   var project_id = {{ project._id }};
@@ -255,15 +147,6 @@ $(document).ready(function() {
     }
   });
 
-  // Handle opening cards:
-  var _minicard_dblclick_handler = function() {
-    // Increase card width.
-    var card_id = $(this).data("id");
-    var url = "/project_id/" + project_id + "/card_id/" + card_id;
-    $("#__card_target").load(url, function() {
-      show_card(project_id, $(this).find(".modal"));
-    });
-  };
   $("._minicard").dblclick(_minicard_dblclick_handler);
 
   // Handle archival of cards:

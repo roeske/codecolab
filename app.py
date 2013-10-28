@@ -1216,11 +1216,6 @@ def cards_reorder():
     return respond_with_json(flask.request.json)
 
 
-@app.route("/p/<int:project_id>/archives", methods=["GET", "POST"])
-@check_project_privileges
-def archives(**kwargs):
-    return cc_render_template("archived_cards.html", **kwargs)
-
 
 # TODO: purge if possible
 @app.route("/p/<int:project_id>/minicards/<int:card_id>")
@@ -1397,19 +1392,31 @@ def boards(project=None, luser=None,  **kwargs):
         target_card_id=target_card_id, piles=piles, **kwargs)
 
 
-@app.route("/p/<int:project_id>/search_cards")
+@app.route("/project_id/<int:project_id>/archives")
+@check_project_privileges
+def archives(luser=None, project=None, **kwargs):
+    luser.last_tab = "archives"
+    db.session.commit()
+
+    cards = Card.query.filter_by(project_id=project._id).all()
+    return flask.render_template("search_results.html", 
+      luser=luser, project=project, cards=cards, **kwargs)
+
+
+@app.route("/project_id/<int:project_id>/search")
 @check_project_privileges
 def search_cards(luser=None, project=None, **kwargs):
+    luser.last_tab = "search"
+    db.session.commit()
+
     terms = request.args.get('q', '')
     search_type = request.args.get('type', '')
 
     q = models.Card.query.filter_by(project_id=project._id)
     total = q.count()
-    submit = request.args.get('submit', 'clear')
 
-    if submit != 'clear' and terms != '' and search_type is not \
-        'date_range':
-
+    if terms != '' and search_type is not 'date_range':
+          
         if search_type == 'full_text':
             q = q.filter('card.textsearchable_index_col @@ '
                      'plainto_tsquery(:terms)').params(terms=terms)
@@ -1425,8 +1432,7 @@ def search_cards(luser=None, project=None, **kwargs):
             q = (q.filter(func.lower(models.LuserProfile.username)==terms)
                   .filter(models.Card.luser_id==models.LuserProfile.luser_id))
 
-
-    elif search_type == 'date_range' and submit != 'clear':
+    elif search_type == 'date_range':
         start_date = request.args.get('start_date', None)
         end_date = request.args.get('end_date', None)
 
@@ -1442,14 +1448,8 @@ def search_cards(luser=None, project=None, **kwargs):
     q = q.order_by(models.Card.created.desc())
     cards = q.all()
 
-    obj = {}
-    for c in cards:
-        obj[c._id] = True
-    
-    obj['is_locked'] = total != q.count()
-    obj['is_cleared'] = request.args.get('submit', 'clear') == 'clear'
-
-    return respond_with_json(obj)
+    return flask.render_template("search_results.html", 
+      luser=luser, project=project, cards=cards, **kwargs)
 
 
 def calculate_timeframe(timeframe):
