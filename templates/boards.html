@@ -113,6 +113,28 @@ function cc_sort_into_numbers_array(elems) {
     return sorted_numbers;
 }
 
+function cards_reorder_update_dom() {
+    // Now, update the pile id of the card in the database, too.
+    var updates = {};
+
+    var sorted_numbers = cc_sort_into_numbers_array($("._minicard"));
+
+    // Re-iterate the existing children and write the numbers back
+    // in order, while pushing updates onto the updates array.
+    $("._minicard").each(function(i, elem) {
+        var number = sorted_numbers[i];
+        elem = $(elem);
+        elem.data("number", number);
+        
+        updates[elem.data("id")] = {
+            number: number,
+            pile_id: elem.data("pile-id")
+        };
+    });
+  
+    return updates;
+}
+
 function reorder_piles_update_dom() {
     var sorted_numbers = cc_sort_into_numbers_array($("._pile"));
     var updates = {};
@@ -208,10 +230,35 @@ $(document).ready(function() {
 
     },
 
-    stop: function(e, ui) {
 
+    receive: function(event, ui) {
+      console.log("receive");
+
+      // Update the pile id of the card, because we just
+      // dropped it into a pile.
+      $(ui.item).data("pile-id", $(this).closest("._pile").data("id"));
+
+      // Update the values in the DOM to reflect the current
+      // state of the cards.
+      var updates = cards_reorder_update_dom();
+      
+      // Post those updates back to the server.
+      post_reorder(socket, project_id, "cards", updates);
+    },
+
+
+    stop: function(event, ui) {
+      console.log("stop");
+     
+      // Update the values in the DOM to reflect the current
+      // state of the cards.
+      var updates = cards_reorder_update_dom();
+      
+      // Post those updates back to the server.
+      post_reorder(socket, project_id, "cards", updates);
     }
   };
+
   $("._cards_wrapper").sortable(_handle_sort_cards);
 
   // Ensure that TinyMCE is not blocked by bootstrap's modal.

@@ -1204,8 +1204,10 @@ def cards_reorder():
     the new sort order of the card-list in the database. Also repositions
     cards in appropriate piles.
     """
+    
 
     updates = flask.request.json["updates"]
+    print "%r" % updates
     for _id in updates.keys():
         number = int(updates[_id]["number"])
         pile_id = int(updates[_id]["pile_id"])
