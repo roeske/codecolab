@@ -12,19 +12,21 @@
 <div class="container _content">
   <div class="row _flexrow">
     <div id="__project_navbar" class="bs-docs-sidebar">
+
+
         <ul class="nav nav-pills nav-stacked affix-top" id="__project_sidenav">
-        {% for p in projects %} {% if p._id == luser.last_project_id %}
-            {% set active = "active" %}
-          {% endif %}
-          <li class="_project_nav_link {{ active }}">
-          {% set active = "" %}
-            <a data-id="{{ p._id }}" class="active">
-              {{ p.name }}
-              <div class="clearfix"></div>
-            </a>
-          </li>
+        <li>
+
+        <div style="padding: 10px;" class="clearfix form" role="form">
+          <input style="margin-bottom: 10px;" type="text" class="form-control" id="__project_name_input" placeholder="Name..."></input>
+          <button class="btn pull-right btn-sm btn-primary" id="__add_new_project">Add Project</button>
+        </div>
+        </li>
+        {% for p in projects %} 
+          {% include "project_item.html" %}        
         {% endfor %}
         </ul>
+
         <div class="_toggle_side" id="__toggle_project_selection">
             <div>
               <i class="glyphicon glyphicon-chevron-right"></i>
@@ -94,6 +96,7 @@ function calculate_max_height() {
 function update_selection_dimensions() {
   $("#__project_navbar").css("min-height", calculate_max_height());
   $("#__project_navbar").css("max-height", calculate_max_height());
+  $("#__project_sidenav").css("max-height", calculate_max_height());
   $("#__activity").css('max-height', calculate_max_height());
 
   $("#__toggle_project_selection > div").css("margin-top", $("#__toggle_project_selection").height() / 2 - 14);
@@ -122,7 +125,7 @@ $(document).ready(function() {
 
   // handle switching projects
   //----------------------------------------------------------------------
-  $("._project_nav_link").click(function() {
+  var _nav_link_switcher = function() {
     var link = $(this).find("a");
     $("#__project_name").text(link.text());
     var project_id = link.data("id");
@@ -136,7 +139,8 @@ $(document).ready(function() {
     }
 
     return false;
-  });
+  };
+  $("._project_nav_link").click(_nav_link_switcher);
 
   if (last_tab != "boards") {
     $("#__activity_container").hide();
@@ -246,6 +250,25 @@ $(document).ready(function() {
 
   // Load project content for correct tab when the page is loaded.
   load_project_page(last_tab, last_project_id);
+
+  var _post_new_project = function(name) {
+    $.post("/project/add", { name : name }, function(html) {
+        $(html).insertAfter("#__project_sidenav li:first");
+        $("._project_nav_link").unbind("click");
+        $("._project_nav_link").click(_nav_link_switcher);
+        $("#__project_sidenav li:first a").click();
+    });
+  };
+
+  $("#__project_name_input").keydown(function(ev) {
+    if (ev.keyCode == 13) {
+      _post_new_project($(this).val());
+    }
+  });
+
+  $("#__add_new_project").click(function() {
+    _post_new_project($("#__project_name_input").val());
+  });
 });
 
 </script>

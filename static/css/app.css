@@ -1,3 +1,8 @@
+#__project_sidenav {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
 ._minicard:hover {
   background: #f0f0ff;
 }

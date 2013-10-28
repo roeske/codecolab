@@ -362,30 +362,7 @@ def signup_via_google(userinfo):
 ###############################################################################
 # Add Project
 ###############################################################################
-
-
-@app.route("/project/add", methods=["POST"])
-def project_add():
-    form = flask.request.form
-    logged_in = is_logged_in()
-
-    if "project_name" in form and logged_in:
-        email = flask.session["email"]
-        project_name = form["project_name"]
-        return perform_project_add(email, project_name)
-
-    elif not logged_in:
-        flask.abort(403)
-
-    else:
-        flask.abort(400)
-
-
-def perform_project_add(email, project_name):
-    luser = get_luser_for_email(email)
-    if luser is None:
-        flask.abort(404)
-
+def perform_project_add(luser, project_name):
     project_name = project_name.strip()
     if len(project_name) == 0:
         return redirect_to_index()
@@ -404,9 +381,9 @@ def perform_project_add(email, project_name):
 
     models.db.session.add(project_luser)
     models.db.session.commit()
+    return project
 
-    # Return to the project selection (Which is currently the index.)
-    return redirect_to_index()
+
 
 
 def get_luser_or_404(email):
@@ -416,8 +393,6 @@ def get_luser_or_404(email):
         flask.abort(404)
 
     return luser
-
-
 
 
 def add_to_project(callback):
@@ -578,6 +553,15 @@ def check_owner_privileges(func):
         is_owner_or_403(kwargs["luser"], kwargs["project"])
         return func(**kwargs)
     return wrap
+
+
+@app.route("/project/add", methods=["POST"])
+@check_luser_privileges
+def project_add(luser=None, **kwargs):
+    form = flask.request.form
+    project = perform_project_add(luser, form.get("name", "untitled"))
+    return flask.render_template("project_item.html", p=project, luser=luser)
+
 
 ###############################################################################
 ## Github Integration
