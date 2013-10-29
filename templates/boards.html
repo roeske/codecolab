@@ -160,6 +160,7 @@ function reorder_piles_update_dom() {
 $(document).ready(function() { 
 
   var project_id = {{ project._id }};
+  console.log("project_id=" + project_id);
 
   // Do nothing when clicking activity usernames temporarily
   $(".activity_username").click(function() {
