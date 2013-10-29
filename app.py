@@ -1430,7 +1430,7 @@ def search_cards(luser=None, project=None, **kwargs):
             q = q.filter(models.Card.created >= start_date)
 
         if end_date is not None and end_date.strip() != '':
-            end_date = date_parser.parse(end_date)
+            end_date = date_parser.parse(end_date) + timedelta(days=1)
             q = q.filter(models.Card.created <= end_date)
 
 
