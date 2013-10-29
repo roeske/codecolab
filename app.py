@@ -1386,7 +1386,9 @@ def archives(luser=None, project=None, **kwargs):
     db.session.commit()
 
     cards = Card.query.filter_by(project_id=project._id) \
-                      .filter_by(is_archived=True).all()
+                      .filter(Card.archived_at!=None) \
+                      .filter_by(is_archived=True) \
+                      .order_by(Card.archived_at.desc()).all()
 
     return flask.render_template("search_results.html", 
       luser=luser, project=project, cards=cards, **kwargs)
