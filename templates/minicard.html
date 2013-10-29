@@ -7,7 +7,7 @@
       <p class="_card_created">
         {{ card.created_as_timezone(luser.profile.timezone) }}
       </p> 
-    </div>
+    </div>A
     <div class="col-md-1">
       <div class="dropdown _minicard_menu">
         <i class="glyphicon glyphicon-list" class="dropdown-toggle" data-toggle="dropdown"></i> 
@@ -19,6 +19,13 @@
     </div>
   </div>
 
+  {% if card.is_archived %}
+  <div class="row">
+    <div class="col-md-12">
+      <span style="color: red;">{{ card.archived_at }}</span> 
+    </div>
+  </div>
+  {% endif %}
   <div class="row">
     <div class="col-md-12">
       <p class="{% if card.is_completed %}_strike{% endif %} _minicard_title">{% autoescape off %}{{ card.text }}{% endautoescape %}</p>
