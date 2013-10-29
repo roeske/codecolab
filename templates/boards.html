@@ -429,6 +429,7 @@ $(document).ready(function() {
     }
   };
 
+  $("#__add_pile_input").unbind("keydown");
   $("#__add_pile_input").keydown(function(ev) {
     if (ev.keyCode == 13) {
       var name = $(this).val().trim();
@@ -439,6 +440,7 @@ $(document).ready(function() {
     return true;
   });
 
+  $("#__btn_add_pile").unbind("click");
   $("#__btn_add_pile").click(function() {
     var name = $("#__add_pile_input").val().trim();
     _post_if_not_empty(name);
