@@ -412,6 +412,7 @@ $(document).ready(function() {
 
   var _post_add_pile = function(name) {
     var url = "/project_id/{{ project._id }}/pile";
+    console.log("url="+url);
     var data = { name: name };
     $.post(url, data, _handle_add_pile);
     $("#__add_pile_input").val("");
