@@ -644,6 +644,13 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
 
 
     @property
+    def archived_at_human(self): 
+        if self.archived_at == None:
+            return ""
+        else:
+            return self.archived_at.strftime("%d, %Y at %I:%M %p")
+
+    @property
     def due_time(self):
         if self.due_datetime is not None:
             return self.due_datetime.strftime("%I:%M%p").replace("AM", "am") \
