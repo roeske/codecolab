@@ -648,7 +648,7 @@ class Card(db.Model, DictSerializable, FluxCapacitor):
         if self.archived_at == None:
             return ""
         else:
-            return self.archived_at.strftime("%d, %Y at %I:%M %p")
+            return self.archived_at.strftime("%b. %d, %Y at %I:%M %p")
 
     @property
     def due_time(self):
