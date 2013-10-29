@@ -21,5 +21,9 @@ $(document).ready(function() {
 
   // not used on search pages
   $("._minicard_menu").hide();
+
+  // truncate card titles to avoid weirdly laid out search
+  // results or archives
+  $("._minicard_title").css('white-space', 'nowrap').css('overflow', 'hidden').css('text-overflow', 'ellipsize').css('width', '300px');
 });
 </script>
