@@ -2,6 +2,7 @@ from context import app
 from sqlalchemy import func
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.schema import UniqueConstraint
+from sqlalchemy.ext.hybrid import hybrid_property
 from flask.ext.sqlalchemy import SQLAlchemy
 
 from datetime import datetime, timedelta, time
@@ -125,6 +126,7 @@ class Luser(db.Model, DictSerializable):
     has_github_token = db.Column(db.Boolean, default=False)
     github_token = db.Column(db.String, default=None)
 
+
     projects = db.relationship("Project", secondary=ProjectLuser.__table__)
     profile = db.relationship("LuserProfile", uselist=False)
     activity = db.relationship("Activity")
@@ -135,6 +137,12 @@ class Luser(db.Model, DictSerializable):
                                                 uselist=False)
     schedules = db.relationship("MemberSchedule")
     card_assignments = db.relationship("CardAssignments")
+
+
+    @hybrid_property
+    def first_project(self):
+        for p in self.projects:
+            return p
 
 
     def get_checked_notifications(self):

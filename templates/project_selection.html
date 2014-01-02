@@ -68,7 +68,7 @@ background-image:url('/assets/loading.gif'); background-position: center center;
 <script type="text/javascript">
 // <jinja2>
 {% if luser.last_project_id == None %}
-  var last_project_id = null;
+  var last_project_id = {{ luser.first_project._id }};
 {% else %}
   var last_project_id = {{ luser.last_project_id }};
 {% endif %}
