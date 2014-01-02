@@ -67,15 +67,13 @@ $(document).ready(function() {
   $("#add_member_form").ajaxForm(function(data) {
     if (data.type == "error") {
       alert(data.error);
+      return;
     } else if (data.type == "member") {
       $("#member_table tr:first-child").after(data.html);
-      $("#message").text(data.message);
-      console.log(data.message);
     } else if (data.type == "invite") {
       $("#invite_table tr:first-child").after(data.html);
-      $("#message").text(data.message);
-      console.log(data.message);
-    }
+    } 
+    $("#message").text(data.message);
   });
 });
 </script>

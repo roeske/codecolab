@@ -1600,31 +1600,41 @@ def project_add_member(project=None, luser=None, **kwargs):
             models.db.session.add(beta)
             models.db.session.commit()
             
+            try:
+                invitee = models.Luser.query.filter_by(email=email).first()
+                is_registered = invitee is not None 
+                email_notify.project_invite(project, email, is_registered=is_registered)
+            except:
+                return respond_with_json({ 
+                    "status" : "failure", 
+                    "type" : "error",
+                    "error" : "Failed to send email. Is %s added to amazon SES?" % email
+                })
+
             return respond_with_json({
                 "status" : "success", 
                 "type" : "invite",
                 "html" :  flask.render_template("invite_partial.html", invite=invite),
                 "message": "Invited %s to the project." % email
             })
+
         else: 
 
+            try:
+                invitee = models.Luser.query.filter_by(email=email).first()
+                is_registered = invitee is not None 
+                email_notify.project_invite(project, email, is_registered=is_registered)
+            except:
+                return respond_with_json({ 
+                    "status" : "failure", 
+                    "type" : "error",
+                    "error" : "Failed to send email. Is %s added to amazon SES?" % email
+                })
+
             return respond_with_json({
-                "status" : "failure", 
-                "type" : "error",
-                "error" : "%s was already invited to this project. Re-sending email." % email
-            })
-        
-        try:
-            invitee = models.Luser.query.filter_by(email=email).first()
-            is_registered = invitee is not None 
-            email_notify.project_invite(project, email, is_registered=is_registered)
-
-        except:
-
-            return respond_with_json({ 
-                "status" : "failure", 
-                "type" : "error",
-                "error" : "Failed to send email. Is %s added to amazon SES?" % email
+                "status" : "success", 
+                "type" : "already_invited",
+                "message" : "%s was already invited to this project. Re-sending email." % email
             })
 
     # The user is signed up already, check if hes a project member. If not,
