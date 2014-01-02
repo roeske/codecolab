@@ -1,79 +1,89 @@
 <br />
-<div class="container">
-  <div class="row">
+{% if is_owner %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12" style="margin-bottom: 15px;">
+          <div style="margin: 0 auto; max-width: 500px; border: 2px dashed #ccc; border-radius: 5px; padding: 15px;">
+            <p>To add a new member, please enter an email in the form. If your colleague is not yet in our system, he will
+            receive an email notification and be added to your project upon signing up for a new account. Otherwise, he will
+            receive an invitation to the project.</p>
 
-    <div class="col-md-12" style="margin-bottom: 15px;">
-        <div style="margin: 0 auto; max-width: 500px; border: 2px dashed #ccc; border-radius: 5px; padding: 15px;">
-          <p>To add a new member, please enter an email in the form. If your colleague is not yet in our system, he will
-          receive an email notification and be added to your project upon signing up for a new account. Otherwise, he will
-          receive an invitation to the project.</p>
-
-          <form id="add_member_form" role="form" class="form" action="/project_id/{{ project._id }}/add_member" method="POST">
-            <div class="form-group">
-              <input class="form-control" type="email" placeholder="email..." name="email" />
-            </div>
-            <div class="form-group clearfix">
-              <input class="btn btn-primary pull-right" type="submit" value="Add Via Email" />
-            </div>
-        </form>
+            <form id="add_member_form" role="form" class="form" action="/project_id/{{ project._id }}/add_member" method="POST">
+              <div class="form-group">
+                <input class="form-control" type="email" placeholder="email..." name="email" />
+              </div>
+              <div class="form-group clearfix">
+                <input class="btn btn-primary pull-right" type="submit" value="Add Via Email" />
+              </div>
+          </form>
+        </div>
+          
+          <p style="margin-top: 15px;" id="message" class="text-success lead"></p>
       </div>
-        
-        <p style="margin-top: 15px;" id="message" class="text-success lead"></p>
-    </div>
 
-    <div class="col-md-6">
-      <h4>Members</h4>
-      <br />
-        <table class="table table-striped" id="member_table">
+      <div class="col-md-6">
+        <h4>Members</h4>
+        <br />
+          <table class="table table-striped" id="member_table">
+            <tr>
+              <th>Email</th>
+              <th>Username</th>
+            </tr>
+        {% if project.lusers|count > 0 %}
+            {% for member in project.lusers %}
+              {% include "member_partial.html" %}
+            {% endfor %}
+        </table>
+        {% else %}
+        </table>
+          <p>No members yet.</p>
+        {% endif %}
+      </div>
+    
+
+      <div class="col-md-6">
+        <h4>Invites</h4>
+        <br />
+          <table class="table table-striped" id="invite_table">
           <tr>
             <th>Email</th>
-            <th>Username</th>
+            <th>Status</th>
+            <th>Invited By</th>
           </tr>
-      {% if project.lusers|count > 0 %}
-          {% for member in project.lusers %}
-            {% include "member_partial.html" %}
+        {% if invites|count > 0 %}
+          {% for invite in invites %}
+            {% include "invite_partial.html" %}
           {% endfor %}
-      </table>
-      {% else %}
-      </table>
-        <p>No members yet.</p>
-      {% endif %}
+          </table>
+        {% else %}
+          </table>
+          <p> You have not invited anyone to this project. </p>
+        {% endif %}
+      </div>
     </div>
-  
-
-    <div class="col-md-6">
-      <h4>Invites</h4>
-      <br />
-        <table class="table table-striped" id="invite_table">
-        <tr>
-          <th>Email</th>
-          <th>Status</th>
-          <th>Invited By</th>
-        </tr>
-      {% if invites|count > 0 %}
-        {% for invite in invites %}
-          {% include "invite_partial.html" %}
-        {% endfor %}
-        </table>
-      {% else %}
-        </table>
-        <p> You have not invited anyone to this project. </p>
-      {% endif %}
+  </div>
+  <script type="text/javascript">
+  $(document).ready(function() {
+    $("#add_member_form").ajaxForm(function(data) {
+      if (data.type == "error") {
+        alert(data.error);
+        return;
+      } else if (data.type == "member") {
+        $("#member_table tr:first-child").after(data.html);
+      } else if (data.type == "invite") {
+        $("#invite_table tr:first-child").after(data.html);
+      } 
+      $("#message").text(data.message);
+    });
+  });
+  </script>
+{% else %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-12" style="margin-bottom: 15px;">
+      <h1>You do not have owner permissions for this project.</h1>
+      <p>Only project owners may invite new project members.</p>
     </div>
   </div>
 </div>
-<script type="text/javascript">
-$(document).ready(function() {
-  $("#add_member_form").ajaxForm(function(data) {
-    if (data.type == "error") {
-      alert(data.error);
-      return;
-    } else if (data.type == "member") {
-      $("#member_table tr:first-child").after(data.html);
-    } else if (data.type == "invite") {
-      $("#invite_table tr:first-child").after(data.html);
-    } 
-    $("#message").text(data.message);
-  });
-});
-</script>
+{% endif %}

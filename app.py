@@ -526,16 +526,19 @@ def check_luser_privileges(func):
     return wrap
 
 
-def is_owner_or_403(luser, project):
-    """
-    Throws error 403 if 'luser' is not an owner of 'project'
-    """
+def is_owner(luser, project):
     is_owner = (models.db.session.query(models.ProjectLuser)
                       .filter(models.ProjectLuser.luser_id==luser._id)
                       .filter(models.ProjectLuser.project_id==project._id)
                       .filter(models.ProjectLuser.is_owner==True).first())
+    return is_owner != None
 
-    if is_owner == None:
+
+def is_owner_or_403(luser, project):
+    """
+    Throws error 403 if 'luser' is not an owner of 'project'
+    """
+    if not is_owner(luser, project):
         flask.abort(403)
         
 
@@ -756,7 +759,7 @@ def project_progress(luser=None, project=None, **kwargs):
 ###############################################################################
 
 @app.route("/project_id/<int:project_id>/members")
-@check_owner_privileges
+@check_project_privileges
 def members(luser=None, project=None, **kwargs):
     luser.last_tab = "members"
     db.session.commit()
@@ -765,8 +768,9 @@ def members(luser=None, project=None, **kwargs):
     invites = (models.ProjectInvite.query.filter_by(project_id=project._id)
                      .all())
 
-    return cc_render_template("invites.html", members=members, 
-                              invites=invites, project=project, **kwargs)
+    return cc_render_template("invites.html", members=members,
+        is_owner=is_owner(luser, project),
+        invites=invites, project=project, **kwargs)
 
 
 @app.route("/p/<int:project_id>/members/<int:member_id>/remove")

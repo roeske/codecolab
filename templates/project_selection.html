@@ -67,7 +67,11 @@ background-image:url('/assets/loading.gif'); background-position: center center;
 <script src="//tinymce.cachefly.net/4.0/tinymce.min.js"></script>
 <script type="text/javascript">
 // <jinja2>
-var last_project_id = {{ luser.last_project_id }};
+{% if luser.last_project_id == None %}
+  var last_project_id = null;
+{% else %}
+  var last_project_id = {{ luser.last_project_id }};
+{% endif %}
 var last_tab = "{{ luser.last_tab }}";
 // </jinja2>
 
