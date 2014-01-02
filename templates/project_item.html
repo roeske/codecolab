@@ -1,4 +1,4 @@
-{% if p._id == luser.last_project_id or p._id == luser.first_project._id %}
+{% if p._id == luser.best_last_project_id %}
   {% set active = "active" %}
 {% endif %}
 <li class="_project_nav_link {{ active }}">

@@ -140,9 +140,12 @@ class Luser(db.Model, DictSerializable):
 
 
     @hybrid_property
-    def first_project(self):
-        for p in self.projects:
-            return p
+    def best_last_project_id(self):
+        if self.last_project_id == None:
+            for p in self.projects:
+                return p._id
+        else:
+            return self.last_project_id
 
 
     def get_checked_notifications(self):
