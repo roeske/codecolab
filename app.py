@@ -54,7 +54,7 @@ app.jinja_env.globals.update(make_card_links=globals.make_card_links)
 app.jinja_env.add_extension("jinja2.ext.loopcontrols")
 app.jinja_env.add_extension("jinja2.ext.do")
 
-app.debug = False if os.getenv("CODECOLAB_DEBUG", False) == False else True
+app.debug = True#False if os.getenv("CODECOLAB_DEBUG", False) == False else True
 
 PORT = 8080
 
@@ -755,9 +755,12 @@ def project_progress(luser=None, project=None, **kwargs):
 ## Invites
 ###############################################################################
 
-@app.route("/p/<int:project_id>/members")
+@app.route("/project_id/<int:project_id>/members")
 @check_owner_privileges
-def members(project=None, **kwargs):
+def members(luser=None, project=None, **kwargs):
+    luser.last_tab = "members"
+    db.session.commit()
+
     # We also need to display project invites
     invites = (models.ProjectInvite.query.filter_by(project_id=project._id)
                      .all())
@@ -1566,7 +1569,7 @@ def toggle_owner_permission(project_name=None, luser_id=None, project=None,
                               "luser_id" : luser_id })
 
 
-@app.route("/p/<int:project_id>/add_member", methods=["POST"])
+@app.route("/project_id/<int:project_id>/add_member", methods=["POST"])
 @check_owner_privileges
 def project_add_member(project=None, luser=None, **kwargs):
     """
@@ -1597,18 +1600,32 @@ def project_add_member(project=None, luser=None, **kwargs):
             models.db.session.add(beta)
             models.db.session.commit()
             
-            flask.flash("Invited %s to the project." % email)
+            return respond_with_json({
+                "status" : "success", 
+                "type" : "invite",
+                "html" :  flask.render_template("invite_partial.html", invite=invite),
+                "message": "Invited %s to the project." % email
+            })
         else: 
-            flask.flash("%s was already invited to this project. Re-sending "
-                        " email." % email)
+
+            return respond_with_json({
+                "status" : "failure", 
+                "type" : "error",
+                "error" : "%s was already invited to this project. Re-sending email." % email
+            })
         
         try:
             invitee = models.Luser.query.filter_by(email=email).first()
             is_registered = invitee is not None 
-            email_notify.project_invite(project, email,
-                                        is_registered=is_registered)
+            email_notify.project_invite(project, email, is_registered=is_registered)
+
         except:
-            flask.flash("Failed to send email. Is %s added to amazon SES?" % email)
+
+            return respond_with_json({ 
+                "status" : "failure", 
+                "type" : "error",
+                "error" : "Failed to send email. Is %s added to amazon SES?" % email
+            })
 
     # The user is signed up already, check if hes a project member. If not,
     # add him.
@@ -1617,7 +1634,7 @@ def project_add_member(project=None, luser=None, **kwargs):
                           .filter(models.ProjectLuser.project_id==project._id)
                           .filter(models.ProjectLuser.luser_id==models.Luser._id)
                           .filter(models.Luser.email==email).first())
-
+        member = existing
         if existing is None:
             new_member = models.Luser.query.filter_by(email=email).first()
 
@@ -1627,11 +1644,21 @@ def project_add_member(project=None, luser=None, **kwargs):
 
             models.db.session.add(member)
             models.db.session.commit()
-            flask.flash("Added %s to the project." % email)
+
+            return respond_with_json({
+                "status" : "success", 
+                "type" : "member",
+                "html" :  flask.render_template("member_partial.html", member=member.luser),
+                "message": "Added %s to the project." % email
+            })
+
         else:
-            flask.flash("%s is already a member of this project." % email)
-        
-    return flask.redirect("/p/%s/members" % project.name)
+
+            return respond_with_json({
+                "status" : "failure", 
+                "type" : "error",
+                "error" : "%s is already a member of this project." % email 
+            })
 
 
 @app.route("/p/<int:project_id>/reports/<int:report_id>")

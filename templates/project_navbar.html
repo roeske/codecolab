@@ -56,6 +56,18 @@
 </li>
 {% set clazz = "" %}
 
+
+{% if luser.last_tab == "members" %}
+    {% set clazz = "active" %}
+{% endif %}
+<li class="{{ clazz }} _tab" data-tab="members">
+  <a href="#">
+    <i class="glyphicon glyphicon-user"></i>
+     &nbsp;&nbsp;Members
+  </a>
+</li>
+{% set clazz = "" %}
+
 {% endblock %}
 
 {% block subnav %}
